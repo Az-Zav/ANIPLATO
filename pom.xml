@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.aniplato</groupId>
+  <artifactId>aniplato</artifactId>
+  <version>0.1.0</version>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <javafx.version>21.0.2</javafx.version>
+  </properties>
+
+  <dependencies>
+    <dependency><groupId>org.openjfx</groupId><artifactId>javafx-controls</artifactId><version>${javafx.version}</version></dependency>
+    <dependency><groupId>org.openjfx</groupId><artifactId>javafx-fxml</artifactId><version>${javafx.version}</version></dependency>
+    <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><version>8.3.0</version></dependency>
+    <dependency><groupId>org.mindrot</groupId><artifactId>jbcrypt</artifactId><version>0.4</version></dependency>
+    <dependency><groupId>com.sun.mail</groupId><artifactId>jakarta.mail</artifactId><version>2.0.1</version></dependency>
+    <dependency><groupId>org.apache.pdfbox</groupId><artifactId>pdfbox</artifactId><version>3.0.2</version></dependency>
+  </dependencies>
+
+  <build>
+    <!-- FXML and CSS live next to the Java files (view/), so copy them to the build output.
+         Without this, screens fail with "Location is not set". -->
+    <resources>
+      <resource><directory>src/main/resources</directory></resource>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes><include>**/*.fxml</include><include>**/*.css</include></includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration><mainClass>com.aniplato.Main</mainClass></configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

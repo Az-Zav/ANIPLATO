@@ -1,0 +1,7 @@
+target/
+.idea/
+*.iml
+.vscode/
+uploads/*
+!uploads/.gitkeep
+src/main/resources/db.properties
