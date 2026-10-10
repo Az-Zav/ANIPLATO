@@ -16,7 +16,7 @@
 
 <VBox fx:id="rootContainer" prefHeight="720.0" prefWidth="1280.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.AdminDashboardController">
     <stylesheets>
-        <URL value="@../shared/aniplato.css" />
+        <URL value="@../aniplato.css" />
     </stylesheets>
     <children>
 
