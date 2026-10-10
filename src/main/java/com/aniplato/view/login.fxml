@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.LoginController">
+<HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.LoginController">
     <stylesheets>
         <URL value="@aniplato.css" />
     </stylesheets>
@@ -47,7 +47,7 @@
                 <!-- HERO ILLUSTRATION -->
                 <StackPane alignment="CENTER">
                     <children>
-                        <ImageView fitHeight="340.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fx:id="heroIllustration" fitHeight="340.0" fitWidth="400.0" scaleX="1.915" scaleY="1.915" translateX="-11.0" translateY="64.0" pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image url="@/assets/login_hero.png" />
                             </image>
@@ -60,12 +60,12 @@
         </VBox>
 
         <!-- RIGHT SECTION: Rounded White Form Card -->
-        <VBox alignment="CENTER" prefWidth="520.0" styleClass="right-panel" HBox.hgrow="ALWAYS">
+        <VBox fx:id="rightPanel" alignment="CENTER" prefWidth="520.0" styleClass="right-panel" HBox.hgrow="ALWAYS">
             <padding>
                 <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
             </padding>
             <children>
-                <VBox maxWidth="360.0" spacing="24.0">
+                <VBox fx:id="loginForm" maxWidth="360.0" spacing="24.0">
                     <children>
 
                         <!-- Header with Logo -->
