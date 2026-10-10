@@ -1,3 +1,138 @@
-.screen {
-    -fx-padding: 16;
+/* Global Reset & Base Styles */
+.root {
+    -fx-font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* Green Left Panel Background */
+.left-panel {
+    -fx-background-color: #03521E;
+}
+
+/* Right Form Panel Background */
+.right-panel {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 40px 0px 0px 40px;
+}
+
+/* Form Input Fields */
+.text-field, .password-field {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #333333;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #03521E;
+    -fx-border-width: 1.5px;
+}
+
+/* Primary Green Button */
+.primary-button {
+    -fx-background-color: #03521E;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.primary-button:hover {
+    -fx-background-color: #023E16;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #012B0F;
+}
+
+/* Hyperlinks */
+.hyperlink {
+    -fx-text-fill: #03521E;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+/* Register Page Outer Background */
+.register-bg {
+    -fx-background-color: #F4F6F8;
+}
+
+/* Header Bar */
+.top-header {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Card Container */
+.card-container {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 16px;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 12, 0, 0, 4);
+}
+
+/* Official Registration Badge */
+.official-badge {
+    -fx-background-color: #E6F4EA;
+    -fx-background-radius: 20px;
+    -fx-padding: 3px 10px;
+}
+
+/* ComboBox Styling */
+.combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 4px 8px;
+}
+
+.combo-box:focused {
+    -fx-border-color: #03521E;
+    -fx-border-width: 1.5px;
+}
+
+/* Notice Box */
+.notice-box {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #BBF7D0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+/* Outline Secondary Button */
+.secondary-button {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 16px;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #F9FAFB;
+}
+
+/* Form Labels - Bold & Dark */
+.form-label {
+    -fx-font-family: 'Segoe UI', System, sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #1F2937;
 }
