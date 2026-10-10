@@ -302,3 +302,43 @@
     -fx-background-radius: 10px;
     -fx-padding: 1px 5px;
 }
+
+/* Card Container Shadow & Radius */
+.card-container {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20px;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 16, 0, 0, 4);
+}
+
+/* Registering as Segment Toggle */
+.segment-toggle-container {
+    -fx-background-color: #F3F4F6;
+    -fx-background-radius: 10px;
+    -fx-padding: 3px;
+}
+
+.segment-btn-active {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #111827;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 4, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.segment-btn-inactive {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 13px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+}
+
+.segment-btn-inactive:hover {
+    -fx-text-fill: #111827;
+}
