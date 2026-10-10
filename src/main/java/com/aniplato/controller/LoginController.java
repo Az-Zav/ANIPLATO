@@ -1,34 +1,22 @@
 package com.aniplato.controller;
 
-import javafx.event.ActionEvent;
+import com.aniplato.util.Navigator;
+import com.aniplato.util.Navigator.Screen;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class LoginController {
 
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
 
+    // PATTERN:ACTION placeholder: navigates only
     @FXML
     private void handleLogin() {
-        System.out.println("Log in clicked for: " + emailField.getText());
-    }
-
-    @FXML
-    private void handleGoToRegister(ActionEvent event) {
-        try {
-            Parent registerRoot = FXMLLoader.load(getClass().getResource("/com/aniplato/view/register.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(registerRoot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // TODO(service): authenticationService.login(emailField.getText(), passwordField.getText())
+        // TODO(service): temporary password -> change-password dialog before anything else (R1.7)
+        // TODO(service): pick the dashboard by the account's role
+        Navigator.show(Screen.ADMIN_DASHBOARD);
     }
 }

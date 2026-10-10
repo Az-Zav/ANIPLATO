@@ -119,6 +119,7 @@
                         </VBox>
 
                         <!-- Log In Button -->
+                        <!-- PATTERN:ACTION handleLogin -->
                         <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" onAction="#handleLogin" styleClass="primary-button" text="➔  Log In" />
 
                         <!-- Register Link -->
@@ -129,7 +130,8 @@
                                         <Font size="12.0" />
                                     </font>
                                 </Label>
-                                <Hyperlink fx:id="registerLink" onAction="#handleGoToRegister" styleClass="hyperlink" text="Register">
+                                <!-- PATTERN:NAV -> REGISTER -->
+                                <Hyperlink fx:id="registerLink" styleClass="hyperlink, nav-register" text="Register">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>

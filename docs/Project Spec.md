@@ -331,6 +331,8 @@ aniplato/
     │   │   ├── shell.fxml
     │   │   ├── login.fxml
     │   │   ├── register.fxml
+    │   │   ├── register-step2.fxml
+    │   │   ├── register-submitted.fxml
     │   │   ├── profile.fxml
     │   │   ├── admin/
     │   │   │   ├── dashboard.fxml
@@ -357,7 +359,9 @@ aniplato/
     │   ├── controller/                       (thin: one per screen)
     │   │   ├── ShellController               (sidebar, header, logout, assistant, banners)
     │   │   ├── LoginController
-    │   │   ├── RegisterController            (all 4 register frames)
+    │   │   ├── RegisterController            (step 1: organization)
+    │   │   ├── RegisterStep2Controller       (step 2: documents and consent)
+    │   │   ├── RegisterSubmittedController   (submitted confirmation)
     │   │   ├── ProfileController             (also: renewal upload dialog)
     │   │   ├── admin/
     │   │   │   ├── AdminDashboardController
@@ -410,7 +414,7 @@ aniplato/
     │       ├── PasswordHasher                (BCrypt)
     │       ├── Settings                      (2h grace, 30-day warning, 5 photos)
     │       ├── Session                       (who is logged in)
-    │       └── Navigator                     (switches screens; only place that knows view paths)
+    │       └── Navigator                     (switches screens; only place that knows view paths; see docs/FXML-GUIDE.md)
     │
     └── resources/
         ├── db.properties                     (git-ignored)

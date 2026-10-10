@@ -24,6 +24,7 @@ Surplus-food board for Metro Manila (donors post, food groups offer, admin verif
 ## Conventions
 - Match the existing package layout in README.md; one controller per FXML screen, FXML/CSS live in `src/main/java/.../view/` (the pom copies them to the build output).
 - Only `Navigator` knows view paths. Only `Database` opens connections.
+- Navigation-only buttons use a `nav-<screen>` style class (no handler); buttons that do logic use `onAction` and call `Navigator.show`. Wiring points are tagged `PATTERN:NAV|ACTION|DYNAMIC|LIST`; unfinished logic is `TODO(service)`. See `docs/FXML-GUIDE.md`.
 - Settings values live in `util/Settings`, not scattered literals.
 - Schema change = update `sql/schema.sql`, the spec's 7.6 data model, and the ER diagram together.
 

@@ -1,62 +1,43 @@
 package com.aniplato.controller;
 
+import com.aniplato.util.Navigator;
+import com.aniplato.util.Navigator.Screen;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
+/** Header, sidebar and content area shared by every logged-in screen. */
 public class ShellController {
 
+    private static final String ACTIVE = "sidebar-button-active";
+
     @FXML private StackPane contentArea;
+    @FXML private VBox sidebar;
     @FXML private Label userRoleLabel;
 
     @FXML
-    public void initialize() {
-        // Load default main page into the content frame on open
-        loadView("/com/aniplato/view/admin/dashboard.fxml");
+    private void initialize() {
+        Navigator.setContent(contentArea);
+        // Sidebar buttons navigate via "nav-*" classes; this only moves the highlight
+        sidebar.addEventHandler(ActionEvent.ACTION, e -> {
+            if (e.getTarget() instanceof Node item) {
+                sidebar.getChildren().forEach(n -> n.getStyleClass().remove(ACTIVE));
+                item.getStyleClass().add(ACTIVE);
+            }
+        });
+
+        // PATTERN:DYNAMIC fills placeholders
+        // TODO(service): userRoleLabel.setText(...) from the logged-in account
+        // TODO(service): build the sidebar from Navigator.menuFor(role) instead of the FXML admin items
     }
 
-    public void loadView(String fxmlPath) {
-        try {
-            Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
-            contentArea.getChildren().clear();
-            contentArea.getChildren().add(view);
-        } catch (IOException e) {
-            System.err.println("❌ Could not load view into shell container: " + fxmlPath);
-            e.printStackTrace();
-        }
-    }
-
+    // PATTERN:ACTION placeholder: navigates only
     @FXML
-    private void handleNavigateDashboard(ActionEvent event) {
-        loadView("/com/aniplato/view/admin/dashboard.fxml");
-    }
-
-    @FXML
-    private void handleNavigateAccounts(ActionEvent event) {
-        loadView("/com/aniplato/view/admin/pending-registrations.fxml");
-    }
-
-    @FXML
-    private void handleNavigateReports(ActionEvent event) {
-        loadView("/com/aniplato/view/admin/reports.fxml");
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/com/aniplato/view/shared/login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(loginRoot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void handleLogout() {
+        // TODO(service): Session.clear()
+        Navigator.show(Screen.LOGIN);
     }
 }
