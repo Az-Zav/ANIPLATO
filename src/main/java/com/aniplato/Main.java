@@ -1,22 +1,23 @@
 package com.aniplato;
 
+import java.net.URL;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.net.URL;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Path pointing directly to dashboard.fxml inside view/admin/
-            URL fxmlLocation = getClass().getResource("/com/aniplato/view/admin/dashboard.fxml");
+             // Path pointing directly to login.fxml inside view/login.fxml
+            URL fxmlLocation = getClass().getResource("/com/aniplato/view/login.fxml");
 
             if (fxmlLocation == null) {
-                System.err.println("❌ CRITICAL ERROR: Could not find /com/aniplato/view/admin/dashboard.fxml");
+                System.err.println("❌ CRITICAL ERROR: Could not find /com/aniplato/view/login.fxml");
                 return;
             }
 
@@ -25,7 +26,7 @@ public class Main extends Application {
             // Baseline 1280x720 scene
             Scene scene = new Scene(root, 1280, 720);
 
-            primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System (Admin Dashboard)");
+            primaryStage.setTitle("ANIPLATO - Sign In");
             primaryStage.setScene(scene);
 
             // Allow window resizability so metric cards and data tables scale smoothly
