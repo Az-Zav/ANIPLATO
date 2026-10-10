@@ -12,23 +12,23 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Pointing directly to login.fxml in view/
-            URL fxmlLocation = getClass().getResource("/com/aniplato/view/login.fxml");
+            // Path pointing directly to dashboard.fxml inside view/admin/
+            URL fxmlLocation = getClass().getResource("/com/aniplato/view/admin/dashboard.fxml");
 
             if (fxmlLocation == null) {
-                System.err.println("❌ CRITICAL ERROR: Could not find /com/aniplato/view/login.fxml");
+                System.err.println("❌ CRITICAL ERROR: Could not find /com/aniplato/view/admin/dashboard.fxml");
                 return;
             }
 
             Parent root = FXMLLoader.load(fxmlLocation);
 
-            // Fixed 1280x720 baseline scene size
+            // Baseline 1280x720 scene
             Scene scene = new Scene(root, 1280, 720);
 
-            primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System");
+            primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System (Admin Dashboard)");
             primaryStage.setScene(scene);
 
-            // Fixed non-resizable window
+            // Allow window resizability so metric cards and data tables scale smoothly
             primaryStage.setResizable(true);
 
             primaryStage.show();
