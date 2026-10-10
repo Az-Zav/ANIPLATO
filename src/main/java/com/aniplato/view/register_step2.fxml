@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="850.0" prefWidth="1280.0" styleClass="register-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterStep2Controller">
+    <stylesheets>
+        <URL value="@aniplato.css" />
+    </stylesheets>
+    <children>
+
+        <!-- MAIN CENTERING CARD CONTAINER -->
+        <VBox maxWidth="520.0" styleClass="card-container" VBox.vgrow="NEVER">
+            <padding>
+                <Insets bottom="36.0" left="40.0" right="40.0" top="36.0" />
+            </padding>
+            <children>
+                <VBox spacing="20.0">
+                    <children>
+
+                        <!-- HEADER SECTION WITH LOGO -->
+                        <HBox alignment="CENTER_LEFT" spacing="14.0">
+                            <children>
+                                <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                    </image>
+                                </ImageView>
+                                <VBox spacing="2.0">
+                                    <children>
+                                        <Label text="Register your organization" textFill="#111827">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="No account is created yet. An admin reviews your application first." textFill="#6B7280">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- STEP PROGRESS INDICATOR BAR -->
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <!-- Step 1 Completed Green Circle -->
+                                <StackPane>
+                                    <children>
+                                        <Circle fill="#15803D" radius="11.0" />
+                                        <Label text="✓" textFill="WHITE">
+                                            <font>
+                                                <Font name="System Bold" size="11.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </StackPane>
+                                <Label text="Organization" textFill="#15803D">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Centered Horizontal Line -->
+                                <StackPane alignment="CENTER" prefWidth="40.0">
+                                    <children>
+                                        <Region maxHeight="1.0" style="-fx-background-color: #03521E;" VBox.vgrow="NEVER" />
+                                    </children>
+                                </StackPane>
+
+                                <!-- Step 2 Active Dark Green Circle -->
+                                <StackPane>
+                                    <children>
+                                        <Circle fill="#03521E" radius="11.0" />
+                                        <Label text="2" textFill="WHITE">
+                                            <font>
+                                                <Font name="System Bold" size="11.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </StackPane>
+                                <Label text="Documents" textFill="#111827">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+
+                        <!-- INSTRUCTION TEXT -->
+                        <Label text="Upload one file for each item and type the expiry date printed on it, or tick No expiry where the document doesn't expire. Permits always need a date. Don't upload government IDs." textFill="#6B7280" wrapText="true">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+
+                        <!-- DYNAMIC ROLE BADGE HEADER -->
+                        <HBox>
+                            <children>
+                                <Label fx:id="roleBadgeLabel" styleClass="official-badge" text="Required for: Business donor · Bakery" textFill="#15803D">
+                                    <font>
+                                        <Font name="System Bold" size="11.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+
+                        <!-- DYNAMIC CONTAINER FOR ROLE-SPECIFIC DOCUMENTS -->
+                        <VBox fx:id="dynamicFieldsContainer" spacing="16.0" />
+
+                        <!-- CONSENT BOX WITH HIGHLIGHTED TERMS AND CONDITIONS -->
+                        <HBox spacing="10.0" styleClass="notice-box">
+                            <padding>
+                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                            </padding>
+                            <children>
+                                <CheckBox fx:id="consentCheckBox" selected="true" />
+                                <VBox spacing="2.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="0.0">
+                                            <children>
+                                                <Label text="I agree to the " textFill="#374151">
+                                                    <font>
+                                                        <Font size="11.0" />
+                                                    </font>
+                                                </Label>
+                                                <Hyperlink fx:id="termsLink" onAction="#handleOpenTerms" style="-fx-padding: 0; -fx-text-fill: #15803D; -fx-underline: true;" text="Terms and Conditions">
+                                                    <font>
+                                                        <Font name="System Bold" size="11.0" />
+                                                    </font>
+                                                </Hyperlink>
+                                                <Label text=" and allow ANIPLATO to collect" textFill="#374151">
+                                                    <font>
+                                                        <Font size="11.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                        <Label text="and store my organization's details and uploaded documents to verify my organization. Only my organization and the ANIPLATO admin can see my files." textFill="#374151" wrapText="true">
+                                            <font>
+                                                <Font size="11.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- ACTION BUTTONS ROW -->
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <padding>
+                                <Insets top="8.0" />
+                            </padding>
+                            <children>
+                                <Button fx:id="backBtn" onAction="#handleBack" styleClass="secondary-button" text="← Back" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="submitBtn" onAction="#handleSubmit" styleClass="primary-button" text="Submit registration" />
+                            </children>
+                        </HBox>
+
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+    </children>
+</VBox>
