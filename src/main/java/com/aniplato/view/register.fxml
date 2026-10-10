@@ -9,6 +9,8 @@
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -84,7 +86,7 @@
                                 <!-- Centered Connecting Line -->
                                 <StackPane alignment="CENTER" prefWidth="40.0">
                                     <children>
-                                        <Region maxHeight="1.0" style="-fx-background-color: #D1D5DB;" VBox.vgrow="NEVER" />
+                                        <Region maxHeight="1.0" styleClass="step-connector" VBox.vgrow="NEVER" />
                                     </children>
                                 </StackPane>
 
@@ -116,10 +118,14 @@
                                         <Label text=" *" textFill="#EF4444" />
                                     </children>
                                 </HBox>
+                                <!-- Role toggle: the ToggleGroup handles selection and CSS :selected the look; no Java -->
+                                <fx:define>
+                                    <ToggleGroup fx:id="roleGroup" />
+                                </fx:define>
                                 <HBox styleClass="segment-toggle-container">
                                     <children>
-                                        <Button fx:id="donorToggleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectBusinessDonor" styleClass="segment-btn-active" text="Business donor" HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="foodGroupToggleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectFoodGroup" styleClass="segment-btn-inactive" text="Food group" HBox.hgrow="ALWAYS" />
+                                        <ToggleButton fx:id="donorToggle" maxWidth="1.7976931348623157E308" selected="true" styleClass="segment-btn" text="Business donor" toggleGroup="$roleGroup" HBox.hgrow="ALWAYS" />
+                                        <ToggleButton fx:id="foodGroupToggle" maxWidth="1.7976931348623157E308" styleClass="segment-btn" text="Food group" toggleGroup="$roleGroup" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
@@ -140,7 +146,7 @@
                                         </Label>
                                     </children>
                                 </HBox>
-                                <TextField fx:id="orgNameField" promptText="Manila Artisanal Bakeshop" text="Manila Artisanal Bakeshop" />
+                                <TextField fx:id="orgNameField" promptText="e.g., Sample Bakeshop" />
                             </children>
                         </VBox>
 
@@ -287,7 +293,8 @@
                                                 <Font name="System Bold" size="12.0" />
                                             </font>
                                         </Label>
-                                        <Hyperlink fx:id="loginLink" onAction="#handleGoToLogin" styleClass="hyperlink" text="Log in">
+                                        <!-- PATTERN:NAV -> LOGIN -->
+                                        <Hyperlink fx:id="loginLink" styleClass="hyperlink, nav-login" text="Log in">
                                             <font>
                                                 <Font name="System Bold" size="12.0" />
                                             </font>
@@ -297,7 +304,8 @@
 
                                 <Region HBox.hgrow="ALWAYS" />
 
-                                <Button fx:id="nextBtn" onAction="#handleRegister" styleClass="primary-button" text="Next: Documents →" />
+                                <!-- PATTERN:ACTION handleNext -->
+                                <Button fx:id="nextBtn" onAction="#handleNext" styleClass="primary-button" text="Next: Documents →" />
                             </children>
                         </HBox>
 

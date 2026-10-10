@@ -181,6 +181,28 @@
     -fx-text-fill: #D1FAE5;
 }
 
+/* Shell sidebar buttons; ShellController moves -active on click */
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #A7F3D0;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 14px;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-button-active,
+.sidebar-button-active:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+}
+
 .badge-count {
     -fx-background-color: #D97706;
     -fx-background-radius: 12px;
@@ -319,18 +341,8 @@
     -fx-padding: 3px;
 }
 
-.segment-btn-active {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #111827;
-    -fx-font-weight: bold;
-    -fx-font-size: 13px;
-    -fx-background-radius: 8px;
-    -fx-padding: 8px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 4, 0, 0, 1);
-    -fx-cursor: hand;
-}
-
-.segment-btn-inactive {
+/* ToggleButtons in a ToggleGroup: :selected is the active segment */
+.segment-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #6B7280;
     -fx-font-size: 13px;
@@ -339,6 +351,92 @@
     -fx-cursor: hand;
 }
 
-.segment-btn-inactive:hover {
+.segment-btn:hover {
     -fx-text-fill: #111827;
+}
+
+.segment-btn:selected {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #111827;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 4, 0, 0, 1);
+}
+
+/* Register step indicator line */
+.step-connector {
+    -fx-background-color: #D1D5DB;
+}
+
+.step-connector-done {
+    -fx-background-color: #03521E;
+}
+
+/* ==========================================================================
+   REGISTER DOCUMENTS (step 2)
+   ========================================================================== */
+.doc-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #111827;
+}
+
+.required-star {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #EF4444;
+}
+
+.doc-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.file-pill {
+    -fx-background-color: #E6F4EA;
+    -fx-background-radius: 8px;
+    -fx-border-color: #BBF7D0;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px 12px;
+}
+
+.file-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #111827;
+}
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.upload-button {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-style: dashed;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #15803D;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.small-check {
+    -fx-font-size: 11px;
+    -fx-text-fill: #4B5563;
+}
+
+.helper-note {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6B7280;
+}
+
+.terms-link {
+    -fx-padding: 0;
+    -fx-text-fill: #15803D;
+    -fx-underline: true;
 }

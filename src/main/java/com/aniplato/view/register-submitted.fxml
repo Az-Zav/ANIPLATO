@@ -42,7 +42,8 @@
                                                 <Font name="System Bold" size="20.0" />
                                             </font>
                                         </Label>
-                                        <Label fx:id="orgSubheadLabel" text="Manila Artisanal Bakeshop · Mandaluyong City" textFill="#6B7280">
+                                        <!-- PATTERN:DYNAMIC orgSubhead : "{orgName} · {city}" -->
+                                        <Label fx:id="orgSubheadLabel" text="Sample Bakeshop · Sample City" textFill="#6B7280">
                                             <font>
                                                 <Font size="12.0" />
                                             </font>
@@ -71,7 +72,8 @@
                                     </font>
                                 </Label>
 
-                                <Label fx:id="emailNoticeLabel" text="We sent a confirmation to dispatch@manilaartisanal.ph. No account exists yet, so there's nothing to log in to." textFill="#374151" wrapText="true">
+                                <!-- PATTERN:DYNAMIC emailNotice : "We sent a confirmation to {email}. No account exists yet, so there's nothing to log in to." -->
+                                <Label fx:id="emailNoticeLabel" text="We sent a confirmation to sample@organization.ph. No account exists yet, so there's nothing to log in to." textFill="#374151" wrapText="true">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
@@ -151,7 +153,8 @@
                         </VBox>
 
                         <!-- BACK TO LOGIN BUTTON -->
-                        <Button fx:id="backToLoginBtn" maxWidth="1.7976931348623157E308" onAction="#handleBackToLogin" styleClass="primary-button" text="Back to login" />
+                        <!-- PATTERN:NAV -> LOGIN -->
+                        <Button fx:id="backToLoginBtn" maxWidth="1.7976931348623157E308" styleClass="primary-button, nav-login" text="Back to login" />
 
                     </children>
                 </VBox>
