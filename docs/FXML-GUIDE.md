@@ -126,7 +126,7 @@ When a screen shows different sections for different cases, build every section,
 
 ## 4b. Worked example: different cards per role
 
-**When to use this:** one screen shows different cards depending on who is using it. Example: on Registration step 2, a business donor uploads 2 documents and a food group uploads 2 *different* documents.
+**When to use this:** one screen shows different cards depending on who is using it. Example: on Registration step 2, a business donor sees 4 document cards (3 required, 1 optional) and a food group sees 2 *different* ones.
 
 **The idea:** build every version in the FXML. The code only decides which one is shown. You never add or remove cards from Java for this.
 
@@ -138,7 +138,9 @@ Wrap each set of cards in its own `VBox` and give it an `fx:id`. Name it after t
 <!-- PATTERN:DYNAMIC visibility: donorDocsBox shown for business donors (default) -->
 <VBox fx:id="donorDocsBox">
     <!-- card 1: Business registration -->
-    <!-- card 2: Mayor's permit -->
+    <!-- card 2: Mayor's / Business Permit -->
+    <!-- card 3: Sanitary Permit -->
+    <!-- card 4: FDA License to Operate (optional) -->
 </VBox>
 
 <!-- PATTERN:DYNAMIC visibility: foodGroupDocsBox shown for food groups (hidden by default) -->
@@ -165,27 +167,58 @@ Each card's file name is data, so it gets an `fx:id` and a `PATTERN:DYNAMIC` tag
 <Label fx:id="businessRegFileLabel" text="business-permit.pdf"/>
 ```
 
-### Step 4: Declare the controller fields
+### Step 4: Upload cards have two states too
 
-In the controller, add one `@FXML` field per container and a `TODO(service)` line saying what decides it. Don't write the logic.
+Each document card swaps between a file pill (a file is uploaded) and an upload button (nothing yet). It is the same visibility pattern, one level down.
+
+```xml
+<!-- PATTERN:DYNAMIC visibility: sanitaryPermitFileBox shown once a file is uploaded; sanitaryPermitUploadBtn until then -->
+<!-- PATTERN:ACTION handleUploadSanitaryPermit -->
+<Button fx:id="sanitaryPermitUploadBtn" onAction="#handleUploadSanitaryPermit" text="Upload"/>
+<HBox fx:id="sanitaryPermitFileBox" visible="false" managed="false">
+    <!-- PATTERN:DYNAMIC sanitaryPermitFile : uploaded file name -->
+    <Label fx:id="sanitaryPermitFileLabel" text="sample-sanitary-permit.pdf"/>
+    <!-- PATTERN:ACTION handleUploadSanitaryPermit -->
+    <Button onAction="#handleUploadSanitaryPermit" text="Replace"/>
+</HBox>
+```
+
+- A fresh form has nothing uploaded, so the upload button is the visible default and the file pill is hidden.
+- Upload and Replace share one handler per document (`handleUploadSanitaryPermit`).
+- You may leave a few cards showing the file pill so the filled state can be previewed in Scene Builder. The service sets the real state at runtime.
+
+### Step 5: Declare the controller fields
+
+In the controller, add one `@FXML` field per `fx:id` and `TODO(service)` lines saying what decides each switch. Don't write the logic.
 
 ```java
 @FXML private VBox donorDocsBox;
 @FXML private VBox foodGroupDocsBox;
+@FXML private HBox sanitaryPermitFileBox;
+@FXML private Label sanitaryPermitFileLabel;
+@FXML private Button sanitaryPermitUploadBtn;
 
 // PATTERN:DYNAMIC fills placeholders
 @FXML
 private void initialize() {
-    // TODO(service): show donorDocsBox or foodGroupDocsBox based on the role in the registration draft
+    // TODO(service): show donorDocsBox or foodGroupDocsBox by the registration's role (setVisible + setManaged)
+    // TODO(service): per document, if a file is uploaded: <doc>FileLabel.setText(fileName) and show <doc>FileBox,
+    //                otherwise show <doc>UploadBtn (setVisible + setManaged on both)
+}
+
+// PATTERN:ACTION placeholder: does nothing yet (upload and Replace share one handler per document)
+@FXML
+private void handleUploadSanitaryPermit() {
+    // TODO(service): choose a file, then fileStorageService.save(...)
 }
 ```
 
 ### What the Java dev does later
 
-They turn that TODO into this, and nothing in your FXML changes:
+They turn those TODOs into real code, and nothing in your FXML changes. For the role switch:
 
 ```java
-boolean foodGroup = RegistrationDraft.role() == Role.FOOD_GROUP;
+boolean foodGroup = /* role from the registration, via the service */ == Role.FOOD_GROUP;
 donorDocsBox.setVisible(!foodGroup);
 donorDocsBox.setManaged(!foodGroup);
 foodGroupDocsBox.setVisible(foodGroup);
@@ -200,6 +233,8 @@ The controller only decides what to show. Rules, such as which documents are req
 - [ ] Exactly one container is visible by default.
 - [ ] All hidden containers have both `visible="false"` and `managed="false"`.
 - [ ] Each container has a `PATTERN:DYNAMIC visibility:` comment above it.
+- [ ] Each upload card has a file pill and an upload button, with the upload button visible by default.
+- [ ] Upload and Replace on one card share a single `onAction` handler.
 - [ ] The controller has a field and a `TODO(service)` line for each container.
 
 ### Use this vs. a list
