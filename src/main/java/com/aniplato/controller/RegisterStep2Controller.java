@@ -1,7 +1,9 @@
 package com.aniplato.controller;
 
+import com.aniplato.model.Account.Role;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.RegistrationDraft;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -17,8 +19,16 @@ public class RegisterStep2Controller {
     // PATTERN:DYNAMIC fills placeholders
     @FXML
     private void initialize() {
-        // TODO(service): roleBadgeLabel.setText("Required for: " + role + " · " + orgType)
-        // TODO(service): show donorDocsBox or foodGroupDocsBox by the registration's role (setVisible + setManaged)
+        boolean foodGroup = RegistrationDraft.role() == Role.FOOD_GROUP;
+        donorDocsBox.setVisible(!foodGroup);
+        donorDocsBox.setManaged(!foodGroup);
+        foodGroupDocsBox.setVisible(foodGroup);
+        foodGroupDocsBox.setManaged(foodGroup);
+
+        String orgType = RegistrationDraft.orgTypeLabel();
+        roleBadgeLabel.setText("Required for: " + (foodGroup ? "Food group" : "Business donor")
+                + (orgType.isBlank() ? "" : " · " + orgType));
+        // TODO(service): read role and org type from the registration draft in RegistrationService
     }
 
     // PATTERN:ACTION placeholder: navigates only

@@ -89,15 +89,6 @@
     -fx-text-fill: #9CA3AF;
 }
 
-/* Card Container */
-.card-container {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 16px;
-    -fx-border-color: #E5E7EB;
-    -fx-border-radius: 16px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 12, 0, 0, 4);
-}
-
 /* Official Registration Badge */
 .official-badge {
     -fx-background-color: #E6F4EA;
@@ -149,6 +140,72 @@
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-text-fill: #1F2937;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY (replaces inline <font> and textFill in FXML)
+   ========================================================================== */
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.card-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.text-muted {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.text-success-bold {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #15803D;
+}
+
+/* Bold link; add .link-lg for the 13px size */
+.link-bold {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.link-lg {
+    -fx-font-size: 13px;
+}
+
+/* Dashboard metric numbers */
+.stat-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.stat-unit {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4B5563;
+}
+
+/* Table body text */
+.table-cell-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #4B5563;
+}
+
+.table-cell-muted {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
 }
 
 /* ==========================================================================
@@ -256,22 +313,26 @@
     -fx-text-fill: #6B7280;
 }
 
+/* Icon chips: put the class on the Label itself */
 .stat-icon-orange {
     -fx-background-color: #FEF3C7;
     -fx-background-radius: 8px;
     -fx-padding: 6px 10px;
+    -fx-text-fill: #D97706;
 }
 
 .stat-icon-green {
     -fx-background-color: #DCFCE7;
     -fx-background-radius: 8px;
     -fx-padding: 6px 10px;
+    -fx-text-fill: #16A34A;
 }
 
 .stat-icon-blue {
     -fx-background-color: #E0F2FE;
     -fx-background-radius: 8px;
     -fx-padding: 6px 10px;
+    -fx-text-fill: #2563EB;
 }
 
 /* Table Card & Row Formatting */
@@ -301,17 +362,23 @@
     -fx-border-width: 0 0 1px 0;
 }
 
-/* Status Badges */
+/* Status Pills: put the class on the Label itself */
 .pill-food-org {
     -fx-background-color: #E0F2FE;
     -fx-background-radius: 20px;
     -fx-padding: 4px 12px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0369A1;
 }
 
 .pill-food-donor {
     -fx-background-color: #DCFCE7;
     -fx-background-radius: 20px;
     -fx-padding: 4px 12px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #15803D;
 }
 
 .table-review-btn {
@@ -356,7 +423,7 @@
     -fx-padding: 1px 5px;
 }
 
-/* Card Container Shadow & Radius */
+/* Card Container Shadow & Radius (single definition; was duplicated at 16px and 20px) */
 .card-container {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 20px;
@@ -393,13 +460,50 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 4, 0, 0, 1);
 }
 
-/* Register step indicator line */
+/* ==========================================================================
+   REGISTER STEP INDICATOR (steps 1 and 2)
+   Dot = Circle (-fx-fill); number/check = Label; name = Label.
+   States: idle, active, done.
+   ========================================================================== */
 .step-connector {
     -fx-background-color: #D1D5DB;
 }
 
 .step-connector-done {
     -fx-background-color: #03521E;
+}
+
+.step-dot-idle   { -fx-fill: #E5E7EB; }
+.step-dot-active { -fx-fill: #03521E; }
+.step-dot-done   { -fx-fill: #15803D; }
+
+.step-dot-text {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+.step-dot-text-idle {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6B7280;
+}
+
+.step-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.step-label-active {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.step-label-done {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #15803D;
 }
 
 /* ==========================================================================
