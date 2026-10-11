@@ -1,7 +1,164 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.aniplato.controller.donor.DonorDashboardController" styleClass="screen">
-    <Label text="donor/dashboard"/>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
+
+<VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.DonorDashboardController">
+    <stylesheets>
+        <URL value="@../aniplato.css" />
+    </stylesheets>
+    <padding>
+        <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
+    </padding>
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="16.0">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="dashboard-title" text="Welcome back, Sample Donor" />
+                        <Label styleClass="dashboard-subtitle" text="Here’s an overview of your food donations." />
+                    </children>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <!-- PATTERN:NAV -> LISTING_FORM -->
+                <Button prefHeight="42.0" prefWidth="137.0" styleClass="primary-button, nav-listing-form" text="New Listing">
+               <graphic>
+                  <HBox prefHeight="17.0" prefWidth="21.0">
+                     <children>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="INHERIT">
+                           <image>
+                              <Image url="@../../../../../../../../../../Downloads/Icon%20(2).png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+               </graphic></Button>
+            </children>
+        </HBox>
+
+        <HBox spacing="16.0">
+            <children>
+                <VBox prefHeight="132.0" prefWidth="167.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-card-title" text="ACTIVE LISTINGS">
+                     <graphic>
+                        <HBox prefHeight="29.0" prefWidth="31.0">
+                           <children>
+                              <ImageView>
+                                 <image>
+                                    <Image url="@../../../../../../../../../../Downloads/Overlay.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </graphic></Label>
+                        <!-- PATTERN:DYNAMIC openListingsCount : whole number -->
+                        <Label fx:id="openListingsCountLabel" styleClass="dashboard-metric-value" text="03" />
+                        <Label styleClass="dashboard-subtitle" text="7 offers to review" />
+                    </children>
+                </VBox>
+                <VBox prefHeight="132.0" prefWidth="185.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-card-title" text="ACCEPTED, AWAITING PICKUP">
+                     <graphic>
+                        <HBox prefHeight="29.0" prefWidth="31.0">
+                           <children>
+                              <ImageView>
+                                 <image>
+                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(1).png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </graphic></Label>
+                        <!-- PATTERN:DYNAMIC offersToReviewCount : whole number -->
+                        <Label fx:id="offersToReviewCountLabel" styleClass="dashboard-metric-value" text="05" />
+                        <Label styleClass="dashboard-subtitle" text="Confirm release at pickup" />
+                    </children>
+                </VBox>
+                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-card-title" text="KG RESCUED">
+                     <graphic>
+                        <HBox prefHeight="29.0" prefWidth="31.0">
+                           <children>
+                              <ImageView>
+                                 <image>
+                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(2).png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </graphic></Label>
+                        <HBox alignment="BASELINE_LEFT" spacing="5.0">
+                            <children>
+                                <!-- PATTERN:DYNAMIC rescuedKg : whole number; unit is static -->
+                                <Label fx:id="rescuedKgLabel" styleClass="dashboard-metric-value" text="128" />
+                                <Label styleClass="dashboard-unit" text="kg" />
+                            </children>
+                        </HBox>
+                        <Label styleClass="dashboard-subtitle" text="Total rescue to date" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label styleClass="dashboard-section-title" text="Active listings" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <!-- PATTERN:NAV -> MY_LISTINGS -->
+                        <Hyperlink styleClass="hyperlink, nav-my-listings" text="View all" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
+                    <children>
+                        <Label prefWidth="300.0" styleClass="table-header-text" text="FOOD" />
+                        <Label prefWidth="100.0" styleClass="table-header-text" text="QUANTITY" />
+                        <Label prefWidth="150.0" styleClass="table-header-text" text="STATUS" />
+                        <Label prefWidth="160.0" styleClass="table-header-text" text="USE BY" />
+                        <Region HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+                <!-- PATTERN:LIST recentListingsBox : one row per donor listing (sample row below) -->
+                <VBox fx:id="recentListingsBox">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                            <children>
+                                <Label prefWidth="300.0" styleClass="dashboard-row-primary" text="Fresh vegetable boxes" />
+                                <Label prefWidth="100.0" styleClass="dashboard-row-text" text="24 kg" />
+                                <HBox prefWidth="150.0">
+                                    <children>
+                                        <Label styleClass="listing-status-open" text="Open" />
+                                    </children>
+                                </HBox>
+                                <Label prefWidth="160.0" styleClass="dashboard-row-text" text="Oct 12, 2026" />
+                                <Region HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <!-- PATTERN:DYNAMIC visibility: emptyListingsLabel shown when the donor has no listings -->
+                <Label fx:id="emptyListingsLabel" managed="false" styleClass="dashboard-subtitle" text="No listings yet. Create a listing to share surplus food with nearby food groups." visible="false" />
+            </children>
+        </VBox>
+    </children>
 </VBox>
