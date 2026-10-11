@@ -471,3 +471,53 @@
     -fx-text-fill: #15803D;
     -fx-underline: true;
 }
+
+/* Donor dashboard content inside the shared shell */
+.dashboard-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.dashboard-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.dashboard-metric-value {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.dashboard-unit {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4B5563;
+}
+
+.dashboard-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.dashboard-row-primary {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.dashboard-row-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #4B5563;
+}
+
+.listing-status-open {
+    -fx-background-color: #DCFCE7;
+    -fx-background-radius: 14px;
+    -fx-padding: 4px 10px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #15803D;
+}
