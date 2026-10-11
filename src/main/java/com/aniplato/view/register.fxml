@@ -21,7 +21,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
 
 <VBox alignment="CENTER" prefHeight="850.0" prefWidth="1280.0" styleClass="register-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterController">
     <stylesheets>
@@ -48,64 +47,37 @@
                                 </ImageView>
                                 <VBox spacing="2.0">
                                     <children>
-                                        <Label text="Register your organization" textFill="#111827">
-                                            <font>
-                                                <Font name="System Bold" size="20.0" />
-                                            </font>
-                                        </Label>
-                                        <Label text="No account is created yet. An admin reviews your application first." textFill="#6B7280">
-                                            <font>
-                                                <Font size="12.0" />
-                                            </font>
-                                        </Label>
+                                        <Label styleClass="card-title" text="Register your organization" />
+                                        <Label styleClass="text-muted" text="No account is created yet. An admin reviews your application first." />
                                     </children>
                                 </VBox>
                             </children>
                         </HBox>
 
-                        <!-- STEP PROGRESS INDICATOR BAR -->
+                        <!-- STEP PROGRESS INDICATOR BAR (step 1 active) -->
                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
-                                <!-- Step 1 Active Circle -->
                                 <StackPane>
                                     <children>
-                                        <Circle fill="#03521E" radius="11.0" />
-                                        <Label text="1" textFill="WHITE">
-                                            <font>
-                                                <Font name="System Bold" size="11.0" />
-                                            </font>
-                                        </Label>
+                                        <Circle radius="11.0" styleClass="step-dot-active" />
+                                        <Label styleClass="step-dot-text" text="1" />
                                     </children>
                                 </StackPane>
-                                <Label text="Organization" textFill="#111827">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Label>
+                                <Label styleClass="step-label-active" text="Organization" />
 
-                                <!-- Centered Connecting Line -->
                                 <StackPane alignment="CENTER" prefWidth="40.0">
                                     <children>
                                         <Region maxHeight="1.0" styleClass="step-connector" VBox.vgrow="NEVER" />
                                     </children>
                                 </StackPane>
 
-                                <!-- Step 2 Inactive Circle -->
                                 <StackPane>
                                     <children>
-                                        <Circle fill="#E5E7EB" radius="11.0" />
-                                        <Label text="2" textFill="#6B7280">
-                                            <font>
-                                                <Font name="System Bold" size="11.0" />
-                                            </font>
-                                        </Label>
+                                        <Circle radius="11.0" styleClass="step-dot-idle" />
+                                        <Label styleClass="step-dot-text-idle" text="2" />
                                     </children>
                                 </StackPane>
-                                <Label text="Documents" textFill="#6B7280">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
+                                <Label styleClass="step-label" text="Documents" />
                             </children>
                         </HBox>
 
@@ -115,7 +87,7 @@
                                 <HBox spacing="2.0">
                                     <children>
                                         <Label styleClass="form-label" text="Registering as" />
-                                        <Label text=" *" textFill="#EF4444" />
+                                        <Label styleClass="required-star" text=" *" />
                                     </children>
                                 </HBox>
                                 <!-- Role toggle: the ToggleGroup handles selection and CSS :selected the look; no Java -->
@@ -137,13 +109,9 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
                                         <Label styleClass="form-label" text="Organization name" />
-                                        <Label text=" *" textFill="#EF4444" />
+                                        <Label styleClass="required-star" text=" *" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label text="As shown on your permits" textFill="#9CA3AF">
-                                            <font>
-                                                <Font size="11.0" />
-                                            </font>
-                                        </Label>
+                                        <Label styleClass="doc-subtitle" text="As shown on your permits" />
                                     </children>
                                 </HBox>
                                 <TextField fx:id="orgNameField" promptText="e.g., Sample Bakeshop" />
@@ -164,7 +132,7 @@
                                         <HBox alignment="CENTER_LEFT">
                                             <children>
                                                 <Label styleClass="form-label" text="Organization type" />
-                                                <Label text=" *" textFill="#EF4444" />
+                                                <Label styleClass="required-star" text=" *" />
                                             </children>
                                         </HBox>
                                         <ComboBox fx:id="typeCombo" maxWidth="1.7976931348623157E308" promptText="Bakery">
@@ -187,7 +155,7 @@
                                         <HBox alignment="CENTER_LEFT">
                                             <children>
                                                 <Label styleClass="form-label" text="City" />
-                                                <Label text=" *" textFill="#EF4444" />
+                                                <Label styleClass="required-star" text=" *" />
                                             </children>
                                         </HBox>
                                         <ComboBox fx:id="cityCombo" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city">
@@ -212,11 +180,7 @@
                         </GridPane>
 
                         <!-- Helper note for city -->
-                        <Label text="Must match the city on your Mayor's Permit (donors) or your registered address (food groups)." textFill="#6B7280" wrapText="true">
-                            <font>
-                                <Font size="11.0" />
-                            </font>
-                        </Label>
+                        <Label styleClass="helper-note" text="Must match the city on your Mayor's Permit (donors) or your registered address (food groups)." wrapText="true" />
 
                         <!-- CONTACT PERSON & CONTACT NUMBER (2 COLUMNS) -->
                         <GridPane hgap="12.0" vgap="6.0">
@@ -231,7 +195,7 @@
                                         <HBox alignment="CENTER_LEFT">
                                             <children>
                                                 <Label styleClass="form-label" text="Contact person" />
-                                                <Label text=" *" textFill="#EF4444" />
+                                                <Label styleClass="required-star" text=" *" />
                                             </children>
                                         </HBox>
                                         <TextField fx:id="contactPersonField" promptText="e.g., Maria Santos" />
@@ -243,7 +207,7 @@
                                         <HBox alignment="CENTER_LEFT">
                                             <children>
                                                 <Label styleClass="form-label" text="Contact number" />
-                                                <Label text=" *" textFill="#EF4444" />
+                                                <Label styleClass="required-star" text=" *" />
                                             </children>
                                         </HBox>
                                         <TextField fx:id="contactNumberField" promptText="e.g., 0917 123 4567" />
@@ -256,11 +220,7 @@
                         </GridPane>
 
                         <!-- Helper note for contact -->
-                        <Label text="Shared only with the other organization after an offer is accepted, so you can coordinate pickup directly." textFill="#6B7280" wrapText="true">
-                            <font>
-                                <Font size="11.0" />
-                            </font>
-                        </Label>
+                        <Label styleClass="helper-note" text="Shared only with the other organization after an offer is accepted, so you can coordinate pickup directly." wrapText="true" />
 
                         <!-- EMAIL FIELD -->
                         <VBox spacing="6.0">
@@ -268,15 +228,11 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
                                         <Label styleClass="form-label" text="Email" />
-                                        <Label text=" *" textFill="#EF4444" />
+                                        <Label styleClass="required-star" text=" *" />
                                     </children>
                                 </HBox>
                                 <TextField fx:id="emailField" promptText="e.g., dispatch@organization.ph" />
-                                <Label text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." textFill="#6B7280" wrapText="true">
-                                    <font>
-                                        <Font size="11.0" />
-                                    </font>
-                                </Label>
+                                <Label styleClass="helper-note" text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." wrapText="true" />
                             </children>
                         </VBox>
 
@@ -288,17 +244,9 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="4.0">
                                     <children>
-                                        <Label text="Already approved?" textFill="#15803D">
-                                            <font>
-                                                <Font name="System Bold" size="12.0" />
-                                            </font>
-                                        </Label>
+                                        <Label styleClass="text-success-bold" text="Already approved?" />
                                         <!-- PATTERN:NAV -> LOGIN -->
-                                        <Hyperlink fx:id="loginLink" styleClass="hyperlink, nav-login" text="Log in">
-                                            <font>
-                                                <Font name="System Bold" size="12.0" />
-                                            </font>
-                                        </Hyperlink>
+                                        <Hyperlink fx:id="loginLink" styleClass="hyperlink, link-bold, nav-login" text="Log in" />
                                     </children>
                                 </HBox>
 

@@ -3,7 +3,6 @@ package com.aniplato.controller;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.SvgIcon;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -37,23 +36,27 @@ public class ShellController {
         sidebar.getChildren().stream()
                 .filter(Button.class::isInstance)
                 .map(Button.class::cast)
-                .forEach(button -> {
-                    configureIcon(button);
-                    boolean active = button.getStyleClass().contains("nav-" + Navigator.currentScreen().key());
-                    button.getStyleClass().remove(ACTIVE);
-                    if (active) button.getStyleClass().add(ACTIVE);
-                });
+                .forEach(this::configureIcon);
 
-        // Sidebar buttons navigate via "nav-*" classes; this only moves the highlight
-        sidebar.addEventHandler(ActionEvent.ACTION, e -> {
-            if (e.getTarget() instanceof Node item) {
-                sidebar.getChildren().forEach(n -> n.getStyleClass().remove(ACTIVE));
-                item.getStyleClass().add(ACTIVE);
-            }
-        });
+        // Highlight follows Navigator.currentScreen(): set now, and again after every in-shell navigation
+        refreshActive();
+        Navigator.setScreenListener(this::refreshActive);
 
         // PATTERN:DYNAMIC fills placeholders
         // TODO(service): userRoleLabel.setText(account.getRole().toString())
+    }
+
+    /** Highlights the sidebar button for the screen being shown (a detail screen highlights its parent). */
+    private void refreshActive() {
+        Screen current = Navigator.currentScreen();
+        if (current == null) return;
+        String activeClass = "nav-" + Navigator.sidebarScreenFor(current).key();
+        sidebar.getChildren().stream()
+                .filter(Button.class::isInstance)
+                .forEach(button -> {
+                    button.getStyleClass().remove(ACTIVE);
+                    if (button.getStyleClass().contains(activeClass)) button.getStyleClass().add(ACTIVE);
+                });
     }
 
     private void configureIcon(Button button) {

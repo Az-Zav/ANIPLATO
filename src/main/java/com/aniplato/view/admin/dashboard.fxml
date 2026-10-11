@@ -1,194 +1,426 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- In-shell screen: header, sidebar and logout come from shell.fxml -->
-<VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.AdminDashboardController">
+<VBox fx:id="rootContainer" prefHeight="720.0" prefWidth="1280.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.AdminDashboardController">
     <stylesheets>
         <URL value="@../aniplato.css" />
     </stylesheets>
-    <padding>
-        <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
-    </padding>
     <children>
 
-        <Label text="Dashboard" textFill="#111827">
-            <font>
-                <Font name="System Bold" size="26.0" />
-            </font>
-        </Label>
-
-        <!-- TOP METRICS CARDS ROW -->
-        <HBox spacing="20.0">
+        <!-- TOP NAVIGATION HEADER -->
+        <HBox alignment="CENTER_LEFT" prefHeight="64.0" styleClass="top-header">
+            <padding>
+                <Insets left="24.0" right="24.0" />
+            </padding>
             <children>
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <ImageView fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                            </image>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT">
                             <children>
-                                <HBox alignment="CENTER" styleClass="stat-icon-orange">
-                                    <children>
-                                        <Label text="👤" textFill="#D97706" />
-                                    </children>
-                                </HBox>
-                                <Label styleClass="stat-card-title" text="PENDING ACCOUNTS" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC pendingCount : whole number -->
-                        <Label fx:id="pendingCountLabel" text="00" textFill="#111827">
-                            <font>
-                                <Font name="System Bold" size="32.0" />
-                            </font>
-                        </Label>
-                        <Label text="Awaiting admin review" textFill="#6B7280">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                </VBox>
-
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <HBox alignment="CENTER" styleClass="stat-icon-green">
-                                    <children>
-                                        <Label text="⚖" textFill="#16A34A" />
-                                    </children>
-                                </HBox>
-                                <Label styleClass="stat-card-title" text="KG LISTED" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC kgListed : "48,250" (number only; "kg" is static) -->
-                                <Label fx:id="kgListedLabel" text="00,000" textFill="#111827">
+                                <Label text="ANIPLATO" textFill="#03521E">
                                     <font>
-                                        <Font name="System Bold" size="32.0" />
+                                        <Font name="System Bold" size="14.0" />
                                     </font>
                                 </Label>
-                                <Label text="kg" textFill="#4B5563">
+                                <Label text="FOOD RESCUE AND REDISTRIBUTION SYSTEM" textFill="#9CA3AF">
                                     <font>
-                                        <Font name="System Bold" size="18.0" />
+                                        <Font name="System Bold" size="9.0" />
                                     </font>
                                 </Label>
                             </children>
-                        </HBox>
-                        <Label text="Total kg posted this month" textFill="#6B7280">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
+                        </VBox>
                     </children>
-                </VBox>
+                </HBox>
 
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox alignment="CENTER" spacing="16.0">
                     <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <HBox alignment="CENTER" styleClass="stat-icon-blue">
-                                    <children>
-                                        <Label text="🛡" textFill="#2563EB" />
-                                    </children>
-                                </HBox>
-                                <Label styleClass="stat-card-title" text="RESCUE RATE" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC rescueRate : "94.6%" -->
-                        <Label fx:id="rescueRateLabel" text="00.0%" textFill="#111827">
-                            <font>
-                                <Font name="System Bold" size="32.0" />
-                            </font>
-                        </Label>
-                        <Label text="Share of listed kg rescued" textFill="#6B7280">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
+                        <Label styleClass="form-label" text="Admin" textFill="#374151" />
+                        <Button fx:id="logoutBtn" onAction="#handleLogout" styleClass="secondary-button" text="🚪 Log Out" />
                     </children>
-                </VBox>
+                </HBox>
             </children>
         </HBox>
 
-        <!-- PENDING ACCOUNTS TABLE CONTAINER -->
-        <VBox styleClass="table-card" VBox.vgrow="ALWAYS">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
+        <!-- BODY CONTAINER (SIDEBAR + MAIN CONTENT) -->
+        <HBox VBox.vgrow="ALWAYS">
             <children>
-                <VBox spacing="16.0">
+
+                <!-- LEFT SIDEBAR -->
+                <VBox prefWidth="240.0" spacing="8.0" styleClass="sidebar-container">
+                    <padding>
+                        <Insets bottom="24.0" left="16.0" right="16.0" top="24.0" />
+                    </padding>
                     <children>
-                        <HBox alignment="CENTER_LEFT">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sidebar-item-active">
                             <children>
-                                <Label text="Pending Accounts" textFill="#111827">
+                                <Label text="⊞" textFill="WHITE">
                                     <font>
-                                        <Font name="System Bold" size="18.0" />
+                                        <Font size="16.0" />
                                     </font>
                                 </Label>
+                                <Label styleClass="sidebar-text-active" text="Dashboard" HBox.hgrow="ALWAYS" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:NAV -> PENDING_REGISTRATIONS -->
-                                <Hyperlink styleClass="hyperlink, nav-pending-registrations" text="View all →">
+                                <Label text="›" textFill="#A7F3D0" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sidebar-item">
+                            <children>
+                                <Label text="👤" textFill="#A7F3D0">
                                     <font>
-                                        <Font name="System Bold" size="13.0" />
+                                        <Font size="14.0" />
                                     </font>
-                                </Hyperlink>
-                            </children>
-                        </HBox>
-
-                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
-                            <children>
-                                <Label prefWidth="250.0" styleClass="table-header-text" text="ORGANIZATION" />
-                                <Label prefWidth="160.0" styleClass="table-header-text" text="ROLE" />
-                                <Label prefWidth="180.0" styleClass="table-header-text" text="TYPE" />
-                                <Label prefWidth="150.0" styleClass="table-header-text" text="CITY" />
-                                <Label prefWidth="160.0" styleClass="table-header-text" text="REGISTERED" />
+                                </Label>
+                                <Label styleClass="sidebar-text" text="Pending Accounts" />
                                 <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER" styleClass="badge-count">
+                                    <children>
+                                        <Label text="14" textFill="WHITE">
+                                            <font>
+                                                <Font name="System Bold" size="11.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </HBox>
                             </children>
                         </HBox>
 
-                        <!-- PATTERN:LIST pendingRows : one row per pending registration (sample row below) -->
-                        <VBox fx:id="pendingRowsBox">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sidebar-item">
                             <children>
-                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                <Label text="📊" textFill="#A7F3D0">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label styleClass="sidebar-text" text="Reports" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="›" textFill="#A7F3D0" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- MAIN CONTENT AREA -->
+                <StackPane HBox.hgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="20.0">
+                            <padding>
+                                <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
+                            </padding>
+                            <children>
+
+                                <Label text="Dashboard" textFill="#111827">
+                                    <font>
+                                        <Font name="System Bold" size="26.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- TOP METRICS CARDS ROW -->
+                                <HBox spacing="20.0">
                                     <children>
-                                        <Label prefWidth="250.0" styleClass="form-label" text="Sample Community Pantry" />
-                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                                             <children>
-                                                <!-- pill class by role: pill-food-org / pill-food-donor -->
-                                                <HBox alignment="CENTER" styleClass="pill-food-org">
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <Label text="Food Organization" textFill="#0369A1">
+                                                        <HBox alignment="CENTER" styleClass="stat-icon-orange">
+                                                            <children>
+                                                                <Label text="👤" textFill="#D97706" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="stat-card-title" text="PENDING ACCOUNTS" />
+                                                    </children>
+                                                </HBox>
+                                                <Label text="14" textFill="#111827">
+                                                    <font>
+                                                        <Font name="System Bold" size="32.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label text="Awaiting admin review" textFill="#6B7280">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER" styleClass="stat-icon-green">
+                                                            <children>
+                                                                <Label text="⚖" textFill="#16A34A" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="stat-card-title" text="KG LISTED" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="BASELINE_LEFT" spacing="4.0">
+                                                    <children>
+                                                        <Label text="48,250" textFill="#111827">
                                                             <font>
-                                                                <Font name="System Bold" size="11.0" />
+                                                                <Font name="System Bold" size="32.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="kg" textFill="#4B5563">
+                                                            <font>
+                                                                <Font name="System Bold" size="18.0" />
                                                             </font>
                                                         </Label>
                                                     </children>
                                                 </HBox>
+                                                <Label text="Total kg posted this month" textFill="#6B7280">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
                                             </children>
-                                        </HBox>
-                                        <Label prefWidth="180.0" text="Food Group / NGO" textFill="#4B5563" />
-                                        <Label prefWidth="150.0" text="Sample City" textFill="#4B5563" />
-                                        <Label prefWidth="160.0" text="Oct 4, 9:14 AM" textFill="#6B7280" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <!-- TODO: PATTERN:ACTION per row (opens REVIEW_REGISTRATION for this registration) -->
-                                        <Button minWidth="-Infinity" styleClass="table-review-btn" text="Review ›" />
+                                        </VBox>
+
+                                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER" styleClass="stat-icon-blue">
+                                                            <children>
+                                                                <Label text="🛡" textFill="#2563EB" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="stat-card-title" text="RESCUE RATE" />
+                                                    </children>
+                                                </HBox>
+                                                <Label text="94.6%" textFill="#111827">
+                                                    <font>
+                                                        <Font name="System Bold" size="32.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label text="Share of listed kg rescued" textFill="#6B7280">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </HBox>
+
+                                <!-- PENDING ACCOUNTS TABLE CONTAINER -->
+                                <VBox styleClass="table-card" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                    <children>
+                                        <VBox spacing="16.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label text="Pending Accounts" textFill="#111827">
+                                                            <font>
+                                                                <Font name="System Bold" size="18.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Hyperlink styleClass="hyperlink" text="View all →">
+                                                            <font>
+                                                                <Font name="System Bold" size="13.0" />
+                                                            </font>
+                                                        </Hyperlink>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="table-header-text" text="ORGANIZATION" />
+                                                        <Label prefWidth="160.0" styleClass="table-header-text" text="ROLE" />
+                                                        <Label prefWidth="180.0" styleClass="table-header-text" text="TYPE" />
+                                                        <Label prefWidth="150.0" styleClass="table-header-text" text="CITY" />
+                                                        <Label prefWidth="160.0" styleClass="table-header-text" text="REGISTERED" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- DATA ROW 1 -->
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="form-label" text="San Antonio Community Pantry" />
+                                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                                            <children>
+                                                                <HBox alignment="CENTER" styleClass="pill-food-org">
+                                                                    <children>
+                                                                        <Label text="Food Organization" textFill="#0369A1">
+                                                                            <font>
+                                                                                <Font name="System Bold" size="11.0" />
+                                                                            </font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label prefWidth="180.0" text="Food Group / NGO" textFill="#4B5563" />
+                                                        <Label prefWidth="150.0" text="Pasig City" textFill="#4B5563" />
+                                                        <Label prefWidth="160.0" text="Oct 4, 9:14 AM" textFill="#6B7280" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Button styleClass="table-review-btn" text="Review ›" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- DATA ROW 2 -->
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="form-label" text="Manila Artisanal Bakeshop Co." />
+                                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                                            <children>
+                                                                <HBox alignment="CENTER" styleClass="pill-food-donor">
+                                                                    <children>
+                                                                        <Label text="Food Donor" textFill="#15803D">
+                                                                            <font>
+                                                                                <Font name="System Bold" size="11.0" />
+                                                                            </font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label prefWidth="180.0" text="Commercial Bakery" textFill="#4B5563" />
+                                                        <Label prefWidth="150.0" text="Quezon City" textFill="#4B5563" />
+                                                        <Label prefWidth="160.0" text="Oct 4, 8:30 AM" textFill="#6B7280" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Button styleClass="table-review-btn" text="Review ›" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- DATA ROW 3 -->
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="form-label" text="Kalinga sa Maralita Feeding Hub" />
+                                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                                            <children>
+                                                                <HBox alignment="CENTER" styleClass="pill-food-org">
+                                                                    <children>
+                                                                        <Label text="Food Organization" textFill="#0369A1">
+                                                                            <font>
+                                                                                <Font name="System Bold" size="11.0" />
+                                                                            </font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label prefWidth="180.0" text="Faith-based Charity" textFill="#4B5563" />
+                                                        <Label prefWidth="150.0" text="Caloocan South" textFill="#4B5563" />
+                                                        <Label prefWidth="160.0" text="Oct 3, 4:45 PM" textFill="#6B7280" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Button styleClass="table-review-btn" text="Review ›" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- DATA ROW 4 -->
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="form-label" text="Harvest Market Express Ortigas" />
+                                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                                            <children>
+                                                                <HBox alignment="CENTER" styleClass="pill-food-donor">
+                                                                    <children>
+                                                                        <Label text="Food Donor" textFill="#15803D">
+                                                                            <font>
+                                                                                <Font name="System Bold" size="11.0" />
+                                                                            </font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label prefWidth="180.0" text="Supermarket / Grocer" textFill="#4B5563" />
+                                                        <Label prefWidth="150.0" text="Mandaluyong City" textFill="#4B5563" />
+                                                        <Label prefWidth="160.0" text="Oct 3, 2:10 PM" textFill="#6B7280" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Button styleClass="table-review-btn" text="Review ›" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- DATA ROW 5 -->
+                                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                                    <children>
+                                                        <Label prefWidth="250.0" styleClass="form-label" text="St. Jude Social Ministry" />
+                                                        <HBox alignment="CENTER_LEFT" prefWidth="160.0">
+                                                            <children>
+                                                                <HBox alignment="CENTER" styleClass="pill-food-org">
+                                                                    <children>
+                                                                        <Label text="Food Organization" textFill="#0369A1">
+                                                                            <font>
+                                                                                <Font name="System Bold" size="11.0" />
+                                                                            </font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label prefWidth="180.0" text="Food Group / NGO" textFill="#4B5563" />
+                                                        <Label prefWidth="150.0" text="Manila" textFill="#4B5563" />
+                                                        <Label prefWidth="160.0" text="Oct 3, 11:40 AM" textFill="#6B7280" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Button styleClass="table-review-btn" text="Review ›" />
+                                                    </children>
+                                                </HBox>
+
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
                             </children>
                         </VBox>
 
+                        <!-- FLOATING AI ASSISTANT WIDGET -->
+                        <HBox alignment="BOTTOM_RIGHT" mouseTransparent="false" pickOnBounds="false" spacing="12.0">
+                            <padding>
+                                <Insets bottom="24.0" right="32.0" />
+                            </padding>
+                            <children>
+                                <Button styleClass="assistant-pill-btn" text="Ask ANIPLATO Assistant" />
+                                <StackPane alignment="TOP_RIGHT">
+                                    <children>
+                                        <Button styleClass="assistant-circle-btn" text="✨" />
+                                        <HBox alignment="CENTER" styleClass="notification-badge">
+                                            <children>
+                                                <Label text="1" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="System Bold" size="10.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </StackPane>
+                            </children>
+                        </HBox>
+
                     </children>
-                </VBox>
+                </StackPane>
+
             </children>
-        </VBox>
+        </HBox>
 
     </children>
 </VBox>
