@@ -97,6 +97,7 @@ public final class Navigator {
     private static StackPane content;
     private static Role currentRole;
     private static Screen currentScreen;
+    private static Runnable screenListener;
 
     private Navigator() {}
 
@@ -122,6 +123,22 @@ public final class Navigator {
         content = area;
     }
 
+    /** Called by ShellController so the sidebar can refresh its highlight after every in-shell navigation. */
+    public static void setScreenListener(Runnable listener) {
+        screenListener = listener;
+    }
+
+    /** The screen whose sidebar button should look active while the given screen is shown. */
+    public static Screen sidebarScreenFor(Screen screen) {
+        return switch (screen) {
+            case REVIEW_REGISTRATION -> Screen.PENDING_REGISTRATIONS;
+            case MAKE_OFFER -> Screen.BROWSE_LISTINGS;
+            case LISTING_OFFERS -> Screen.MY_LISTINGS;
+            case HANDOFF_RECORD -> Screen.HISTORY;
+            default -> screen;
+        };
+    }
+
     public static Role currentRole() {
         return currentRole == null ? Role.ADMIN : currentRole;
     }
@@ -134,6 +151,7 @@ public final class Navigator {
         // TODO(service): MaintenanceService.runMaintenance() runs on every screen load (6.6, A4)
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
+            screenListener = null;                // so does the shell's highlight listener
             if (screen == Screen.SHELL) {
                 if (currentRole == null) currentRole = Role.ADMIN;
                 if (currentScreen == null || currentScreen.kind == Kind.WINDOW) {
@@ -153,6 +171,7 @@ public final class Navigator {
             }
             currentScreen = screen;
             content.getChildren().setAll(load(screen));
+            if (screenListener != null) screenListener.run();   // move the sidebar highlight
         }
     }
 
@@ -161,7 +180,7 @@ public final class Navigator {
             case FOODGROUP_DASHBOARD, BROWSE_LISTINGS, MAKE_OFFER, MY_OFFERS -> Role.FOOD_GROUP;
             case DONOR_DASHBOARD, LISTING_FORM, MY_LISTINGS, LISTING_OFFERS -> Role.DONOR;
             case ADMIN_DASHBOARD, PENDING_REGISTRATIONS, REVIEW_REGISTRATION,
-                    ACCOUNTS, SAFETY_NOTICES, REPORTS -> Role.ADMIN;
+                 ACCOUNTS, SAFETY_NOTICES, REPORTS -> Role.ADMIN;
             case PROFILE, HISTORY, HANDOFF_RECORD -> currentRole();
             default -> Role.ADMIN;
         };
