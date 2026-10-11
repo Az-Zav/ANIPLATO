@@ -149,16 +149,19 @@
                                         </ComboBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
+                                                <!-- PATTERN:DYNAMIC visibility: businessRegFileBox shown once a file is uploaded; businessRegUploadBtn until then -->
+                                                <HBox fx:id="businessRegFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label text="📄" />
                                                         <!-- PATTERN:DYNAMIC businessRegFile : uploaded file name -->
                                                         <Label fx:id="businessRegFileLabel" styleClass="file-name" text="sample-certificate.pdf" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- TODO: upload handler (FileStorageService) -->
-                                                        <Button styleClass="link-button" text="Replace" />
+                                                        <!-- PATTERN:ACTION handleUploadBusinessReg -->
+                                                        <Button onAction="#handleUploadBusinessReg" styleClass="link-button" text="Replace" />
                                                     </children>
                                                 </HBox>
+                                                <!-- PATTERN:ACTION handleUploadBusinessReg -->
+                                                <Button fx:id="businessRegUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadBusinessReg" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
                                                 <DatePicker fx:id="businessRegExpiryPicker" prefWidth="140.0" promptText="2029-03-14" />
                                             </children>
                                         </HBox>
@@ -178,16 +181,19 @@
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
+                                                <!-- PATTERN:DYNAMIC visibility: mayorsPermitFileBox shown once a file is uploaded; mayorsPermitUploadBtn until then -->
+                                                <HBox fx:id="mayorsPermitFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label text="📄" />
                                                         <!-- PATTERN:DYNAMIC mayorsPermitFile : uploaded file name -->
                                                         <Label fx:id="mayorsPermitFileLabel" styleClass="file-name" text="sample-permit-2026.pdf" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- TODO: upload handler (FileStorageService) -->
-                                                        <Button styleClass="link-button" text="Replace" />
+                                                        <!-- PATTERN:ACTION handleUploadMayorsPermit -->
+                                                        <Button onAction="#handleUploadMayorsPermit" styleClass="link-button" text="Replace" />
                                                     </children>
                                                 </HBox>
+                                                <!-- PATTERN:ACTION handleUploadMayorsPermit -->
+                                                <Button fx:id="mayorsPermitUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadMayorsPermit" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
                                                 <DatePicker fx:id="mayorsPermitExpiryPicker" prefWidth="140.0" promptText="2026-12-31" />
                                             </children>
                                         </HBox>
@@ -206,8 +212,19 @@
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <!-- TODO: upload handler (FileStorageService) -->
-                                                <Button fx:id="sanitaryPermitUploadBtn" maxWidth="1.7976931348623157E308" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
+                                                <!-- PATTERN:DYNAMIC visibility: sanitaryPermitFileBox shown once a file is uploaded; sanitaryPermitUploadBtn until then -->
+                                                <!-- PATTERN:ACTION handleUploadSanitaryPermit -->
+                                                <Button fx:id="sanitaryPermitUploadBtn" maxWidth="1.7976931348623157E308" onAction="#handleUploadSanitaryPermit" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
+                                                <HBox fx:id="sanitaryPermitFileBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" styleClass="file-pill" visible="false" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label text="📄" />
+                                                        <!-- PATTERN:DYNAMIC sanitaryPermitFile : uploaded file name -->
+                                                        <Label fx:id="sanitaryPermitFileLabel" styleClass="file-name" text="sample-sanitary-permit.pdf" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:ACTION handleUploadSanitaryPermit -->
+                                                        <Button onAction="#handleUploadSanitaryPermit" styleClass="link-button" text="Replace" />
+                                                    </children>
+                                                </HBox>
                                                 <DatePicker fx:id="sanitaryPermitExpiryPicker" prefWidth="140.0" promptText="Expiry date" />
                                             </children>
                                         </HBox>
@@ -225,8 +242,19 @@
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <!-- TODO: upload handler (FileStorageService) -->
-                                                <Button fx:id="fdaLicenseUploadBtn" maxWidth="1.7976931348623157E308" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
+                                                <!-- PATTERN:DYNAMIC visibility: fdaLicenseFileBox shown once a file is uploaded; fdaLicenseUploadBtn until then -->
+                                                <!-- PATTERN:ACTION handleUploadFdaLicense -->
+                                                <Button fx:id="fdaLicenseUploadBtn" maxWidth="1.7976931348623157E308" onAction="#handleUploadFdaLicense" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
+                                                <HBox fx:id="fdaLicenseFileBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" styleClass="file-pill" visible="false" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label text="📄" />
+                                                        <!-- PATTERN:DYNAMIC fdaLicenseFile : uploaded file name -->
+                                                        <Label fx:id="fdaLicenseFileLabel" styleClass="file-name" text="sample-fda-license.pdf" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:ACTION handleUploadFdaLicense -->
+                                                        <Button onAction="#handleUploadFdaLicense" styleClass="link-button" text="Replace" />
+                                                    </children>
+                                                </HBox>
                                                 <DatePicker fx:id="fdaLicenseExpiryPicker" prefWidth="140.0" promptText="Expiry date" />
                                             </children>
                                         </HBox>
@@ -261,16 +289,19 @@
                                         </ComboBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
+                                                <!-- PATTERN:DYNAMIC visibility: credentialFileBox shown once a file is uploaded; credentialUploadBtn until then -->
+                                                <HBox fx:id="credentialFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label text="📄" />
                                                         <!-- PATTERN:DYNAMIC credentialFile : uploaded file name -->
                                                         <Label fx:id="credentialFileLabel" styleClass="file-name" text="sample-registration.pdf" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- TODO: upload handler (FileStorageService) -->
-                                                        <Button styleClass="link-button" text="Replace" />
+                                                        <!-- PATTERN:ACTION handleUploadCredential -->
+                                                        <Button onAction="#handleUploadCredential" styleClass="link-button" text="Replace" />
                                                     </children>
                                                 </HBox>
+                                                <!-- PATTERN:ACTION handleUploadCredential -->
+                                                <Button fx:id="credentialUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadCredential" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
                                                 <DatePicker fx:id="credentialExpiryPicker" prefWidth="140.0" promptText="2027-06-30" />
                                             </children>
                                         </HBox>
@@ -290,16 +321,19 @@
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
+                                                <!-- PATTERN:DYNAMIC visibility: authLetterFileBox shown once a file is uploaded; authLetterUploadBtn until then -->
+                                                <HBox fx:id="authLetterFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="file-pill" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label text="📄" />
                                                         <!-- PATTERN:DYNAMIC authLetterFile : uploaded file name -->
                                                         <Label fx:id="authLetterFileLabel" styleClass="file-name" text="sample-authorization-letter.pdf" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- TODO: upload handler (FileStorageService) -->
-                                                        <Button styleClass="link-button" text="Replace" />
+                                                        <!-- PATTERN:ACTION handleUploadAuthLetter -->
+                                                        <Button onAction="#handleUploadAuthLetter" styleClass="link-button" text="Replace" />
                                                     </children>
                                                 </HBox>
+                                                <!-- PATTERN:ACTION handleUploadAuthLetter -->
+                                                <Button fx:id="authLetterUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadAuthLetter" styleClass="upload-button" text="📤  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
                                                 <DatePicker fx:id="authLetterExpiryPicker" disable="true" prefWidth="140.0" promptText="No expiry" />
                                             </children>
                                         </HBox>
