@@ -143,7 +143,7 @@
 }
 
 /* ==========================================================================
-   TYPOGRAPHY (replaces inline <font> and textFill in FXML)
+   TYPOGRAPHY
    ========================================================================== */
 .page-title {
     -fx-font-size: 26px;
@@ -174,7 +174,6 @@
     -fx-text-fill: #15803D;
 }
 
-/* Bold link; add .link-lg for the 13px size */
 .link-bold {
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -189,6 +188,12 @@
     -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: #111827;
+}
+
+.stat-value-orange {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D97706;
 }
 
 .stat-unit {
@@ -250,7 +255,7 @@
     -fx-text-fill: #D1FAE5;
 }
 
-/* Shell sidebar buttons; ShellController moves -active on click */
+/* Shell sidebar buttons */
 .sidebar-button {
     -fx-background-color: transparent;
     -fx-text-fill: #A7F3D0;
@@ -313,7 +318,7 @@
     -fx-text-fill: #6B7280;
 }
 
-/* Icon chips: put the class on the Label itself */
+/* Icon chips */
 .stat-icon-orange {
     -fx-background-color: #FEF3C7;
     -fx-background-radius: 8px;
@@ -362,7 +367,7 @@
     -fx-border-width: 0 0 1px 0;
 }
 
-/* Status Pills: put the class on the Label itself */
+/* Status Pills */
 .pill-food-org {
     -fx-background-color: #E0F2FE;
     -fx-background-radius: 20px;
@@ -423,7 +428,7 @@
     -fx-padding: 1px 5px;
 }
 
-/* Card Container Shadow & Radius (single definition; was duplicated at 16px and 20px) */
+/* Card Container Shadow & Radius */
 .card-container {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 20px;
@@ -439,7 +444,6 @@
     -fx-padding: 3px;
 }
 
-/* ToggleButtons in a ToggleGroup: :selected is the active segment */
 .segment-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #6B7280;
@@ -461,9 +465,7 @@
 }
 
 /* ==========================================================================
-   REGISTER STEP INDICATOR (steps 1 and 2)
-   Dot = Circle (-fx-fill); number/check = Label; name = Label.
-   States: idle, active, done.
+   REGISTER STEP INDICATOR
    ========================================================================== */
 .step-connector {
     -fx-background-color: #D1D5DB;
@@ -507,7 +509,7 @@
 }
 
 /* ==========================================================================
-   REGISTER DOCUMENTS (step 2)
+   REGISTER DOCUMENTS
    ========================================================================== */
 .doc-title {
     -fx-font-weight: bold;
@@ -576,7 +578,7 @@
     -fx-underline: true;
 }
 
-/* Donor dashboard content inside the shared shell */
+/* Donor dashboard content */
 .dashboard-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -624,4 +626,52 @@
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-text-fill: #15803D;
+}
+
+/* ==========================================================================
+   PENDING REGISTRATIONS / EXTRA TAGS
+   ========================================================================== */
+.tag-new {
+    -fx-background-color: #F3F4F6;
+    -fx-background-radius: 4px;
+    -fx-padding: 1px 6px;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4B5563;
+}
+
+.tag-reregistered {
+    -fx-background-color: #FEF3C7;
+    -fx-background-radius: 4px;
+    -fx-padding: 1px 6px;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #B45309;
+}
+
+.table-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Suspend Button - Red Border & Red Text */
+.table-suspend-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #fca5a5; /* Light red border */
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #991b1b;    /* Dark red text */
+    -fx-font-weight: bold;
+    -fx-padding: 6px 16px;
+    -fx-cursor: hand;
+}
+
+.table-suspend-btn:hover {
+    -fx-background-color: #fef2f2; /* Light red fill on hover */
+    -fx-border-color: #f87171;
 }
