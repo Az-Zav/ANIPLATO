@@ -124,6 +124,91 @@ When a screen shows different sections for different cases, build every section,
 
 `managed="false"` makes the hidden section take no space. To design a hidden section, flip both values in Scene Builder, then flip them back before you save.
 
+## 4b. Worked example: different cards per role
+
+**When to use this:** one screen shows different cards depending on who is using it. Example: on Registration step 2, a business donor uploads 2 documents and a food group uploads 2 *different* documents.
+
+**The idea:** build every version in the FXML. The code only decides which one is shown. You never add or remove cards from Java for this.
+
+### Step 1: One container per case
+
+Wrap each set of cards in its own `VBox` and give it an `fx:id`. Name it after the case, ending in `Box`.
+
+```xml
+<!-- PATTERN:DYNAMIC visibility: donorDocsBox shown for business donors (default) -->
+<VBox fx:id="donorDocsBox">
+    <!-- card 1: Business registration -->
+    <!-- card 2: Mayor's permit -->
+</VBox>
+
+<!-- PATTERN:DYNAMIC visibility: foodGroupDocsBox shown for food groups (hidden by default) -->
+<VBox fx:id="foodGroupDocsBox" visible="false" managed="false">
+    <!-- card 1: Credential -->
+    <!-- card 2: Authorization letter -->
+</VBox>
+```
+
+### Step 2: Pick one default, hide the rest
+
+- The **default** case is visible. Leave it alone.
+- Every other case gets `visible="false" managed="false"`.
+- `visible` hides it. `managed` makes it take no space, so there's no gap.
+
+To design a hidden box, flip both values to `true` in Scene Builder, then flip them back to `false` before you save.
+
+### Step 3: Tag changing text inside the cards
+
+Each card's file name is data, so it gets an `fx:id` and a `PATTERN:DYNAMIC` tag, like any dynamic label (section 3).
+
+```xml
+<!-- PATTERN:DYNAMIC businessRegFile : uploaded file name -->
+<Label fx:id="businessRegFileLabel" text="business-permit.pdf"/>
+```
+
+### Step 4: Declare the controller fields
+
+In the controller, add one `@FXML` field per container and a `TODO(service)` line saying what decides it. Don't write the logic.
+
+```java
+@FXML private VBox donorDocsBox;
+@FXML private VBox foodGroupDocsBox;
+
+// PATTERN:DYNAMIC fills placeholders
+@FXML
+private void initialize() {
+    // TODO(service): show donorDocsBox or foodGroupDocsBox based on the role in the registration draft
+}
+```
+
+### What the Java dev does later
+
+They turn that TODO into this, and nothing in your FXML changes:
+
+```java
+boolean foodGroup = RegistrationDraft.role() == Role.FOOD_GROUP;
+donorDocsBox.setVisible(!foodGroup);
+donorDocsBox.setManaged(!foodGroup);
+foodGroupDocsBox.setVisible(foodGroup);
+foodGroupDocsBox.setManaged(foodGroup);
+```
+
+The controller only decides what to show. Rules, such as which documents are required to submit, stay in the service (A1).
+
+### Checklist before you commit
+
+- [ ] Every case has its own container with an `fx:id`.
+- [ ] Exactly one container is visible by default.
+- [ ] All hidden containers have both `visible="false"` and `managed="false"`.
+- [ ] Each container has a `PATTERN:DYNAMIC visibility:` comment above it.
+- [ ] The controller has a field and a `TODO(service)` line for each container.
+
+### Use this vs. a list
+
+| Situation | Pattern |
+|---|---|
+| A fixed set of cards that differs by role or case | This section: build all, hide some |
+| Rows that come from data (listings, pending accounts) | Section 5: one sample row, `PATTERN:LIST` |
+
 ## 5. Lists and tables
 
 - Design **one** sample row or card, tag the container `PATTERN:LIST`, and give the container an `fx:id`. The code removes the sample and adds one row per item.
