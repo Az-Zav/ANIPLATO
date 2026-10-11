@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="720.0" prefWidth="1280.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.ShellController">
+    <stylesheets>
+        <URL value="@../aniplato.css" />
+    </stylesheets>
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="64.0" styleClass="top-header" BorderPane.alignment="CENTER">
+            <padding><Insets left="24.0" right="24.0" /></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <ImageView fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/assets/aniplato-logo-circle 1.png" /></image>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="shell-brand-name" text="ANIPLATO" />
+                                <Label styleClass="shell-brand-tagline" text="FOOD RESCUE AND REDISTRIBUTION SYSTEM" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox alignment="CENTER" spacing="16.0">
+                    <children>
+                        <!-- PATTERN:DYNAMIC userRole : logged-in account's role -->
+                        <Label fx:id="userRoleLabel" styleClass="form-label" text="Admin" />
+                        <!-- PATTERN:ACTION handleLogout -->
+                        <Button fx:id="logoutBtn" onAction="#handleLogout" styleClass="secondary-button" text="Log Out" />
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+    </top>
+    <left>
+        <!-- PATTERN:DYNAMIC active navigation item -->
+        <VBox fx:id="sidebar" prefWidth="240.0" spacing="8.0" styleClass="sidebar-container" BorderPane.alignment="CENTER">
+            <padding><Insets bottom="24.0" left="16.0" right="16.0" top="24.0" /></padding>
+            <children>
+                <!-- PATTERN:NAV -> ADMIN_DASHBOARD -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, sidebar-button-active, nav-admin-dashboard, icon-dashboard, role-admin" text="Dashboard" />
+                <!-- PATTERN:NAV -> PENDING_REGISTRATIONS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-pending-registrations, icon-pending-accounts, badge-14, role-admin" text="Pending Accounts" />
+                <!-- PATTERN:NAV -> REPORTS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-reports, icon-reports, role-admin" text="Reports" />
+                <!-- PATTERN:NAV -> SAFETY_NOTICES -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-safety-notices, icon-safety-notices, badge-2, role-admin" text="Safety Notices" />
+                <!-- PATTERN:NAV -> ACCOUNTS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-accounts, icon-all-accounts, role-admin" text="All Accounts" />
+                <!-- PATTERN:NAV -> FOODGROUP_DASHBOARD -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-foodgroup-dashboard, icon-dashboard, role-foodgroup" text="Dashboard" />
+                <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-browse-listings, icon-my-listings, role-foodgroup" text="Browse Listings" />
+                <!-- PATTERN:NAV -> MY_OFFERS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-pending-accounts, role-foodgroup" text="My Offers" />
+                <!-- PATTERN:NAV -> DONOR_DASHBOARD -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-dashboard, icon-dashboard, role-donor" text="Dashboard" />
+                <!-- PATTERN:NAV -> LISTING_FORM -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-form, icon-new-listing, role-donor" text="New Listing" />
+                <!-- PATTERN:NAV -> MY_LISTINGS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-listings, icon-my-listings, role-donor" text="My Listings" />
+                <!-- PATTERN:NAV -> HISTORY -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-history, icon-history, role-foodgroup, role-donor" text="History" />
+                <!-- PATTERN:NAV -> PROFILE -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-profile, icon-profile, role-all" text="Profile" />
+            </children>
+        </VBox>
+    </left>
+    <center>
+        <!-- PATTERN:DYNAMIC current screen content -->
+        <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+    </center>
+</BorderPane>

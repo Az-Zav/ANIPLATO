@@ -328,7 +328,6 @@ aniplato/
     │   │
     │   ├── view/                             (FXML + CSS, mirrors controller/)
     │   │   ├── aniplato.css
-    │   │   ├── shell.fxml
     │   │   ├── login.fxml
     │   │   ├── register.fxml
     │   │   ├── register-step2.fxml
@@ -349,6 +348,7 @@ aniplato/
     │   │   │   ├── make-offer.fxml
     │   │   │   └── my-offers.fxml
     │   │   └── shared/
+    │   │       ├── shell.fxml
     │   │       ├── listing-form.fxml
     │   │       ├── my-listings.fxml
     │   │       ├── listing-offers.fxml
@@ -414,6 +414,7 @@ aniplato/
     │       ├── PasswordHasher                (BCrypt)
     │       ├── Settings                      (2h grace, 30-day warning, 5 photos)
     │       ├── Session                       (who is logged in)
+    │       ├── SvgIcon                       (loads bundled sidebar SVG assets)
     │       └── Navigator                     (switches screens; only place that knows view paths; see docs/FXML-GUIDE.md)
     │
     └── resources/
@@ -724,4 +725,3 @@ Every email the app sends.
 * **Emails:** Received (confirms the submission); Approved (temporary login, set a password on first login); Not approved (the admin's reasons, register again).
 
 * **Settings:** lapse grace period 2 hours; expiry warning 30 days; temporary password has no time limit (R1.7).
-
