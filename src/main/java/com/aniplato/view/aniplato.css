@@ -77,6 +77,18 @@
     -fx-border-width: 0 0 1px 0;
 }
 
+.shell-brand-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #03521E;
+}
+
+.shell-brand-tagline {
+    -fx-font-weight: bold;
+    -fx-font-size: 9px;
+    -fx-text-fill: #9CA3AF;
+}
+
 /* Card Container */
 .card-container {
     -fx-background-color: #FFFFFF;
@@ -201,6 +213,25 @@
     -fx-background-color: rgba(255, 255, 255, 0.15);
     -fx-text-fill: #FFFFFF;
     -fx-font-weight: bold;
+}
+
+.sidebar-nav-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #A7F3D0;
+}
+
+.sidebar-button-active .sidebar-nav-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+}
+
+.sidebar-count-badge {
+    -fx-background-color: #D97706;
+    -fx-background-radius: 12px;
+    -fx-padding: 2px 7px;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
 }
 
 .badge-count {

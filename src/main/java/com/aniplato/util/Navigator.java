@@ -20,6 +20,27 @@ import java.net.URL;
 public final class Navigator {
 
     public enum Kind { WINDOW, IN_SHELL }
+    public enum Role {
+        ADMIN("Admin", "admin"),
+        FOOD_GROUP("Food Group", "foodgroup"),
+        DONOR("Food Donor", "donor");
+
+        private final String displayName;
+        private final String key;
+
+        Role(String displayName, String key) {
+            this.displayName = displayName;
+            this.key = key;
+        }
+
+        public String displayName() {
+            return displayName;
+        }
+
+        public String key() {
+            return key;
+        }
+    }
 
     public enum Screen {
         // Full-window screens (replace the whole scene)
@@ -27,7 +48,7 @@ public final class Navigator {
         REGISTER("register.fxml", Kind.WINDOW),
         REGISTER_STEP2("register-step2.fxml", Kind.WINDOW),
         REGISTER_SUBMITTED("register-submitted.fxml", Kind.WINDOW),
-        SHELL("shell.fxml", Kind.WINDOW),
+        SHELL("shared/shell.fxml", Kind.WINDOW),
 
         // Screens loaded into the shell's content area
         PROFILE("profile.fxml", Kind.IN_SHELL),
@@ -74,6 +95,8 @@ public final class Navigator {
 
     private static Scene scene;
     private static StackPane content;
+    private static Role currentRole;
+    private static Screen currentScreen;
 
     private Navigator() {}
 
@@ -99,15 +122,57 @@ public final class Navigator {
         content = area;
     }
 
+    public static Role currentRole() {
+        return currentRole == null ? Role.ADMIN : currentRole;
+    }
+
+    public static Screen currentScreen() {
+        return currentScreen;
+    }
+
     public static void show(Screen screen) {
         // TODO(service): MaintenanceService.runMaintenance() runs on every screen load (6.6, A4)
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
+            if (screen == Screen.SHELL) {
+                if (currentRole == null) currentRole = Role.ADMIN;
+                if (currentScreen == null || currentScreen.kind == Kind.WINDOW) {
+                    currentScreen = dashboardFor(currentRole);
+                }
+            } else {
+                currentRole = null;
+                currentScreen = screen;
+            }
             scene.setRoot(load(screen));
         } else {
-            if (content == null) show(Screen.SHELL);
+            Role role = roleFor(screen);
+            if (content == null || currentRole != role) {
+                currentRole = role;
+                currentScreen = screen;
+                scene.setRoot(load(Screen.SHELL));
+            }
+            currentScreen = screen;
             content.getChildren().setAll(load(screen));
         }
+    }
+
+    private static Role roleFor(Screen screen) {
+        return switch (screen) {
+            case FOODGROUP_DASHBOARD, BROWSE_LISTINGS, MAKE_OFFER, MY_OFFERS -> Role.FOOD_GROUP;
+            case DONOR_DASHBOARD, LISTING_FORM, MY_LISTINGS, LISTING_OFFERS -> Role.DONOR;
+            case ADMIN_DASHBOARD, PENDING_REGISTRATIONS, REVIEW_REGISTRATION,
+                    ACCOUNTS, SAFETY_NOTICES, REPORTS -> Role.ADMIN;
+            case PROFILE, HISTORY, HANDOFF_RECORD -> currentRole();
+            default -> Role.ADMIN;
+        };
+    }
+
+    private static Screen dashboardFor(Role role) {
+        return switch (role) {
+            case ADMIN -> Screen.ADMIN_DASHBOARD;
+            case FOOD_GROUP -> Screen.FOODGROUP_DASHBOARD;
+            case DONOR -> Screen.DONOR_DASHBOARD;
+        };
     }
 
     private static Parent load(Screen screen) {

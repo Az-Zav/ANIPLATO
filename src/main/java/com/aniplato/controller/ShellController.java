@@ -2,10 +2,16 @@ package com.aniplato.controller;
 
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.SvgIcon;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -21,6 +27,23 @@ public class ShellController {
     @FXML
     private void initialize() {
         Navigator.setContent(contentArea);
+        Navigator.Role role = Navigator.currentRole();
+        userRoleLabel.setText(role.displayName());
+        String roleClass = "role-" + role.key();
+        sidebar.getChildren().removeIf(item -> item instanceof Button button
+                && !button.getStyleClass().contains(roleClass)
+                && !button.getStyleClass().contains("role-all"));
+
+        sidebar.getChildren().stream()
+                .filter(Button.class::isInstance)
+                .map(Button.class::cast)
+                .forEach(button -> {
+                    configureIcon(button);
+                    boolean active = button.getStyleClass().contains("nav-" + Navigator.currentScreen().key());
+                    button.getStyleClass().remove(ACTIVE);
+                    if (active) button.getStyleClass().add(ACTIVE);
+                });
+
         // Sidebar buttons navigate via "nav-*" classes; this only moves the highlight
         sidebar.addEventHandler(ActionEvent.ACTION, e -> {
             if (e.getTarget() instanceof Node item) {
@@ -30,8 +53,52 @@ public class ShellController {
         });
 
         // PATTERN:DYNAMIC fills placeholders
-        // TODO(service): userRoleLabel.setText(...) from the logged-in account
-        // TODO(service): build the sidebar from Navigator.menuFor(role) instead of the FXML admin items
+        // TODO(service): userRoleLabel.setText(account.getRole().toString())
+    }
+
+    private void configureIcon(Button button) {
+        String iconName = button.getStyleClass().stream()
+                .filter(styleClass -> styleClass.startsWith("icon-"))
+                .map(styleClass -> styleClass.substring("icon-".length()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Sidebar button has no icon class: " + button.getText()));
+        String filename = switch (iconName) {
+            case "all-accounts" -> "AllAccountsIcon.svg";
+            case "dashboard" -> "Dashboard Icon.svg";
+            case "history" -> "HistoryIcon.svg";
+            case "my-listings" -> "MyListingsIcon.svg";
+            case "new-listing" -> "NewListingIcon.svg";
+            case "pending-accounts" -> "PendingAccountsIcon.svg";
+            case "profile" -> "ProfileIcon.svg";
+            case "reports" -> "ReportsIcon.svg";
+            case "safety-notices" -> "SafetyNotices.svg";
+            default -> throw new IllegalStateException("Unknown sidebar icon: " + iconName);
+        };
+        Node icon = SvgIcon.load("/assets/" + filename, 17);
+        Label label = new Label(button.getText());
+        label.getStyleClass().add("sidebar-nav-label");
+
+        HBox content = new HBox(12);
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setPrefWidth(180);
+        content.getChildren().addAll(icon, label);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        content.getChildren().add(spacer);
+
+        button.getStyleClass().stream()
+                .filter(styleClass -> styleClass.startsWith("badge-"))
+                .findFirst()
+                .ifPresent(styleClass -> {
+                    Label badge = new Label(styleClass.substring("badge-".length()));
+                    badge.getStyleClass().add("sidebar-count-badge");
+                    content.getChildren().add(badge);
+                });
+
+        button.setText("");
+        button.setGraphic(content);
+        button.setGraphicTextGap(0);
     }
 
     // PATTERN:ACTION placeholder: navigates only
