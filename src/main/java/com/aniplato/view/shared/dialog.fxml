@@ -1,7 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.aniplato.controller.shared.DialogController" styleClass="screen">
-    <Label text="shared/dialog"/>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" styleClass="modal-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.DialogController">
+    <stylesheets>
+        <URL value="@../aniplato.css" />
+    </stylesheets>
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+    </padding>
+    <children>
+
+        <!-- =================================================================== -->
+        <!-- 1. REJECT ORGANIZATION DIALOG                                       -->
+        <!-- =================================================================== -->
+        <!-- PATTERN:DYNAMIC visibility: rejectDialogBox shown when rejecting -->
+        <VBox fx:id="rejectDialogBox" maxWidth="480.0" spacing="20.0" styleClass="modal-card">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="✕" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Reject this organization?" />
+                                <!-- PATTERN:DYNAMIC rejectDescription : includes org name -->
+                                <Label fx:id="rejectDescriptionLabel" styleClass="text-muted" text="We’ll email San Antonio Community Pantry your reason so they can fix their documents and register again. No account is created." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Reason (sent by email) *" />
+                        <TextArea fx:id="rejectReasonTextArea" prefRowCount="3" promptText="e.g., The Mayor’s Permit is expired. Upload the 2026 permit." styleClass="text-area" wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <!-- PATTERN:ACTION handleCancel -->
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <!-- PATTERN:ACTION handleConfirmReject -->
+                        <Button minWidth="100.0" onAction="#handleConfirmReject" styleClass="danger-button" text="✕ Reject" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 2. APPROVE ORGANIZATION DIALOG                                      -->
+        <!-- =================================================================== -->
+        <!-- PATTERN:DYNAMIC visibility: approveDialogBox shown when approving -->
+        <VBox fx:id="approveDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <!-- FIXED: Checkmark badge icon -->
+                        <Label styleClass="modal-icon-green" text="✓" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Approve this organization?" />
+                                <!-- PATTERN:DYNAMIC approveDescription : includes org name and contact email -->
+                                <Label fx:id="approveDescriptionLabel" styleClass="text-muted" text="We’ll create San Antonio Community Pantry’s account and email temporary login details to contact@sanantoniopantry.ph." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <!-- PATTERN:ACTION handleCancel -->
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <!-- PATTERN:ACTION handleConfirmApprove -->
+                        <Button minWidth="110.0" onAction="#handleConfirmApprove" styleClass="primary-button" text="✓ Approve" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+    </children>
 </VBox>

@@ -1,11 +1,15 @@
 package com.aniplato.controller.admin;
 
-import com.aniplato.util.Navigator;
-import com.aniplato.util.Navigator.Screen;
+import com.aniplato.controller.shared.DialogController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 public class ReviewRegistrationController {
+
+    // Nested Dialog Controller and Overlay Container (Injected from <fx:include fx:id="dialog" ... />)
+    @FXML private DialogController dialogController;
+    @FXML private VBox dialog;
 
     // Dynamic Header & Form Fields
     @FXML private Label orgTitleLabel;
@@ -42,17 +46,36 @@ public class ReviewRegistrationController {
         // TODO(service): flag problem on document
     }
 
-    // PATTERN:ACTION placeholder: rejects registration
+    // PATTERN:ACTION opens Reject modal dialog overlay
     @FXML
     private void handleReject() {
-        // TODO(service): registrationService.reject(...)
-        Navigator.show(Screen.PENDING_REGISTRATIONS);
+        if (dialog != null && dialogController != null) {
+            dialog.setVisible(true);
+            dialog.setManaged(true);
+
+            String orgName = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
+                    ? orgNameLabel.getText()
+                    : "San Antonio Community Pantry";
+
+            dialogController.showRejectMode(orgName);
+        }
     }
 
-    // PATTERN:ACTION placeholder: approves registration
+    // PATTERN:ACTION opens Approve modal dialog overlay
     @FXML
     private void handleApprove() {
-        // TODO(service): registrationService.approve(...)
-        Navigator.show(Screen.PENDING_REGISTRATIONS);
+        if (dialog != null && dialogController != null) {
+            dialog.setVisible(true);
+            dialog.setManaged(true);
+
+            String orgName = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
+                    ? orgNameLabel.getText()
+                    : "San Antonio Community Pantry";
+            String orgEmail = (emailLabel != null && !emailLabel.getText().isEmpty())
+                    ? emailLabel.getText()
+                    : "contact@sanantoniopantry.ph";
+
+            dialogController.showApproveMode(orgName, orgEmail);
+        }
     }
 }
