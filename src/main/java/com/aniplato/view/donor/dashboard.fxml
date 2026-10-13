@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
+<!-- Icons to be changed to SVG icons later -->
 
 <VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.DonorDashboardController">
     <stylesheets>

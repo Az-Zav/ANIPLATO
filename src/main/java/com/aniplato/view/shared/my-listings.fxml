@@ -1,7 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.aniplato.controller.shared.MyListingsController" styleClass="screen">
-    <Label text="shared/my-listings"/>
-</VBox>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.MyListingsController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
+    <content>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label styleClass="page-title" text="My Listings" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <!-- PATTERN:NAV -> LISTING_FORM -->
+                        <Button styleClass="primary-button, nav-listing-form" text="New Listing" />
+                    </children>
+                </HBox>
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-card-title" text="ACTIVE LISTINGS" />
+                                <!-- PATTERN:DYNAMIC activeListingsCountLabel : whole number -->
+                                <Label fx:id="activeListingsCountLabel" styleClass="dashboard-metric-value" text="5" />
+                                <Label styleClass="dashboard-subtitle" text="178 kg in total" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-card-title" text="ACCEPTED, AWAITING PICKUP" />
+                                <!-- PATTERN:DYNAMIC awaitingPickupCountLabel : whole number -->
+                                <Label fx:id="awaitingPickupCountLabel" styleClass="dashboard-metric-value" text="2" />
+                                <Label styleClass="dashboard-subtitle" text="95 kg · confirm at pickup" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-card-title" text="OPEN ON BOARD" />
+                                <!-- PATTERN:DYNAMIC openOnBoardCountLabel : whole number -->
+                                <Label fx:id="openOnBoardCountLabel" styleClass="dashboard-metric-value" text="3" />
+                                <Label styleClass="dashboard-subtitle" text="83 kg · 7 offers to review" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <padding><Insets bottom="20.0" left="24.0" right="24.0" top="24.0" /></padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <!-- PATTERN:ACTION handleFilterAll -->
+                                <Button onAction="#handleFilterAll" styleClass="secondary-button" text="All (5)" />
+                                <!-- PATTERN:ACTION handleFilterAccepted -->
+                                <Button onAction="#handleFilterAccepted" styleClass="secondary-button" text="Accepted (2)" />
+                                <!-- PATTERN:ACTION handleFilterOpen -->
+                                <Button onAction="#handleFilterOpen" styleClass="secondary-button" text="Open (3)" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <!-- PATTERN:DYNAMIC listingSearchField : search listings -->
+                                <TextField fx:id="listingSearchField" prefWidth="268.0" promptText="Search food or food group…" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
+                            <children>
+                                <Label prefWidth="166.0" styleClass="table-header-text" text="FOOD" />
+                                <Label prefWidth="64.0" styleClass="table-header-text" text="KG" />
+                                <Label prefWidth="130.0" styleClass="table-header-text" text="USE-BY" />
+                                <Label prefWidth="96.0" styleClass="table-header-text" text="STATUS" />
+                                <Label prefWidth="150.0" styleClass="table-header-text" text="ACCEPTED OFFER" />
+                                <Label prefWidth="116.0" styleClass="table-header-text" text="PICKUP" />
+                                <Label prefWidth="84.0" styleClass="table-header-text" text="RECEIPT" />
+                                <Region HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                        <!-- PATTERN:LIST listingRowsBox : one row per donor listing -->
+                        <VBox fx:id="listingRowsBox">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                    <children>
+                                        <Label prefWidth="166.0" styleClass="dashboard-row-primary" text="Artisan Sourdough &amp; Baguettes" />
+                                        <Label prefWidth="64.0" styleClass="dashboard-row-text" text="45 kg" />
+                                        <Label prefWidth="130.0" styleClass="dashboard-row-text" text="Today, 5:10 PM" />
+                                        <Label prefHeight="22.0" prefWidth="74.0" styleClass="listing-status-open" text="Accepted">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin></Label>
+                                        <Label prefWidth="150.0" styleClass="dashboard-row-text" text="San Roque Parish Feeding Mission" wrapText="true" />
+                                        <Label prefWidth="116.0" styleClass="dashboard-row-text" text="Today, 4:00 PM" />
+                                        <Label prefWidth="84.0" styleClass="dashboard-row-text" text="Pending">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin></Label>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleConfirmRelease -->
+                                        <Button onAction="#handleConfirmRelease" styleClass="table-review-btn" text="Confirm Release" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <!-- PATTERN:DYNAMIC emptyListingsLabel : shown when no listings match -->
+                        <Label fx:id="emptyListingsLabel" managed="false" styleClass="text-muted" text="No listings match your filters." visible="false" />
+                        <Label styleClass="text-muted" text="Rescued, expired and cancelled listings move to History." />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

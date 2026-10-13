@@ -63,9 +63,9 @@ public final class Navigator {
         BROWSE_LISTINGS("foodgroup/browse-listings.fxml", Kind.IN_SHELL),
         MAKE_OFFER("foodgroup/make-offer.fxml", Kind.IN_SHELL),
         MY_OFFERS("foodgroup/my-offers.fxml", Kind.IN_SHELL),
-        LISTING_FORM("shared/listing-form.fxml", Kind.IN_SHELL),
+        LISTING_FORM("donor/new-listing.fxml", Kind.IN_SHELL),
         MY_LISTINGS("shared/my-listings.fxml", Kind.IN_SHELL),
-        LISTING_OFFERS("shared/listing-offers.fxml", Kind.IN_SHELL),
+        LISTING_OFFERS("donor/incoming-offers.fxml", Kind.IN_SHELL),
         HISTORY("shared/history.fxml", Kind.IN_SHELL),
         HANDOFF_RECORD("shared/handoff-record.fxml", Kind.IN_SHELL);
 
