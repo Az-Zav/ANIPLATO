@@ -3,77 +3,359 @@ package com.aniplato.controller.shared;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class DialogController {
 
-    // Modal Containers
+    // 1. REJECT ORG CONTAINER & FIELDS
     @FXML private VBox rejectDialogBox;
-    @FXML private VBox approveDialogBox;
-
-    // Reject Dialog Dynamic Fields
     @FXML private Label rejectDescriptionLabel;
     @FXML private TextArea rejectReasonTextArea;
 
-    // Approve Dialog Dynamic Fields
+    // 2. APPROVE ORG CONTAINER & FIELDS
+    @FXML private VBox approveDialogBox;
     @FXML private Label approveDescriptionLabel;
+
+    // 3. RESOLVE SAFETY NOTICE CONTAINER & FIELDS
+    @FXML private VBox resolveSafetyDialogBox;
+    @FXML private Label safetyNoticeDescriptionLabel;
+    @FXML private TextArea safetyAdminNoteTextArea;
+
+    // 4. SUSPEND ACCT CONTAINER & FIELDS
+    @FXML private VBox suspendAccountDialogBox;
+    @FXML private Label suspendDescriptionLabel;
+    @FXML private TextArea suspendReasonTextArea;
+
+    // 5. REINSTATE ACCT CONTAINER & FIELDS
+    @FXML private VBox reinstateAccountDialogBox;
+    @FXML private Label reinstateDescriptionLabel;
+
+    // 6. CANCEL LISTING CONTAINER & FIELDS
+    @FXML private VBox cancelListingDialogBox;
+    @FXML private Label cancelListingDescriptionLabel;
+    @FXML private TextArea cancelListingReasonTextArea;
+
+    // 7. CONFIRM RELEASE CONTAINER & FIELDS
+    @FXML private VBox confirmReleaseDialogBox;
+    @FXML private Label releaseFoodLabel;
+    @FXML private Label releaseQuantityLabel;
+    @FXML private Label releaseFoodGroupLabel;
+    @FXML private Label releasePickupLabel;
+    @FXML private Label releaseContactLabel;
+    @FXML private CheckBox releaseSealedCheck;
+    @FXML private CheckBox releaseStorageCheck;
+    @FXML private Label releaseNoticeLabel;
+
+    // 8. FLAG SAFETY CONCERN CONTAINER & FIELDS
+    @FXML private VBox flagSafetyDialogBox;
+    @FXML private TextArea flagSafetyConcernTextArea;
+
+    // 9. ACCEPT OFFER CONTAINER & FIELDS
+    @FXML private VBox acceptOfferDialogBox;
+    @FXML private Label acceptOfferDescriptionLabel;
+
+    // 10. UPLOAD RENEWAL CONTAINER & FIELDS
+    @FXML private VBox uploadRenewalDialogBox;
+    @FXML private Label uploadRenewalTitleLabel;
+    @FXML private Label selectedRenewalFileLabel;
+    @FXML private TextField newExpiryDateField;
+
+    // 11. SET NEW PASSWORD CONTAINER & FIELDS
+    @FXML private VBox setNewPasswordDialogBox;
+    @FXML private PasswordField newPasswordField;
+    @FXML private PasswordField confirmPasswordField;
+
+    // 12. WITHDRAW OFFER CONTAINER & FIELDS
+    @FXML private VBox withdrawOfferDialogBox;
+    @FXML private Label withdrawOfferDescriptionLabel;
+
+    // 13. CONFIRM RECEIPT CONTAINER & FIELDS
+    @FXML private VBox confirmReceiptDialogBox;
+    @FXML private Label receiptFoodLabel;
+    @FXML private Label receiptQuantityLabel;
+    @FXML private Label receiptDonorLabel;
+    @FXML private Label receiptPickupLabel;
+    @FXML private Label receiptContactLabel;
+    @FXML private CheckBox receiptQuantityCheck;
+    @FXML private CheckBox receiptConditionCheck;
+    @FXML private Label receiptNoticeLabel;
 
     @FXML
     private void initialize() {
-        // Overlay stays hidden until showRejectMode() or showApproveMode() is called by parent controller
+        hideAllDialogs();
     }
 
-    /** Prepares dialog for Reject mode with target organization details. */
+    /** 1. Prepares dialog for Reject Org mode */
     public void showRejectMode(String orgName) {
+        hideAllDialogs();
         rejectDialogBox.setVisible(true);
         rejectDialogBox.setManaged(true);
-
-        approveDialogBox.setVisible(false);
-        approveDialogBox.setManaged(false);
-
         rejectDescriptionLabel.setText("We’ll email " + orgName + " your reason so they can fix their documents and register again. No account is created.");
         rejectReasonTextArea.clear();
     }
 
-    /** Prepares dialog for Approve mode with target organization details. */
+    /** 2. Prepares dialog for Approve Org mode */
     public void showApproveMode(String orgName, String orgEmail) {
+        hideAllDialogs();
         approveDialogBox.setVisible(true);
         approveDialogBox.setManaged(true);
-
-        rejectDialogBox.setVisible(false);
-        rejectDialogBox.setManaged(false);
-
         approveDescriptionLabel.setText("We’ll create " + orgName + "’s account and email temporary login details to " + orgEmail + ".");
+    }
+
+    /** 3. Prepares dialog for Resolve Safety Notice mode */
+    public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg) {
+        hideAllDialogs();
+        resolveSafetyDialogBox.setVisible(true);
+        resolveSafetyDialogBox.setManaged(true);
+        safetyNoticeDescriptionLabel.setText("Flagged by " + raisedBy + " on " + date + ": \"" + concern + "\" Close it as dismissed, or suspend " + flaggedOrg + ".");
+        safetyAdminNoteTextArea.clear();
+    }
+
+    /** 4. Prepares dialog for Suspend Acct mode */
+    public void showSuspendAccountMode(String orgName) {
+        hideAllDialogs();
+        suspendAccountDialogBox.setVisible(true);
+        suspendAccountDialogBox.setManaged(true);
+        suspendDescriptionLabel.setText(orgName + " can still log in, upload renewals and finish handoffs it already accepted. It can’t post, re-post, offer or accept, and its listings are hidden from food groups, until you reinstate it.");
+        suspendReasonTextArea.clear();
+    }
+
+    /** 5. Prepares dialog for Reinstate Acct mode */
+    public void showReinstateAccountMode(String orgName, String details) {
+        hideAllDialogs();
+        reinstateAccountDialogBox.setVisible(true);
+        reinstateAccountDialogBox.setManaged(true);
+        if (details != null && !details.isEmpty()) {
+            reinstateDescriptionLabel.setText(orgName + " gets full access again. " + details);
+        } else {
+            reinstateDescriptionLabel.setText(orgName + " gets full access again.");
+        }
+    }
+
+    /** 6. Prepares dialog for Cancel Listing mode (Donor) */
+    public void showCancelListingMode(String listingTitle, String recipientName) {
+        hideAllDialogs();
+        cancelListingDialogBox.setVisible(true);
+        cancelListingDialogBox.setManaged(true);
+        if (recipientName != null && !recipientName.isEmpty()) {
+            cancelListingDescriptionLabel.setText(listingTitle + " leaves the board. " + recipientName + "’s accepted offer is cancelled with it, and they see your reason.");
+        } else {
+            cancelListingDescriptionLabel.setText(listingTitle + " leaves the board and its listing is cancelled.");
+        }
+        cancelListingReasonTextArea.clear();
+    }
+
+    /** 7. Prepares dialog for Confirm Release mode (Donor) */
+    public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact) {
+        hideAllDialogs();
+        confirmReleaseDialogBox.setVisible(true);
+        confirmReleaseDialogBox.setManaged(true);
+        releaseFoodLabel.setText(food);
+        releaseQuantityLabel.setText(qty);
+        releaseFoodGroupLabel.setText(group);
+        releasePickupLabel.setText(pickup);
+        releaseContactLabel.setText(contact);
+        releaseSealedCheck.setSelected(true);
+        releaseStorageCheck.setSelected(true);
+        releaseNoticeLabel.setText(group + " hasn’t confirmed receipt yet. The listing becomes Rescued once they do.");
+    }
+
+    /** 8. Prepares dialog for Flag Safety Concern mode */
+    public void showFlagSafetyConcernMode() {
+        hideAllDialogs();
+        flagSafetyDialogBox.setVisible(true);
+        flagSafetyDialogBox.setManaged(true);
+        flagSafetyConcernTextArea.clear();
+    }
+
+    /** 9. Prepares dialog for Accept Offer mode (Donor) */
+    public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount) {
+        hideAllDialogs();
+        acceptOfferDialogBox.setVisible(true);
+        acceptOfferDialogBox.setManaged(true);
+
+        String otherOffersText = (otherOffersCount > 0)
+                ? " The other " + otherOffersCount + " " + (otherOffersCount == 1 ? "offer is" : "offers are") + " declined automatically."
+                : "";
+
+        acceptOfferDescriptionLabel.setText(
+                groupName + " picks up the full " + quantity + " " + pickupTime + "." + otherOffersText +
+                        " Your contact number and handover instructions are shared with " + groupName + ", and you’ll see theirs."
+        );
+    }
+
+    /** 10. Prepares dialog for Upload Renewal mode */
+    public void showUploadRenewalMode(String documentName) {
+        hideAllDialogs();
+        uploadRenewalDialogBox.setVisible(true);
+        uploadRenewalDialogBox.setManaged(true);
+        uploadRenewalTitleLabel.setText("Upload renewal: " + documentName);
+        selectedRenewalFileLabel.setText("No file chosen");
+        newExpiryDateField.clear();
+    }
+
+    /** 11. Prepares dialog for Set New Password mode */
+    public void showSetNewPasswordMode() {
+        hideAllDialogs();
+        setNewPasswordDialogBox.setVisible(true);
+        setNewPasswordDialogBox.setManaged(true);
+        newPasswordField.clear();
+        confirmPasswordField.clear();
+    }
+
+    /** 12. Prepares dialog for Withdraw Offer mode (Food Group) */
+    public void showWithdrawOfferMode(String donorName) {
+        hideAllDialogs();
+        withdrawOfferDialogBox.setVisible(true);
+        withdrawOfferDialogBox.setManaged(true);
+        withdrawOfferDescriptionLabel.setText(donorName + " won’t see this offer anymore. You can send a new one while the listing is still open.");
+    }
+
+    /** 13. Prepares dialog for Confirm Receipt mode (Food Group) */
+    public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime) {
+        hideAllDialogs();
+        confirmReceiptDialogBox.setVisible(true);
+        confirmReceiptDialogBox.setManaged(true);
+        receiptFoodLabel.setText(food);
+        receiptQuantityLabel.setText(qty);
+        receiptDonorLabel.setText(donor);
+        receiptPickupLabel.setText(pickup);
+        receiptContactLabel.setText(contact);
+        receiptQuantityCheck.setSelected(true);
+        receiptConditionCheck.setSelected(true);
+
+        if (releaseTime != null && !releaseTime.isEmpty()) {
+            receiptNoticeLabel.setText(donor + " confirmed release at " + releaseTime + ". Confirming receipt marks this listing Rescued.");
+        } else {
+            receiptNoticeLabel.setText("Confirming receipt marks this listing Rescued.");
+        }
+    }
+
+    @FXML
+    private void handleSwitchToFlagSafety() {
+        showFlagSafetyConcernMode();
+    }
+
+    @FXML
+    private void handleChooseRenewalFile() {
+        // TODO(file-picker): Open FileChooser and update selectedRenewalFileLabel
     }
 
     // PATTERN:ACTION cancels dialog overlay
     @FXML
     private void handleCancel() {
-        closeDialog();
+        closeOverlay();
     }
 
-    // PATTERN:ACTION confirms rejection reason and routes back to pending registrations
+    // PATTERN:ACTION confirms rejection
     @FXML
     private void handleConfirmReject() {
-        String reason = rejectReasonTextArea.getText();
-
-        // TODO(service): registrationService.rejectRegistration(orgId, reason)
-        closeDialog();
+        closeOverlay();
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
 
-    // PATTERN:ACTION confirms approval and routes back to pending registrations
+    // PATTERN:ACTION confirms approval
     @FXML
     private void handleConfirmApprove() {
-        // TODO(service): registrationService.approveRegistration(orgId)
-        closeDialog();
+        closeOverlay();
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
 
-    /** Helper method to hide the outer modal overlay container when dismissing dialog */
-    private void closeDialog() {
+    // PATTERN:ACTION dismisses safety notice
+    @FXML
+    private void handleDismissSafetyNotice() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION suspends account from safety notice
+    @FXML
+    private void handleSuspendFromSafetyNotice() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms account suspension
+    @FXML
+    private void handleConfirmSuspend() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms account reinstatement
+    @FXML
+    private void handleConfirmReinstate() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms listing cancellation
+    @FXML
+    private void handleConfirmCancelListing() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms food release
+    @FXML
+    private void handleConfirmRelease() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms flagging safety concern
+    @FXML
+    private void handleConfirmFlagSafety() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms accepting offer
+    @FXML
+    private void handleConfirmAcceptOffer() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms uploading renewal document
+    @FXML
+    private void handleConfirmUploadRenewal() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms setting new password
+    @FXML
+    private void handleConfirmSetNewPassword() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms withdrawing offer
+    @FXML
+    private void handleConfirmWithdrawOffer() {
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms receiving food
+    @FXML
+    private void handleConfirmReceipt() {
+        closeOverlay();
+    }
+
+    private void hideAllDialogs() {
+        if (rejectDialogBox != null) { rejectDialogBox.setVisible(false); rejectDialogBox.setManaged(false); }
+        if (approveDialogBox != null) { approveDialogBox.setVisible(false); approveDialogBox.setManaged(false); }
+        if (resolveSafetyDialogBox != null) { resolveSafetyDialogBox.setVisible(false); resolveSafetyDialogBox.setManaged(false); }
+        if (suspendAccountDialogBox != null) { suspendAccountDialogBox.setVisible(false); suspendAccountDialogBox.setManaged(false); }
+        if (reinstateAccountDialogBox != null) { reinstateAccountDialogBox.setVisible(false); reinstateAccountDialogBox.setManaged(false); }
+        if (cancelListingDialogBox != null) { cancelListingDialogBox.setVisible(false); cancelListingDialogBox.setManaged(false); }
+        if (confirmReleaseDialogBox != null) { confirmReleaseDialogBox.setVisible(false); confirmReleaseDialogBox.setManaged(false); }
+        if (flagSafetyDialogBox != null) { flagSafetyDialogBox.setVisible(false); flagSafetyDialogBox.setManaged(false); }
+        if (acceptOfferDialogBox != null) { acceptOfferDialogBox.setVisible(false); acceptOfferDialogBox.setManaged(false); }
+        if (uploadRenewalDialogBox != null) { uploadRenewalDialogBox.setVisible(false); uploadRenewalDialogBox.setManaged(false); }
+        if (setNewPasswordDialogBox != null) { setNewPasswordDialogBox.setVisible(false); setNewPasswordDialogBox.setManaged(false); }
+        if (withdrawOfferDialogBox != null) { withdrawOfferDialogBox.setVisible(false); withdrawOfferDialogBox.setManaged(false); }
+        if (confirmReceiptDialogBox != null) { confirmReceiptDialogBox.setVisible(false); confirmReceiptDialogBox.setManaged(false); }
+    }
+
+    private void closeOverlay() {
+        hideAllDialogs();
         if (rejectDialogBox != null && rejectDialogBox.getParent() != null) {
             rejectDialogBox.getParent().setVisible(false);
             rejectDialogBox.getParent().setManaged(false);

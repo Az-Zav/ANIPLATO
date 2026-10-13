@@ -3,10 +3,15 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="CENTER" styleClass="modal-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.DialogController">
@@ -21,8 +26,7 @@
         <!-- =================================================================== -->
         <!-- 1. REJECT ORGANIZATION DIALOG                                       -->
         <!-- =================================================================== -->
-        <!-- PATTERN:DYNAMIC visibility: rejectDialogBox shown when rejecting -->
-        <VBox fx:id="rejectDialogBox" maxWidth="480.0" spacing="20.0" styleClass="modal-card">
+        <VBox fx:id="rejectDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
@@ -33,8 +37,7 @@
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Reject this organization?" />
-                                <!-- PATTERN:DYNAMIC rejectDescription : includes org name -->
-                                <Label fx:id="rejectDescriptionLabel" styleClass="text-muted" text="We’ll email San Antonio Community Pantry your reason so they can fix their documents and register again. No account is created." wrapText="true" />
+                                <Label fx:id="rejectDescriptionLabel" styleClass="text-muted" text="We’ll email your reason so they can fix their documents and register again. No account is created." wrapText="true" />
                             </children>
                         </VBox>
                     </children>
@@ -49,9 +52,7 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
                     <children>
-                        <!-- PATTERN:ACTION handleCancel -->
                         <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
-                        <!-- PATTERN:ACTION handleConfirmReject -->
                         <Button minWidth="100.0" onAction="#handleConfirmReject" styleClass="danger-button" text="✕ Reject" />
                     </children>
                 </HBox>
@@ -61,7 +62,6 @@
         <!-- =================================================================== -->
         <!-- 2. APPROVE ORGANIZATION DIALOG                                      -->
         <!-- =================================================================== -->
-        <!-- PATTERN:DYNAMIC visibility: approveDialogBox shown when approving -->
         <VBox fx:id="approveDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
@@ -69,13 +69,415 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <!-- FIXED: Checkmark badge icon -->
                         <Label styleClass="modal-icon-green" text="✓" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Approve this organization?" />
-                                <!-- PATTERN:DYNAMIC approveDescription : includes org name and contact email -->
-                                <Label fx:id="approveDescriptionLabel" styleClass="text-muted" text="We’ll create San Antonio Community Pantry’s account and email temporary login details to contact@sanantoniopantry.ph." wrapText="true" />
+                                <Label fx:id="approveDescriptionLabel" styleClass="text-muted" text="We’ll create the organization's account and email temporary login details." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="110.0" onAction="#handleConfirmApprove" styleClass="primary-button" text="✓ Approve" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 3. RESOLVE SAFETY NOTICE DIALOG                                     -->
+        <!-- =================================================================== -->
+        <VBox fx:id="resolveSafetyDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="⚠" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Resolve safety notice" />
+                                <Label fx:id="safetyNoticeDescriptionLabel" styleClass="text-muted" text="Flagged by San Roque Parish Feeding Mission on Oct 6, 7:40 PM: &quot;Pancit trays were warm and smelled sour at pickup.&quot; Close it as dismissed, or suspend Pioneer Catering Services." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Admin note *" />
+                        <TextArea fx:id="safetyAdminNoteTextArea" prefRowCount="3" promptText="Short note for the record" styleClass="text-area" wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="90.0" onAction="#handleDismissSafetyNotice" styleClass="secondary-button" text="Dismiss" />
+                        <Button minWidth="140.0" onAction="#handleSuspendFromSafetyNotice" styleClass="danger-button" text="Suspend account" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 4. SUSPEND ACCOUNT DIALOG                                           -->
+        <!-- =================================================================== -->
+        <VBox fx:id="suspendAccountDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="✕" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Suspend this account?" />
+                                <Label fx:id="suspendDescriptionLabel" styleClass="text-muted" text="Pioneer Catering Services can still log in, upload renewals and finish handoffs it already accepted. It can’t post, re-post, offer or accept, and its listings are hidden from food groups, until you reinstate it." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Reason (shown to the organization) *" />
+                        <TextArea fx:id="suspendReasonTextArea" prefRowCount="3" promptText="e.g., Safety notice #12 confirmed." styleClass="text-area" wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="110.0" onAction="#handleConfirmSuspend" styleClass="danger-button" text="✕ Suspend" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 5. REINSTATE ACCOUNT DIALOG                                         -->
+        <!-- =================================================================== -->
+        <VBox fx:id="reinstateAccountDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="✓" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Reinstate this account?" />
+                                <Label fx:id="reinstateDescriptionLabel" styleClass="text-muted" text="Tondo Community Kitchen gets full access again. Its renewed DSWD certificate was verified on Oct 7, 2026." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="110.0" onAction="#handleConfirmReinstate" styleClass="primary-button" text="Reinstate" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 6. CANCEL LISTING DIALOG (DONOR)                                    -->
+        <!-- =================================================================== -->
+        <VBox fx:id="cancelListingDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="✕" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Cancel this listing?" />
+                                <Label fx:id="cancelListingDescriptionLabel" styleClass="text-muted" text="Artisan Sourdough &amp; Baguettes leaves the board. San Roque Parish Feeding Mission’s accepted offer is cancelled with it, and they see your reason." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Reason *" />
+                        <TextArea fx:id="cancelListingReasonTextArea" prefRowCount="3" promptText="e.g., Our staff already gave it away." styleClass="text-area" wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="100.0" onAction="#handleCancel" styleClass="secondary-button" text="Keep listing" />
+                        <Button minWidth="130.0" onAction="#handleConfirmCancelListing" styleClass="danger-button" text="✕ Cancel listing" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 7. CONFIRM RELEASE DIALOG (DONOR)                                   -->
+        <!-- =================================================================== -->
+        <VBox fx:id="confirmReleaseDialogBox" managed="false" maxWidth="520.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="📦" />
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Confirm release?" />
+                                <Label styleClass="text-muted" text="Confirm that this food was handed over to the food group." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <GridPane hgap="12.0" styleClass="notice-box" vgap="8.0">
+                    <padding>
+                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                    </padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="30.0" />
+                        <ColumnConstraints percentWidth="70.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="text-muted" text="Food" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="releaseFoodLabel" styleClass="form-label" text="Artisan Sourdough &amp; Baguettes" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="text-muted" text="Quantity" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="releaseQuantityLabel" styleClass="form-label" text="45 kg (as listed)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="text-muted" text="Food group" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="releaseFoodGroupLabel" styleClass="form-label" text="San Roque Parish Feeding Mission" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="text-muted" text="Pickup" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="releasePickupLabel" styleClass="form-label" text="Today, 4:00 PM" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label styleClass="text-muted" text="Contact" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <Label fx:id="releaseContactLabel" styleClass="form-label" text="Fr. Ramon Cruz · 0917 555 0142" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Before releasing" />
+                        <CheckBox fx:id="releaseSealedCheck" selected="true" styleClass="small-check" text="Packaging is sealed and clean" />
+                        <CheckBox fx:id="releaseStorageCheck" selected="true" styleClass="small-check" text="Food was kept at its storage condition" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="tag-reregistered">
+                    <padding>
+                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="required-star" text="ⓘ" />
+                        <Label fx:id="releaseNoticeLabel" styleClass="text-muted" text="San Roque hasn’t confirmed receipt yet. The listing becomes Rescued once they do." wrapText="true" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+
+                <Hyperlink onAction="#handleSwitchToFlagSafety" styleClass="required-star" text="Something wrong with the food? Flag a safety concern" />
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="130.0" onAction="#handleConfirmRelease" styleClass="primary-button" text="Confirm Release" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 8. FLAG SAFETY CONCERN DIALOG (DONOR/ORG)                           -->
+        <!-- =================================================================== -->
+        <VBox fx:id="flagSafetyDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="⚠" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Flag a safety concern" />
+                                <Label styleClass="text-muted" text="Describe the safety concern. The other party and the ANIPLATO admin will be notified. Admin may dismiss the notice or suspend the account responsible." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Concern *" />
+                        <TextArea fx:id="flagSafetyConcernTextArea" prefRowCount="3" promptText="What happened? e.g., Trays were warm and smelled sour at pickup." styleClass="text-area" wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="120.0" onAction="#handleConfirmFlagSafety" styleClass="danger-button" text="Send to admin" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 9. ACCEPT OFFER DIALOG (DONOR)                                      -->
+        <!-- =================================================================== -->
+        <VBox fx:id="acceptOfferDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="✓" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Accept this offer?" />
+                                <Label fx:id="acceptOfferDescriptionLabel" styleClass="text-muted" text="San Roque Parish Feeding Mission picks up the full 28 kg today at 5:00 PM. The other 3 offers are declined automatically. Your contact number and handover instructions are shared with San Roque, and you’ll see theirs." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="110.0" onAction="#handleConfirmAcceptOffer" styleClass="primary-button" text="Accept offer" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 10. UPLOAD RENEWAL DIALOG                                           -->
+        <!-- =================================================================== -->
+        <VBox fx:id="uploadRenewalDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="✓" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label fx:id="uploadRenewalTitleLabel" styleClass="modal-title" text="Upload renewal: Sanitary Permit" />
+                                <Label styleClass="text-muted" text="Upload the renewed permit and type its new expiry date. Your current file stays on record until an admin verifies the new one." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0">
+                    <children>
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Renewed document *" />
+                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChooseRenewalFile" styleClass="secondary-button" text="⇪  Upload PDF, JPG or PNG (max 5 MB)" />
+                                <Label fx:id="selectedRenewalFileLabel" styleClass="doc-subtitle" text="No file chosen" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="New expiry date *" />
+                                <TextField fx:id="newExpiryDateField" promptText="MM / DD / YYYY" styleClass="text-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button minWidth="150.0" onAction="#handleConfirmUploadRenewal" styleClass="primary-button" text="Submit for review" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 11. SET NEW PASSWORD DIALOG                                         -->
+        <!-- =================================================================== -->
+        <VBox fx:id="setNewPasswordDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="✓" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Set a new password" />
+                                <Label styleClass="text-muted" text="You’re logged in with the temporary password from your approval email. Choose your own password to continue." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0">
+                    <children>
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="New password *" />
+                                <PasswordField fx:id="newPasswordField" promptText="At least 8 characters" styleClass="text-field" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Confirm new password *" />
+                                <PasswordField fx:id="confirmPasswordField" promptText="Type it again" styleClass="text-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <Label styleClass="text-muted" text="This step can’t be skipped. You’ll see it each time you log in with the temporary password until you set your own." wrapText="true" />
+
+                <HBox alignment="CENTER_RIGHT">
+                    <children>
+                        <Button minWidth="140.0" onAction="#handleConfirmSetNewPassword" styleClass="primary-button" text="Save password" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 12. WITHDRAW OFFER DIALOG (FOOD GROUP)                              -->
+        <!-- =================================================================== -->
+        <!-- PATTERN:DYNAMIC visibility: withdrawOfferDialogBox shown when withdrawing offer -->
+        <VBox fx:id="withdrawOfferDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-red" text="✕" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Withdraw your offer?" />
+                                <!-- PATTERN:DYNAMIC withdrawOfferDescription -->
+                                <Label fx:id="withdrawOfferDescriptionLabel" styleClass="text-muted" text="Manila Artisanal Bakeshop won’t see this offer anymore. You can send a new one while the listing is still open." wrapText="true" />
                             </children>
                         </VBox>
                     </children>
@@ -84,9 +486,91 @@
                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
                     <children>
                         <!-- PATTERN:ACTION handleCancel -->
+                        <Button minWidth="100.0" onAction="#handleCancel" styleClass="secondary-button" text="Keep offer" />
+                        <!-- PATTERN:ACTION handleConfirmWithdrawOffer -->
+                        <Button minWidth="120.0" onAction="#handleConfirmWithdrawOffer" styleClass="danger-button" text="✕ Withdraw" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 13. CONFIRM RECEIPT DIALOG (FOOD GROUP)                             -->
+        <!-- =================================================================== -->
+        <!-- PATTERN:DYNAMIC visibility: confirmReceiptDialogBox shown when confirming receipt -->
+        <VBox fx:id="confirmReceiptDialogBox" managed="false" maxWidth="520.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="📦" />
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Confirm receipt?" />
+                                <Label styleClass="text-muted" text="Confirm that you received this food from the donor." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- DETAILS GRID -->
+                <GridPane hgap="12.0" styleClass="notice-box" vgap="8.0">
+                    <padding>
+                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                    </padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="30.0" />
+                        <ColumnConstraints percentWidth="70.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="text-muted" text="Food" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="receiptFoodLabel" styleClass="form-label" text="Cooked Adobo &amp; Rice Trays" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="text-muted" text="Quantity" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="receiptQuantityLabel" styleClass="form-label" text="24 kg (as listed)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="text-muted" text="Donor" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="receiptDonorLabel" styleClass="form-label" text="Pioneer Catering Services" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="text-muted" text="Pickup" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="receiptPickupLabel" styleClass="form-label" text="Today, 7:30 PM" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label styleClass="text-muted" text="Contact" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <Label fx:id="receiptContactLabel" styleClass="form-label" text="Jun Dela Cruz · 0919 456 7788" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <!-- CHECKLIST -->
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Before confirming" />
+                        <CheckBox fx:id="receiptQuantityCheck" selected="true" styleClass="small-check" text="Quantity matches the listing" />
+                        <CheckBox fx:id="receiptConditionCheck" selected="true" styleClass="small-check" text="Food arrived sealed and within its use-by time" />
+                    </children>
+                </VBox>
+
+                <!-- NOTICE BANNER -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="pill-food-donor">
+                    <padding>
+                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="text-success-bold" text="ⓘ" />
+                        <Label fx:id="receiptNoticeLabel" styleClass="table-cell-text" text="Pioneer Catering Services confirmed release at 7:28 PM. Confirming receipt marks this listing Rescued." wrapText="true" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+
+                <!-- LINK TO FLAG SAFETY -->
+                <Hyperlink onAction="#handleSwitchToFlagSafety" styleClass="required-star" text="Something wrong with the food? Flag a safety concern" />
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <!-- PATTERN:ACTION handleCancel -->
                         <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
-                        <!-- PATTERN:ACTION handleConfirmApprove -->
-                        <Button minWidth="110.0" onAction="#handleConfirmApprove" styleClass="primary-button" text="✓ Approve" />
+                        <!-- PATTERN:ACTION handleConfirmReceipt -->
+                        <Button minWidth="130.0" onAction="#handleConfirmReceipt" styleClass="primary-button" text="Confirm Receipt" />
                     </children>
                 </HBox>
             </children>
