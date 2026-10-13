@@ -72,6 +72,8 @@
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-form, icon-new-listing, role-donor" text="New Listing" />
                 <!-- PATTERN:NAV -> MY_LISTINGS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-listings, icon-my-listings, role-donor" text="My Listings" />
+                <!-- PATTERN:NAV -> LISTING_OFFERS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-offers, icon-pending-accounts, role-donor" text="Incoming Offers" />
                 <!-- PATTERN:NAV -> HISTORY -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-history, icon-history, role-foodgroup, role-donor" text="History" />
                 <!-- PATTERN:NAV -> PROFILE -->
