@@ -1,7 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.aniplato.controller.foodgroup.MyOffersController" styleClass="screen">
-    <Label text="foodgroup/my-offers"/>
-</VBox>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.MyOffersController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
+    <content>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT"><children><Label styleClass="page-title" text="My Offers" /><Region HBox.hgrow="ALWAYS" /><Button styleClass="primary-button nav-browse-listings" text="▥ Browse Listings" /></children></HBox>
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS"><children><HBox alignment="CENTER_LEFT" spacing="8.0"><children><Label styleClass="metric-icon metric-icon-blue" text="▣" /><Label styleClass="stat-card-title" text="ACCEPTED OFFERS" /></children></HBox><Label styleClass="metric-value" text="2" /><Label styleClass="metric-caption" text="69 kg · confirm at pickup" /></children></VBox>
+                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS"><children><HBox alignment="CENTER_LEFT" spacing="8.0"><children><Label styleClass="metric-icon metric-icon-orange" text="◈" /><Label styleClass="stat-card-title" text="DONOR RELEASED" /></children></HBox><Label styleClass="metric-value" text="1" /><Label styleClass="metric-caption" text="24 kg · ready for your receipt" /></children></VBox>
+                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS"><children><HBox alignment="CENTER_LEFT" spacing="8.0"><children><Label styleClass="metric-icon metric-icon-green" text="⌁" /><Label styleClass="stat-card-title" text="KG RESCUED" /></children></HBox><HBox alignment="BASELINE_LEFT" spacing="5.0"><children><Label styleClass="metric-value" text="2,340" /><Label styleClass="stat-unit" text="kg" /></children></HBox><Label styleClass="metric-caption" text="Total rescued to date" /></children></VBox>
+                    </children>
+                </HBox>
+                <VBox spacing="14.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT"><children><HBox styleClass="tab-strip"><children><Button styleClass="tab-button, tab-button-active" text="All (4)" /><Button styleClass="tab-button" text="Waiting for donor (1)" /><Button styleClass="tab-button" text="Accepted (2)" /><Button styleClass="tab-button" text="Closed (1)" /></children></HBox><Region HBox.hgrow="ALWAYS" /><TextField prefWidth="216.0" promptText="⌕  Search food or donor..." /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row"><children><Label prefWidth="150.0" styleClass="table-header-text" text="FOOD" /><Label prefWidth="118.0" styleClass="table-header-text" text="DONOR" /><Label prefWidth="50.0" styleClass="table-header-text" text="KG" /><Label prefWidth="95.0" styleClass="table-header-text" text="PICKUP" /><Label prefWidth="105.0" styleClass="table-header-text" text="DONOR RELEASE" /><Label prefWidth="100.0" styleClass="table-header-text" text="STATUS" /><Region HBox.hgrow="ALWAYS" /></children></HBox>
+                        <VBox spacing="0.0">
+                            <children>
+                                <!-- PATTERN:LIST myOffers : exact Figma representative rows -->
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row"><children><Label prefWidth="150.0" styleClass="table-cell-primary" text="Artisan Sourdough &amp; Baguettes" wrapText="true" /><Label prefWidth="118.0" styleClass="table-cell-text" text="Manila Artisanal Bakeshop" wrapText="true" /><Label prefWidth="50.0" styleClass="table-cell-text" text="45 kg" /><Label prefWidth="95.0" styleClass="table-cell-muted" text="Today, 4:00 PM" wrapText="true" /><Label prefWidth="105.0" styleClass="table-cell-muted" text="Pending" /><Label styleClass="status-pill status-accepted" text="Accepted" /><Region HBox.hgrow="ALWAYS" /><Button styleClass="secondary-button small-button" text="Confirm Receipt" disable="true" /></children></HBox>
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row"><children><Label prefWidth="150.0" styleClass="table-cell-primary" text="Cooked Adobo &amp; Rice Trays" wrapText="true" /><VBox prefWidth="118.0"><children><Label styleClass="table-cell-text" text="Pioneer Catering Services" wrapText="true" /><Label styleClass="table-cell-muted" text="Jun Dela Cruz · 0919 456 7788" wrapText="true" /></children></VBox><Label prefWidth="50.0" styleClass="table-cell-text" text="24 kg" /><Label prefWidth="95.0" styleClass="table-cell-muted" text="Today, 7:30 PM" wrapText="true" /><Label prefWidth="105.0" styleClass="text-success-bold" text="Confirmed" /><Label styleClass="status-pill status-accepted" text="Accepted" /><Region HBox.hgrow="ALWAYS" /><!-- PATTERN:ACTION handleConfirmReceipt --><Button onAction="#handleConfirmReceipt" styleClass="table-review-btn small-button" text="Confirm Receipt" /></children></HBox>
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row"><children><Label prefWidth="150.0" styleClass="table-cell-primary" text="Assorted Pastries &amp; Ensaymada" wrapText="true" /><Label prefWidth="118.0" styleClass="table-cell-text" text="Manila Artisanal Bakeshop" wrapText="true" /><Label prefWidth="50.0" styleClass="table-cell-text" text="28 kg" /><Label prefWidth="95.0" styleClass="table-cell-muted" text="Today, 5:00 PM" wrapText="true" /><Label prefWidth="105.0" styleClass="table-cell-muted" text="—" /><Label styleClass="status-pill status-offered" text="Offered" /><Region HBox.hgrow="ALWAYS" /><!-- PATTERN:ACTION handleWithdraw --><Button onAction="#handleWithdraw" styleClass="secondary-button danger-button small-button" text="Withdraw" /></children></HBox>
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row"><children><Label prefWidth="150.0" styleClass="table-cell-primary" text="Fresh Pechay &amp; Ampalaya" wrapText="true" /><Label prefWidth="118.0" styleClass="table-cell-text" text="Boni Fresh Grocery" wrapText="true" /><Label prefWidth="50.0" styleClass="table-cell-text" text="40 kg" /><Label prefWidth="95.0" styleClass="table-cell-muted" text="Tomorrow, 1:00 PM" wrapText="true" /><Label prefWidth="105.0" styleClass="table-cell-muted" text="—" /><Label styleClass="status-pill status-declined" text="Declined" /><Region HBox.hgrow="ALWAYS" /></children></HBox>
+                            </children>
+                        </VBox>
+                        <Label styleClass="table-footer-note" text="Accepted offers past their pickup time plus a 2-hour grace period lapse, and the listing expires." wrapText="true" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
