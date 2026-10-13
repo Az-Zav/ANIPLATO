@@ -211,6 +211,130 @@ erDiagram
   offer ||--o{ offer_photo : "has"
   offer ||--o{ safety_notice : "may raise"
   account ||--o{ safety_notice : "raises"
-  account ||--o{ status_change : "changed_by"
-  account ||--o{ registration : "reviewed_by"
+  account |o--o{ safety_notice : "resolves"
+  account |o--o{ registration : "reviews"
+  account |o--o{ document : "reviews"
+  account |o--o{ status_change : "changed by"
+
+  city {
+    int city_id PK
+    varchar name UK
+  }
+
+  account {
+    int account_id PK
+    varchar email UK "login"
+    varchar password_hash "BCrypt"
+    enum role "ADMIN, DONOR, FOOD_GROUP"
+    enum status "ACTIVE, SUSPENDED"
+    varchar suspend_reason "null"
+    boolean must_change_password
+    datetime password_changed_at
+    int registration_id FK, UK "null for admin"
+    varchar admin_name "admin only"
+    datetime created_at
+  }
+
+  registration {
+    int registration_id PK
+    enum role "DONOR, FOOD_GROUP"
+    varchar org_name
+    enum org_type "restaurant ... charity"
+    int city_id FK
+    varchar contact_person
+    varchar contact_phone
+    varchar email "not unique"
+    enum status "PENDING, APPROVED, REJECTED"
+    varchar rejection_reason "null"
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+    datetime submitted_at
+  }
+
+  document {
+    int document_id PK
+    int registration_id FK
+    enum doc_type "12 types"
+    varchar file_path
+    date expires_on "null = no expiry"
+    enum review "OK, FLAGGED; null = awaiting"
+    varchar flag_reason "null"
+    datetime uploaded_at
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+  }
+
+  listing {
+    int listing_id PK
+    int posted_by FK
+    int city_id FK
+    varchar food_description
+    enum category "RAW, COOKED, BAKED, PACKAGED"
+    enum storage "AMBIENT_DRY, CHILLED, HOT_HOLD"
+    set allergens "null"
+    decimal kg "above 0"
+    datetime use_by
+    datetime pickup_start
+    datetime pickup_end "before use_by"
+    varchar handover_instructions "null"
+    datetime donor_attested_at
+    enum status "OPEN, ACCEPTED, RESCUED, EXPIRED, CANCELLED"
+    varchar cancel_reason "null"
+    datetime created_at
+  }
+
+  offer {
+    int offer_id PK "handoff record number"
+    int listing_id FK "UK with group_id"
+    int group_id FK "UK with listing_id"
+    varchar use_description
+    varchar beneficiaries
+    int headcount "above 0"
+    varchar place
+    datetime pickup_time
+    varchar message "null"
+    datetime group_attested_at
+    enum status "OFFERED ... CANCELLED"
+    datetime released_at "null"
+    datetime received_at "null"
+    datetime created_at
+  }
+
+  offer_photo {
+    int photo_id PK
+    int offer_id FK "cascade delete"
+    varchar file_path
+  }
+
+  safety_notice {
+    int notice_id PK
+    int offer_id FK
+    int raised_by FK
+    varchar concern
+    enum status "OPEN, DISMISSED, ACCOUNT_SUSPENDED"
+    varchar admin_note "null"
+    int resolved_by FK "null"
+    datetime resolved_at "null"
+    datetime raised_at
+  }
+
+  status_change {
+    int change_id PK
+    enum entity_type "REGISTRATION ... NOTICE"
+    int entity_id "no FK, points at entity_type's table"
+    varchar from_status "null for new record"
+    varchar to_status
+    varchar reason "null"
+    int changed_by FK "null = system"
+    datetime changed_at
+  }
+
+  email_log {
+    int email_id PK
+    varchar to_email
+    enum kind "RECEIVED, APPROVED, NOT_APPROVED"
+    datetime sent_at
+    boolean success
+    varchar error "null"
+  }
 ```
