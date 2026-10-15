@@ -1,11 +1,16 @@
 package com.aniplato.controller;
 
+import com.aniplato.model.Document;
+import com.aniplato.service.MaintenanceService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Role;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class ProfileController {
 
@@ -35,6 +40,8 @@ public class ProfileController {
     // Account Fields
     @FXML private Label loginEmailLabel;
     @FXML private Label passwordStatusLabel;
+
+    private final MaintenanceService maintenanceService = new MaintenanceService();
 
     // PATTERN:DYNAMIC fills placeholders according to current authenticated user role
     @FXML
@@ -69,9 +76,25 @@ public class ProfileController {
             passwordStatusLabel.setText("Last changed Sep 1, 2026");
 
         } else if (isOrg) {
-            // TODO(service): check document expiration status via documentService to toggle banner
-            docAlertBanner.setVisible(false);
-            docAlertBanner.setManaged(false);
+            List<Document> alerts = maintenanceService.getCurrentDocumentAlerts();
+            LocalDate today = LocalDate.now();
+            long expiredCount = alerts.stream().filter(document -> document.isExpired(today)).count();
+            long upcomingCount = alerts.size() - expiredCount;
+            boolean hasAlerts = !alerts.isEmpty();
+            docAlertBanner.setVisible(hasAlerts);
+            docAlertBanner.setManaged(hasAlerts);
+            if (hasAlerts) {
+                StringBuilder message = new StringBuilder();
+                if (expiredCount > 0) {
+                    message.append(expiredCount).append(expiredCount == 1 ? " document expired" : " documents expired");
+                }
+                if (upcomingCount > 0) {
+                    if (!message.isEmpty()) message.append(" and ");
+                    message.append(upcomingCount).append(upcomingCount == 1
+                            ? " document expires within 30 days" : " documents expire within 30 days");
+                }
+                docAlertTextLabel.setText(message + ". Upload renewals below; an admin verifies each one.");
+            }
 
             // TODO(service): populate with real organization profile & documents data from service
         }

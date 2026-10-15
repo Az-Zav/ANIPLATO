@@ -1,5 +1,6 @@
 package com.aniplato.util;
 
+import com.aniplato.service.MaintenanceService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -98,6 +99,7 @@ public final class Navigator {
     private static Role currentRole;
     private static Screen currentScreen;
     private static Runnable screenListener;
+    private static final MaintenanceService maintenanceService = new MaintenanceService();
 
     private Navigator() {}
 
@@ -148,7 +150,7 @@ public final class Navigator {
     }
 
     public static void show(Screen screen) {
-        // TODO(service): MaintenanceService.runMaintenance() runs on every screen load (6.6, A4)
+        maintenanceService.runMaintenance();
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
             screenListener = null;                // so does the shell's highlight listener
