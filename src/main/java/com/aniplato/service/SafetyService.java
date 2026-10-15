@@ -108,7 +108,9 @@ public class SafetyService {
     }
 
     private void resolve(Connection c, SafetyNotice notice, SafetyNotice.Status to, String note, int adminId) throws SQLException {
-        noticeDao.resolve(c, notice.id, to, note, adminId, LocalDateTime.now());
+        if (noticeDao.resolve(c, notice.id, to, note, adminId, LocalDateTime.now()) != 1) {
+            throw new RuleViolationException("Notice #" + notice.id + " has already been resolved.");
+        }
         logDao.logStatusChange(c, ENTITY, notice.id, notice.status.name(), to.name(), note, adminId);   // A3
     }
 
