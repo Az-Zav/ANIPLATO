@@ -99,12 +99,7 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 - RA 10173 (Data Privacy Act): collect only what is needed, and no government IDs. A Barangay Certificate is a local government document, not a government ID.
 - Casual donors are limited to raw and sealed-packaged food because they have no Sanitary Permit. This is a platform rule, not a legal one.
 
-**Registration screens (changes)**
-- The first screen's role toggle is **Donor | Food group**. Choosing Donor shows the Business or Casual choice.
-- The organization type dropdown is removed for every role.
-- The form fields are otherwise the same for all roles.
-- On the documents screen, the "Required for" tag shows only the role: Business donor, Casual donor or Food group.
-- The Casual document list is just the Barangay Certificate with a required expiry date.
+Screen changes for this stage are listed in section 7.
 
 **Data model notes (for the data model phase)**
 - `role` becomes `BUSINESS_DONOR`, `CASUAL_DONOR` or `FOOD_GROUP` in both registration and account, plus `ADMIN` on account only.
@@ -113,7 +108,101 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 
 ---
 
-## 7. Open points
+## 7. Proposed screen changes (running)
+
+Running list, grouped by module. Frame names are from the Figma file. Each module is added or updated as the flows are rewritten. Items are proposals until the flows are final.
+
+**Labels used on every screen from now on:** Business donor, Casual donor, Food group. This replaces the current "Food Donor" and "Food Organization" badges.
+
+### Registration
+
+**Step 1: Organization** (`REGISTER — STEP 1 ORGANIZATION`)
+- Role toggle becomes **Donor | Food group**. Picking Donor shows a second choice: "I have a Mayor's Permit and Sanitary Permit" (Business) or "I don't have permits" (Casual). Business is the default.
+- Remove the Organization type dropdown. City takes the full row.
+- The name field label and hint follow the role:
+  - Business donor: "Business name", hint "As shown on your permits"
+  - Casual donor: "Your name or household name", hint "As shown on your Barangay Certificate"
+  - Food group: "Organization name", hint "As shown on your credential"
+- The city hint follows the role: Mayor's Permit (Business), Barangay Certificate (Casual), registered address (Food group).
+- Contact person stays for every role. For Casual, the hint says to enter your own name.
+- Contact number and email are unchanged.
+
+**Step 2: Documents, Business donor** (`REGISTER — STEP 2 DOCUMENTS`)
+- The "Required for" tag shows only "Business donor" (drop "· Bakery").
+- "Business registration (DTI, SEC or CDA)" is no longer required. It becomes optional, with the hint "Only if your permit doesn't show your business name clearly".
+- Mayor's Permit and Sanitary Permit stay required. FDA License stays optional.
+- The intro sentence keeps "Permits always need a date".
+
+**Step 2: Documents, Casual donor** (new frame: `REGISTER — STEP 2 DOCUMENTS (CASUAL)`)
+- The "Required for" tag shows "Casual donor".
+- One item only: **Barangay Certificate** (required), with an upload and an expiry date. There is no "No expiry" tick.
+- The intro sentence says "The Barangay Certificate always needs an expiry date. Don't upload government IDs."
+- The consent box and the Back and Submit buttons are the same as the other steps.
+
+**Step 2: Documents, Food group** (`REGISTER — STEP 2 DOCUMENTS (FOOD GROUP)`)
+- The "Required for" tag shows only "Food group" (drop "· Charity").
+- Everything else is unchanged.
+
+**Submitted screen and emails:** no change decided yet.
+
+### Admin: accounts and review
+
+**Pending Accounts** (`Pending Accounts`)
+- Role badges: Business donor, Casual donor, Food group.
+- Remove the Type column.
+- Casual to Business upgrade requests show up here with an "Upgrade" tag next to "New" and "Registered again".
+
+**All Accounts** (`ALL ACCOUNTS`)
+- Same badge change and Type column removal.
+- The Documents column reads naturally for each role (for example "Barangay Certificate ends Dec 31" for Casual).
+
+**Review Account** (`Review Account` and its Accept and Reject dialogs)
+- The Role pill shows Business donor, Casual donor or Food group.
+- Remove the Organization type field.
+- The document list follows the role: Business shows its permits, Casual shows just the Barangay Certificate, Food group is unchanged.
+- The three checks per document stay the same for every role: current and not expired, name matches, issued for the city.
+
+### Profile
+
+**Donor profile** (`DONOR PROFILE`)
+- Remove the TYPE field. The Role field shows Business donor or Casual donor.
+- The Organization hint changes from "Name, type and city" to "Name and city".
+- Casual donor: Documents lists only the Barangay Certificate, and there is an **Upgrade to Business donor** action to upload the Mayor's Permit and Sanitary Permit, plus FDA License if applicable. The admin reviews it and the role changes on approval.
+- Business donor: the "Business registration (DTI)" row shows "Not required" when none was uploaded, like the FDA row does today.
+
+**Food group profile** (`FOOD GROUP PROFILE`)
+- Remove the TYPE field and change the hint to "Name and city".
+
+### Listings (donor)
+
+**New Listing** (`DONOR NEW LISTING`)
+- The Category choices depend on the role:
+  - Business donor: Raw, Cooked, Baked, Packaged.
+  - Casual donor: Raw and Packaged only, with Cooked and Baked hidden. The Packaged label reads "Sealed packaged" for Casual.
+- The category hint adds, for Casual: "Casual donors can post raw and sealed-packaged food only."
+- Everything else on the form is unchanged for now. Photos and handover details wait for Stage 2.
+
+### Food group navigation and screens
+
+- Remove **My Listings** and **New Listing** from the food group sidebar. Food groups can no longer post listings.
+- Delete the frames `FOOD GROUP MY LISTINGS (RE-POSTS)` and `FOOD GROUP INCOMING OFFERS (RE-POST)`.
+- Route 2 needs replacement screens for requesting food. They are defined once Stage 2 is written.
+
+### Waiting on later stages
+
+These screens will change but can't be written until their stage is final:
+- Donor and Food group dashboards (requests, report deadline, flags)
+- Donor New Listing details (photos, handover)
+- Food group Browse Listings and Make Offer (photos)
+- New: Food group request form and a donor's offer form (Route 2)
+- Donor Incoming Offers and the food group's choose-and-confirm view
+- Handoff Record, then the new report submission screen
+- History
+- Safety Notices and suspension flows (report non-compliance flag)
+
+---
+
+## 8. Open points
 
 - Whether Casual donors also need a "new donor" label until their first completed exchange.
 - Photo requirements at each step, including donor photos at handoff.
