@@ -59,7 +59,7 @@ There are three roles, chosen at registration:
 
 ## 6. Full flows (stage by stage)
 
-Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 5 and 6 are still to be written.
+Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stage 6 is still to be written.
 
 ### Stage 1: Register and get verified
 
@@ -256,6 +256,46 @@ Stage 4 has the full acceptance rules. The pattern is:
 - The listing and the request each need an Accepted status.
 - Contact numbers are not copied anywhere. One method returns them, only to the owner, an admin, or the other side of an accepted offer that is not yet closed.
 
+### Stage 5: Handoff and report
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | The donor first, then the food group. |
+| **Needs** | The offer is Accepted. |
+| **Does** | At pickup, the donor confirms release. After that, the food group confirms receipt. The food group then submits a short documentation report before its deadline. |
+| **Result** | The offer is Completed and the listing or request is closed as fulfilled (the final status names are in the close stage). A handoff record is created automatically and shows in both histories. Once submitted, the report shows on the record. |
+
+**Handoff rules**
+- The food group can confirm receipt only after the donor has confirmed release.
+- Release and receipt each save their time. Neither needs photos.
+- Confirming receipt creates the handoff record automatically. Its number is HR-year-offer id.
+- The record shows names, food, agreed kg, times and the stated use. It always says it is a platform record, not a certificate issued by DSWD, the Philippine Red Cross or any government agency.
+- The record shows in both parties' history.
+
+**Report rules**
+- The report is due 7 days after the food group confirms receipt. The 7 days is a value in Settings.
+- There is one report per handoff.
+- The report has: the event or program name and date (prefilled from the request or offer), how many people were actually served, a short description of what was held, and 1 to 5 photos.
+- The group ticks a photo consent statement: photos show no identifiable children, and identifiable adults have consented.
+- The donor can see the report on the handoff record, read-only. The donor does not approve or reject it.
+- The report does not hold up closing the listing or request.
+- A Suspended group can still submit its report.
+
+**Overdue report**
+- If the deadline passes with no report, the system flags the group to the admin.
+- The admin can dismiss the flag or suspend the account, with a note.
+- There is no automatic suspension and nothing is blocked for the group while the report is overdue.
+- The group can still submit late. The flag then shows "submitted late" and the admin decides as before.
+
+**Legal basis**
+- RA 9803 (Food Donation Act): certificates of acceptance and fitness come from DSWD and the Red Cross. The handoff record is not one of them.
+- RA 10173 (Data Privacy Act): photos of identifiable people are personal data, so reports carry the same consent statement as offers.
+
+**Data model notes (for the data model phase)**
+- A new report record belongs to one accepted offer, with the event name and date, the number served, the description and its submitted time. Report photos need their own table (1 to 5).
+- The deadline is not stored. It is worked out as the receipt time plus the Settings value.
+- The overdue flag needs a home. The existing safety notice table is the closest fit, with a type to tell it apart and no person as the one raising it (the system raises it).
+
 ---
 
 ## 7. Proposed screen changes (running)
@@ -407,21 +447,44 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 - Add **New Request** and **My Requests** in their place.
 - Delete the frames `FOOD GROUP MY LISTINGS (RE-POSTS)` and `FOOD GROUP INCOMING OFFERS (RE-POST)`.
 
+### Handoff and report
+
+**Confirm Release** (`DONOR CONFIRM RELEASE` and `Dialog / Confirm Release`): unchanged.
+
+**Confirm Receipt** (`NEW — FOOD GROUP CONFIRM FOOD RECEIPT` and `Dialog / Confirm Receipt`)
+- Unchanged. After confirming, the group sees a link to the handoff record and "Report due [date]".
+
+**Handoff Record** (`HANDOFF RECORD`)
+- Add a **Report** section.
+- Food group: shows the report status (Due [date], Submitted or Submitted late) and a **Submit report** button while it is not submitted.
+- Donor: read-only. Shows the submitted report with its photos, or "Waiting for the report, due [date]".
+
+**Submit Report** (new)
+- Fields: event or program name and date (prefilled), people served, short description, photos (required, 1 to 5), and the photo consent tick.
+- Buttons: Cancel and Submit report.
+- Reached from the Handoff Record and from the dashboard banner.
+
+**Food group Dashboard** (`NEW — FOOD GROUP DASHBOARD`)
+- Add a banner when a report is due or overdue: "Report due [date]" with a link to Submit Report.
+
+**History** (`DONOR HISTORY`, `FOOD GROUP HISTORY`)
+- Each completed row links to its handoff record. The food group's rows also show the report status.
+
+**Safety Notices, admin** (`SAFETY NOTICES`)
+- Also lists overdue-report flags, labelled "Overdue report", with the group, the handoff and days overdue. A flag shows "submitted late" if the report came in after the deadline.
+- Actions: Dismiss or Suspend, both with a required note. Reuse `Dialog / Resolve Safety Notice` and `Dialog / Suspend Account`.
+
 ### Waiting on later stages
 
 These screens will change but can't be written until their stage is final:
-- Donor and Food group dashboards (requests, report deadline, flags)
-- Handoff Record, then the new report submission screen
-- History
-- Safety Notices and suspension flows (report non-compliance flag)
+- Donor and Food group dashboards (request and offer tiles and the other numbers)
+- The close stage screens (cancel dialogs, closing statuses, History filters)
 
 ---
 
 ## 8. Open points
 
 - Whether Casual donors also need a "new donor" label until their first completed exchange.
-- Photo requirements for offers and at handoff, including donor photos at handoff. (Listing and request photos are decided: required, 1 to 5.)
-- The report deadline and what the report must contain. (Decided: an overdue report only flags the group to the admin, with no automatic suspension.)
 - How a Route 2 offer is stored: extra columns on the existing offer, or a listing linked to the request.
 - How a request is stored: a separate object from a listing, or the same object with a direction field.
 - Spec sections affected when formalized: users, registration documents and rules, listing and request flows, handoff, new report stage, the data model and the ER diagram.
