@@ -59,7 +59,7 @@ There are three roles, chosen at registration:
 
 ## 6. Full flows (stage by stage)
 
-Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stage 6 is still to be written.
+Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. All six stages are drafted.
 
 ### Stage 1: Register and get verified
 
@@ -296,6 +296,86 @@ Stage 4 has the full acceptance rules. The pattern is:
 - The deadline is not stored. It is worked out as the receipt time plus the Settings value.
 - The overdue flag needs a home. The existing safety notice table is the closest fit, with a type to tell it apart and no person as the one raising it (the system raises it).
 
+### Stage 6: Close
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | The system, the poster (the donor on a listing, the food group on a request), or the offerer who lapses. |
+| **Needs** | A listing or request has reached its deadline, had a missed pickup, been cancelled by its poster, or completed the handoff. |
+| **Result** | It ends as Rescued, Expired or Cancelled. A missed pickup ends as Expired and allows posting again. |
+
+**Statuses**
+- Listings and requests share one status set: Open, Accepted, Rescued, Expired, Cancelled. "Rescued" means the same on both.
+- Offers keep their statuses: Offered, Accepted, Completed, Declined, Withdrawn, Expired, Lapsed, Cancelled.
+
+**Status changes, listing or request**
+- Open to Accepted: the poster accepts an offer. The other offers are declined.
+- Open to Expired: the use-by (listing) or the needed-by (request) passes. Its Offered offers expire with it.
+- Open to Cancelled: the poster cancels with a reason. All waiting offers are declined.
+- Accepted to Rescued: the donor confirms release, then the food group confirms receipt.
+- Accepted to Expired: a missed pickup (see "Lapse" below). The offer lapses.
+- Accepted to Cancelled: the poster cancels with a reason. The accepted offer is cancelled.
+
+**Status changes, offer**
+- Offered to Withdrawn: the offerer withdraws before the poster decides.
+- Offered to Expired: the pickup time passes with no answer (Route 1), or the pickup window ends or the request expires (Route 2).
+- Offered to Declined: the poster declines it, accepts another, or cancels the post.
+- Offered to Accepted: the poster accepts it.
+- Accepted to Completed: both sides confirm the handoff.
+- Accepted to Lapsed: the grace period passes with no handoff.
+- Accepted to Cancelled: the poster cancels. The reason is shown to the offerer.
+
+**Rules**
+- The poster can cancel an Open or Accepted post. A reason is required. After the handoff is complete there is no cancelling.
+- If the post was Open, all waiting offers are declined and each offerer sees the reason.
+- If the post was Accepted, the accepted offer is Cancelled and its offerer sees the reason.
+- Lapse: if an Accepted offer has no handoff 2 hours after its pickup time (Route 1) or the end of its pickup window (Route 2), the offer becomes Lapsed and the post becomes Expired.
+- After a lapse, the poster can post again with the old details prefilled. Every offerer, including the one that lapsed, can offer again.
+- Reports count the new post separately, and the original counts as Expired.
+- A Suspended account cannot post again.
+- Closing never waits for the report (see Stage 5).
+
+**Automatic checks**
+
+One function runs every time a screen loads, in this order:
+1. An Accepted offer 2 hours past its pickup time (or pickup window end) with no handoff: the offer becomes Lapsed and the post becomes Expired.
+2. An Open listing past its use-by: the listing becomes Expired and its Offered offers expire.
+3. An Open request past its needed-by: the request becomes Expired and its Offered offers expire.
+4. An Offered offer past its pickup time (or pickup window end) with no answer: the offer becomes Expired.
+5. A completed handoff whose report is past due: the group is flagged to the admin, once per handoff.
+6. A document expiring in 30 days or less: show a warning.
+7. A document expired: the account becomes Suspended (reason "Document expired").
+
+**Settings**
+- Lapse grace period: 2 hours after the pickup time.
+- Report deadline: 7 days after receipt.
+- Document expiry warning: 30 days before.
+- Photos per post, offer and report: 1 to 5.
+
+**Metrics**
+
+Numbers are worked out, not stored. "Posts" means listings and requests together. Each handoff traces to exactly one post, so nothing is counted twice.
+- **KG posted:** listing kg plus requested kg.
+- **KG rescued:** kg of Completed offers.
+- **KG expired:** kg of posts that expired.
+- **Rescue rate:** kg rescued ÷ kg posted, over closed posts, leaving out cancelled ones.
+- **Offer acceptance:** posts with an accepted offer ÷ posts with at least one offer.
+- **Lapse rate:** lapsed offers ÷ accepted offers.
+- **Handoffs completed:** count of Completed offers.
+- **People served:** the sum of "people served" in submitted reports.
+- **Report compliance:** reports submitted by the deadline ÷ completed handoffs whose deadline has passed.
+- **Surplus waiting:** kg on Open listings, across all organizations.
+- **Needed by food groups:** kg on Open requests, across all organizations.
+- Dropped: Offers sent, and a separate KG cancelled tile (cancelled kg is only mentioned in the Reports footnote).
+
+**Legal basis**
+- RA 9803 (Food Donation Act): closing every post with a recorded outcome supports compliance records and transparency for donated surplus.
+
+**Data model notes (for the data model phase)**
+- Listings and requests need the same status set.
+- The offer's pickup time (Route 1) and pickup window end (Route 2) both drive expiry and lapse, so the offer needs one place the checks can read.
+- No metric is stored.
+
 ---
 
 ## 7. Proposed screen changes (running)
@@ -474,11 +554,53 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 - Also lists overdue-report flags, labelled "Overdue report", with the group, the handoff and days overdue. A flag shows "submitted late" if the report came in after the deadline.
 - Actions: Dismiss or Suspend, both with a required note. Reuse `Dialog / Resolve Safety Notice` and `Dialog / Suspend Account`.
 
-### Waiting on later stages
+### Closing
 
-These screens will change but can't be written until their stage is final:
-- Donor and Food group dashboards (request and offer tiles and the other numbers)
-- The close stage screens (cancel dialogs, closing statuses, History filters)
+**Cancel dialog** (`Dialog / Cancel Listing`)
+- Used by donors on a listing and, reworded as "Cancel request", by food groups on a request. A reason is required.
+- It states what happens: an Open post declines all waiting offers, and an Accepted post cancels the accepted offer. The reason is shown to the affected offerers.
+
+**My Listings** (`DONOR MY LISTING`) and **My Requests** (new)
+- Open and Accepted rows keep a Cancel action.
+- A post that expired from a missed pickup shows a **Post again** action. It opens New Listing or New Request with the old details prefilled.
+
+**My Offers** (food group `FOOD GROUP MY OFFERS`, donor new)
+- The footnote reads: "Accepted offers past their pickup time plus a 2-hour grace period lapse, and the post expires."
+
+**History** (`DONOR HISTORY`, `FOOD GROUP HISTORY`)
+- Tabs: All, Rescued, Expired, Cancelled.
+- A missed pickup shows as "Expired (missed pickup)" so it can be told apart from a plain expiry.
+
+### Metrics and dashboards
+
+**Admin Dashboard** (`Admin Dashboard`)
+- Tiles: Pending accounts, Open safety notices (subtext "Includes overdue reports"), Documents expiring, Suspended accounts, Surplus waiting, Needed by food groups.
+- Remove the KG listed and Rescue rate tiles. They live in Reports.
+- The Pending Accounts table drops the Type column and uses the new role badges.
+
+**Admin Reports** (`ADMIN REPORTS`)
+- Tiles: KG posted, KG rescued, KG expired, Rescue rate, Handoffs completed, People served, Offer acceptance, Lapse rate, Report compliance. The grid layout is left to design.
+- Remove the Offers sent and KG cancelled tiles.
+- The By city table keeps its columns, with "KG listed" renamed "KG posted".
+- Footnote: "Rescue rate = kg rescued ÷ kg posted, over closed posts, leaving out cancelled ones. Kg comes from the post; nothing is weighed at handoff."
+
+**Donor Dashboard** (`DONOR DASHBOARD`)
+- Tiles: Open listings (with offers to review), Accepted awaiting pickup, KG rescued, Needed by food groups.
+
+**Food group Dashboard** (`NEW — FOOD GROUP DASHBOARD`)
+- Tiles: Open listings (subtext "X kg waiting · N in your city", which is the Surplus waiting number), Accepted offers, KG rescued.
+- The "report due" banner is from Stage 5.
+
+**My Listings, donor** (`DONOR MY LISTING`)
+- Replace the Active listings tile with Offers to review. Keep Accepted awaiting pickup and Open on board.
+
+**My Requests, food group** (new)
+- Tiles: Open requests (kg), Accepted awaiting pickup (kg), Offers to review.
+
+**My Offers, donor** (new)
+- Tiles mirror the food group's My Offers: Accepted offers, You released, KG rescued.
+
+**History, both roles:** no change. KG rescued, Handoffs completed and Partners stay.
 
 ---
 
