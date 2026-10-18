@@ -59,7 +59,7 @@ There are three roles, chosen at registration:
 
 ## 6. Full flows (stage by stage)
 
-Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 3 to 6 are still to be written.
+Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 4 to 6 are still to be written.
 
 ### Stage 1: Register and get verified
 
@@ -160,6 +160,73 @@ Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
 **Data model notes (for the data model phase)**
 - A listing now has 1 to 5 photos, so it needs its own photo table, like the offer photos.
 - A request needs its own fields and photos. Whether it is a separate table or the same one as a listing is still open.
+
+### Stage 3: Send offers
+
+Both routes use the same pattern. The side that did not post sends offers. The poster picks one, and the rest are declined (see "When an offer is chosen" below).
+
+#### Stage 3A: Food groups offer on a listing (Route 1)
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | Food group. |
+| **Needs** | Listing is Open. The group has not already offered on it. The group account is Active (not Suspended). The listing can be in any city. |
+| **Does** | Sends one offer for the whole quantity. States how the food will be used, who benefits and how many, the place, and a pickup time. Uploads 1 to 5 photos: past events or the venue, or the recipients if it is a new event. Message is optional. Ticks the group attestation. |
+| **Result** | Offer is Offered. The donor can see it. |
+
+**Rules**
+- One offer per group per listing.
+- The offer is for the whole listing quantity. No partial amounts.
+- The pickup time must be inside the listing's pickup window and before the use-by.
+- At least 1 and at most 5 photos are required.
+- The group attestation must be ticked: the food will be given free, not sold, and handled safely, photos show no identifiable children, and identifiable adults have consented.
+- Only the donor and the group that sent an offer can see it.
+- A group can withdraw its offer any time before the donor decides.
+- An offer nobody answers expires at its pickup time.
+- A Suspended group cannot offer. An overdue report does not block offering (it only flags the group to the admin).
+
+#### Stage 3B: Donors offer on a request (Route 2, new)
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | Business donor or Casual donor. |
+| **Needs** | Request is Open. The donor has not already offered on it. The donor account is Active (not Suspended). The request can be in any city. |
+| **Does** | Sends one offer. Describes the food they will give, picks its category and storage condition, and adds optional allergen labels. Enters kg, the use-by time and a pickup window. Handover instructions are optional. Uploads 1 to 5 photos of the food. Ticks the donor attestation. |
+| **Result** | Offer is Offered. The food group can see it. |
+
+**Rules**
+- One offer per donor per request.
+- kg must be above 0 and not more than the requested kg. A smaller amount is allowed.
+- Use-by must be in the future. The pickup window must end before both the use-by and the request's needed-by.
+- The category must be one the request accepts. A Casual donor can offer only raw or sealed-packaged food.
+- A storage condition is required.
+- At least 1 and at most 5 photos are required.
+- The donor attestation must be ticked, with the same wording as for a listing.
+- Handover instructions stay hidden until the food group accepts the offer.
+- Only the food group and the donor that sent an offer can see it. Other donors cannot see competing offers.
+- A donor can withdraw its offer any time before the food group decides.
+- An offer nobody answers expires when its pickup window ends, or when the request expires.
+- A Suspended donor cannot offer.
+
+#### When an offer is chosen (both routes)
+
+The full acceptance stage is written next, but the pattern is fixed:
+- The poster (the donor on a listing, the food group on a request) accepts one offer. That offer becomes Accepted.
+- All other Offered offers on the same listing or request become Declined. They stay in each offerer's history, and those offerers cannot offer again on it.
+- The listing or request stops taking new offers.
+- Accepting one offer and declining the rest happen together in one transaction. If any part fails, nothing changes.
+- The poster can also decline a single offer before choosing.
+- On a request, the agreed amount is the accepted offer's kg, even if it is less than requested.
+
+**Legal basis**
+- RA 9803 (Food Donation Act): beneficiaries must not pay anything, so groups confirm free distribution and no resale. The donor attestation records good faith.
+- RA 10173 (Data Privacy Act): identifiable people in photos are personal data, so photos need adult consent and show no identifiable children.
+
+**Data model notes (for the data model phase)**
+- An offer now belongs to either a listing (Route 1) or a request (Route 2).
+- A Route 2 offer carries the donor's food details (description, category, storage, allergens, kg, use-by, pickup window, handover instructions, attestation). A Route 1 offer carries the group's use details, as it does today.
+- Offer photos already exist. Both kinds of offers need 1 to 5.
+- One offer per offerer per listing or request needs a uniqueness rule in each case.
 
 ---
 
@@ -263,6 +330,35 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 - A list like `DONOR MY LISTING`: food needed, kg, needed-by, status, offers received, and a cancel action.
 - Status values are defined with the later stages.
 
+### Offers
+
+**Make Offer, food group** (`FOOD GROUP MAKE OFFER`)
+- Add a required **Photos** section: 1 to 5 photos, with the hint "Past events or your venue. For a new event, the recipients."
+- Remove any same-city restriction. Offers work across cities.
+- Everything else stays.
+
+**Make Offer on a request, donor** (new)
+- Opens from a request in Browse Requests. It shows the request details at the top: food needed, accepted categories, kg needed, needed-by, event or program.
+- Sections mirror New Listing: food (description, category, storage, allergens), quantity and timing (kg, use-by, pickup window), photos, handover instructions, and the donor attestation.
+- The category choices are limited to the request's accepted categories and, for Casual donors, to raw and sealed-packaged.
+- kg is capped at the requested kg, with a hint "Up to X kg".
+- Buttons: Cancel and Send offer.
+
+**My Offers, donor** (new; mirrors `FOOD GROUP MY OFFERS`)
+- Added to the donor sidebar. Lists the donor's offers on requests: the request, kg offered, status (Offered, Accepted, Declined, Withdrawn, Expired) and a withdraw action while Offered.
+
+**My Offers, food group** (`FOOD GROUP MY OFFERS`)
+- Unchanged in layout. Declined offers stay visible with their status.
+
+**Incoming Offers, donor** (`DONOR INCOMING OFFERS`, Route 1)
+- Offers show the group's photos.
+- Accept and Decline per offer stay. Accepting declines all the others.
+
+**Offers received, food group** (new, on My Requests; mirrors `DONOR INCOMING OFFERS`, Route 2)
+- Opens from a request in My Requests. Lists the donors' offers with food, kg, use-by, pickup window and photos.
+- Accept and Decline per offer. Accepting declines all the others.
+- Accept and Decline dialogs reuse `Dialog / Accept Offer`.
+
 ### Food group navigation and screens
 
 - Remove **My Listings** and **New Listing** from the food group sidebar. Food groups can no longer post listings.
@@ -273,9 +369,6 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 These screens will change but can't be written until their stage is final:
 - Donor and Food group dashboards (requests, report deadline, flags)
-- Food group Make Offer (photos)
-- New: a donor's offer form on a request (Route 2)
-- Donor Incoming Offers and the food group's choose-and-confirm view
 - Handoff Record, then the new report submission screen
 - History
 - Safety Notices and suspension flows (report non-compliance flag)
@@ -287,6 +380,6 @@ These screens will change but can't be written until their stage is final:
 - Whether Casual donors also need a "new donor" label until their first completed exchange.
 - Photo requirements for offers and at handoff, including donor photos at handoff. (Listing and request photos are decided: required, 1 to 5.)
 - The report deadline and what the report must contain. (Decided: an overdue report only flags the group to the admin, with no automatic suspension.)
-- Whether a donor can offer less than the requested kg on a request (Stage 3).
+- How a Route 2 offer is stored: extra columns on the existing offer, or a listing linked to the request.
 - How a request is stored: a separate object from a listing, or the same object with a direction field.
 - Spec sections affected when formalized: users, registration documents and rules, listing and request flows, handoff, new report stage, the data model and the ER diagram.
