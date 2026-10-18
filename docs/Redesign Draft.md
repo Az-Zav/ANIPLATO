@@ -59,7 +59,7 @@ There are three roles, chosen at registration:
 
 ## 6. Full flows (stage by stage)
 
-Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 4 to 6 are still to be written.
+Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 5 and 6 are still to be written.
 
 ### Stage 1: Register and get verified
 
@@ -210,7 +210,7 @@ Both routes use the same pattern. The side that did not post sends offers. The p
 
 #### When an offer is chosen (both routes)
 
-The full acceptance stage is written next, but the pattern is fixed:
+Stage 4 has the full acceptance rules. The pattern is:
 - The poster (the donor on a listing, the food group on a request) accepts one offer. That offer becomes Accepted.
 - All other Offered offers on the same listing or request become Declined. They stay in each offerer's history, and those offerers cannot offer again on it.
 - The listing or request stops taking new offers.
@@ -227,6 +227,34 @@ The full acceptance stage is written next, but the pattern is fixed:
 - A Route 2 offer carries the donor's food details (description, category, storage, allergens, kg, use-by, pickup window, handover instructions, attestation). A Route 1 offer carries the group's use details, as it does today.
 - Offer photos already exist. Both kinds of offers need 1 to 5.
 - One offer per offerer per listing or request needs a uniqueness rule in each case.
+
+### Stage 4: Accept an offer
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | The poster: the donor on a listing (Route 1), the food group on a request (Route 2). |
+| **Needs** | The listing or request is Open with at least one Offered offer. The poster's account is Active (not Suspended). |
+| **Does** | Looks at the offers, with their details and photos, and picks one to accept. Can also decline any single offer. |
+| **Result** | That offer is Accepted. All other Offered offers on the same listing or request are Declined. The listing or request is Accepted. Both sides see each other's contact number, and the food group sees the donor's handover instructions. The agreed kg is fixed. |
+
+**Rules**
+- Accepting one offer and declining the others happen together in one transaction. If any part fails, nothing changes.
+- Only an Offered offer that has not expired can be accepted.
+- The offer itself is the offerer's confirmation. The poster's accept is the second confirmation, so contact numbers are revealed at the moment of acceptance, with no extra step.
+- The agreed kg is the whole listing quantity on Route 1, and the accepted offer's kg on Route 2, even if that is less than requested.
+- Contact numbers are shown only to the two sides of the accepted offer, until the handoff closes.
+- The poster can decline an Offered offer at any time before accepting one. The offerer sees it as Declined and cannot offer again on that listing or request.
+- Declined offers stay visible in the offerer's history.
+- Once accepted, the offerer cannot withdraw. The offerer contacts the poster, and only the poster can cancel (see the close stage).
+- A Suspended account cannot accept an offer. Offers from a Suspended offerer are hidden from the poster until the account is reinstated.
+- The listing or request takes no new offers once Accepted.
+
+**Legal basis**
+- RA 10173 (Data Privacy Act): contact numbers are shared only when needed, so only between the two sides of an accepted offer.
+
+**Data model notes (for the data model phase)**
+- The listing and the request each need an Accepted status.
+- Contact numbers are not copied anywhere. One method returns them, only to the owner, an admin, or the other side of an accepted offer that is not yet closed.
 
 ---
 
@@ -358,6 +386,20 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 - Opens from a request in My Requests. Lists the donors' offers with food, kg, use-by, pickup window and photos.
 - Accept and Decline per offer. Accepting declines all the others.
 - Accept and Decline dialogs reuse `Dialog / Accept Offer`.
+
+### Accepting offers
+
+**Accept dialog** (`Dialog / Accept Offer`, used on both routes)
+- Shows the offerer's name and the agreed kg.
+- States what happens: "All other offers will be declined. You and the other side will see each other's contact number."
+- Buttons: Cancel and Accept.
+
+**After acceptance**
+- **My Listings, donor** (`DONOR MY LISTING`): an Accepted listing shows the food group's contact person and number, as it does today.
+- **My Requests, food group** (new): an Accepted request shows the donor's contact person and number, and the donor's handover instructions.
+- **My Offers, food group** (`FOOD GROUP MY OFFERS`): an Accepted offer shows the donor's contact and the handover instructions.
+- **My Offers, donor** (new): an Accepted offer shows the food group's contact.
+- Declined offers show a "Declined" status in each offerer's list and history. The Withdraw action disappears once an offer is Accepted.
 
 ### Food group navigation and screens
 
