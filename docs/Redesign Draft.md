@@ -50,7 +50,7 @@ There are three roles, chosen at registration:
 2. The donor confirms release.
 3. The food group confirms receipt. This automatically creates a handoff record that shows in both parties' history.
 4. The food group is given a deadline to submit a simple documentation report showing the event or program that was held. The donor can see it.
-5. If the group can't comply, it is flagged for suspension by admin.
+5. If the group can't comply, it is flagged to the admin, who decides whether to suspend. There is no automatic suspension for an overdue report, unlike an expired document.
 
 ## 5. Food groups can no longer post listings (new)
 
@@ -59,7 +59,7 @@ There are three roles, chosen at registration:
 
 ## 6. Full flows (stage by stage)
 
-Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 2 to 6 are still to be written.
+Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rules. Stages 3 to 6 are still to be written.
 
 ### Stage 1: Register and get verified
 
@@ -105,6 +105,61 @@ Screen changes for this stage are listed in section 7.
 - `role` becomes `BUSINESS_DONOR`, `CASUAL_DONOR` or `FOOD_GROUP` in both registration and account, plus `ADMIN` on account only.
 - `org_type` is removed.
 - Any check that currently reads "role = DONOR" needs to cover both donor roles.
+
+### Stage 2: Post a listing or a request
+
+Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
+
+**Browsing rule for both:** city is a sort priority, not a filter. Items in the viewer's own city come first, and items from other cities are listed below them. Nothing is hidden, and offers can be sent across cities.
+
+#### Stage 2A: Donor posts a listing (Route 1)
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | Business donor or Casual donor. |
+| **Needs** | Account is Active (not Suspended). All documents are current. |
+| **Does** | Enters description, category, kg, use-by time and pickup window, and picks a storage condition. Uploads 1 to 5 photos. Allergen labels and handover instructions are optional. Ticks the donor attestation. |
+| **Result** | Listing is Open. Food groups can see it, with the poster's own city first. The attestation is saved with a timestamp. |
+
+**Rules**
+- kg must be above 0.
+- Use-by must be in the future. The pickup window must end before the use-by.
+- At least 1 and at most 5 photos are required.
+- The category choices follow the role: Business may pick raw, packaged, baked or cooked. Casual may pick raw or sealed-packaged only.
+- The attestation must be ticked: the food is wholesome, labeled, donated in good faith, and has no milk products, no tomato- or milk-based cooked food, and no food already served.
+- A storage condition is required: Ambient Dry, Chilled Cold-Chain or Hot Hold.
+- Allergen labels are optional and for information only.
+- Handover instructions stay hidden until both sides have confirmed.
+- A Suspended account cannot post.
+- Food groups cannot post listings and cannot re-post.
+
+#### Stage 2B: Food group posts a request (Route 2, new)
+
+| Component | Detail |
+| :-- | :-- |
+| **Who** | Food group. |
+| **Needs** | Account is Active (not Suspended). All documents are current. |
+| **Does** | Describes the food needed and picks the categories it will accept. Enters kg needed and a needed-by date and time. Names the event or program: its name, date, who it feeds and how many. Gives the place where the food should go. Uploads 1 to 5 photos: of past events or the venue, or of the recipients if it is a new event. Message is optional. Ticks the group attestation. |
+| **Result** | Request is Open. Donors can see it, with their own city first. The attestation is saved with a timestamp. |
+
+**Rules**
+- kg must be above 0.
+- Needed-by must be in the future. The event date must be on or after the needed-by.
+- At least 1 and at most 5 photos are required.
+- The group attestation must be ticked: the food will be given free, not sold, and handled safely, photos show no identifiable children, and identifiable adults have consented.
+- A group can have several Open requests at once, for example one per event or program.
+- A Casual donor sees and can offer on only the requests that accept raw or sealed-packaged food, and can offer only those categories.
+- A request that reaches its needed-by time with no donor chosen expires.
+- A Suspended group cannot post.
+- An overdue report does not block posting. It only flags the group to the admin (see the report stage).
+
+**Legal basis**
+- RA 9803 (Food Donation Act): beneficiaries must not pay anything, so groups confirm free distribution and no resale. The donor attestation records good faith.
+- RA 10173 (Data Privacy Act): identifiable people in photos are personal data, so photos need adult consent and show no identifiable children.
+
+**Data model notes (for the data model phase)**
+- A listing now has 1 to 5 photos, so it needs its own photo table, like the offer photos.
+- A request needs its own fields and photos. Whether it is a separate table or the same one as a listing is still open.
 
 ---
 
@@ -180,21 +235,46 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
   - Business donor: Raw, Cooked, Baked, Packaged.
   - Casual donor: Raw and Packaged only, with Cooked and Baked hidden. The Packaged label reads "Sealed packaged" for Casual.
 - The category hint adds, for Casual: "Casual donors can post raw and sealed-packaged food only."
-- Everything else on the form is unchanged for now. Photos and handover details wait for Stage 2.
+- Add a required **Photos** section: upload 1 to 5 photos, with a hint that the photos show the food.
+- Everything else on the form is unchanged. Handover instructions stay optional.
+
+**Browse Requests** (new, donor sidebar; mirrors `NEW — FOOD GROUP BROWSE LISTINGS`)
+- A list of Open requests: food needed, accepted categories, kg, needed-by, event or program, city.
+- Requests in the donor's own city come first, then other cities below. Nothing is hidden.
+- A Casual donor sees only the requests that accept raw or sealed-packaged food.
+- Each row opens the request details, with a button to offer. The offer form itself is defined in Stage 3.
+
+### Browse Listings (food group)
+
+**Browse Listings** (`NEW — FOOD GROUP BROWSE LISTINGS`)
+- Listings in the group's own city come first, then other cities below. Nothing is hidden.
+- Any city filter becomes a sort or an optional filter the user chooses, not a built-in restriction.
+- Listing details show the donor's photos.
+
+### Requests (food group)
+
+**New Request** (new; replaces `New Listing` in the food group sidebar)
+- Sections: Food needed, Quantity and timing, Event or program, Photos, and the group attestation. Fields are in Stage 2B.
+- Category is a multi-select of the accepted categories.
+- Photos: required, 1 to 5, with a hint "Past events or your venue. For a new event, the recipients."
+- Buttons: Cancel and Post.
+
+**My Requests** (new; replaces `My Listings` in the food group sidebar)
+- A list like `DONOR MY LISTING`: food needed, kg, needed-by, status, offers received, and a cancel action.
+- Status values are defined with the later stages.
 
 ### Food group navigation and screens
 
 - Remove **My Listings** and **New Listing** from the food group sidebar. Food groups can no longer post listings.
+- Add **New Request** and **My Requests** in their place.
 - Delete the frames `FOOD GROUP MY LISTINGS (RE-POSTS)` and `FOOD GROUP INCOMING OFFERS (RE-POST)`.
-- Route 2 needs replacement screens for requesting food. They are defined once Stage 2 is written.
 
 ### Waiting on later stages
 
 These screens will change but can't be written until their stage is final:
 - Donor and Food group dashboards (requests, report deadline, flags)
-- Donor New Listing details (photos, handover)
-- Food group Browse Listings and Make Offer (photos)
-- New: Food group request form and a donor's offer form (Route 2)
+- Food group Make Offer (photos)
+- New: a donor's offer form on a request (Route 2)
 - Donor Incoming Offers and the food group's choose-and-confirm view
 - Handoff Record, then the new report submission screen
 - History
@@ -205,8 +285,8 @@ These screens will change but can't be written until their stage is final:
 ## 8. Open points
 
 - Whether Casual donors also need a "new donor" label until their first completed exchange.
-- Photo requirements at each step, including donor photos at handoff.
-- The report deadline and what the report must contain.
-- Whether flagged groups are suspended automatically or only after admin review.
+- Photo requirements for offers and at handoff, including donor photos at handoff. (Listing and request photos are decided: required, 1 to 5.)
+- The report deadline and what the report must contain. (Decided: an overdue report only flags the group to the admin, with no automatic suspension.)
+- Whether a donor can offer less than the requested kg on a request (Stage 3).
 - How a request is stored: a separate object from a listing, or the same object with a direction field.
 - Spec sections affected when formalized: users, registration documents and rules, listing and request flows, handoff, new report stage, the data model and the ER diagram.
