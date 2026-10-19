@@ -142,27 +142,24 @@ Safety notices and suspensions can happen at any time after an offer is accepted
 
 **Rules**
 
-* Each document needs an expiry date. "No expiry" is allowed only where the document truly has none. Permits and the Barangay Certificate always need an explicit date.
+* Every document needs an expiry date. "No expiry" only where the document has none. Permits and the Barangay Certificate always need a date.
+* No government IDs. Files are visible only to the applicant and the admin.
+* Approve only if every document is unexpired and matches the name and city. Casual donor: the admin checks the Barangay Certificate against name and city. The phone number is entered, not verified.
+* Approve creates the account and emails a temporary password.
+* Reject requires a reason, which is emailed. The applicant may register again.
+* The temporary password never expires. Login with it reaches only Change Password until a new one is set.
+* The role is fixed at registration. It sets the required documents and the food categories a donor may post: Business raw, packaged, baked and cooked; Casual raw and sealed-packaged only.
+* A business without both permits is not rejected. It registers as Casual. To upgrade, it uploads the permits, which creates a new registration for the same account, reviewed like any other. Approval changes the role to Business and points the account to the new registration. The old one stays as history. A rejected upgrade changes nothing.
+* A food group needs a standing feeding activity (feeding program, parish pantry, school feeding, volunteer group). One-off individual volunteers are not accepted.
+* No organization type is collected. A Casual donor gives no pickup location at registration. Pickup details go in each listing's handover instructions.
 
-* No government IDs are collected. Files are visible only to the applicant and the admin.
+**Legal basis**
 
-* The admin can approve only if every document is not expired and matches the name and city. For a Casual donor the review is lighter: the admin checks the Barangay Certificate against the name and city. The phone number is only entered, not verified.
-
-* Approve: the account is created and an email sends a temporary password.
-
-* Reject: the admin must write a reason. The reason is emailed. The applicant may register again.
-
-* The temporary password has no time limit. Every login with it goes to Change Password and nothing else is reachable until a new one is set.
-
-* The role is set at registration. It decides the required documents and the food categories a donor may post: Business may post raw, packaged, baked and cooked. Casual may post raw and sealed-packaged only.
-
-* A business that cannot show both permits is not rejected. It may register as Casual. To upgrade, the donor uploads the permits, which creates a new registration for the same account. The admin reviews it like any other. On approval the account's role changes to Business and it points to the new registration. The old registration stays as history. A rejected upgrade changes nothing.
-
-* A food group must show a standing feeding activity (feeding program, parish pantry, school feeding, volunteer group). One-off individual volunteers are not accepted.
-
-* No organization type is collected. A Casual donor gives no pickup location at registration. Pickup details live in each listing's handover instructions.
-
-**Legal basis:** The Mayor's Permit and Sanitary Permit are required of every business donor. Only makers and repackers of packaged food need an FDA License to Operate. Food groups upload one credential that matches their kind of organization. RA 10173 (Data Privacy Act): collect only what is needed, and no government IDs. A Barangay Certificate is a local government document, not a government ID. Casual donors are limited to raw and sealed-packaged food because they have no Sanitary Permit. That is a platform rule, not a legal one.
+* Mayor's Permit and Sanitary Permit: required of every business donor.
+* FDA License to Operate: only makers and repackers of packaged food.
+* Food groups upload one credential matching their kind of organization.
+* RA 10173 (Data Privacy Act): collect only what is needed, and no government IDs. A Barangay Certificate is a local government document, not a government ID.
+* Casual donors are limited to raw and sealed-packaged food because they have no Sanitary Permit. This is a platform rule, not a legal one.
 
 ### **Stage 2: Post a listing or a request**
 
@@ -179,23 +176,18 @@ Items in the viewer's own city come first, and items from other cities are liste
 
 **Rules**
 
-* kg must be above 0. Use-by must be in the future. The pickup window must end before the use-by.
-
-* At least 1 and at most 5 photos are required.
-
-* The category follows the role: Business may pick raw, packaged, baked or cooked. Casual may pick raw or sealed-packaged only.
-
-* The attestation must be ticked: the food is wholesome, labeled, donated in good faith, and has no milk products, no tomato- or milk-based cooked food, and no food already served.
-
-* A storage condition is required: Ambient Dry (room temperature, 22 to 28 °C, sealed containers), Chilled Cold-Chain (kept at 4 °C or below, the group brings a cooler) or Hot Hold (kept above 60 °C, pick up within 90 minutes).
-
-* Allergen labels are optional and for information only: Gluten / Wheat, Dairy / Butter, Nuts / Peanuts, Eggs, Halal Ingredients.
-
+* kg above 0. Use-by in the future. Pickup window ends before the use-by.
+* 1 to 5 photos.
+* Category follows the role: Business may pick raw, packaged, baked or cooked. Casual may pick raw or sealed-packaged only.
+* Attestation ticked: the food is wholesome, labeled and donated in good faith, with no milk products, no tomato- or milk-based cooked food, and no food already served.
+* Storage condition required:
+  * Ambient Dry: room temperature (22 to 28 °C), sealed containers.
+  * Chilled Cold-Chain: 4 °C or below, the group brings a cooler.
+  * Hot Hold: above 60 °C, pick up within 90 minutes.
+* Allergen labels are optional and informational: Gluten / Wheat, Dairy / Butter, Nuts / Peanuts, Eggs, Halal Ingredients.
 * Handover instructions stay hidden until the offer is accepted.
-
 * A Suspended account cannot post. Its Open listings are hidden from food groups until it is reinstated.
-
-* Food groups cannot post listings or re-post. Leftovers after a program mean the group asked for or accepted more than it needed.
+* Food groups cannot post listings or re-post. Leftovers mean the group asked for or accepted more than it needed.
 
 **2B: A food group posts a request (Route 2)**
 
@@ -208,21 +200,20 @@ Items in the viewer's own city come first, and items from other cities are liste
 
 **Rules**
 
-* kg must be above 0. Needed-by must be in the future. The event date must be on or after the needed-by.
-
-* At least 1 and at most 5 photos are required.
-
-* The group attestation must be ticked: the food will be given free, not sold, and handled safely, photos show no identifiable children, and identifiable adults have consented.
-
-* A group can have several Open requests at once, for example one per event or program.
-
-* A Casual donor sees and can offer on only the requests that accept raw or sealed-packaged food, and can offer only those categories.
-
-* A request that reaches its needed-by time with no donor chosen expires.
-
+* kg above 0. Needed-by in the future. Event date on or after the needed-by.
+* 1 to 5 photos.
+* Group attestation ticked: the food is given free and not sold, handled safely, photos show no identifiable children, and identifiable adults consented.
+* A group can have several Open requests at once (for example one per event).
+* A Casual donor sees, and can offer on, only requests that accept raw or sealed-packaged food, and only in those categories.
+* A request reaching its needed-by with no donor chosen expires.
 * A Suspended group cannot post. Its Open requests are hidden from donors until it is reinstated. An overdue report does not block posting.
 
-**Legal basis:** RA 9803 (Food Donation Act) covers apparently wholesome food but excludes milk products, tomato- or milk-based cooked food, and food already served. These are blocked by category and the attestation. Good-faith donors are not liable except for gross negligence or intentional misconduct, and the timestamped attestation records good faith. ANIPLATO itself grants no protection. Beneficiaries must not pay anything, so groups confirm free distribution and no resale. RA 10173: photos of identifiable people are personal data, so photos need adult consent and show no identifiable children.
+**Legal basis**
+
+* RA 9803 (Food Donation Act): covers apparently wholesome food. It excludes milk products, tomato- or milk-based cooked food, and food already served. These are blocked by category and the attestation.
+* Good-faith donors are not liable except for gross negligence or intentional misconduct. The timestamped attestation records good faith. ANIPLATO itself grants no protection.
+* Beneficiaries must not pay, so groups confirm free distribution and no resale.
+* RA 10173: photos of identifiable people are personal data, so they need adult consent and show no identifiable children.
 
 ### **Stage 3: Send offers**
 
@@ -239,16 +230,11 @@ Both routes use the same pattern. The side that did not post sends offers.
 
 **Rules**
 
-* One offer per group per listing, for the whole listing quantity. No partial amounts.
-
-* The pickup time must be inside the listing's pickup window and before the use-by.
-
-* At least 1 and at most 5 photos are required. The group attestation must be ticked.
-
-* Only the donor and the group that sent an offer can see it.
-
-* A group can withdraw its offer until the donor decides. An unanswered offer expires (see 6.4).
-
+* One offer per group per listing, for the whole quantity. No partial amounts.
+* Pickup time inside the listing's pickup window and before the use-by.
+* 1 to 5 photos. Group attestation ticked.
+* Only the donor and the offering group can see the offer.
+* A group can withdraw until the donor decides. An unanswered offer expires (see 6.4).
 * A Suspended group cannot offer. An overdue report does not block offering.
 
 **3B: Donors offer on a request (Route 2)**
@@ -263,24 +249,18 @@ Both routes use the same pattern. The side that did not post sends offers.
 **Rules**
 
 * One offer per donor per request.
-
-* kg must be above 0 and not more than the requested kg. A smaller amount is allowed.
-
-* Use-by must be in the future. The pickup window must end before both the use-by and the request's needed-by.
-
-* The category must be one the request accepts. A Casual donor can offer only raw or sealed-packaged food.
-
-* A storage condition is required. At least 1 and at most 5 photos are required. The donor attestation must be ticked.
-
-* Handover instructions stay hidden until the food group accepts the offer.
-
-* Only the food group and the donor that sent an offer can see it. Other donors cannot see competing offers.
-
-* A donor can withdraw its offer until the food group decides. An unanswered offer expires (see 6.4).
-
+* kg above 0 and not above the requested kg. A smaller amount is allowed.
+* Use-by in the future. The pickup window ends before both the use-by and the request's needed-by.
+* Category must be one the request accepts. Casual donors: raw or sealed-packaged only.
+* Storage condition required. 1 to 5 photos. Donor attestation ticked.
+* Handover instructions stay hidden until the offer is accepted.
+* Only the food group and the donor that sent an offer can see it. Competing offers are hidden from other donors.
+* A donor can withdraw until the food group decides. An unanswered offer expires (see 6.4).
 * A Suspended donor cannot offer.
 
-**Legal basis:** same as Stage 2.
+**Legal basis**
+
+* Same as Stage 2.
 
 ### **Stage 4: Accept an offer**
 
@@ -293,25 +273,19 @@ Both routes use the same pattern. The side that did not post sends offers.
 
 **Rules**
 
-* Accepting one offer and declining the others happen together in one database transaction. If any part fails, nothing changes.
-
-* Only an Offered offer that has not expired can be accepted.
-
-* The offer itself is the offerer's confirmation. The poster's accept is the second confirmation, so contact numbers are revealed at acceptance, with no extra step.
-
-* The agreed kg is the whole listing quantity on Route 1, and the accepted offer's kg on Route 2, even if that is less than requested.
-
+* Accepting one offer and declining the others is one database transaction. If any part fails, nothing changes.
+* Only an Offered, unexpired offer can be accepted.
+* The offer is the offerer's confirmation and the accept is the second, so contact numbers are revealed at acceptance with no extra step.
+* Agreed kg: the whole listing quantity on Route 1, the accepted offer's kg on Route 2 (even if less than requested).
 * Contact numbers are shown only to the two sides of the accepted offer, until the handoff closes.
-
-* The poster can decline an Offered offer at any time before accepting one. The offerer sees it as Declined and cannot offer again on that post. Declined offers stay visible in the offerer's history.
-
+* The poster can decline an Offered offer any time before accepting one. The offerer sees Declined, cannot offer again on that post, and keeps it in history.
 * Once accepted, the offerer cannot withdraw. Only the poster can cancel.
+* A Suspended account cannot accept. Offers from a Suspended offerer are hidden from the poster until it is reinstated.
+* An Accepted post takes no new offers.
 
-* A Suspended account cannot accept an offer. Offers from a Suspended offerer are hidden from the poster until it is reinstated.
+**Legal basis**
 
-* The post takes no new offers once Accepted.
-
-**Legal basis:** RA 10173: contact numbers are shared only when needed, so only between the two sides of an accepted offer.
+* RA 10173: share contact numbers only when needed, so only between the two sides of an accepted offer.
 
 ### **Stage 5: Handoff and report**
 
@@ -324,27 +298,23 @@ Both routes use the same pattern. The side that did not post sends offers.
 
 **Handoff rules**
 
-* The food group can confirm receipt only after the donor has confirmed release. Neither step needs photos.
-
-* Confirming receipt creates the handoff record. The record shows names, food, agreed kg, times and the stated use. It always says it is not a government certificate.
+* Receipt can be confirmed only after the donor confirms release. Neither step needs photos.
+* Confirming receipt creates the handoff record: names, food, agreed kg, times and stated use. It always says it is not a government certificate.
 
 **Report rules**
 
-* The report is due 7 days after receipt is confirmed. There is one report per handoff.
+* One report per handoff, due 7 days after receipt is confirmed.
+* Contents: event or program name and date (prefilled), people actually served, a short description, and 1 to 5 photos.
+* The group ticks the photo consent statement: no identifiable children, and consent from identifiable adults.
+* The donor sees the report on the handoff record, read-only. The donor does not approve or reject it.
+* The report never holds up closing the post. A Suspended group can still submit it.
+* Report overdue: the system flags the group to the admin. The admin dismisses the flag or suspends the account, with a note. No automatic suspension, and nothing is blocked.
+* The group can still submit late. The flag then shows "submitted late".
 
-* The report has: the event or program name and date (prefilled from the request or offer), how many people were actually served, a short description of what was held, and 1 to 5 photos.
+**Legal basis**
 
-* The group ticks a photo consent statement: photos show no identifiable children, and identifiable adults have consented.
-
-* The donor can see the report on the handoff record, read-only. The donor does not approve or reject it.
-
-* The report does not hold up closing the post. A Suspended group can still submit its report.
-
-* If the deadline passes with no report, the system flags the group to the admin. The admin can dismiss the flag or suspend the account, with a note. There is no automatic suspension and nothing is blocked while the report is overdue.
-
-* The group can still submit late. The flag then shows "submitted late" and the admin decides as before.
-
-**Legal basis:** RA 9803: certificates of acceptance and fitness come from DSWD and the Red Cross. ANIPLATO's handoff record is not one of them. RA 10173: report photos carry the same consent statement as offers.
+* RA 9803: certificates of acceptance and fitness come from DSWD and the Red Cross. The handoff record is not one of them.
+* RA 10173: report photos carry the same consent statement as offers.
 
 ### **Stage 6: Close**
 
@@ -356,17 +326,15 @@ Both routes use the same pattern. The side that did not post sends offers.
 
 **Rules**
 
-* The poster can cancel an Open or Accepted post. A reason is required. After the handoff is complete there is no cancelling.
-
-* Offers affected by a cancellation are declined or cancelled (see 6.4), and each offerer sees the reason.
-
-* Lapse: if an Accepted offer has no handoff 2 hours after its pickup time (Route 1) or the end of its pickup window (Route 2), the offer becomes Lapsed and the post becomes Expired.
-
-* A lapsed post stays Expired. To try again, the poster makes a new post the normal way. Nothing is carried over.
-
+* The poster can cancel an Open or Accepted post, with a reason. No cancelling after the handoff completes.
+* Offers affected by a cancellation are declined or cancelled (see 6.4). Each offerer sees the reason.
+* Lapse: an Accepted offer with no handoff 2 hours after its pickup time (Route 1) or pickup window end (Route 2) becomes Lapsed, and the post becomes Expired.
+* A lapsed post stays Expired. To try again, the poster makes a new post. Nothing carries over.
 * Closing never waits for the report.
 
-**Legal basis:** RA 9803 guidelines and liability tracking. Closing every post with a recorded outcome supports compliance records and transparency for donated surplus.
+**Legal basis**
+
+* RA 9803 guidelines and liability tracking: closing every post with a recorded outcome supports compliance records and transparency for donated surplus.
 
 ## **6.3 Account Status and Access**
 
@@ -430,13 +398,28 @@ Suspended access: a Suspended account cannot post, send an offer, or accept an o
 
 A Suspended account has the same permissions as its role, except it cannot post, send an offer or accept an offer.
 
-* Business donor and Casual donor: post a listing; cancel own listing; accept or decline offers on own listing; offer on a request; withdraw own offer; confirm release; see the report on a handoff; flag a safety concern; upload renewals and edit profile. A Casual donor can post and offer only raw and sealed-packaged food, and can upgrade to Business.
+| Action | Business donor | Casual donor | Food group | Admin |
+| :---- | :---: | :---: | :---: | :---: |
+| Post a listing | ✓ | ✓ (raw, sealed-packaged only) | | |
+| Post a request | | | ✓ | |
+| Cancel own post | ✓ | ✓ | ✓ | |
+| Accept or decline offers on own post | ✓ | ✓ | ✓ | |
+| Offer on a request | ✓ | ✓ (raw, sealed-packaged only) | | |
+| Offer on a listing | | | ✓ | |
+| Withdraw own offer | ✓ | ✓ | ✓ | |
+| Confirm release | ✓ | ✓ | | |
+| Confirm receipt | | | ✓ | |
+| Submit the report | | | ✓ | |
+| See the report on a handoff | ✓ | ✓ | ✓ | |
+| Flag a safety concern | ✓ | ✓ | ✓ | |
+| Upload renewals, edit profile | ✓ | ✓ | ✓ | |
+| Upgrade to Business | | ✓ | | |
+| Approve or reject registrations and upgrades | | | | ✓ |
+| Dismiss notices | | | | ✓ |
+| Suspend and reinstate accounts | | | | ✓ |
+| View the metrics | | | | ✓ |
 
-* Food group: post a request; cancel own request; accept or decline offers on own request; offer on a listing; withdraw own offer; confirm receipt; submit the report; flag a safety concern; upload renewals and edit profile.
-
-* Admin: approve or reject registrations and upgrades; dismiss notices; suspend and reinstate accounts; view the metrics.
-
-* Nobody else can see an offer except the poster and the offerer.
+Nobody else can see an offer except the poster and the offerer.
 
 ## **6.6 Automatic Checks**
 
@@ -504,54 +487,188 @@ Screens used by both donors and food groups are shared. File names are confirmed
 
 ```
 aniplato/
-├── pom.xml          (must copy *.fxml and *.css from src/main/java)
-├── docs/   sql/ (schema.sql, seed.sql)   uploads/ (git-ignored)
+├── pom.xml                              (must copy *.fxml and *.css from src/main/java)
+├── README.md
+├── docs/
+│   └── ARCHITECTURE.md
+├── sql/
+│   ├── schema.sql
+│   └── seed.sql
+├── uploads/                             (local file storage, git-ignored)
 └── src/main/
     ├── java/com/aniplato/
     │   ├── Main.java
-    │   ├── model/       Account (Admin, Donor, FoodGroup), City, Registration,
-    │   │                Document, Post, Offer, FoodDetail, UseDetail, Report,
-    │   │                SafetyNotice (enums nested inside)
-    │   ├── view/        FXML + CSS: login, register, register-step2,
-    │   │   │            register-submitted, profile
-    │   │   ├── admin/      dashboard, pending-registrations, review-registration,
-    │   │   │               accounts, safety-notices, reports
-    │   │   ├── donor/      dashboard, new-listing, browse-requests, make-offer
-    │   │   ├── foodgroup/  dashboard, new-request, browse-listings, make-offer
-    │   │   └── shared/     shell, my-posts, post-offers, my-offers, history,
-    │   │                   handoff-record, submit-report, dialog
-    │   ├── controller/  one thin class per screen, same names
-    │   ├── service/     Authentication, Registration, Post, Offer, Report,
-    │   │                Safety, Stats, Maintenance, FileStorage, Email
-    │   ├── dao/         one per table (food and use details share DetailDao),
-    │   │                plus LogDao
-    │   ├── exception/   RuleViolationException
-    │   └── util/        Database, PasswordHasher, Settings, Session, SvgIcon,
-    │                    Navigator (only place that knows view paths)
-    └── resources/   db.properties (git-ignored), email/ (3 HTML templates)
+    │   │
+    │   ├── model/                       (enums nested inside)
+    │   │   ├── Account                  (abstract; Role, Status)
+    │   │   ├── Admin
+    │   │   ├── Donor                    (business or casual)
+    │   │   ├── FoodGroup
+    │   │   ├── City
+    │   │   ├── Registration             (Status)
+    │   │   ├── Document                 (Type, Review)
+    │   │   ├── Post                     (Kind, Status)
+    │   │   ├── Offer                    (Status)
+    │   │   ├── FoodDetail               (Category, Storage, Allergen)
+    │   │   ├── UseDetail
+    │   │   ├── Report
+    │   │   └── SafetyNotice             (Kind, Status)
+    │   │
+    │   ├── view/                        (FXML + CSS, mirrors controller/)
+    │   │   ├── aniplato.css
+    │   │   ├── login.fxml
+    │   │   ├── register.fxml
+    │   │   ├── register-step2.fxml
+    │   │   ├── register-submitted.fxml
+    │   │   ├── profile.fxml
+    │   │   ├── admin/
+    │   │   │   ├── dashboard.fxml
+    │   │   │   ├── pending-registrations.fxml
+    │   │   │   ├── review-registration.fxml
+    │   │   │   ├── accounts.fxml
+    │   │   │   ├── safety-notices.fxml
+    │   │   │   └── reports.fxml
+    │   │   ├── donor/
+    │   │   │   ├── dashboard.fxml
+    │   │   │   ├── new-listing.fxml
+    │   │   │   ├── browse-requests.fxml
+    │   │   │   └── make-offer.fxml
+    │   │   ├── foodgroup/
+    │   │   │   ├── dashboard.fxml
+    │   │   │   ├── new-request.fxml
+    │   │   │   ├── browse-listings.fxml
+    │   │   │   └── make-offer.fxml
+    │   │   └── shared/
+    │   │       ├── shell.fxml
+    │   │       ├── my-posts.fxml
+    │   │       ├── post-offers.fxml
+    │   │       ├── my-offers.fxml
+    │   │       ├── history.fxml
+    │   │       ├── handoff-record.fxml
+    │   │       ├── submit-report.fxml
+    │   │       └── dialog.fxml
+    │   │
+    │   ├── controller/                  (thin: one per screen, same names)
+    │   │   ├── ShellController
+    │   │   ├── LoginController
+    │   │   ├── RegisterController
+    │   │   ├── RegisterStep2Controller
+    │   │   ├── RegisterSubmittedController
+    │   │   ├── ProfileController
+    │   │   ├── admin/
+    │   │   │   ├── AdminDashboardController
+    │   │   │   ├── PendingRegistrationsController
+    │   │   │   ├── ReviewRegistrationController
+    │   │   │   ├── AccountsController
+    │   │   │   ├── SafetyNoticesController
+    │   │   │   └── ReportsController
+    │   │   ├── donor/
+    │   │   │   ├── DonorDashboardController
+    │   │   │   ├── NewListingController
+    │   │   │   ├── BrowseRequestsController
+    │   │   │   └── DonorMakeOfferController
+    │   │   ├── foodgroup/
+    │   │   │   ├── FoodGroupDashboardController
+    │   │   │   ├── NewRequestController
+    │   │   │   ├── BrowseListingsController
+    │   │   │   └── FoodGroupMakeOfferController
+    │   │   └── shared/                  (same screen for donor and food group)
+    │   │       ├── MyPostsController
+    │   │       ├── PostOffersController
+    │   │       ├── MyOffersController
+    │   │       ├── HistoryController
+    │   │       ├── HandoffRecordController
+    │   │       ├── SubmitReportController
+    │   │       └── DialogController    (all popups)
+    │   │
+    │   ├── service/                     (all the rules live here)
+    │   │   ├── AuthenticationService
+    │   │   ├── RegistrationService
+    │   │   ├── PostService
+    │   │   ├── OfferService
+    │   │   ├── ReportService
+    │   │   ├── SafetyService
+    │   │   ├── StatsService
+    │   │   ├── MaintenanceService
+    │   │   ├── FileStorageService
+    │   │   └── EmailService
+    │   │
+    │   ├── dao/                         (one per table, SQL only)
+    │   │   ├── CityDao
+    │   │   ├── AccountDao
+    │   │   ├── RegistrationDao
+    │   │   ├── DocumentDao
+    │   │   ├── PostDao
+    │   │   ├── OfferDao
+    │   │   ├── DetailDao                (food_detail and use_detail)
+    │   │   ├── PhotoDao
+    │   │   ├── ReportDao
+    │   │   ├── SafetyNoticeDao
+    │   │   └── LogDao                   (status_change and email_log)
+    │   │
+    │   ├── exception/
+    │   │   └── RuleViolationException
+    │   │
+    │   └── util/
+    │       ├── Database                 (only place that opens connections)
+    │       ├── PasswordHasher
+    │       ├── Settings
+    │       ├── Session
+    │       ├── SvgIcon
+    │       └── Navigator                (only place that knows view paths)
+    │
+    └── resources/
+        ├── db.properties                (git-ignored)
+        └── email/                       (3 HTML templates)
 ```
 
 ## **7.3 Services**
 
-* **AuthenticationService:** checks email and password (BCrypt), blocks login until the temporary password is replaced, and changes passwords (at least 8 characters, different from the current one).
+* **AuthenticationService**
+  * Checks email and password (BCrypt).
+  * Blocks login until the temporary password is replaced.
+  * Changes passwords (at least 8 characters, different from the current one).
 
-* **RegistrationService:** saves registrations and upgrades with their documents and sends the "Received" email. Approve is one transaction that creates the account (or moves it to the new registration) and emails the result. Reject saves the reason and emails it. Also handles renewals, document verification, profile edits, and suspend and reinstate.
+* **RegistrationService**
+  * Saves registrations and upgrades with their documents, and sends the "Received" email.
+  * Approve is one transaction: creates the account (or moves it to the new registration) and emails the result.
+  * Reject saves the reason and emails it.
+  * Handles renewals, document verification, profile edits, and suspend and reinstate.
 
-* **PostService:** creates and validates listings and requests, cancels posts and settles their offers, and queries Open posts (viewer's city first, suspended posters hidden) and a user's own posts.
+* **PostService**
+  * Creates and validates listings and requests.
+  * Cancels posts and settles their offers.
+  * Queries Open posts (viewer's city first, suspended posters hidden) and a user's own posts.
 
-* **OfferService:** sends, withdraws, declines and accepts offers (accept is one transaction), confirms release then receipt (one transaction that completes the offer and rescues the post), builds the handoff record, and returns contact numbers to allowed viewers only.
+* **OfferService**
+  * Sends, withdraws, declines and accepts offers (accept is one transaction).
+  * Confirms release, then receipt (one transaction that completes the offer and rescues the post).
+  * Builds the handoff record.
+  * Returns contact numbers to allowed viewers only.
 
-* **ReportService:** saves the documentation report, works out its deadline, and raises the overdue flag through SafetyService.
+* **ReportService**
+  * Saves the documentation report and works out its deadline.
+  * Raises the overdue flag through SafetyService.
 
-* **SafetyService:** saves safety notices and overdue flags. The admin dismisses a notice or suspends the account responsible, through RegistrationService.
+* **SafetyService**
+  * Saves safety notices and overdue flags.
+  * Dismisses a notice, or suspends the account responsible through RegistrationService.
 
-* **StatsService:** works out every metric in Section 3 and builds History.
+* **StatsService**
+  * Works out every metric in Section 3.
+  * Builds History.
 
-* **MaintenanceService:** runs the checks in 6.6 on every screen load by asking the owning services to make the changes. It holds no rules.
+* **MaintenanceService**
+  * Runs the checks in 6.6 on every screen load.
+  * Asks the owning services to make the changes. Holds no rules.
 
-* **FileStorageService:** saves uploads (PDF, JPG, PNG; max 5 MB) under `uploads/` and returns the relative path.
+* **FileStorageService**
+  * Saves uploads (PDF, JPG, PNG; max 5 MB) under `uploads/`.
+  * Returns the relative path.
 
-* **EmailService:** fills the HTML templates, sends through Jakarta Mail and logs every send.
+* **EmailService**
+  * Fills the HTML templates and sends through Jakarta Mail.
+  * Logs every send.
 
 ## **7.4 Rules**
 
@@ -584,218 +701,194 @@ aniplato/
 * Files: local disk with relative paths in the database. PDFBox for PDF preview.
 
 * Build: Maven. `pom.xml` must also copy `.fxml` and `.css` from `src/main/java`, or screens fail to load at startup.
+
 ## **7.6 Data Model**
 
-Thirteen tables. PK is the primary key and FK a foreign key. Organization details live only in registration, and the account holds the login. One post table and one offer table serve both routes. Two detail tables hold what differs: **food details** (what the donor gives) and **use details** (what the food group needs or will do with it).
+Thirteen tables. One post table and one offer table serve both routes. Two detail tables hold what differs: **food_detail** (what the donor gives) and **use_detail** (what the food group needs or will do with it). Organization details live only in registration, and the account holds the login.
 
-* Route 1: the post (a listing) has food details, and each offer has use details.
+```mermaid
+erDiagram
+  city ||--o{ registration : "located in"
+  city ||--o{ post : "located in"
+  registration ||--o{ document : "has"
+  registration |o--o| account : "current"
+  account ||--o{ post : "posts"
+  account ||--o{ offer : "offers"
+  post ||--o{ offer : "receives"
+  post |o--o| food_detail : "listing has"
+  post |o--o| use_detail : "request has"
+  offer |o--o| food_detail : "Route 2 offer has"
+  offer |o--o| use_detail : "Route 1 offer has"
+  post ||--o{ photo : "has"
+  offer ||--o{ photo : "has"
+  report ||--o{ photo : "has"
+  offer ||--o| report : "gets one"
+  offer ||--o{ safety_notice : "may raise"
+  account ||--o{ safety_notice : "raises"
+  account |o--o{ safety_notice : "resolves"
+  account |o--o{ registration : "reviews"
+  account |o--o{ document : "reviews"
+  account |o--o{ status_change : "changed by"
 
-* Route 2: the post (a request) has use details, and each offer has food details.
+  city {
+    int city_id PK
+    varchar name UK "16 cities + Pateros"
+  }
 
-* A registration has many documents. An account points to its current registration. An upgrade adds a new registration, and approval moves the account to it.
+  registration {
+    int registration_id PK
+    enum role "BUSINESS_DONOR, CASUAL_DONOR, FOOD_GROUP"
+    varchar name "organization, person or household"
+    int city_id FK
+    varchar contact_person
+    varchar contact_phone
+    varchar email "not unique"
+    enum status "PENDING, APPROVED, REJECTED"
+    varchar rejection_reason "null"
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+    datetime submitted_at
+  }
 
-* Not stored, always worked out: all metrics, the report deadline, the handoff number (HR-year-offer id), the offer's pickup deadline, the agreed kg, the account a notice is about, the document in force (the latest one with review OK for each type), and "submitted late".
+  account {
+    int account_id PK
+    varchar email UK "login"
+    varchar password_hash "BCrypt"
+    enum role "ADMIN, BUSINESS_DONOR, CASUAL_DONOR, FOOD_GROUP"
+    enum status "ACTIVE, SUSPENDED"
+    varchar suspend_reason "null"
+    boolean must_change_password
+    datetime password_changed_at
+    int registration_id FK "UK, null for admin"
+    varchar admin_name "admin only"
+    datetime created_at
+  }
 
-### **1\. city**
+  document {
+    int document_id PK
+    int registration_id FK
+    enum doc_type "dti, sec, cda, mayors_permit, sanitary_permit, fda_lto, barangay_certificate, dswd, pcnc, sec_non_stock, deped_ched_tesda, diocese_endorsement, authorization_letter"
+    varchar file_path "under uploads/"
+    date expires_on "null = no expiry"
+    enum review "OK, FLAGGED; null = awaiting"
+    varchar flag_reason "null"
+    datetime uploaded_at
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+  }
 
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| city\_id | INT, PK |  |
-| name | VARCHAR(60), UNIQUE | 16 cities \+ Pateros, seeded once |
+  post {
+    int post_id PK
+    enum kind "LISTING, REQUEST"
+    int posted_by FK
+    int city_id FK "copied from poster"
+    decimal kg "above 0"
+    enum status "OPEN, ACCEPTED, RESCUED, EXPIRED, CANCELLED"
+    varchar cancel_reason "null"
+    int food_detail_id FK "listing only"
+    int use_detail_id FK "request only"
+    datetime created_at
+  }
 
-### **2\. registration**
+  offer {
+    int offer_id PK "handoff number HR-year-id"
+    int post_id FK "UK with offerer_id"
+    int offerer_id FK "UK with post_id"
+    decimal kg "above 0"
+    enum status "OFFERED, ACCEPTED, COMPLETED, DECLINED, WITHDRAWN, EXPIRED, LAPSED, CANCELLED"
+    int food_detail_id FK "Route 2 only"
+    int use_detail_id FK "Route 1 only"
+    datetime released_at "null"
+    datetime received_at "null"
+    datetime created_at
+  }
 
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| registration\_id | INT, PK |  |
-| role | ENUM | BUSINESS\_DONOR, CASUAL\_DONOR, FOOD\_GROUP |
-| name | VARCHAR(120) | organization, person or household name |
-| city\_id | INT, FK |  |
-| contact\_person | VARCHAR(100) |  |
-| contact\_phone | VARCHAR(20) |  |
-| email | VARCHAR(120) | not unique, so a rejected applicant can register again |
-| status | ENUM | PENDING, APPROVED, REJECTED |
-| rejection\_reason | VARCHAR(500), null | emailed on reject |
-| reviewed\_by | INT, FK account, null |  |
-| reviewed\_at | DATETIME, null |  |
-| submitted\_at | DATETIME |  |
+  food_detail {
+    int food_detail_id PK
+    varchar description
+    enum category "RAW, COOKED, BAKED, PACKAGED"
+    enum storage "AMBIENT_DRY, CHILLED, HOT_HOLD"
+    set allergens "gluten, dairy, nuts, eggs, halal; null"
+    datetime use_by
+    datetime pickup_start
+    datetime pickup_end "before use_by"
+    varchar handover_instructions "null, hidden until accepted"
+    datetime attested_at "donor attestation"
+  }
 
-### **3\. account**
+  use_detail {
+    int use_detail_id PK
+    varchar use_description "event, program or use"
+    date event_date "null, required on a request"
+    varchar beneficiaries
+    int headcount "above 0"
+    varchar place
+    datetime due_at "needed-by (request) or pickup time (offer)"
+    varchar message "null"
+    set accepted_categories "requests only; null"
+    datetime attested_at "group attestation"
+  }
 
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| account\_id | INT, PK |  |
-| email | VARCHAR(120), UNIQUE | login |
-| password\_hash | VARCHAR(60) | BCrypt |
-| role | ENUM | ADMIN, BUSINESS\_DONOR, CASUAL\_DONOR, FOOD\_GROUP |
-| status | ENUM | ACTIVE, SUSPENDED |
-| suspend\_reason | VARCHAR(500), null |  |
-| must\_change\_password | BOOLEAN | true until the temporary password is replaced |
-| password\_changed\_at | DATETIME |  |
-| registration\_id | INT, FK, UNIQUE, null | empty for admin; moves to the new registration on upgrade |
-| admin\_name | VARCHAR(120), null | admin only |
-| created\_at | DATETIME |  |
+  photo {
+    int photo_id PK
+    varchar file_path "under uploads/"
+    int post_id FK "exactly one of the three"
+    int offer_id FK "null"
+    int report_id FK "null"
+  }
 
-### **4\. document**
+  report {
+    int report_id PK
+    int offer_id FK "UK"
+    varchar event_name
+    date event_date
+    int people_served
+    varchar description
+    datetime photo_consent_at
+    datetime submitted_at
+  }
 
-One uploaded file. A renewal is a new row.
+  safety_notice {
+    int notice_id PK
+    int offer_id FK "one OVERDUE_REPORT per offer"
+    enum kind "CONCERN, OVERDUE_REPORT"
+    int raised_by FK "null = system"
+    varchar concern "null for overdue report"
+    enum status "OPEN, DISMISSED, ACCOUNT_SUSPENDED"
+    varchar admin_note "null, required on resolve"
+    int resolved_by FK "null"
+    datetime resolved_at "null"
+    datetime raised_at
+  }
 
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| document\_id | INT, PK |  |
-| registration\_id | INT, FK |  |
-| doc\_type | ENUM | dti, sec, cda, mayors\_permit, sanitary\_permit, fda\_lto, barangay\_certificate, dswd, pcnc, sec\_non\_stock, deped\_ched\_tesda, diocese\_endorsement, authorization\_letter |
-| file\_path | VARCHAR(255) | relative path under `uploads/` |
-| expires\_on | DATE, null | empty \= No expiry |
-| review | ENUM, null | OK, FLAGGED; empty \= awaiting review |
-| flag\_reason | VARCHAR(500), null | goes into the rejection email |
-| uploaded\_at | DATETIME |  |
-| reviewed\_by | INT, FK account, null |  |
-| reviewed\_at | DATETIME, null |  |
+  status_change {
+    int change_id PK
+    enum entity_type "REGISTRATION, ACCOUNT, DOCUMENT, POST, OFFER, NOTICE"
+    int entity_id "no FK"
+    varchar from_status "null for new record"
+    varchar to_status
+    varchar reason "null"
+    int changed_by FK "null = system"
+    datetime changed_at
+  }
 
-### **5\. post**
+  email_log {
+    int email_id PK
+    varchar to_email
+    enum kind "RECEIVED, APPROVED, NOT_APPROVED"
+    datetime sent_at
+    boolean success
+    varchar error "null"
+  }
+```
 
-A listing (from a donor) or a request (from a food group).
+**Reading the diagram**
 
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| post\_id | INT, PK |  |
-| kind | ENUM | LISTING, REQUEST |
-| posted\_by | INT, FK account |  |
-| city\_id | INT, FK | copied from the poster at posting |
-| kg | DECIMAL(6,2) | above 0; kg offered or kg needed |
-| status | ENUM | OPEN, ACCEPTED, RESCUED, EXPIRED, CANCELLED |
-| cancel\_reason | VARCHAR(500), null |  |
-| food\_detail\_id | INT, FK, null | set for a listing |
-| use\_detail\_id | INT, FK, null | set for a request |
-| created\_at | DATETIME |  |
-| (check) |  | exactly one of the two detail links is set |
-
-### **6\. offer**
-
-One offerer's offer on one post.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| offer\_id | INT, PK | also the handoff record number (HR-year-id) |
-| post\_id | INT, FK |  |
-| offerer\_id | INT, FK account | a food group on a listing, a donor on a request |
-| kg | DECIMAL(6,2) | above 0; the whole listing kg on Route 1; not above the requested kg on Route 2 |
-| status | ENUM | OFFERED, ACCEPTED, COMPLETED, DECLINED, WITHDRAWN, EXPIRED, LAPSED, CANCELLED |
-| food\_detail\_id | INT, FK, null | set for a Route 2 offer |
-| use\_detail\_id | INT, FK, null | set for a Route 1 offer |
-| released\_at | DATETIME, null | donor confirms release |
-| received\_at | DATETIME, null | food group confirms receipt |
-| created\_at | DATETIME |  |
-| (constraint) | UNIQUE(post\_id, offerer\_id) | one offer per offerer per post |
-| (check) |  | exactly one of the two detail links is set, opposite to the post's |
-
-### **7\. food\_detail**
-
-What a donor gives.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| food\_detail\_id | INT, PK |  |
-| description | VARCHAR(200) |  |
-| category | ENUM | RAW, COOKED, BAKED, PACKAGED |
-| storage | ENUM | AMBIENT\_DRY, CHILLED, HOT\_HOLD |
-| allergens | SET, null | gluten, dairy, nuts, eggs, halal |
-| use\_by | DATETIME |  |
-| pickup\_start | DATETIME |  |
-| pickup\_end | DATETIME | before use\_by |
-| handover\_instructions | VARCHAR(500), null | hidden until the offer is accepted |
-| attested\_at | DATETIME | the donor attestation tick |
-
-### **8\. use\_detail**
-
-What a food group needs or will do with the food.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| use\_detail\_id | INT, PK |  |
-| use\_description | VARCHAR(300) | the event, program or use |
-| event\_date | DATE, null | required on a request |
-| beneficiaries | VARCHAR(200) | who it feeds |
-| headcount | INT | above 0 |
-| place | VARCHAR(200) |  |
-| due\_at | DATETIME | the needed-by on a request, the pickup time on an offer |
-| message | VARCHAR(500), null |  |
-| accepted\_categories | SET, null | requests only |
-| attested\_at | DATETIME | the group attestation tick |
-
-### **9\. photo**
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| photo\_id | INT, PK |  |
-| file\_path | VARCHAR(255) | relative path under `uploads/` |
-| post\_id | INT, FK, null | exactly one of the three is set |
-| offer\_id | INT, FK, null |  |
-| report\_id | INT, FK, null |  |
-
-The service allows 1 to 5 photos per owner.
-
-### **10\. report**
-
-The documentation report, one per completed handoff.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| report\_id | INT, PK |  |
-| offer\_id | INT, FK, UNIQUE |  |
-| event\_name | VARCHAR(200) |  |
-| event\_date | DATE |  |
-| people\_served | INT |  |
-| description | VARCHAR(1000) |  |
-| photo\_consent\_at | DATETIME | the photo consent tick |
-| submitted\_at | DATETIME |  |
-
-### **11\. safety\_notice**
-
-A concern raised on an accepted or completed offer, or an overdue-report flag raised by the system.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| notice\_id | INT, PK | shown as Notice \#12 |
-| offer\_id | INT, FK |  |
-| kind | ENUM | CONCERN, OVERDUE\_REPORT |
-| raised\_by | INT, FK account, null | empty \= the system |
-| concern | VARCHAR(500), null | empty for an overdue report |
-| status | ENUM | OPEN, DISMISSED, ACCOUNT\_SUSPENDED |
-| admin\_note | VARCHAR(500), null | required on resolve |
-| resolved\_by | INT, FK account, null |  |
-| resolved\_at | DATETIME, null |  |
-| raised\_at | DATETIME |  |
-| (constraint) |  | at most one OVERDUE\_REPORT notice per offer |
-
-### **12\. status\_change**
-
-Append-only log of every status change.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| change\_id | INT, PK |  |
-| entity\_type | ENUM | REGISTRATION, ACCOUNT, DOCUMENT, POST, OFFER, NOTICE |
-| entity\_id | INT | no FK, points at entity\_type's table |
-| from\_status | VARCHAR(30), null | empty for a new record |
-| to\_status | VARCHAR(30) |  |
-| reason | VARCHAR(500), null |  |
-| changed\_by | INT, FK account, null | empty \= the system (maintenance) |
-| changed\_at | DATETIME |  |
-
-### **13\. email\_log**
-
-Every email the app sends.
-
-| Field | Type | Notes |
-| :---- | :---- | :---- |
-| email\_id | INT, PK |  |
-| to\_email | VARCHAR(120) |  |
-| kind | ENUM | RECEIVED, APPROVED, NOT\_APPROVED |
-| sent\_at | DATETIME |  |
-| success | BOOLEAN |  |
-| error | VARCHAR(300), null |  |
+* Route 1: the post (a listing) has food details, and each offer has use details. Route 2: the post (a request) has use details, and each offer has food details. A check on both tables requires exactly one detail link, opposite on the offer to the post.
+* A registration has many documents. The account points to its current registration. An upgrade adds a registration, and approval moves the account to it.
+* A document renewal is a new row. A photo belongs to exactly one of post, offer or report, and the service allows 1 to 5 per owner.
+* `status_change` is append-only. `email_log` records every email sent.
+* Not stored, always worked out: all metrics, the report deadline, the handoff number, the offer's pickup deadline, the agreed kg, the account a notice is about, the document in force (the latest one with review OK for each type), and "submitted late".
 
 **Assumptions to check:**
 
