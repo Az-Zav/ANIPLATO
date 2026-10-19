@@ -4,6 +4,10 @@
 
 ANIPLATO is a desktop app (JavaFX and MySQL) that helps Metro Manila donors give surplus food to food groups before it spoils. It supports SDG 2 (Zero Hunger) and SDG 12 (Responsible Consumption and Production).
 
+ANIPLATO is a matchmaker with receipts: a listing or request, a commitment, a physical exchange, and proof that it happened. Verification exists only to make those receipts believable.
+
+Screens are not specified in this document. The Figma file (page "V2 (edited)", with a "Comparison" page against the original) is the source of truth for every screen.
+
 * Donors and food groups register with documents. An admin checks them and approves by email.
 
 * A donor is either a Business donor (with permits) or a Casual donor (no permits).
@@ -178,6 +182,7 @@ Items in the viewer's own city come first, and items from other cities are liste
 * kg above 0. Use-by in the future. Pickup window ends before the use-by.
 * 1 to 5 photos.
 * Category follows the role: Business may pick raw, packaged, baked or cooked. Casual may pick raw or sealed-packaged only.
+* No kg cap for Casual donors. The category limit already controls the risk, and the food group decides whether to take the amount.
 * Attestation ticked: the food is wholesome, labeled and donated in good faith, with no milk products, no tomato- or milk-based cooked food, and no food already served.
 * Storage condition required:
   * Ambient Dry: room temperature (22 to 28 °C), sealed containers.
