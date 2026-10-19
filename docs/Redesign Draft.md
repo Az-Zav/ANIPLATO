@@ -2,7 +2,9 @@
 
 Status: brainstorming output. `Project Spec.md` is unchanged. Everything not listed here follows the old model in the spec. Changes are finalized in this doc first, then applied to the spec, then to the code and SQL. Where the two disagree, this draft is the proposed change.
 
-Note for the spec revision: rule IDs (R1.1, A2 and so on) are dropped in this draft and will be dropped from the spec when it is revised. Rules are plain bullets for now.
+Rule IDs (R1.1, A2 and so on) are dropped. Rules are plain bullets.
+
+The spec has been rewritten from sections 1 to 6 and 8 of this draft. Section 7 (screen changes) stays here as the basis for the Figma and FXML work.
 
 ## 1. Core
 
@@ -22,7 +24,7 @@ There are three roles, chosen at registration:
 
 | | Business donor | Casual donor (new) | Food group |
 | :-- | :-- | :-- | :-- |
-| Who | Restaurants, bakeries, canteens, caterers, groceries | Anyone with a large surplus and no permits | Parishes, schools, orphanages, charities, feeding programs, volunteer groups |
+| Who | Restaurants, bakeries, canteens, caterers, groceries | Households, event hosts, market stalls and small farms with a large surplus and no permits | Parishes, schools, orphanages, charities, feeding programs, volunteer groups |
 | Gives or receives | Gives | Gives | Receives |
 | Documents | Business Permit and Sanitary Permit | Barangay Certificate | One credential (DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA, or a diocese endorsement) plus an authorization letter |
 | Extra | FDA License only if they make or repack food. DTI, SEC or CDA registration only if the permit does not show the business name clearly | None | None |
@@ -101,11 +103,6 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 
 Screen changes for this stage are listed in section 7.
 
-**Data model notes (for the data model phase)**
-- `role` becomes `BUSINESS_DONOR`, `CASUAL_DONOR` or `FOOD_GROUP` in both registration and account, plus `ADMIN` on account only.
-- `org_type` is removed.
-- Any check that currently reads "role = DONOR" needs to cover both donor roles.
-
 ### Stage 2: Post a listing or a request
 
 Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
@@ -119,7 +116,7 @@ Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
 | **Who** | Business donor or Casual donor. |
 | **Needs** | Account is Active (not Suspended). All documents are current. |
 | **Does** | Enters description, category, kg, use-by time and pickup window, and picks a storage condition. Uploads 1 to 5 photos. Allergen labels and handover instructions are optional. Ticks the donor attestation. |
-| **Result** | Listing is Open. Food groups can see it, with the poster's own city first. The attestation is saved with a timestamp. |
+| **Result** | Listing is Open. Food groups can see it, with listings in their own city first. The attestation is saved with a timestamp. |
 
 **Rules**
 - kg must be above 0.
@@ -129,8 +126,8 @@ Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
 - The attestation must be ticked: the food is wholesome, labeled, donated in good faith, and has no milk products, no tomato- or milk-based cooked food, and no food already served.
 - A storage condition is required: Ambient Dry, Chilled Cold-Chain or Hot Hold.
 - Allergen labels are optional and for information only.
-- Handover instructions stay hidden until both sides have confirmed.
-- A Suspended account cannot post.
+- Handover instructions stay hidden until the offer is accepted.
+- A Suspended account cannot post. Its Open listings are hidden from food groups until it is reinstated.
 - Food groups cannot post listings and cannot re-post.
 
 #### Stage 2B: Food group posts a request (Route 2, new)
@@ -150,16 +147,12 @@ Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
 - A group can have several Open requests at once, for example one per event or program.
 - A Casual donor sees and can offer on only the requests that accept raw or sealed-packaged food, and can offer only those categories.
 - A request that reaches its needed-by time with no donor chosen expires.
-- A Suspended group cannot post.
+- A Suspended group cannot post. Its Open requests are hidden from donors until it is reinstated.
 - An overdue report does not block posting. It only flags the group to the admin (see the report stage).
 
 **Legal basis**
 - RA 9803 (Food Donation Act): beneficiaries must not pay anything, so groups confirm free distribution and no resale. The donor attestation records good faith.
 - RA 10173 (Data Privacy Act): identifiable people in photos are personal data, so photos need adult consent and show no identifiable children.
-
-**Data model notes (for the data model phase)**
-- A listing now has 1 to 5 photos, so it needs its own photo table, like the offer photos.
-- A request needs its own fields and photos. The storage is decided in section 8.
 
 ### Stage 3: Send offers
 
@@ -222,12 +215,6 @@ Stage 4 has the full acceptance rules. The pattern is:
 - RA 9803 (Food Donation Act): beneficiaries must not pay anything, so groups confirm free distribution and no resale. The donor attestation records good faith.
 - RA 10173 (Data Privacy Act): identifiable people in photos are personal data, so photos need adult consent and show no identifiable children.
 
-**Data model notes (for the data model phase)**
-- An offer now belongs to either a listing (Route 1) or a request (Route 2).
-- A Route 2 offer carries the donor's food details (description, category, storage, allergens, kg, use-by, pickup window, handover instructions, attestation). A Route 1 offer carries the group's use details, as it does today.
-- Offer photos already exist. Both kinds of offers need 1 to 5.
-- One offer per offerer per listing or request needs a uniqueness rule in each case.
-
 ### Stage 4: Accept an offer
 
 | Component | Detail |
@@ -252,10 +239,6 @@ Stage 4 has the full acceptance rules. The pattern is:
 **Legal basis**
 - RA 10173 (Data Privacy Act): contact numbers are shared only when needed, so only between the two sides of an accepted offer.
 
-**Data model notes (for the data model phase)**
-- The listing and the request each need an Accepted status.
-- Contact numbers are not copied anywhere. One method returns them, only to the owner, an admin, or the other side of an accepted offer that is not yet closed.
-
 ### Stage 5: Handoff and report
 
 | Component | Detail |
@@ -263,7 +246,7 @@ Stage 4 has the full acceptance rules. The pattern is:
 | **Who** | The donor first, then the food group. |
 | **Needs** | The offer is Accepted. |
 | **Does** | At pickup, the donor confirms release. After that, the food group confirms receipt. The food group then submits a short documentation report before its deadline. |
-| **Result** | The offer is Completed and the listing or request is closed as fulfilled (the final status names are in the close stage). A handoff record is created automatically and shows in both histories. Once submitted, the report shows on the record. |
+| **Result** | The offer is Completed and the listing or request is Rescued. A handoff record is created automatically and shows in both histories. Once submitted, the report shows on the record. |
 
 **Handoff rules**
 - The food group can confirm receipt only after the donor has confirmed release.
@@ -290,11 +273,6 @@ Stage 4 has the full acceptance rules. The pattern is:
 **Legal basis**
 - RA 9803 (Food Donation Act): certificates of acceptance and fitness come from DSWD and the Red Cross. The handoff record is not one of them.
 - RA 10173 (Data Privacy Act): photos of identifiable people are personal data, so reports carry the same consent statement as offers.
-
-**Data model notes (for the data model phase)**
-- A new report record belongs to one accepted offer, with the event name and date, the number served, the description and its submitted time. Report photos need their own table (1 to 5).
-- The deadline is not stored. It is worked out as the receipt time plus the Settings value.
-- The overdue flag needs a home. The existing safety notice table is the closest fit, with a type to tell it apart and no person as the one raising it (the system raises it).
 
 ### Stage 6: Close
 
@@ -356,8 +334,8 @@ One function runs every time a screen loads, in this order:
 Numbers are worked out, not stored. "Posts" means listings and requests together. Each handoff traces to exactly one post, so nothing is counted twice.
 - **KG posted:** listing kg plus requested kg.
 - **KG rescued:** kg of Completed offers.
-- **KG expired:** kg of posts that expired.
-- **Rescue rate:** kg rescued ÷ kg posted, over closed posts, leaving out cancelled ones.
+- **KG expired:** kg of posts that expired with nothing rescued. A request filled for less than it asked is Rescued, not expired.
+- **Rescue rate:** kg rescued ÷ kg posted, over closed posts, leaving out cancelled ones. A request filled for less than it asked counts only the accepted offer's kg as rescued, so the shortfall lowers the rate and shows unmet need.
 - **Offer acceptance:** posts with an accepted offer ÷ posts with at least one offer.
 - **Lapse rate:** lapsed offers ÷ accepted offers.
 - **Handoffs completed:** count of Completed offers.
@@ -369,11 +347,6 @@ Numbers are worked out, not stored. "Posts" means listings and requests together
 
 **Legal basis**
 - RA 9803 (Food Donation Act): closing every post with a recorded outcome supports compliance records and transparency for donated surplus.
-
-**Data model notes (for the data model phase)**
-- Listings and requests need the same status set.
-- The offer's pickup deadline is not stored. It is the due time in the use details on a Route 1 offer, or the pickup end in the food details on a Route 2 offer. The automatic checks read whichever exists.
-- No metric is stored.
 
 ---
 
@@ -544,7 +517,7 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 - Reached from the Handoff Record and from the dashboard banner.
 
 **Food group Dashboard** (`NEW — FOOD GROUP DASHBOARD`)
-- Add a banner when a report is due or overdue: "Report due [date]" with a link to Submit Report.
+- Add a banner when reports are due or overdue: "N reports due", with the earliest due date and a link to Submit Report.
 
 **History** (`DONOR HISTORY`, `FOOD GROUP HISTORY`)
 - Each completed row links to its handoff record. The food group's rows also show the report status.
@@ -790,6 +763,7 @@ erDiagram
 - **kg** on posts and offers is above 0, and **headcount** is above 0.
 - **offer:** one offer per offerer per post. On Route 2 the offer's kg is not more than the post's kg.
 - **account:** an Admin has no registration, and every other role has one.
+- **safety_notice:** at most one OVERDUE_REPORT notice per offer.
 
 **Choices made**
 - kg lives on the post and the offer, not in the detail tables. The agreed kg is the accepted offer's kg.
@@ -815,5 +789,4 @@ erDiagram
 
 ## 9. Open points
 
-- Whether Casual donors also need a "new donor" label until their first completed exchange.
-- Spec sections affected when formalized: users, registration documents and rules, listing and request flows, handoff, new report stage, the data model and the ER diagram.
+None. Casual donors get no "new donor" label. Next steps: Figma screens from section 7, then `schema.sql` and `ARCHITECTURE.md` from section 8, then the code.
