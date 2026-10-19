@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import java.net.URL?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -17,250 +15,181 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 
-<VBox alignment="CENTER" prefHeight="850.0" prefWidth="1280.0" styleClass="register-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterController">
-    <stylesheets>
-        <URL value="@aniplato.css" />
-    </stylesheets>
+<!-- Outer screen wrapper with dark overlay capability -->
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterController">
     <children>
 
-        <!-- MAIN CENTERING CARD CONTAINER -->
-        <VBox maxWidth="520.0" styleClass="card-container" VBox.vgrow="NEVER">
+        <!-- MAIN CENTERED REGISTRATION CONTAINER -->
+        <VBox alignment="CENTER" styleClass="dashboard-bg">
+            <stylesheets>
+                <URL value="@aniplato.css" />
+            </stylesheets>
             <padding>
-                <Insets bottom="36.0" left="40.0" right="40.0" top="36.0" />
+                <Insets bottom="40.0" left="24.0" right="24.0" top="40.0" />
             </padding>
             <children>
-                <VBox spacing="20.0">
+
+                <!-- CARD CONTAINER -->
+                <VBox maxWidth="520.0" spacing="20.0" styleClass="table-card">
+                    <padding>
+                        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                    </padding>
                     <children>
 
-                        <!-- HEADER SECTION WITH LOGO -->
-                        <HBox alignment="CENTER_LEFT" spacing="14.0">
+                        <!-- BRANDING HEADER WITH CIRCLE LOGO IMAGE -->
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@/assets/aniplato-logo-circle 1.png" />
                                     </image>
                                 </ImageView>
                                 <VBox spacing="2.0">
                                     <children>
-                                        <Label styleClass="card-title" text="Register your organization" />
-                                        <Label styleClass="text-muted" text="No account is created yet. An admin reviews your application first." />
+                                        <Label styleClass="card-title" text="Register for ANIPLATO" />
+                                        <Label styleClass="text-muted" text="An admin reviews your application before your account is created." />
                                     </children>
                                 </VBox>
                             </children>
                         </HBox>
 
-                        <!-- STEP PROGRESS INDICATOR BAR (step 1 active) -->
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <!-- STEP INDICATOR -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <children>
-                                <StackPane>
-                                    <children>
-                                        <Circle radius="11.0" styleClass="step-dot-active" />
-                                        <Label styleClass="step-dot-text" text="1" />
-                                    </children>
-                                </StackPane>
-                                <Label styleClass="step-label-active" text="Organization" />
-
-                                <StackPane alignment="CENTER" prefWidth="40.0">
-                                    <children>
-                                        <Region maxHeight="1.0" styleClass="step-connector" VBox.vgrow="NEVER" />
-                                    </children>
-                                </StackPane>
-
-                                <StackPane>
-                                    <children>
-                                        <Circle radius="11.0" styleClass="step-dot-idle" />
-                                        <Label styleClass="step-dot-text-idle" text="2" />
-                                    </children>
-                                </StackPane>
-                                <Label styleClass="step-label" text="Documents" />
+                                <Label styleClass="stat-icon-green" text="1" />
+                                <Label styleClass="form-label" text="Your details" />
+                                <Region prefWidth="30.0" styleClass="text-muted" />
+                                <Label styleClass="stat-card-title" text="2" />
+                                <Label styleClass="text-muted" text="Documents" />
                             </children>
                         </HBox>
 
-                        <!-- REGISTERING AS SEGMENT TOGGLE BUTTONS -->
+                        <!-- REGISTERING AS TOGGLE (Donor vs Food Group) -->
                         <VBox spacing="6.0">
                             <children>
-                                <HBox spacing="2.0">
+                                <Label styleClass="form-label" text="Registering as *" />
+                                <HBox spacing="8.0" styleClass="notice-box">
+                                    <padding>
+                                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                    </padding>
                                     <children>
-                                        <Label styleClass="form-label" text="Registering as" />
-                                        <Label styleClass="required-star" text=" *" />
-                                    </children>
-                                </HBox>
-                                <!-- Role toggle: the ToggleGroup handles selection and CSS :selected the look; no Java -->
-                                <fx:define>
-                                    <ToggleGroup fx:id="roleGroup" />
-                                </fx:define>
-                                <HBox styleClass="segment-toggle-container">
-                                    <children>
-                                        <ToggleButton fx:id="donorToggle" maxWidth="1.7976931348623157E308" selected="true" styleClass="segment-btn" text="Business donor" toggleGroup="$roleGroup" HBox.hgrow="ALWAYS" />
-                                        <ToggleButton fx:id="foodGroupToggle" maxWidth="1.7976931348623157E308" styleClass="segment-btn" text="Food group" toggleGroup="$roleGroup" HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleSelectDonor -->
+                                        <Button fx:id="donorRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectDonor" styleClass="primary-button" text="Donor" HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleSelectFoodGroup -->
+                                        <Button fx:id="foodGroupRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectFoodGroup" styleClass="secondary-button" text="Food group" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
 
-                        <!-- ORGANIZATION NAME FIELD -->
+                        <!-- PERMITS SELECTION (RADIO GROUP WITH CONSTANT SIZE) -->
+                        <VBox spacing="8.0">
+                            <fx:define>
+                                <ToggleGroup fx:id="permitsToggleGroup" />
+                            </fx:define>
+                            <children>
+                                <Label styleClass="form-label" text="Do you have permits? *" />
+
+                                <!-- HAS PERMITS CONTAINER -->
+                                <HBox fx:id="permitCardHas" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-selected">
+                                    <padding>
+                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                    </padding>
+                                    <children>
+                                        <RadioButton fx:id="hasPermitsRadio" selected="true" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I have a Mayor's Permit and Sanitary Permit" toggleGroup="$permitsToggleGroup" />
+                                    </children>
+                                </HBox>
+
+                                <!-- NO PERMITS CONTAINER -->
+                                <HBox fx:id="permitCardNo" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-unselected">
+                                    <padding>
+                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                    </padding>
+                                    <children>
+                                        <RadioButton fx:id="noPermitsRadio" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I don't have permits" toggleGroup="$permitsToggleGroup" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- BUSINESS NAME FIELD -->
                         <VBox spacing="6.0">
                             <children>
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="form-label" text="Organization name" />
-                                        <Label styleClass="required-star" text=" *" />
+                                        <Label styleClass="form-label" text="Business name" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="doc-subtitle" text="As shown on your permits" />
+                                        <Label styleClass="text-muted" text="As shown on your permits" />
                                     </children>
                                 </HBox>
-                                <TextField fx:id="orgNameField" promptText="e.g., Sample Bakeshop" />
+                                <TextField fx:id="businessNameField" promptText="e.g., Manila Artisanal Bakeshop" styleClass="text-field" />
                             </children>
                         </VBox>
 
-                        <!-- ORGANIZATION TYPE & CITY (2 COLUMNS) -->
+                        <!-- CITY DROPDOWN -->
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label styleClass="form-label" text="City *" />
+                                <ComboBox fx:id="cityComboBox" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city" styleClass="combo-box" />
+                                <Label styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
+                            </children>
+                        </VBox>
+
+                        <!-- CONTACT PERSON & NUMBER GRID -->
                         <GridPane hgap="12.0" vgap="6.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                <ColumnConstraints percentWidth="50.0" />
+                                <ColumnConstraints percentWidth="50.0" />
                             </columnConstraints>
-
                             <children>
-                                <!-- Organization Type -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0">
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                     <children>
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <Label styleClass="form-label" text="Organization type" />
-                                                <Label styleClass="required-star" text=" *" />
-                                            </children>
-                                        </HBox>
-                                        <ComboBox fx:id="typeCombo" maxWidth="1.7976931348623157E308" promptText="Bakery">
-                                            <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="Bakery" />
-                                                    <String fx:value="Supermarket / Grocer" />
-                                                    <String fx:value="Restaurant / Hotel" />
-                                                    <String fx:value="Food Group / NGO" />
-                                                    <String fx:value="Charity / Religious Hub" />
-                                                </FXCollections>
-                                            </items>
-                                        </ComboBox>
+                                        <Label styleClass="form-label" text="Contact person *" />
+                                        <TextField fx:id="contactPersonField" promptText="e.g., Maria Santos" styleClass="text-field" />
                                     </children>
                                 </VBox>
-
-                                <!-- City -->
-                                <VBox spacing="6.0" GridPane.columnIndex="1">
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                     <children>
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <Label styleClass="form-label" text="City" />
-                                                <Label styleClass="required-star" text=" *" />
-                                            </children>
-                                        </HBox>
-                                        <ComboBox fx:id="cityCombo" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city">
-                                            <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="Manila" />
-                                                    <String fx:value="Quezon City" />
-                                                    <String fx:value="Pasig" />
-                                                    <String fx:value="Makati" />
-                                                    <String fx:value="Taguig" />
-                                                    <String fx:value="Mandaluyong" />
-                                                    <String fx:value="Marikina" />
-                                                </FXCollections>
-                                            </items>
-                                        </ComboBox>
+                                        <Label styleClass="form-label" text="Contact number *" />
+                                        <TextField fx:id="contactNumberField" promptText="e.g., 0917 123 4567" styleClass="text-field" />
                                     </children>
                                 </VBox>
                             </children>
-                            <rowConstraints>
-                                <RowConstraints />
-                            </rowConstraints>
                         </GridPane>
-
-                        <!-- Helper note for city -->
-                        <Label styleClass="helper-note" text="Must match the city on your Mayor's Permit (donors) or your registered address (food groups)." wrapText="true" />
-
-                        <!-- CONTACT PERSON & CONTACT NUMBER (2 COLUMNS) -->
-                        <GridPane hgap="12.0" vgap="6.0">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                            </columnConstraints>
-
-                            <children>
-                                <VBox spacing="6.0" GridPane.columnIndex="0">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <Label styleClass="form-label" text="Contact person" />
-                                                <Label styleClass="required-star" text=" *" />
-                                            </children>
-                                        </HBox>
-                                        <TextField fx:id="contactPersonField" promptText="e.g., Maria Santos" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="6.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <Label styleClass="form-label" text="Contact number" />
-                                                <Label styleClass="required-star" text=" *" />
-                                            </children>
-                                        </HBox>
-                                        <TextField fx:id="contactNumberField" promptText="e.g., 0917 123 4567" />
-                                    </children>
-                                </VBox>
-                            </children>
-                            <rowConstraints>
-                                <RowConstraints />
-                            </rowConstraints>
-                        </GridPane>
-
-                        <!-- Helper note for contact -->
-                        <Label styleClass="helper-note" text="Shared only with the other organization after an offer is accepted, so you can coordinate pickup directly." wrapText="true" />
+                        <Label styleClass="text-muted" text="Shared only with the other party after an offer is accepted, so you can coordinate pickup directly." wrapText="true" />
 
                         <!-- EMAIL FIELD -->
                         <VBox spacing="6.0">
                             <children>
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <Label styleClass="form-label" text="Email" />
-                                        <Label styleClass="required-star" text=" *" />
-                                    </children>
-                                </HBox>
-                                <TextField fx:id="emailField" promptText="e.g., dispatch@organization.ph" />
-                                <Label styleClass="helper-note" text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." wrapText="true" />
+                                <Label styleClass="form-label" text="Email *" />
+                                <TextField fx:id="emailField" promptText="e.g., name@example.com" styleClass="text-field" />
+                                <Label styleClass="text-muted" text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." wrapText="true" />
                             </children>
                         </VBox>
 
                         <!-- ACTION BAR -->
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <padding>
-                                <Insets top="12.0" />
-                            </padding>
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                    <children>
-                                        <Label styleClass="text-success-bold" text="Already approved?" />
-                                        <!-- PATTERN:NAV -> LOGIN -->
-                                        <Hyperlink fx:id="loginLink" styleClass="hyperlink, link-bold, nav-login" text="Log in" />
-                                    </children>
-                                </HBox>
-
+                                <!-- PATTERN:NAV -> LOGIN -->
+                                <Label styleClass="text-muted" text="Already approved?" />
+                                <Hyperlink onAction="#handleNavLogin" styleClass="terms-link" text="Log in" />
                                 <Region HBox.hgrow="ALWAYS" />
-
-                                <!-- PATTERN:ACTION handleNext -->
-                                <Button fx:id="nextBtn" onAction="#handleNext" styleClass="primary-button" text="Next: Documents →" />
+                                <!-- PATTERN:ACTION handleNextStep2 -->
+                                <Button minWidth="160.0" onAction="#handleNextStep2" styleClass="primary-button" text="Next: Documents" />
                             </children>
                         </HBox>
 
                     </children>
                 </VBox>
+
             </children>
         </VBox>
 
+        <!-- Shared Modal Overlay Inclusion -->
+        <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />
+
     </children>
-</VBox>
+</StackPane>

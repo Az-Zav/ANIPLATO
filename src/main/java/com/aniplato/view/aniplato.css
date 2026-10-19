@@ -935,3 +935,25 @@
 .danger-button:hover {
     -fx-background-color: #b91c1c;
 }
+
+/* Base card style: fixed dimensions, padding, and border width */
+.permit-card-selected {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #15803D;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.permit-card-unselected {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.date-picker .text-field {
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+}
