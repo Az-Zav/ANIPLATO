@@ -27,7 +27,6 @@ There are three roles, chosen at registration:
 | Who | Restaurants, bakeries, canteens, caterers, groceries | Households, event hosts, market stalls and small farms with a large surplus and no permits | Parishes, schools, orphanages, charities, feeding programs, volunteer groups |
 | Gives or receives | Gives | Gives | Receives |
 | Documents | Business Permit and Sanitary Permit | Barangay Certificate | One credential (DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA, or a diocese endorsement) plus an authorization letter |
-| Extra | FDA License only if they make or repack food. DTI, SEC or CDA registration only if the permit does not show the business name clearly | None | None |
 | Food categories | Raw, packaged, baked, cooked | Raw and sealed-packaged only | Not applicable |
 
 - Both donor roles use the same screens. The role only changes the required documents and the food categories offered on the listing form.
@@ -76,7 +75,7 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 
 | Role | Documents |
 | :-- | :-- |
-| Business donor | Mayor's Permit and Sanitary Permit. FDA License to Operate only if the business makes or repacks food. DTI, SEC or CDA registration only if the permit does not show the business name clearly enough for the name check. |
+| Business donor | Mayor's Permit and Sanitary Permit. |
 | Casual donor | One Barangay Certificate, with an entered expiry date. |
 | Food group | One credential (DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA, or a diocese endorsement for parishes) plus an authorization letter naming the contact person. |
 
@@ -96,7 +95,7 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 - A Casual donor gives no pickup location at registration. Pickup details live in each listing's handover instructions.
 
 **Legal basis**
-- Mayor's Permit and Sanitary Permit are required of every business donor. The FDA License to Operate is needed only by makers and repackers of packaged food.
+- Mayor's Permit and Sanitary Permit are required of every business donor.
 - Food groups upload one credential that matches their kind of organization.
 - RA 10173 (Data Privacy Act): collect only what is needed, and no government IDs. A Barangay Certificate is a local government document, not a government ID.
 - Casual donors are limited to raw and sealed-packaged food because they have no Sanitary Permit. This is a platform rule, not a legal one.
@@ -359,7 +358,7 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 ### Registration
 
 **Step 1: Organization** (`REGISTER — STEP 1 ORGANIZATION`)
-- Role toggle becomes **Donor | Food group**. Picking Donor shows a second choice: "I have a Mayor's Permit and Sanitary Permit" (Business) or "I don't have permits" (Casual). Business is the default.
+- Role toggle becomes **Donor | Food group**. Picking Donor shows a radio: "I have a Mayor's Permit and Sanitary Permit" or "I don't have permits". The donor role is derived from the answer: permits means Business donor, none means Casual donor. Business is the default.
 - Remove the Organization type dropdown. City takes the full row.
 - The name field label and hint follow the role:
   - Business donor: "Business name", hint "As shown on your permits"
@@ -371,8 +370,7 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 **Step 2: Documents, Business donor** (`REGISTER — STEP 2 DOCUMENTS`)
 - The "Required for" tag shows only "Business donor" (drop "· Bakery").
-- "Business registration (DTI, SEC or CDA)" is no longer required. It becomes optional, with the hint "Only if your permit doesn't show your business name clearly".
-- Mayor's Permit and Sanitary Permit stay required. FDA License stays optional.
+- Remove the "Business registration (DTI, SEC or CDA)" and "FDA License to Operate" items. Only the Mayor's Permit and Sanitary Permit remain, both required.
 - The intro sentence keeps "Permits always need a date".
 
 **Step 2: Documents, Casual donor** (new frame: `REGISTER — STEP 2 DOCUMENTS (CASUAL)`)
@@ -409,8 +407,8 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 **Donor profile** (`DONOR PROFILE`)
 - Remove the TYPE field. The Role field shows Business donor or Casual donor.
 - The Organization hint changes from "Name, type and city" to "Name and city".
-- Casual donor: Documents lists only the Barangay Certificate, and there is an **Upgrade to Business donor** action to upload the Mayor's Permit and Sanitary Permit, plus FDA License if applicable. The admin reviews it and the role changes on approval.
-- Business donor: the "Business registration (DTI)" row shows "Not required" when none was uploaded, like the FDA row does today.
+- Casual donor: Documents lists only the Barangay Certificate, and there is an **Upgrade to Business donor** action to upload the Mayor's Permit and Sanitary Permit. The admin reviews it and the role changes on approval.
+- Business donor: remove the "Business registration (DTI)" and FDA rows. Documents lists only the two permits.
 
 **Food group profile** (`FOOD GROUP PROFILE`)
 - Remove the TYPE field and change the hint to "Name and city".
@@ -628,7 +626,7 @@ erDiagram
   document {
     int document_id PK
     int registration_id FK
-    enum doc_type "13 types incl. barangay_certificate"
+    enum doc_type "9 types incl. barangay_certificate"
     varchar file_path
     date expires_on "null = no expiry"
     enum review "OK, FLAGGED; null = awaiting"

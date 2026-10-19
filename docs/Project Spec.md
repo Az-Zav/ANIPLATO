@@ -136,7 +136,7 @@ Safety notices and suspensions can happen at any time after an offer is accepted
 
 | Role | Required documents |
 | :---- | :---- |
-| Business donor | Mayor's Permit and Sanitary Permit. FDA License to Operate only if the business makes or repacks food. DTI, SEC or CDA registration only if the permit does not show the business name clearly enough for the name check. |
+| Business donor | Mayor's Permit and Sanitary Permit. |
 | Casual donor | One Barangay Certificate, with an entered expiry date. |
 | Food group | One credential (DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA, or a diocese endorsement for parishes) plus an authorization letter naming the contact person. |
 
@@ -156,7 +156,6 @@ Safety notices and suspensions can happen at any time after an offer is accepted
 **Legal basis**
 
 * Mayor's Permit and Sanitary Permit: required of every business donor.
-* FDA License to Operate: only makers and repackers of packaged food.
 * Food groups upload one credential matching their kind of organization.
 * RA 10173 (Data Privacy Act): collect only what is needed, and no government IDs. A Barangay Certificate is a local government document, not a government ID.
 * Casual donors are limited to raw and sealed-packaged food because they have no Sanitary Permit. This is a platform rule, not a legal one.
@@ -767,7 +766,7 @@ erDiagram
   document {
     int document_id PK
     int registration_id FK
-    enum doc_type "dti, sec, cda, mayors_permit, sanitary_permit, fda_lto, barangay_certificate, dswd, pcnc, sec_non_stock, deped_ched_tesda, diocese_endorsement, authorization_letter"
+    enum doc_type "mayors_permit, sanitary_permit, barangay_certificate, dswd, pcnc, sec_non_stock, deped_ched_tesda, diocese_endorsement, authorization_letter"
     varchar file_path "under uploads/"
     date expires_on "null = no expiry"
     enum review "OK, FLAGGED; null = awaiting"
