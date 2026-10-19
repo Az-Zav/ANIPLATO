@@ -899,7 +899,7 @@ erDiagram
 
 # **Appendix A. App Wording and Settings**
 
-* **Registration consent:** "I agree that ANIPLATO may store my organization's details and documents to verify my organization. Only my organization and the ANIPLATO admin can see my files."
+* **Registration consent:** "I agree that ANIPLATO may store my details and documents to verify my registration. Only I and the ANIPLATO admin can see my files."
 
 * **Donor attestation:** "This food is apparently wholesome, properly labeled and donated in good faith. It contains no milk products, no tomato- or milk-based cooked food, and no food already served to diners."
 

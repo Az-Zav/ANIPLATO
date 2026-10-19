@@ -357,6 +357,12 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 ### Registration
 
+**All registration steps (neutral wording)**
+- Title: "Register for ANIPLATO". Subtitle: "An admin reviews your application before your account is created."
+- Stepper: "Your details" and "Documents" (was "Organization").
+- Consent text on Step 2: "I agree that ANIPLATO may store my details and documents to verify my registration. Only I and the ANIPLATO admin can see my files."
+- The login email placeholder becomes "you@example.com".
+
 **Step 1: Organization** (`REGISTER — STEP 1 ORGANIZATION`)
 - Role toggle becomes **Donor | Food group**. Picking Donor shows a radio: "I have a Mayor's Permit and Sanitary Permit" or "I don't have permits". The donor role is derived from the answer: permits means Business donor, none means Casual donor. Business is the default.
 - Remove the Organization type dropdown. City takes the full row.
@@ -366,7 +372,8 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
   - Food group: "Organization name", hint "As shown on your credential"
 - The city hint follows the role: Mayor's Permit (Business), Barangay Certificate (Casual), registered address (Food group).
 - Contact person stays for every role. For Casual, the hint says to enter your own name.
-- Contact number and email are unchanged.
+- The contact hint reads "Shared only with the other party after an offer is accepted…". The email placeholder is "e.g., name@example.com". Contact number is unchanged.
+- Frames: the default (Donor with permits) plus `(CASUAL)` and `(FOOD GROUP)` variants showing the role-based text.
 
 **Step 2: Documents, Business donor** (`REGISTER — STEP 2 DOCUMENTS`)
 - The "Required for" tag shows only "Business donor" (drop "· Bakery").
@@ -381,6 +388,7 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 **Step 2: Documents, Food group** (`REGISTER — STEP 2 DOCUMENTS (FOOD GROUP)`)
 - The "Required for" tag shows only "Food group" (drop "· Charity").
+- The credential hint lists every accepted credential on its own line under the label: "Any one: DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA or a diocese endorsement".
 - Everything else is unchanged.
 
 **Submitted screen and emails:** no change decided yet.
