@@ -87,7 +87,7 @@ Same format as the spec's section 6: Who, Needs, Does, Result, Legal basis, Rule
 - Reject: the admin must write a reason. The reason is emailed. The applicant may register again.
 - The temporary password has no time limit. Every login with it goes to Change Password and nothing else is reachable until a new one is set.
 - The role is set at registration. It decides the required documents and the food categories a donor may post: Business may post raw, packaged, baked and cooked. Casual may post raw and sealed-packaged only.
-- A business that cannot show both permits is not rejected. It may register as Casual, under the Casual limits. To upgrade, the donor uploads the permits and the admin reviews them. On approval the role changes to Business on the same account, and history stays.
+- A business that cannot show both permits is not rejected. It may register as Casual, under the Casual limits. To upgrade, the donor uploads the permits, which creates a new registration for the same account. The admin reviews it like any other. On approval the account's role changes to Business and it points to the new registration. The old registration stays as history. A rejected upgrade changes nothing.
 - A food group must show a standing feeding activity (feeding program, parish pantry, school feeding, volunteer group). One-off individual volunteers are not accepted.
 - One role per account. An organization that wants to both donate and receive registers a second account with a different email.
 - No organization type is collected.
@@ -159,7 +159,7 @@ Two ways in. Stage 2A starts Route 1 and Stage 2B starts Route 2.
 
 **Data model notes (for the data model phase)**
 - A listing now has 1 to 5 photos, so it needs its own photo table, like the offer photos.
-- A request needs its own fields and photos. Whether it is a separate table or the same one as a listing is still open.
+- A request needs its own fields and photos. The storage is decided in section 8.
 
 ### Stage 3: Send offers
 
@@ -302,7 +302,7 @@ Stage 4 has the full acceptance rules. The pattern is:
 | :-- | :-- |
 | **Who** | The system, the poster (the donor on a listing, the food group on a request), or the offerer who lapses. |
 | **Needs** | A listing or request has reached its deadline, had a missed pickup, been cancelled by its poster, or completed the handoff. |
-| **Result** | It ends as Rescued, Expired or Cancelled. A missed pickup ends as Expired and allows posting again. |
+| **Result** | It ends as Rescued, Expired or Cancelled. A missed pickup ends as Expired. |
 
 **Statuses**
 - Listings and requests share one status set: Open, Accepted, Rescued, Expired, Cancelled. "Rescued" means the same on both.
@@ -330,9 +330,8 @@ Stage 4 has the full acceptance rules. The pattern is:
 - If the post was Open, all waiting offers are declined and each offerer sees the reason.
 - If the post was Accepted, the accepted offer is Cancelled and its offerer sees the reason.
 - Lapse: if an Accepted offer has no handoff 2 hours after its pickup time (Route 1) or the end of its pickup window (Route 2), the offer becomes Lapsed and the post becomes Expired.
-- After a lapse, the poster can post again with the old details prefilled. Every offerer, including the one that lapsed, can offer again.
-- Reports count the new post separately, and the original counts as Expired.
-- A Suspended account cannot post again.
+- A lapsed post stays Expired. To try again, the poster makes a new post the normal way. Nothing is carried over, and any offerer can offer on it like on any other post.
+- A Suspended account cannot post.
 - Closing never waits for the report (see Stage 5).
 
 **Automatic checks**
@@ -373,7 +372,7 @@ Numbers are worked out, not stored. "Posts" means listings and requests together
 
 **Data model notes (for the data model phase)**
 - Listings and requests need the same status set.
-- The offer's pickup time (Route 1) and pickup window end (Route 2) both drive expiry and lapse, so the offer needs one place the checks can read.
+- The offer's pickup deadline is not stored. It is the due time in the use details on a Route 1 offer, or the pickup end in the food details on a Route 2 offer. The automatic checks read whichever exists.
 - No metric is stored.
 
 ---
@@ -420,7 +419,7 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 **Pending Accounts** (`Pending Accounts`)
 - Role badges: Business donor, Casual donor, Food group.
 - Remove the Type column.
-- Casual to Business upgrade requests show up here with an "Upgrade" tag next to "New" and "Registered again".
+- An upgrade request is a new pending registration with the role Business donor, so it shows the normal Business donor badge. There is no separate tag, and no "Registered again" tag.
 
 **All Accounts** (`ALL ACCOUNTS`)
 - Same badge change and Type column removal.
@@ -562,7 +561,6 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 **My Listings** (`DONOR MY LISTING`) and **My Requests** (new)
 - Open and Accepted rows keep a Cancel action.
-- A post that expired from a missed pickup shows a **Post again** action. It opens New Listing or New Request with the old details prefilled.
 
 **My Offers** (food group `FOOD GROUP MY OFFERS`, donor new)
 - The footnote reads: "Accepted offers past their pickup time plus a 2-hour grace period lapse, and the post expires."
@@ -604,9 +602,218 @@ Running list, grouped by module. Frame names are from the Figma file. Each modul
 
 ---
 
-## 8. Open points
+## 8. Data model (proposed)
+
+Built from the rules in section 6, not from the old schema. One post table and one offer table serve both routes, and two small detail tables hold what differs: **food details** (what the donor gives) and **use details** (what the food group needs or will do with it).
+
+- Route 1: the post (a listing) has food details, and each offer has use details.
+- Route 2: the post (a request) has use details, and each offer has food details.
+
+The ERD is in two diagrams so each is readable.
+
+**People and onboarding**
+
+```mermaid
+erDiagram
+  city ||--o{ registration : "located in"
+  registration ||--o{ document : "has"
+  registration |o--o| account : "current registration"
+  account |o--o{ registration : "reviews"
+  account |o--o{ document : "reviews"
+
+  city {
+    int city_id PK
+    varchar name UK
+  }
+  registration {
+    int registration_id PK
+    enum role "BUSINESS_DONOR, CASUAL_DONOR, FOOD_GROUP"
+    varchar name
+    int city_id FK
+    varchar contact_person
+    varchar contact_phone
+    varchar email "not unique"
+    enum status "PENDING, APPROVED, REJECTED"
+    varchar rejection_reason "null"
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+    datetime submitted_at
+  }
+  account {
+    int account_id PK
+    varchar email UK
+    varchar password_hash
+    enum role "ADMIN, BUSINESS_DONOR, CASUAL_DONOR, FOOD_GROUP"
+    enum status "ACTIVE, SUSPENDED"
+    varchar suspend_reason "null"
+    boolean must_change_password
+    datetime password_changed_at
+    int registration_id FK "null for admin; moves on upgrade"
+    varchar admin_name "admin only"
+    datetime created_at
+  }
+  document {
+    int document_id PK
+    int registration_id FK
+    enum doc_type "13 types incl. barangay_certificate"
+    varchar file_path
+    date expires_on "null = no expiry"
+    enum review "OK, FLAGGED; null = awaiting"
+    varchar flag_reason "null"
+    datetime uploaded_at
+    int reviewed_by FK "null"
+    datetime reviewed_at "null"
+  }
+```
+
+**Posts, offers and outcomes**
+
+```mermaid
+erDiagram
+  city ||--o{ post : "located in"
+  account ||--o{ post : "posts"
+  account ||--o{ offer : "offers"
+  post ||--o{ offer : "receives"
+  post |o--o| food_detail : "listing has"
+  post |o--o| use_detail : "request has"
+  offer |o--o| use_detail : "route 1 offer has"
+  offer |o--o| food_detail : "route 2 offer has"
+  post ||--o{ photo : "has"
+  offer ||--o{ photo : "has"
+  report ||--o{ photo : "has"
+  offer ||--o| report : "completed offer has"
+  offer ||--o{ safety_notice : "may raise"
+  account |o--o{ safety_notice : "raises, null = system"
+  account |o--o{ status_change : "changed by"
+
+  post {
+    int post_id PK
+    enum kind "LISTING, REQUEST"
+    int posted_by FK
+    int city_id FK
+    decimal kg "above 0"
+    enum status "OPEN, ACCEPTED, RESCUED, EXPIRED, CANCELLED"
+    varchar cancel_reason "null"
+    int food_detail_id FK "set for LISTING"
+    int use_detail_id FK "set for REQUEST"
+    datetime created_at
+  }
+  offer {
+    int offer_id PK "also handoff number"
+    int post_id FK "UK with offerer_id"
+    int offerer_id FK "UK with post_id"
+    decimal kg "above 0"
+    enum status "OFFERED to CANCELLED"
+    int food_detail_id FK "set for route 2"
+    int use_detail_id FK "set for route 1"
+    datetime released_at "null"
+    datetime received_at "null"
+    datetime created_at
+  }
+  food_detail {
+    int food_detail_id PK
+    varchar description
+    enum category "RAW, COOKED, BAKED, PACKAGED"
+    enum storage "AMBIENT_DRY, CHILLED, HOT_HOLD"
+    set allergens "null"
+    datetime use_by
+    datetime pickup_start
+    datetime pickup_end "before use_by"
+    varchar handover_instructions "null"
+    datetime attested_at
+  }
+  use_detail {
+    int use_detail_id PK
+    varchar use_description "event, program or use"
+    date event_date "required on request"
+    varchar beneficiaries
+    int headcount
+    varchar place
+    datetime due_at "needed-by or pickup time"
+    varchar message "null"
+    set accepted_categories "requests only"
+    datetime attested_at
+  }
+  photo {
+    int photo_id PK
+    varchar file_path
+    int post_id FK "exactly one of three"
+    int offer_id FK "exactly one of three"
+    int report_id FK "exactly one of three"
+  }
+  report {
+    int report_id PK
+    int offer_id FK "unique"
+    varchar event_name
+    date event_date
+    int people_served
+    varchar description
+    datetime photo_consent_at
+    datetime submitted_at
+  }
+  safety_notice {
+    int notice_id PK
+    int offer_id FK
+    enum kind "CONCERN, OVERDUE_REPORT"
+    int raised_by FK "null = system"
+    varchar concern "null for overdue"
+    enum status "OPEN, DISMISSED, ACCOUNT_SUSPENDED"
+    varchar admin_note "null"
+    int resolved_by FK "null"
+    datetime resolved_at "null"
+    datetime raised_at
+  }
+  status_change {
+    int change_id PK
+    enum entity_type "REGISTRATION, ACCOUNT, DOCUMENT, POST, OFFER, NOTICE"
+    int entity_id "no FK"
+    varchar from_status "null"
+    varchar to_status
+    varchar reason "null"
+    int changed_by FK "null = system"
+    datetime changed_at
+  }
+  account {
+    int account_id PK
+  }
+  city {
+    int city_id PK
+  }
+```
+
+`email_log` is unchanged and stands alone: to_email, kind (RECEIVED, APPROVED, NOT_APPROVED), sent_at, success, error.
+
+**Check rules**
+- **post and offer:** exactly one of `food_detail_id` and `use_detail_id` is set. On a post, LISTING means food details and REQUEST means use details. An offer takes the opposite of its post.
+- **photo:** exactly one of `post_id`, `offer_id`, `report_id` is set. The service allows 1 to 5 per owner.
+- **food_detail:** pickup start is before pickup end, and pickup end is before use-by.
+- **kg** on posts and offers is above 0, and **headcount** is above 0.
+- **offer:** one offer per offerer per post. On Route 2 the offer's kg is not more than the post's kg.
+- **account:** an Admin has no registration, and every other role has one.
+
+**Choices made**
+- kg lives on the post and the offer, not in the detail tables. The agreed kg is the accepted offer's kg.
+- Upgrade (Casual to Business): a new registration row, a normal PENDING one, for the same account. On approval the account's role changes and its registration link moves to the new row. The old row stays as history. A rejected upgrade changes nothing. There is no extra column, status or tag for it.
+- The role on registration and account replaces the old role plus organization type. No organization type is stored.
+- Posting again after a lapse creates an ordinary new post. There is no link between the old post and the new one.
+- Photos on a post or offer are tied to that post or offer, not to the detail rows.
+
+**Worked out, not stored**
+- All metrics in Stage 6.
+- The report deadline: receipt time plus the Settings value.
+- The handoff number: HR-year-offer id.
+- Who can see contact numbers.
+- The offer's pickup deadline: the use details' due time (Route 1) or the food details' pickup end (Route 2).
+- The agreed kg, from the accepted offer.
+- The account a safety notice is about: for a concern, the side of the offer that did not raise it. For an overdue report, the side with the food group role.
+- The document in force: the latest document with review OK for each type.
+- "Submitted late" on a report: submitted time after the deadline.
+
+**Seed data:** the 17 Metro Manila cities, as today.
+
+---
+
+## 9. Open points
 
 - Whether Casual donors also need a "new donor" label until their first completed exchange.
-- How a Route 2 offer is stored: extra columns on the existing offer, or a listing linked to the request.
-- How a request is stored: a separate object from a listing, or the same object with a direction field.
 - Spec sections affected when formalized: users, registration documents and rules, listing and request flows, handoff, new report stage, the data model and the ER diagram.
