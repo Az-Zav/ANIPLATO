@@ -128,8 +128,8 @@
                             </children>
                         </VBox>
 
-                        <!-- Inline login error (A8): filled by LoginController, hidden until a login fails -->
-                        <Label fx:id="errorLabel" managed="false" styleClass="error-text" visible="false" wrapText="true" />
+                        <!-- Inline login error (A8): filled by LoginController, hidden until a login fails; fixed height so showing it never moves the form -->
+                        <Label fx:id="errorLabel" alignment="TOP_LEFT" maxHeight="32.0" minHeight="32.0" prefHeight="32.0" styleClass="error-text" visible="false" wrapText="true" />
 
                         <!-- Log In Button -->
                         <!-- PATTERN:ACTION handleLogin -->
