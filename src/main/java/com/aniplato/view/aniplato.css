@@ -607,26 +607,132 @@
     -fx-background-color: #023E16;
 }
 
-/* Floating AI Assistant Widget */
-.assistant-pill-btn {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #111827;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 20px;
-    -fx-padding: 10px 18px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 8, 0, 0, 2);
-    -fx-cursor: hand;
-}
-
+/* Floating read-only assistant */
 .assistant-circle-btn {
     -fx-background-color: #03521E;
     -fx-text-fill: #FFFFFF;
-    -fx-font-size: 18px;
-    -fx-background-radius: 50px;
-    -fx-padding: 10px 14px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 10, 0, 0, 3);
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-min-width: 60px;
+    -fx-min-height: 60px;
+    -fx-pref-width: 60px;
+    -fx-pref-height: 60px;
+    -fx-max-width: 60px;
+    -fx-max-height: 60px;
+    -fx-background-radius: 999px;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(3, 82, 30, 0.38), 16, 0.3, 0, 5);
     -fx-cursor: hand;
+}
+
+.assistant-circle-btn:hover {
+    -fx-background-color: #04752B;
+    -fx-effect: dropshadow(three-pass-box, rgba(3, 82, 30, 0.55), 20, 0.35, 0, 6);
+}
+
+.assistant-panel {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 18px;
+    -fx-border-color: #DDE8DF;
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(three-pass-box, rgba(17, 24, 39, 0.22), 24, 0.12, 0, 8);
+}
+
+.assistant-header {
+    -fx-background-color: #03521E;
+    -fx-background-radius: 18px 18px 0 0;
+    -fx-padding: 16px;
+}
+
+.assistant-avatar {
+    -fx-alignment: center;
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 24px;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.assistant-title {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.assistant-subtitle {
+    -fx-text-fill: #D1E7D7;
+    -fx-font-size: 11px;
+}
+
+.assistant-scroll-pane {
+    -fx-background-color: #F8FAF8;
+    -fx-background: #F8FAF8;
+    -fx-border-color: transparent;
+}
+
+.assistant-scroll-pane > .viewport {
+    -fx-background-color: #F8FAF8;
+}
+
+.assistant-messages {
+    -fx-background-color: #F8FAF8;
+    -fx-padding: 16px 12px;
+}
+
+.assistant-message {
+    -fx-padding: 10px 12px;
+    -fx-font-size: 12px;
+    -fx-background-radius: 14px;
+}
+
+.assistant-reply {
+    -fx-background-color: #E8F2EA;
+    -fx-text-fill: #1F2937;
+    -fx-background-radius: 14px 14px 14px 4px;
+}
+
+.assistant-question {
+    -fx-background-color: #03521E;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 14px 14px 4px 14px;
+}
+
+.assistant-input-row {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB transparent transparent transparent;
+    -fx-padding: 12px 12px 8px;
+}
+
+.assistant-input {
+    -fx-background-color: #F9FAFB;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px;
+    -fx-padding: 9px 13px;
+    -fx-font-size: 12px;
+}
+
+.assistant-send-button {
+    -fx-background-color: #03521E;
+    -fx-background-radius: 16px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 9px 14px;
+    -fx-cursor: hand;
+}
+
+.assistant-send-button:hover {
+    -fx-background-color: #04752B;
+}
+
+.assistant-disclaimer {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 10px;
+    -fx-padding: 0 12px 12px;
 }
 
 .notification-badge {

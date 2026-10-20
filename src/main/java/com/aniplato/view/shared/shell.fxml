@@ -4,6 +4,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -84,7 +86,52 @@
         </VBox>
     </left>
     <center>
-        <!-- PATTERN:DYNAMIC current screen content -->
-        <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+        <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <children>
+                <!-- PATTERN:DYNAMIC current screen content -->
+                <StackPane fx:id="contentArea" />
+                <VBox alignment="BOTTOM_RIGHT" spacing="12.0" StackPane.alignment="BOTTOM_RIGHT">
+                    <padding><Insets bottom="22.0" right="24.0" /></padding>
+                    <children>
+                        <VBox fx:id="assistantPanel" managed="false" maxHeight="460.0" maxWidth="360.0" prefHeight="460.0" prefWidth="360.0" spacing="0.0" styleClass="assistant-panel" visible="false">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="assistant-header">
+                                    <children>
+                                        <Label styleClass="assistant-avatar" text="✦" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="assistant-title" text="ANIPLATO Assistant" />
+                                                <Label styleClass="assistant-subtitle" text="Here to help you rescue food" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <ScrollPane fx:id="assistantScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="assistant-scroll-pane" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox fx:id="assistantMessages" spacing="12.0" styleClass="assistant-messages">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" styleClass="assistant-message-row">
+                                                    <children><Label maxWidth="280.0" styleClass="assistant-message, assistant-reply" text="Hi! I can help with listings, offers, handoffs, verification, and reports. What would you like to know?" wrapText="true" /></children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+                                <HBox alignment="CENTER" spacing="8.0" styleClass="assistant-input-row">
+                                    <children>
+                                        <TextField fx:id="assistantInput" onAction="#handleSendMessage" promptText="Ask about ANIPLATO..." styleClass="assistant-input" HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleSendMessage -->
+                                        <Button onAction="#handleSendMessage" styleClass="assistant-send-button" text="Send" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="assistant-disclaimer" text="Read-only help · Does not access or change your account" wrapText="true" />
+                            </children>
+                        </VBox>
+                        <!-- PATTERN:ACTION toggleAssistant -->
+                        <Button fx:id="assistantToggle" accessibleText="Open ANIPLATO Assistant" onAction="#toggleAssistant" styleClass="assistant-circle-btn" text="✦" />
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
     </center>
 </BorderPane>
