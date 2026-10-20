@@ -127,16 +127,14 @@ public final class Navigator {
     }
 
     public static void show(Screen screen) {
+        if (screen == Screen.SHELL) {             // "open the app": the logged-in role's dashboard inside the shell
+            show(dashboardFor(currentRole()));
+            return;
+        }
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
             screenListener = null;                // so does the shell's highlight listener
-            if (screen == Screen.SHELL) {
-                if (currentScreen == null || currentScreen.kind == Kind.WINDOW) {
-                    currentScreen = dashboardFor(currentRole());
-                }
-            } else {
-                currentScreen = screen;
-            }
+            currentScreen = screen;
             scene.setRoot(load(screen));
         } else {
             currentScreen = screen;
