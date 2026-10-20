@@ -61,6 +61,6 @@ public class HistoryController {
     // PATTERN:ACTION handleViewRecord
     @FXML
     private void handleViewRecord() {
-        historyStatus.setText("Record details are available in the selected history entry.");
+        Navigator.show(Navigator.Screen.HANDOFF_RECORD);
     }
 }

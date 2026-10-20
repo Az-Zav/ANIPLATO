@@ -171,6 +171,33 @@
                             </children>
                         </GridPane>
 
+                        <!-- PATTERN:DYNAMIC visibility: reportBox shown for the donor handoff record -->
+                        <VBox fx:id="reportBox" managed="false" spacing="10.0" styleClass="report-section" visible="false">
+                            <children>
+                                <Region minHeight="1.0" styleClass="divider" />
+                                <Label styleClass="stat-card-title" text="REPORT" />
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC reportStatus -->
+                                        <Label fx:id="reportStatusLabel" styleClass="pill-rescued" text="SUBMITTED" />
+                                        <!-- PATTERN:DYNAMIC reportMeta -->
+                                        <Label fx:id="reportMetaLabel" styleClass="table-cell-text" text="Submitted Oct 9, 2026, 10:20 AM" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC reportSummary -->
+                                <Label fx:id="reportSummaryLabel" styleClass="form-label" text="School feeding program · Oct 8, 2026 · 82 people served" />
+                                <!-- PATTERN:DYNAMIC reportDetails -->
+                                <Label fx:id="reportDetailsLabel" styleClass="table-cell-text" text="Evening meal served at the parish hall to 82 pupils, seniors and families. Everything was distributed free." wrapText="true" />
+                                <HBox spacing="8.0">
+                                    <children>
+                                        <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
+                                        <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
+                                        <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
                     </children>
                 </VBox>
 
