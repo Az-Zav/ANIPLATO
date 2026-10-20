@@ -18,7 +18,7 @@ public class LoginController {
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
 
-    // FXML: errorLabel (style class "error-text", fixed height so the form never shifts) shows a failed login in place, instead of a dialog (A8)
+    // FXML: errorLabel (style class "error-text", in the Forgot password row so the form never shifts) shows a failed login in place, instead of a dialog (A8)
     @FXML private Label errorLabel;
 
     // FXML: login.fxml needs <fx:include source="shared/dialog.fxml" fx:id="dialog"/>, which injects both
