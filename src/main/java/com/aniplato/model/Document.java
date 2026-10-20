@@ -2,16 +2,14 @@ package com.aniplato.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /** One uploaded file. A renewal is a new row, never an edit. */
 public class Document {
     public enum Type {
-        DTI("DTI Registration"),
-        SEC("SEC Registration"),
-        CDA("CDA Registration"),
         MAYORS_PERMIT("Mayor's Permit"),
         SANITARY_PERMIT("Sanitary Permit"),
-        FDA_LTO("FDA License to Operate"),
+        BARANGAY_CERTIFICATE("Barangay Certificate"),
         DSWD("DSWD Accreditation"),
         PCNC("PCNC Certification"),
         SEC_NON_STOCK("SEC Non-Stock Registration"),
@@ -31,6 +29,21 @@ public class Document {
         public String label() {
             return label;
         }
+
+        /** Combo boxes show the label. */
+        @Override
+        public String toString() {
+            return label;
+        }
+
+        /** Mayor's Permit, Sanitary Permit and Barangay Certificate always need an expiry date (6.2 Stage 1). */
+        public boolean requiresExpiry() {
+            return this == MAYORS_PERMIT || this == SANITARY_PERMIT || this == BARANGAY_CERTIFICATE;
+        }
+
+        /** The credential choices of a food group; it uploads exactly one of these. */
+        public static final List<Type> FOOD_GROUP_CREDENTIALS =
+                List.of(DSWD, PCNC, SEC_NON_STOCK, DEPED_CHED_TESDA, DIOCESE_ENDORSEMENT);
 
         //---ENUM METHODS---
 
