@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- In-shell screen: header, sidebar and logout come from shell.fxml -->
+<!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
 <VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.PendingRegistrationsController">
     <stylesheets>
         <URL value="@../aniplato.css" />
@@ -24,8 +24,8 @@
         <VBox spacing="6.0">
             <children>
                 <Label styleClass="page-title" text="Pending Accounts" />
-                <!-- PATTERN:DYNAMIC summary : "{pendingCount} registrations awaiting review · {registeredAgainCount} registered again" -->
-                <Label fx:id="summaryLabel" styleClass="text-muted" text="14 registrations awaiting review · 1 registered again" />
+                <!-- PATTERN:DYNAMIC summaryLabel : "{count} registrations awaiting review" -->
+                <Label fx:id="summaryLabel" styleClass="text-muted" text="14 registrations awaiting review" />
             </children>
         </VBox>
 
@@ -38,112 +38,236 @@
                 <VBox spacing="16.0" VBox.vgrow="ALWAYS">
                     <children>
 
-                        <!-- PERFECTLY ALIGNED HEADER ROW -->
+                        <!-- PERFECTLY ALIGNED HEADER ROW (4 COLUMNS) -->
                         <GridPane styleClass="table-header-row">
                             <padding>
                                 <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
                             </padding>
                             <columnConstraints>
-                                <ColumnConstraints percentWidth="30.0" />
-                                <ColumnConstraints percentWidth="18.0" />
+                                <ColumnConstraints percentWidth="38.0" />
                                 <ColumnConstraints percentWidth="20.0" />
-                                <ColumnConstraints percentWidth="14.0" />
-                                <ColumnConstraints percentWidth="18.0" />
+                                <ColumnConstraints percentWidth="22.0" />
+                                <ColumnConstraints percentWidth="20.0" />
                             </columnConstraints>
                             <children>
-                                <Label styleClass="table-header-text" text="ORGANIZATION" GridPane.columnIndex="0" />
+                                <Label styleClass="table-header-text" text="NAME" GridPane.columnIndex="0" />
                                 <Label styleClass="table-header-text" text="ROLE" GridPane.columnIndex="1" />
-                                <Label styleClass="table-header-text" text="TYPE" GridPane.columnIndex="2" />
-                                <Label styleClass="table-header-text" text="CITY" GridPane.columnIndex="3" />
-                                <Label styleClass="table-header-text" text="REGISTERED" GridPane.columnIndex="4" />
+                                <Label styleClass="table-header-text" text="CITY" GridPane.columnIndex="2" />
+                                <Label styleClass="table-header-text" text="REGISTERED" GridPane.columnIndex="3" />
                             </children>
                         </GridPane>
 
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="table-scroll" VBox.vgrow="ALWAYS">
                             <content>
-                                <!-- PATTERN:LIST pendingRowsBox : one row per pending registration (sample rows below) -->
+                                <!-- PATTERN:LIST pendingRowsBox : one row per pending registration -->
                                 <VBox fx:id="pendingRowsBox">
                                     <children>
 
-                                        <!-- ROW 1 -->
+                                        <!-- ROW 1: San Antonio Community Pantry -->
                                         <GridPane styleClass="table-data-row">
                                             <padding>
                                                 <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
                                             </padding>
                                             <columnConstraints>
-                                                <ColumnConstraints percentWidth="30.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="38.0" />
                                                 <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="14.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
                                             </columnConstraints>
                                             <children>
-                                                <VBox spacing="4.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="San Antonio Community Pantry" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                                            <children>
-                                                                <Label styleClass="tag-new" text="New" />
-                                                                <Label styleClass="helper-note" text="2 of 2 docs" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
+                                                <Label styleClass="form-label" text="San Antonio Community Pantry" GridPane.columnIndex="0" />
                                                 <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
                                                     <children>
-                                                        <Label styleClass="pill-food-org" text="Food Organization" />
+                                                        <Label styleClass="pill-food-org" text="Food group" />
                                                     </children>
                                                 </HBox>
-                                                <Label styleClass="table-cell-text" text="Food Group / NGO" GridPane.columnIndex="2" />
-                                                <Label styleClass="table-cell-text" text="Pasig City" GridPane.columnIndex="3" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                <Label styleClass="table-cell-text" text="Pasig City" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
                                                     <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 4, 9:14 AM" HBox.hgrow="ALWAYS" />
+                                                        <Label styleClass="table-cell-muted" text="Oct 1, 2026" HBox.hgrow="ALWAYS" />
                                                         <Region HBox.hgrow="ALWAYS" />
                                                         <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
-                                                        <Button minWidth="75.0" styleClass="table-review-btn, nav-review-registration" text="Review ›" />
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
                                                     </children>
                                                 </HBox>
                                             </children>
                                         </GridPane>
 
-                                        <!-- ROW 2 -->
+                                        <!-- ROW 2: Manila Artisanal Bakeshop -->
                                         <GridPane styleClass="table-data-row">
                                             <padding>
                                                 <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
                                             </padding>
                                             <columnConstraints>
-                                                <ColumnConstraints percentWidth="30.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="38.0" />
                                                 <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="14.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
                                             </columnConstraints>
                                             <children>
-                                                <VBox spacing="4.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Manila Artisanal Bakeshop Co." />
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                                            <children>
-                                                                <Label styleClass="tag-reregistered" text="Registered again" />
-                                                                <Label styleClass="helper-note" text="3 of 3 docs" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
+                                                <Label styleClass="form-label" text="Manila Artisanal Bakeshop" GridPane.columnIndex="0" />
                                                 <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
                                                     <children>
-                                                        <Label styleClass="pill-food-donor" text="Food Donor" />
+                                                        <Label styleClass="pill-food-donor" text="Business donor" />
                                                     </children>
                                                 </HBox>
-                                                <Label styleClass="table-cell-text" text="Commercial Bakery" GridPane.columnIndex="2" />
-                                                <Label styleClass="table-cell-text" text="Quezon City" GridPane.columnIndex="3" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                <Label styleClass="table-cell-text" text="Mandaluyong City" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
                                                     <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 4, 8:30 AM" HBox.hgrow="ALWAYS" />
+                                                        <Label styleClass="table-cell-muted" text="Oct 1, 2026" HBox.hgrow="ALWAYS" />
                                                         <Region HBox.hgrow="ALWAYS" />
                                                         <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
-                                                        <Button minWidth="75.0" styleClass="table-review-btn, nav-review-registration" text="Review ›" />
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 3: Kalinga sa Maralita -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="38.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Kalinga sa Maralita" GridPane.columnIndex="0" />
+                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="pill-food-org" text="Food group" />
+                                                    </children>
+                                                </HBox>
+                                                <Label styleClass="table-cell-text" text="Caloocan City" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                    <children>
+                                                        <Label styleClass="table-cell-muted" text="Oct 2, 2026" HBox.hgrow="ALWAYS" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 4: Santos Household -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="38.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Santos Household" GridPane.columnIndex="0" />
+                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="pill-food-donor" text="Casual donor" />
+                                                    </children>
+                                                </HBox>
+                                                <Label styleClass="table-cell-text" text="Pasig City" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                    <children>
+                                                        <Label styleClass="table-cell-muted" text="Oct 2, 2026" HBox.hgrow="ALWAYS" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 5: St. Jude Social Ministry -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="38.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="St. Jude Social Ministry" GridPane.columnIndex="0" />
+                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="pill-food-org" text="Food group" />
+                                                    </children>
+                                                </HBox>
+                                                <Label styleClass="table-cell-text" text="Manila" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                    <children>
+                                                        <Label styleClass="table-cell-muted" text="Oct 3, 2026" HBox.hgrow="ALWAYS" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 6: Quezon City Fresh Market Co-op -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="38.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Quezon City Fresh Market Co-op" GridPane.columnIndex="0" />
+                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="pill-food-donor" text="Business donor" />
+                                                    </children>
+                                                </HBox>
+                                                <Label styleClass="table-cell-text" text="Quezon City" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                    <children>
+                                                        <Label styleClass="table-cell-muted" text="Oct 3, 2026" HBox.hgrow="ALWAYS" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 7: Tondo Community Kitchen -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="38.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="20.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Tondo Community Kitchen" GridPane.columnIndex="0" />
+                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="pill-food-org" text="Food group" />
+                                                    </children>
+                                                </HBox>
+                                                <Label styleClass="table-cell-text" text="Manila" GridPane.columnIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                    <children>
+                                                        <Label styleClass="table-cell-muted" text="Oct 4, 2026" HBox.hgrow="ALWAYS" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <!-- PATTERN:NAV -> REVIEW_REGISTRATION -->
+                                                        <Button minWidth="75.0" onAction="#handleReviewRegistration" styleClass="table-review-btn" text="Review" />
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -154,7 +278,7 @@
                             </content>
                         </ScrollPane>
 
-                        <!-- PATTERN:DYNAMIC visibility: emptyLabel shown when no registration is pending (hidden by default) -->
+                        <!-- PATTERN:DYNAMIC visibility: emptyLabel shown when no registration is pending -->
                         <Label fx:id="emptyLabel" managed="false" styleClass="text-muted" text="No registrations awaiting review" visible="false" />
 
                     </children>

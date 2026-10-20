@@ -435,6 +435,15 @@
 
                 <VBox spacing="16.0">
                     <children>
+                        <!-- CURRENT PASSWORD FIELD -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Current password *" />
+                                <PasswordField fx:id="currentPasswordField" promptText="Your current password" styleClass="text-field" />
+                            </children>
+                        </VBox>
+
+                        <!-- NEW PASSWORD FIELD -->
                         <VBox spacing="8.0">
                             <children>
                                 <Label styleClass="form-label" text="New password *" />
@@ -442,6 +451,7 @@
                             </children>
                         </VBox>
 
+                        <!-- CONFIRM NEW PASSWORD FIELD -->
                         <VBox spacing="8.0">
                             <children>
                                 <Label styleClass="form-label" text="Confirm new password *" />

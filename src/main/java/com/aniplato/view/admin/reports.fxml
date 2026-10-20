@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -12,429 +13,453 @@
 <?import javafx.scene.layout.VBox?>
 
 <!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
-
-<VBox spacing="24.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.ReportsController">
+<ScrollPane fitToWidth="true" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.ReportsController">
     <stylesheets>
         <URL value="@../aniplato.css" />
     </stylesheets>
-    <padding>
-        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
-    </padding>
-    <children>
+    <content>
 
-        <!-- HEADER & MONTH SELECTOR -->
-        <HBox alignment="CENTER_LEFT">
-            <children>
-                <Label styleClass="page-title" text="Reports" />
-                <Region HBox.hgrow="ALWAYS" />
-                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                    <children>
-                        <Label styleClass="text-muted" text="📅 Month:" />
-                        <!-- PATTERN:DYNAMIC monthComboBox : selected month -->
-                        <ComboBox fx:id="monthComboBox" prefWidth="180.0" styleClass="combo-box" />
-                    </children>
-                </HBox>
-            </children>
-        </HBox>
-
-        <!-- METRIC CARDS ROW 1 -->
-        <HBox spacing="16.0">
-            <children>
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-green" text="📊" />
-                                <Label styleClass="stat-card-title" text="KG LISTED" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC kgListed : formatted number -->
-                                <Label fx:id="kgListedLabel" styleClass="stat-value" text="18,450" />
-                                <Label styleClass="stat-unit" text="kg" />
-                            </children>
-                        </HBox>
-                        <Label styleClass="text-muted" text="Total kg posted" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-green" text="🤝" />
-                                <Label styleClass="stat-card-title" text="KG RESCUED" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC kgRescued : formatted number -->
-                                <Label fx:id="kgRescuedLabel" styleClass="stat-value" text="16,230" />
-                                <Label styleClass="stat-unit" text="kg" />
-                            </children>
-                        </HBox>
-                        <Label styleClass="text-muted" text="Picked up and confirmed" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-orange" text="📅" />
-                                <Label styleClass="stat-card-title" text="KG EXPIRED" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC kgExpired : formatted number -->
-                                <Label fx:id="kgExpiredLabel" styleClass="stat-value" text="2,220" />
-                                <Label styleClass="stat-unit" text="kg" />
-                            </children>
-                        </HBox>
-                        <Label styleClass="text-muted" text="Passed use-by, no handoff" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-blue" text="📈" />
-                                <Label styleClass="stat-card-title" text="RESCUE RATE" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC rescueRate : percentage, one decimal -->
-                        <Label fx:id="rescueRateLabel" styleClass="stat-value" text="88.0%" />
-                        <Label styleClass="text-muted" text="kg rescued ÷ kg listed" />
-                    </children>
-                </VBox>
-            </children>
-        </HBox>
-
-        <!-- METRIC CARDS ROW 2 -->
-        <HBox spacing="16.0">
-            <children>
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-green" text="📦" />
-                                <Label styleClass="stat-card-title" text="KG CANCELLED" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC kgCancelled : formatted number -->
-                                <Label fx:id="kgCancelledLabel" styleClass="stat-value" text="640" />
-                                <Label styleClass="stat-unit" text="kg" />
-                            </children>
-                        </HBox>
-                        <Label styleClass="text-muted" text="Not counted in rescue rate" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-green" text="📩" />
-                                <Label styleClass="stat-card-title" text="OFFERS SENT" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC offersSentCount : whole number -->
-                        <Label fx:id="offersSentCountLabel" styleClass="stat-value" text="312" />
-                        <!-- PATTERN:DYNAMIC listingsCount : "{count} listings" -->
-                        <Label fx:id="listingsCountLabel" styleClass="text-muted" text="Across 214 listings" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-orange" text="📋" />
-                                <Label styleClass="stat-card-title" text="OFFER ACCEPTANCE" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC offerAcceptanceRate : percentage, one decimal -->
-                        <Label fx:id="offerAcceptanceRateLabel" styleClass="stat-value" text="82.4%" />
-                        <Label styleClass="text-muted" text="Accepted ÷ listings with offers" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-blue" text="📉" />
-                                <Label styleClass="stat-card-title" text="LAPSE RATE" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:DYNAMIC lapseRate : percentage, one decimal -->
-                        <Label fx:id="lapseRateLabel" styleClass="stat-value" text="6.1%" />
-                        <Label styleClass="text-muted" text="Lapsed ÷ accepted offers" />
-                    </children>
-                </VBox>
-            </children>
-        </HBox>
-
-        <!-- BY CITY TABLE -->
-        <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+        <VBox spacing="24.0" styleClass="dashboard-bg">
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
             </padding>
             <children>
-                <Label styleClass="section-title" text="By city" />
 
-                <VBox spacing="0.0">
+                <!-- HEADER & MONTH SELECTOR -->
+                <HBox alignment="CENTER_LEFT">
                     <children>
-                        <!-- HEADER ROW -->
-                        <GridPane styleClass="table-header-row">
-                            <padding>
-                                <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
-                            </padding>
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="24.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="22.0" />
-                            </columnConstraints>
+                        <Label styleClass="page-title" text="Reports" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
-                                <Label styleClass="table-header-text" text="CITY" GridPane.columnIndex="0" />
-                                <Label styleClass="table-header-text" text="KG LISTED" GridPane.columnIndex="1" />
-                                <Label styleClass="table-header-text" text="KG RESCUED" GridPane.columnIndex="2" />
-                                <Label styleClass="table-header-text" text="KG EXPIRED" GridPane.columnIndex="3" />
-                                <Label styleClass="table-header-text" text="RESCUE RATE" GridPane.columnIndex="4" />
+                                <Label styleClass="text-muted" text="📅 Month:" />
+                                <!-- PATTERN:DYNAMIC monthComboBox : selected month -->
+                                <ComboBox fx:id="monthComboBox" prefWidth="180.0" promptText="October 2026" styleClass="combo-box" />
                             </children>
-                        </GridPane>
+                        </HBox>
+                    </children>
+                </HBox>
 
-                        <!-- PATTERN:LIST cityRowsBox -->
-                        <VBox fx:id="cityRowsBox">
+                <!-- 3x3 STAT CARDS GRID (PERFECT EQUAL-WIDTH ALIGNMENT ON RESIZE) -->
+                <GridPane hgap="16.0" vgap="16.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33.333" />
+                        <ColumnConstraints percentWidth="33.333" />
+                        <ColumnConstraints percentWidth="33.333" />
+                    </columnConstraints>
+                    <children>
+
+                        <!-- ROW 1, COL 0: KG POSTED -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
                             <children>
-                                <!-- ROW 1: QUEZON CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <Label styleClass="form-label" text="Quezon City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="4,820 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="4,290 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="530 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="89.0%" />
-                                                <ProgressBar progress="0.89" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
+                                        <Label styleClass="stat-icon-green" text="📦" />
+                                        <Label styleClass="stat-card-title" text="KG POSTED" />
                                     </children>
-                                </GridPane>
-
-                                <!-- ROW 2: MANILA -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT" spacing="4.0">
                                     <children>
-                                        <Label styleClass="form-label" text="Manila" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="3,940 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="3,460 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="480 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="87.8%" />
-                                                <ProgressBar progress="0.878" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
+                                        <!-- PATTERN:DYNAMIC kgPosted : formatted number -->
+                                        <Label fx:id="kgPostedLabel" styleClass="stat-value" text="18,450" />
+                                        <Label styleClass="stat-unit" text="kg" />
                                     </children>
-                                </GridPane>
-
-                                <!-- ROW 3: PASIG CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="form-label" text="Pasig City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="3,120 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="2,840 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="280 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="91.0%" />
-                                                <ProgressBar progress="0.91" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </GridPane>
-
-                                <!-- ROW 4: CALOOCAN CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="form-label" text="Caloocan City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="2,450 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="2,110 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="340 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="86.1%" />
-                                                <ProgressBar progress="0.861" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </GridPane>
-
-                                <!-- ROW 5: MANDALUYONG CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="form-label" text="Mandaluyong City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="1,880 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="1,690 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="190 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="89.9%" />
-                                                <ProgressBar progress="0.899" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </GridPane>
-
-                                <!-- ROW 6: TAGUIG CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="form-label" text="Taguig City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="1,360 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="1,180 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="180 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="86.8%" />
-                                                <ProgressBar progress="0.868" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </GridPane>
-
-                                <!-- ROW 7: MAKATI CITY -->
-                                <GridPane styleClass="table-data-row">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="24.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="22.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="form-label" text="Makati City" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-cell-text" text="880 kg" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-cell-text" text="660 kg" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-cell-text" text="220 kg" GridPane.columnIndex="3" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
-                                            <children>
-                                                <Label styleClass="text-success-bold" text="75.0%" />
-                                                <ProgressBar progress="0.75" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </GridPane>
+                                </HBox>
+                                <Label styleClass="text-muted" text="Total kg posted" />
                             </children>
                         </VBox>
 
-                        <!-- SUMMARY ROW: ALL CITIES -->
-                        <GridPane styleClass="table-header-row">
-                            <padding>
-                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                            </padding>
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="24.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="22.0" />
-                            </columnConstraints>
+                        <!-- ROW 1, COL 1: KG RESCUED -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
                             <children>
-                                <!-- PATTERN:DYNAMIC totalCityName : "All cities" -->
-                                <Label fx:id="totalCityNameLabel" styleClass="form-label" text="All cities" GridPane.columnIndex="0" />
-                                <!-- PATTERN:DYNAMIC totalKgListed : total kg -->
-                                <Label fx:id="totalKgListedLabel" styleClass="form-label" text="18,450 kg" GridPane.columnIndex="1" />
-                                <!-- PATTERN:DYNAMIC totalKgRescued : total kg -->
-                                <Label fx:id="totalKgRescuedLabel" styleClass="form-label" text="16,230 kg" GridPane.columnIndex="2" />
-                                <!-- PATTERN:DYNAMIC totalKgExpired : total kg -->
-                                <Label fx:id="totalKgExpiredLabel" styleClass="form-label" text="2,220 kg" GridPane.columnIndex="3" />
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <!-- PATTERN:DYNAMIC totalRescueRate : overall percentage -->
-                                        <Label fx:id="totalRescueRateLabel" styleClass="text-success-bold" text="88.0%" />
-                                        <ProgressBar fx:id="totalRescueProgressBar" progress="0.88" HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="stat-icon-green" text="🤝" />
+                                        <Label styleClass="stat-card-title" text="KG RESCUED" />
                                     </children>
                                 </HBox>
+                                <HBox alignment="BASELINE_LEFT" spacing="4.0">
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC kgRescued : formatted number -->
+                                        <Label fx:id="kgRescuedLabel" styleClass="stat-value" text="16,230" />
+                                        <Label styleClass="stat-unit" text="kg" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="text-muted" text="Picked up and confirmed" />
                             </children>
-                        </GridPane>
+                        </VBox>
+
+                        <!-- ROW 1, COL 2: KG EXPIRED -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-orange" text="📅" />
+                                        <Label styleClass="stat-card-title" text="KG EXPIRED" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT" spacing="4.0">
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC kgExpired : formatted number -->
+                                        <Label fx:id="kgExpiredLabel" styleClass="stat-value" text="2,220" />
+                                        <Label styleClass="stat-unit" text="kg" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="text-muted" text="Passed use-by, no handoff" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 2, COL 0: RESCUE RATE -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-blue" text="📈" />
+                                        <Label styleClass="stat-card-title" text="RESCUE RATE" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC rescueRate : percentage, one decimal -->
+                                <Label fx:id="rescueRateLabel" styleClass="stat-value" text="88.0%" />
+                                <Label styleClass="text-muted" text="kg rescued ÷ kg posted" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 2, COL 1: HANDOFFS COMPLETED -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-green" text="📋" />
+                                        <Label styleClass="stat-card-title" text="HANDOFFS COMPLETED" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC handoffsCompletedCount : whole number -->
+                                <Label fx:id="handoffsCompletedCountLabel" styleClass="stat-value" text="412" />
+                                <Label styleClass="text-muted" text="Picked up and confirmed" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 2, COL 2: PEOPLE SERVED -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-green" text="🫂" />
+                                        <Label styleClass="stat-card-title" text="PEOPLE SERVED" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC peopleServedCount : formatted number -->
+                                <Label fx:id="peopleServedCountLabel" styleClass="stat-value" text="9,640" />
+                                <Label styleClass="text-muted" text="From submitted reports" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 3, COL 0: OFFER ACCEPTANCE -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-orange" text="📅" />
+                                        <Label styleClass="stat-card-title" text="OFFER ACCEPTANCE" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC offerAcceptanceRate : percentage, one decimal -->
+                                <Label fx:id="offerAcceptanceRateLabel" styleClass="stat-value" text="82.4%" />
+                                <Label styleClass="text-muted" text="Accepted ÷ listings with offers" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 3, COL 1: LAPSE RATE -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-blue" text="📉" />
+                                        <Label styleClass="stat-card-title" text="LAPSE RATE" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC lapseRate : percentage, one decimal -->
+                                <Label fx:id="lapseRateLabel" styleClass="stat-value" text="6.1%" />
+                                <Label styleClass="text-muted" text="Lapsed ÷ accepted offers" />
+                            </children>
+                        </VBox>
+
+                        <!-- ROW 3, COL 2: REPORT COMPLIANCE -->
+                        <VBox spacing="10.0" styleClass="stat-card" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-blue" text="📈" />
+                                        <Label styleClass="stat-card-title" text="REPORT COMPLIANCE" />
+                                    </children>
+                                </HBox>
+                                <!-- PATTERN:DYNAMIC reportComplianceRate : percentage, one decimal -->
+                                <Label fx:id="reportComplianceRateLabel" styleClass="stat-value" text="91.5%" />
+                                <Label styleClass="text-muted" text="Reports on time ÷ reports due" />
+                            </children>
+                        </VBox>
+
+                    </children>
+                </GridPane>
+
+                <!-- BY CITY TABLE -->
+                <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="section-title" text="By city" />
+
+                        <VBox spacing="0.0">
+                            <children>
+                                <!-- HEADER ROW -->
+                                <GridPane styleClass="table-header-row">
+                                    <padding>
+                                        <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+                                    </padding>
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="24.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="22.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label styleClass="table-header-text" text="CITY" GridPane.columnIndex="0" />
+                                        <Label styleClass="table-header-text" text="KG POSTED" GridPane.columnIndex="1" />
+                                        <Label styleClass="table-header-text" text="KG RESCUED" GridPane.columnIndex="2" />
+                                        <Label styleClass="table-header-text" text="KG EXPIRED" GridPane.columnIndex="3" />
+                                        <Label styleClass="table-header-text" text="RESCUE RATE" GridPane.columnIndex="4" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- PATTERN:LIST cityRowsBox -->
+                                <VBox fx:id="cityRowsBox">
+                                    <children>
+                                        <!-- ROW 1: QUEZON CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Quezon City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="4,820 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="4,290 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="530 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="89.0%" />
+                                                        <ProgressBar progress="0.89" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 2: MANILA -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Manila" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="3,940 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="3,460 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="480 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="87.8%" />
+                                                        <ProgressBar progress="0.878" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 3: PASIG CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Pasig City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="3,120 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="2,840 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="280 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="91.0%" />
+                                                        <ProgressBar progress="0.91" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 4: CALOOCAN CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Caloocan City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="2,450 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="2,110 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="340 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="86.1%" />
+                                                        <ProgressBar progress="0.861" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 5: MANDALUYONG CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Mandaluyong City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="1,880 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="1,690 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="190 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="89.9%" />
+                                                        <ProgressBar progress="0.899" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 6: TAGUIG CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Taguig City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="1,360 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="1,180 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="180 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="86.8%" />
+                                                        <ProgressBar progress="0.868" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- ROW 7: MAKATI CITY -->
+                                        <GridPane styleClass="table-data-row">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="24.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="22.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="form-label" text="Makati City" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-cell-text" text="880 kg" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-cell-text" text="660 kg" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-cell-text" text="220 kg" GridPane.columnIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                                    <children>
+                                                        <Label styleClass="text-success-bold" text="75.0%" />
+                                                        <ProgressBar progress="0.75" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- SUMMARY ROW: ALL CITIES -->
+                                <GridPane styleClass="table-header-row">
+                                    <padding>
+                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                    </padding>
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="24.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="22.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC totalCityName : "All cities" -->
+                                        <Label fx:id="totalCityNameLabel" styleClass="form-label" text="All cities" GridPane.columnIndex="0" />
+                                        <!-- PATTERN:DYNAMIC totalKgPosted : total kg -->
+                                        <Label fx:id="totalKgPostedLabel" styleClass="form-label" text="18,450 kg" GridPane.columnIndex="1" />
+                                        <!-- PATTERN:DYNAMIC totalKgRescued : total kg -->
+                                        <Label fx:id="totalKgRescuedLabel" styleClass="form-label" text="16,230 kg" GridPane.columnIndex="2" />
+                                        <!-- PATTERN:DYNAMIC totalKgExpired : total kg -->
+                                        <Label fx:id="totalKgExpiredLabel" styleClass="form-label" text="2,220 kg" GridPane.columnIndex="3" />
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="4">
+                                            <children>
+                                                <!-- PATTERN:DYNAMIC totalRescueRate : overall percentage -->
+                                                <Label fx:id="totalRescueRateLabel" styleClass="text-success-bold" text="88.0%" />
+                                                <ProgressBar fx:id="totalRescueProgressBar" progress="0.88" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+
+                            </children>
+                        </VBox>
 
                     </children>
                 </VBox>
 
-                <Label styleClass="text-muted" text="Rescue rate = kg rescued ÷ kg listed, over closed listings, leaving out cancelled ones. Kg comes from the listing; nothing is weighed at handoff." wrapText="true" />
+                <Label styleClass="text-muted" text="Rescue rate = kg rescued ÷ kg posted, over closed posts, leaving out cancelled ones. Kg comes from the post; nothing is weighed at handoff." wrapText="true" />
             </children>
         </VBox>
 
-    </children>
-</VBox>
+    </content>
+</ScrollPane>

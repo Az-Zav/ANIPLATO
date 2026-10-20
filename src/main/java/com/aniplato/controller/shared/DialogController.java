@@ -67,6 +67,7 @@ public class DialogController {
 
     // 11. SET NEW PASSWORD CONTAINER & FIELDS
     @FXML private VBox setNewPasswordDialogBox;
+    @FXML private PasswordField currentPasswordField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
 
@@ -85,6 +86,8 @@ public class DialogController {
     @FXML private CheckBox receiptConditionCheck;
     @FXML private Label receiptNoticeLabel;
 
+    private Runnable onConfirmAction;
+
     @FXML
     private void initialize() {
         hideAllDialogs();
@@ -92,44 +95,34 @@ public class DialogController {
 
     /** 1. Prepares dialog for Reject Org mode */
     public void showRejectMode(String orgName) {
-        hideAllDialogs();
-        rejectDialogBox.setVisible(true);
-        rejectDialogBox.setManaged(true);
+        showDialog(rejectDialogBox);
         rejectDescriptionLabel.setText("We’ll email " + orgName + " your reason so they can fix their documents and register again. No account is created.");
         rejectReasonTextArea.clear();
     }
 
     /** 2. Prepares dialog for Approve Org mode */
     public void showApproveMode(String orgName, String orgEmail) {
-        hideAllDialogs();
-        approveDialogBox.setVisible(true);
-        approveDialogBox.setManaged(true);
+        showDialog(approveDialogBox);
         approveDescriptionLabel.setText("We’ll create " + orgName + "’s account and email temporary login details to " + orgEmail + ".");
     }
 
     /** 3. Prepares dialog for Resolve Safety Notice mode */
     public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg) {
-        hideAllDialogs();
-        resolveSafetyDialogBox.setVisible(true);
-        resolveSafetyDialogBox.setManaged(true);
+        showDialog(resolveSafetyDialogBox);
         safetyNoticeDescriptionLabel.setText("Flagged by " + raisedBy + " on " + date + ": \"" + concern + "\" Close it as dismissed, or suspend " + flaggedOrg + ".");
         safetyAdminNoteTextArea.clear();
     }
 
     /** 4. Prepares dialog for Suspend Acct mode */
     public void showSuspendAccountMode(String orgName) {
-        hideAllDialogs();
-        suspendAccountDialogBox.setVisible(true);
-        suspendAccountDialogBox.setManaged(true);
+        showDialog(suspendAccountDialogBox);
         suspendDescriptionLabel.setText(orgName + " can still log in, upload renewals and finish handoffs it already accepted. It can’t post, re-post, offer or accept, and its listings are hidden from food groups, until you reinstate it.");
         suspendReasonTextArea.clear();
     }
 
     /** 5. Prepares dialog for Reinstate Acct mode */
     public void showReinstateAccountMode(String orgName, String details) {
-        hideAllDialogs();
-        reinstateAccountDialogBox.setVisible(true);
-        reinstateAccountDialogBox.setManaged(true);
+        showDialog(reinstateAccountDialogBox);
         if (details != null && !details.isEmpty()) {
             reinstateDescriptionLabel.setText(orgName + " gets full access again. " + details);
         } else {
@@ -139,9 +132,7 @@ public class DialogController {
 
     /** 6. Prepares dialog for Cancel Listing mode (Donor) */
     public void showCancelListingMode(String listingTitle, String recipientName) {
-        hideAllDialogs();
-        cancelListingDialogBox.setVisible(true);
-        cancelListingDialogBox.setManaged(true);
+        showDialog(cancelListingDialogBox);
         if (recipientName != null && !recipientName.isEmpty()) {
             cancelListingDescriptionLabel.setText(listingTitle + " leaves the board. " + recipientName + "’s accepted offer is cancelled with it, and they see your reason.");
         } else {
@@ -152,9 +143,7 @@ public class DialogController {
 
     /** 7. Prepares dialog for Confirm Release mode (Donor) */
     public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact) {
-        hideAllDialogs();
-        confirmReleaseDialogBox.setVisible(true);
-        confirmReleaseDialogBox.setManaged(true);
+        showDialog(confirmReleaseDialogBox);
         releaseFoodLabel.setText(food);
         releaseQuantityLabel.setText(qty);
         releaseFoodGroupLabel.setText(group);
@@ -167,17 +156,13 @@ public class DialogController {
 
     /** 8. Prepares dialog for Flag Safety Concern mode */
     public void showFlagSafetyConcernMode() {
-        hideAllDialogs();
-        flagSafetyDialogBox.setVisible(true);
-        flagSafetyDialogBox.setManaged(true);
+        showDialog(flagSafetyDialogBox);
         flagSafetyConcernTextArea.clear();
     }
 
     /** 9. Prepares dialog for Accept Offer mode (Donor) */
     public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount) {
-        hideAllDialogs();
-        acceptOfferDialogBox.setVisible(true);
-        acceptOfferDialogBox.setManaged(true);
+        showDialog(acceptOfferDialogBox);
 
         String otherOffersText = (otherOffersCount > 0)
                 ? " The other " + otherOffersCount + " " + (otherOffersCount == 1 ? "offer is" : "offers are") + " declined automatically."
@@ -191,9 +176,7 @@ public class DialogController {
 
     /** 10. Prepares dialog for Upload Renewal mode */
     public void showUploadRenewalMode(String documentName) {
-        hideAllDialogs();
-        uploadRenewalDialogBox.setVisible(true);
-        uploadRenewalDialogBox.setManaged(true);
+        showDialog(uploadRenewalDialogBox);
         uploadRenewalTitleLabel.setText("Upload renewal: " + documentName);
         selectedRenewalFileLabel.setText("No file chosen");
         newExpiryDateField.clear();
@@ -201,26 +184,27 @@ public class DialogController {
 
     /** 11. Prepares dialog for Set New Password mode */
     public void showSetNewPasswordMode() {
-        hideAllDialogs();
-        setNewPasswordDialogBox.setVisible(true);
-        setNewPasswordDialogBox.setManaged(true);
-        newPasswordField.clear();
-        confirmPasswordField.clear();
+        showDialog(setNewPasswordDialogBox);
+        if (currentPasswordField != null) currentPasswordField.clear();
+        if (newPasswordField != null) newPasswordField.clear();
+        if (confirmPasswordField != null) confirmPasswordField.clear();
+    }
+
+    /** Convenient overload for ProfileController */
+    public void showPasswordChangeDialog(String title, String description, Runnable onConfirm) {
+        this.onConfirmAction = onConfirm;
+        showSetNewPasswordMode();
     }
 
     /** 12. Prepares dialog for Withdraw Offer mode (Food Group) */
     public void showWithdrawOfferMode(String donorName) {
-        hideAllDialogs();
-        withdrawOfferDialogBox.setVisible(true);
-        withdrawOfferDialogBox.setManaged(true);
+        showDialog(withdrawOfferDialogBox);
         withdrawOfferDescriptionLabel.setText(donorName + " won’t see this offer anymore. You can send a new one while the listing is still open.");
     }
 
     /** 13. Prepares dialog for Confirm Receipt mode (Food Group) */
     public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime) {
-        hideAllDialogs();
-        confirmReceiptDialogBox.setVisible(true);
-        confirmReceiptDialogBox.setManaged(true);
+        showDialog(confirmReceiptDialogBox);
         receiptFoodLabel.setText(food);
         receiptQuantityLabel.setText(qty);
         receiptDonorLabel.setText(donor);
@@ -323,6 +307,10 @@ public class DialogController {
     // PATTERN:ACTION confirms setting new password
     @FXML
     private void handleConfirmSetNewPassword() {
+        if (onConfirmAction != null) {
+            onConfirmAction.run();
+            onConfirmAction = null;
+        }
         closeOverlay();
     }
 
@@ -336,6 +324,18 @@ public class DialogController {
     @FXML
     private void handleConfirmReceipt() {
         closeOverlay();
+    }
+
+    private void showDialog(VBox dialogBox) {
+        hideAllDialogs();
+        if (dialogBox != null) {
+            dialogBox.setVisible(true);
+            dialogBox.setManaged(true);
+            if (dialogBox.getParent() != null) {
+                dialogBox.getParent().setVisible(true);
+                dialogBox.getParent().setManaged(true);
+            }
+        }
     }
 
     private void hideAllDialogs() {

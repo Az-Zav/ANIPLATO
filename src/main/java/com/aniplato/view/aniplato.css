@@ -957,3 +957,22 @@
     -fx-padding: 8px 10px;
     -fx-font-size: 13px;
 }
+
+.btn-suspend-outline {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #DC2626;
+    -fx-border-color: #FECDD3;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 14px;
+    -fx-cursor: hand;
+}
+
+.btn-suspend-outline:hover {
+    -fx-background-color: #FFF1F2;
+    -fx-border-color: #F87171;
+}
