@@ -3,7 +3,7 @@ package com.aniplato.controller;
 import com.aniplato.model.Document;
 import com.aniplato.service.MaintenanceService;
 import com.aniplato.util.Navigator;
-import com.aniplato.util.Navigator.Role;
+import com.aniplato.model.Account.Role;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -49,7 +49,7 @@ public class ProfileController {
         Role activeRole = Navigator.currentRole();
 
         boolean isAdmin = (activeRole == Role.ADMIN);
-        boolean isDonor = (activeRole == Role.DONOR);
+        boolean isDonor = (activeRole == Role.BUSINESS_DONOR || activeRole == Role.CASUAL_DONOR);
         boolean isFoodGroup = (activeRole == Role.FOOD_GROUP);
         boolean isOrg = isDonor || isFoodGroup;
 

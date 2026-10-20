@@ -6,7 +6,7 @@ import java.util.List;
 public class FoodGroup extends Account {
     @Override
     public String displayName() {
-        return registration.orgName;
+        return registration.name;
     }
 
     @Override

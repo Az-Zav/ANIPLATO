@@ -1,8 +1,11 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.exception.RuleViolationException;
+import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -66,9 +69,14 @@ public class DialogController {
     @FXML private TextField newExpiryDateField;
 
     // 11. SET NEW PASSWORD CONTAINER & FIELDS
+    // FXML: dialog.fxml fx:ids setNewPasswordDialogBox, newPasswordField, confirmPasswordField;
+    // the confirm button needs onAction="#handleConfirmSetNewPassword"
     @FXML private VBox setNewPasswordDialogBox;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
+    private final AuthenticationService authenticationService = new AuthenticationService();
+    private String currentPassword;     // the temporary password the user just logged in with (R1.7)
+    private Runnable afterPasswordSet;  // what to do once the new password is saved
 
     // 12. WITHDRAW OFFER CONTAINER & FIELDS
     @FXML private VBox withdrawOfferDialogBox;
@@ -199,8 +207,14 @@ public class DialogController {
         newExpiryDateField.clear();
     }
 
-    /** 11. Prepares dialog for Set New Password mode */
-    public void showSetNewPasswordMode() {
+    /**
+     * 11. Prepares dialog for Set New Password mode.
+     * @param currentPassword the temporary password just used to log in
+     * @param onDone          runs after the new password is saved (the login screen opens the shell)
+     */
+    public void showSetNewPasswordMode(String currentPassword, Runnable onDone) {
+        this.currentPassword = currentPassword;
+        this.afterPasswordSet = onDone;
         hideAllDialogs();
         setNewPasswordDialogBox.setVisible(true);
         setNewPasswordDialogBox.setManaged(true);
@@ -323,7 +337,14 @@ public class DialogController {
     // PATTERN:ACTION confirms setting new password
     @FXML
     private void handleConfirmSetNewPassword() {
+        try {
+            authenticationService.changePassword(currentPassword, newPasswordField.getText(), confirmPasswordField.getText());
+        } catch (RuleViolationException e) {
+            showError(e.getMessage());   // A8: stay open until the password is accepted
+            return;
+        }
         closeOverlay();
+        if (afterPasswordSet != null) afterPasswordSet.run();
     }
 
     // PATTERN:ACTION confirms withdrawing offer
@@ -360,5 +381,10 @@ public class DialogController {
             rejectDialogBox.getParent().setVisible(false);
             rejectDialogBox.getParent().setManaged(false);
         }
+    }
+
+    /** A8: shows a RuleViolationException message. Built in code because dialog.fxml has no error label. */
+    public static void showError(String message) {
+        new Alert(Alert.AlertType.WARNING, message).showAndWait();
     }
 }
