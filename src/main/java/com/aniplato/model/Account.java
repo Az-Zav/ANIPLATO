@@ -10,16 +10,31 @@ import java.util.List;
  * never checks the user's role (A5). Organization details live in {@link Registration}.
  */
 public abstract class Account {
-    public enum Role { ADMIN, DONOR, FOOD_GROUP }
-    public enum Status { ACTIVE, SUSPENDED }
-    public enum OrgType {
-        RESTAURANT, BAKERY, CANTEEN, CATERER, GROCERY, PARISH, SCHOOL, ORPHANAGE, CHARITY;
+    public enum Role {
+        ADMIN("Admin", "admin"),
+        BUSINESS_DONOR("Business Donor", "donor"),
+        CASUAL_DONOR("Casual Donor", "donor"),
+        FOOD_GROUP("Food Group", "foodgroup");
 
-        /** Text shown on screens: BAKERY becomes "Bakery". */
-        public String label() {
-            return name().charAt(0) + name().substring(1).toLowerCase();
+        private final String displayName;
+        private final String key;
+
+        Role(String displayName, String key) {
+            this.displayName = displayName;
+            this.key = key;
+        }
+
+        /** Text for the shell header. */
+        public String displayName() {
+            return displayName;
+        }
+
+        /** Matches the "role-<key>" style class on shell sidebar buttons; both donor roles share "donor". */
+        public String key() {
+            return key;
         }
     }
+    public enum Status { ACTIVE, SUSPENDED }
 
     /** One label and value line on the Profile screen. */
     public record ProfileRow(String label, String value) { }
@@ -69,8 +84,7 @@ public abstract class Account {
      */
     protected List<ProfileRow> organizationRows(String organizationLabel) {
         List<ProfileRow> rows = new ArrayList<>();
-        rows.add(new ProfileRow(organizationLabel, registration.orgName));
-        rows.add(new ProfileRow("Type", registration.orgType.label()));
+        rows.add(new ProfileRow(organizationLabel, registration.name));
         rows.add(new ProfileRow("City", registration.city.name));
         rows.add(new ProfileRow("Contact person", registration.contactPerson));
         rows.add(new ProfileRow("Email", email));

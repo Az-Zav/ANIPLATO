@@ -9,9 +9,8 @@ public class Registration {
     public enum Status { PENDING, APPROVED, REJECTED }
 
     public int id;
-    public Account.Role role;           // DONOR or FOOD_GROUP, never ADMIN
-    public String orgName;
-    public Account.OrgType orgType;
+    public Account.Role role;           // BUSINESS_DONOR, CASUAL_DONOR or FOOD_GROUP, never ADMIN
+    public String name;                 // organization, person or household
     public City city;
     public String contactPerson;
     public String contactPhone;         // show only to the owner, the admin, or the other side of an accepted offer (A7)

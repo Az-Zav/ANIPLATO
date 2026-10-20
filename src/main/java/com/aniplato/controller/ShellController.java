@@ -1,7 +1,10 @@
 package com.aniplato.controller;
 
+import com.aniplato.model.Account;
+import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.Session;
 import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -21,13 +24,17 @@ public class ShellController {
 
     @FXML private StackPane contentArea;
     @FXML private VBox sidebar;
+    // FXML: fx:id="userRoleLabel" shows the logged-in account's role
     @FXML private Label userRoleLabel;
+
+    private final AuthenticationService authenticationService = new AuthenticationService();
 
     @FXML
     private void initialize() {
         Navigator.setContent(contentArea);
-        Navigator.Role role = Navigator.currentRole();
+        Account.Role role = Session.require().role;
         userRoleLabel.setText(role.displayName());
+        // FXML: each sidebar button carries "role-<key>" (admin, donor, foodgroup) or "role-all"
         String roleClass = "role-" + role.key();
         sidebar.getChildren().removeIf(item -> item instanceof Button button
                 && !button.getStyleClass().contains(roleClass)
@@ -42,8 +49,6 @@ public class ShellController {
         refreshActive();
         Navigator.setScreenListener(this::refreshActive);
 
-        // PATTERN:DYNAMIC fills placeholders
-        // TODO(service): userRoleLabel.setText(account.getRole().toString())
     }
 
     /** Highlights the sidebar button for the screen being shown (a detail screen highlights its parent). */
@@ -106,10 +111,11 @@ public class ShellController {
         button.setGraphicTextGap(0);
     }
 
-    // PATTERN:ACTION placeholder: navigates only
+    // FXML: logoutBtn onAction="#handleLogout"
+    // PATTERN:ACTION
     @FXML
     private void handleLogout() {
-        // TODO(service): Session.clear()
+        authenticationService.logout();
         Navigator.show(Screen.LOGIN);
     }
 }

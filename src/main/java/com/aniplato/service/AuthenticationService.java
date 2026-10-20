@@ -7,6 +7,7 @@ import com.aniplato.model.Account;
 import com.aniplato.util.Database;
 import com.aniplato.util.PasswordHasher;
 import com.aniplato.util.Session;
+import com.aniplato.util.Settings;
 
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 /** Login, logout, change password, temporary password (R1.7). */
 public class AuthenticationService {
 
-    private static final int MIN_PASSWORD_LENGTH = 8;
     private static final int TEMP_PASSWORD_LENGTH = 12;
     // no 0/O, 1/l/I, so a password read from an email is typed correctly
     private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
@@ -63,8 +63,8 @@ public class AuthenticationService {
         if (!PasswordHasher.matches(currentPassword, loadPasswordHash(account.id))) {
             throw new RuleViolationException("Your current password is wrong.");
         }
-        if (newPassword == null || newPassword.length() < MIN_PASSWORD_LENGTH) {
-            throw new RuleViolationException("The new password must be at least " + MIN_PASSWORD_LENGTH + " characters.");
+        if (newPassword == null || newPassword.length() < Settings.MIN_PASSWORD_LENGTH) {
+            throw new RuleViolationException("The new password must be at least " + Settings.MIN_PASSWORD_LENGTH + " characters.");
         }
         if (newPassword.equals(currentPassword)) {
             throw new RuleViolationException("The new password must be different from the current one.");
