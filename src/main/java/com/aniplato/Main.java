@@ -15,7 +15,7 @@ public class Main extends Application {
         // Baseline 1280x720 scene; Navigator swaps its root
         Scene scene = new Scene(new Pane(), 1280, 720);
         Navigator.init(scene);
-        Navigator.show(Screen.DONOR_DASHBOARD); // Set the initial screen to the Donor Dashboard
+        Navigator.show(Screen.LOGIN);
 
         primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System");
         primaryStage.setScene(scene);
