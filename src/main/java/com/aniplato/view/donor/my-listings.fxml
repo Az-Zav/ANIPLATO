@@ -101,6 +101,8 @@
                                         <Region HBox.hgrow="ALWAYS" />
                                         <!-- PATTERN:ACTION handleConfirmRelease -->
                                         <Button onAction="#handleConfirmRelease" styleClass="table-review-btn" text="Confirm Release" />
+                                        <!-- PATTERN:ACTION handleCancelListing -->
+                                        <Button onAction="#handleCancelListing" styleClass="secondary-button danger-button" text="Cancel Listing" />
                                     </children>
                                 </HBox>
                             </children>
@@ -108,6 +110,7 @@
                         <!-- PATTERN:DYNAMIC emptyListingsLabel : shown when no listings match -->
                         <Label fx:id="emptyListingsLabel" managed="false" styleClass="text-muted" text="No listings match your filters." visible="false" />
                         <Label styleClass="text-muted" text="Rescued, expired and cancelled listings move to History." />
+                        <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
                     </children>
                 </VBox>
             </children>

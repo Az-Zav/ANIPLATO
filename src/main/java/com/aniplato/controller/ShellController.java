@@ -67,8 +67,10 @@ public class ShellController {
                 .orElseThrow(() -> new IllegalStateException("Sidebar button has no icon class: " + button.getText()));
         String filename = switch (iconName) {
             case "all-accounts" -> "AllAccountsIcon.svg";
+            case "browse-requests" -> "BrowseRequest.svg";
             case "dashboard" -> "Dashboard Icon.svg";
             case "history" -> "HistoryIcon.svg";
+            case "my-offers" -> "MyOffers.svg";
             case "my-listings" -> "MyListingsIcon.svg";
             case "new-listing" -> "NewListingIcon.svg";
             case "pending-accounts" -> "PendingAccountsIcon.svg";

@@ -9,18 +9,18 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.NewListingController">
+<ScrollPane fitToWidth="true" prefHeight="1285.0" prefWidth="715.0" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.NewListingController">
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
-        <VBox prefHeight="984.0" prefWidth="710.0" spacing="16.0" styleClass="dashboard-bg">
+        <VBox prefHeight="1482.0" prefWidth="722.0" spacing="16.0" styleClass="dashboard-bg">
             <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
                 <Label styleClass="page-title" text="New Listing" />
-                <VBox spacing="20.0" styleClass="table-card">
+                <VBox prefHeight="1462.0" prefWidth="640.0" spacing="20.0" styleClass="table-card">
                     <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
                     <children>
                         <Label styleClass="section-title" text="Surplus item" />
@@ -36,10 +36,10 @@
                                 <HBox spacing="8.0">
                                     <children>
                                         <!-- PATTERN:DYNAMIC categoryRawCheck : category selection -->
-                                        <CheckBox fx:id="categoryRawCheck" text="Raw" />
-                                        <CheckBox fx:id="categoryCookedCheck" text="Cooked" />
-                                        <CheckBox fx:id="categoryBakedCheck" selected="true" text="Baked" />
-                                        <CheckBox fx:id="categoryPackagedCheck" text="Packaged" />
+                                        <CheckBox fx:id="categoryRawCheck" prefHeight="31.0" prefWidth="52.0" styleClass="stat-card-title" text="Raw" />
+                                        <CheckBox fx:id="categoryCookedCheck" prefHeight="30.0" prefWidth="66.0" styleClass="stat-card-title" text="Cooked" />
+                                        <CheckBox fx:id="categoryBakedCheck" selected="true" styleClass="stat-icon-green" text="Baked" />
+                                        <CheckBox fx:id="categoryPackagedCheck" prefHeight="29.0" prefWidth="76.0" styleClass="stat-card-title" text="Packaged" />
                                     </children>
                                 </HBox>
                                 <Label styleClass="text-muted" text="Pick one. Not allowed: milk products, tomato- or milk-based cooked food, or cooked food already served to diners." wrapText="true" />
@@ -50,11 +50,11 @@
                                 <Label styleClass="form-label" text="Allergen label (for information only)" />
                                 <HBox spacing="8.0">
                                     <children>
-                                        <CheckBox text="Gluten / Wheat" />
-                                        <CheckBox text="Dairy / Butter" />
-                                        <CheckBox text="Nuts / Peanuts" />
-                                        <CheckBox text="Eggs" />
-                                        <CheckBox text="Halal Ingredients" />
+                                        <CheckBox prefHeight="29.0" prefWidth="109.0" styleClass="stat-card-title" text="Gluten / Wheat" />
+                                        <CheckBox prefHeight="30.0" prefWidth="92.0" styleClass="stat-card-title" text="Dairy / Butter" />
+                                        <CheckBox prefHeight="29.0" prefWidth="101.0" styleClass="stat-card-title" text="Nuts / Peanuts" />
+                                        <CheckBox prefHeight="29.0" prefWidth="47.0" styleClass="stat-card-title" text="Eggs" />
+                                        <CheckBox styleClass="stat-card-title" text="Halal Ingredients" />
                                     </children>
                                 </HBox>
                             </children>
@@ -65,14 +65,14 @@
                                 <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label styleClass="form-label" text="Surplus net weight *" />
-                                        <TextField fx:id="quantityField" promptText="25.0 kg" />
+                                        <TextField fx:id="quantityField" prefHeight="43.0" prefWidth="179.0" promptText="25.0 kg" styleClass="metric-icon-green" />
                                         <Label styleClass="text-muted" text="Must be more than 0 kg" />
                                     </children>
                                 </VBox>
                                 <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label styleClass="form-label" text="Safe use-by deadline *" />
-                                        <DatePicker fx:id="useByDatePicker" maxWidth="1.7976931348623157E308" promptText="Oct 4, 2026, 9:00 PM" />
+                                        <DatePicker fx:id="useByDatePicker" maxWidth="1.7976931348623157E308" promptText="Oct 4, 2026, 9:00 PM" styleClass="metric-icon-green" />
                                         <Label styleClass="text-muted" text="Must be later than now" />
                                     </children>
                                 </VBox>
@@ -81,11 +81,27 @@
                         <VBox spacing="8.0">
                             <children>
                                 <Label styleClass="form-label" text="Pickup window *" />
-                                <TextField fx:id="pickupWindowField" promptText="4:00 PM – 6:00 PM, Today" />
+                                <TextField fx:id="pickupWindowField" promptText="4:00 PM – 6:00 PM, Today" styleClass="metric-icon-green" />
                                 <Label styleClass="text-muted" text="When you can hand the food over. Food groups pick a pickup time inside this window and before the use-by." wrapText="true" />
                             </children>
                         </VBox>
-                        <VBox prefHeight="249.0" prefWidth="609.0" spacing="8.0">
+                  <VBox prefHeight="202.0" prefWidth="590.0">
+                     <children>
+                        <Label styleClass="section-title" text="Photos" />
+                        <Label prefHeight="35.0" prefWidth="80.0" styleClass="form-label" text="Food photos *" />
+                        <!-- PATTERN:ACTION handleAddPhotos -->
+                        <Button onAction="#handleAddPhotos" prefHeight="104.0" prefWidth="115.0" styleClass="metric-icon-green" text="Add photos" />
+                        <!-- PATTERN:LIST photoRowBox : selected food photo previews -->
+                        <HBox fx:id="photoRowBox" spacing="12.0" />
+                        <!-- PATTERN:DYNAMIC photoStatusLabel : selected photo count or validation error -->
+                        <Label fx:id="photoStatusLabel" styleClass="text-muted" text="No photos selected." wrapText="true">
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                     </children>
+                  </VBox>
+                        <VBox prefHeight="451.0" prefWidth="590.0" spacing="8.0">
                             <children>
                                 <Label styleClass="section-title" text="Storage &amp; safety" />
                                 <Label styleClass="form-label" text="Storage condition *" />
@@ -113,13 +129,36 @@
                                           <Label styleClass="text-muted" text="Room temperature (22–28°C), sealed containers." wrapText="true" />
                                       </children>
                                   </VBox>
+                        <VBox layoutX="10.0" layoutY="135.0" spacing="6.0" styleClass="table-card">
+                           <padding>
+                              <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                           </padding>
+                           <children>
+                              <RadioButton fx:id="ambientStorageRadio1" selected="true" text="Hot Cold">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="storageGroup1" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <Label styleClass="text-muted" text="Kept above 60°C. Pick up within 90 minutes." wrapText="true" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="154.0" prefWidth="590.0" spacing="6.0" styleClass="table-card">
+                           <padding>
+                              <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                           </padding>
+                           <children>
+                              <CheckBox mnemonicParsing="false" text="Donor Attestation" />
+                              <Label prefHeight="32.0" prefWidth="556.0" styleClass="text-muted" text="This food is apparently wholesome, properly labeled and donated in good faith. It contains no milk products, no tomato- or milk-based cooked food, and no food already served to diners." wrapText="true" />
+                              <Label prefHeight="23.0" prefWidth="268.0" styleClass="text-muted" text="Required. Saved with a timestamp when you post." wrapText="true" />
+                           </children>
+                        </VBox>
                         <Label styleClass="form-label" text="Handover Instruction (Optional)" />
                         <TextField fx:id="quantityField1" promptText="Enter via rear delivery bay. Loading dock pass not required; notify supervisor Arthur upon arrival." />
+                        <Label prefHeight="19.0" prefWidth="300.0" styleClass="text-muted" text="Shown to the food group only after you accept its offer." wrapText="true" />
                             </children>
                         </VBox>
                         <HBox alignment="CENTER_RIGHT" spacing="12.0">
                             <children>
-                                <Region HBox.hgrow="ALWAYS" />
                                 <!-- PATTERN:NAV -> DONOR_DASHBOARD -->
                                 <Button styleClass="secondary-button, nav-donor-dashboard" text="Cancel" />
                                 <!-- PATTERN:ACTION handlePublish -->

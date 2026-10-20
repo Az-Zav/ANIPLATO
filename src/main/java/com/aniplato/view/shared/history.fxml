@@ -1,7 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.aniplato.controller.shared.HistoryController" styleClass="screen">
-    <Label text="shared/history"/>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.HistoryController">
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
+    </padding>
+    <children>
+        <HBox alignment="CENTER_LEFT">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="page-title" text="History" />
+                        <!-- PATTERN:DYNAMIC pageSubtitle : role-specific history summary -->
+                        <Label fx:id="pageSubtitle" styleClass="text-muted" text="Review your completed food-sharing activity." />
+                    </children>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <!-- PATTERN:ACTION handlePeriodChanged -->
+                <ComboBox fx:id="periodFilter" onAction="#handlePeriodChanged" prefWidth="150.0" promptText="Period" />
+            </children>
+        </HBox>
+
+        <GridPane hgap="16.0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="33.33" />
+                <ColumnConstraints percentWidth="33.33" />
+                <ColumnConstraints percentWidth="33.34" />
+            </columnConstraints>
+            <children>
+                <VBox spacing="6.0" styleClass="stat-card" GridPane.columnIndex="0">
+                    <children>
+                        <Label styleClass="stat-card-title" text="KG RESCUED" />
+                        <!-- PATTERN:DYNAMIC rescuedValue -->
+                        <Label fx:id="rescuedValue" styleClass="stat-value" text="128.5" />
+                        <Label styleClass="metric-caption" text="Total food diverted from waste" />
+                    </children>
+                </VBox>
+                <VBox spacing="6.0" styleClass="stat-card" GridPane.columnIndex="1">
+                    <children>
+                        <Label styleClass="stat-card-title" text="HANDOFFS COMPLETED" />
+                        <!-- PATTERN:DYNAMIC handoffsValue -->
+                        <Label fx:id="handoffsValue" styleClass="stat-value" text="24" />
+                        <Label styleClass="metric-caption" text="Successful exchanges" />
+                    </children>
+                </VBox>
+                <VBox spacing="6.0" styleClass="stat-card" GridPane.columnIndex="2">
+                    <children>
+                        <Label styleClass="stat-card-title" text="PARTNERS" />
+                        <!-- PATTERN:DYNAMIC partnersValue -->
+                        <Label fx:id="partnersValue" styleClass="stat-value" text="8" />
+                        <Label styleClass="metric-caption" text="Organizations reached" />
+                    </children>
+                </VBox>
+            </children>
+        </GridPane>
+
+        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="tab-strip">
+            <children>
+                <!-- PATTERN:ACTION handleStatusFilter -->
+                <Button onAction="#handleStatusFilter" styleClass="tab-button, tab-button-active" text="All" />
+                <Button onAction="#handleStatusFilter" styleClass="tab-button" text="Rescued" />
+                <Button onAction="#handleStatusFilter" styleClass="tab-button" text="Expired" />
+                <Button onAction="#handleStatusFilter" styleClass="tab-button" text="Cancelled" />
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="searchField" prefWidth="260.0" promptText="Search history..." />
+            </children>
+        </HBox>
+
+        <VBox spacing="0.0" styleClass="table-card">
+            <children>
+                <GridPane styleClass="table-header-row">
+                    <padding>
+                        <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+                    </padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="13.0" />
+                        <ColumnConstraints percentWidth="24.0" />
+                        <ColumnConstraints percentWidth="11.0" />
+                        <ColumnConstraints percentWidth="21.0" />
+                        <ColumnConstraints percentWidth="15.0" />
+                        <ColumnConstraints percentWidth="16.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="table-header-text" text="DATE" GridPane.columnIndex="0" />
+                        <Label styleClass="table-header-text" text="FOOD" GridPane.columnIndex="1" />
+                        <Label styleClass="table-header-text" text="KG" GridPane.columnIndex="2" />
+                        <Label fx:id="otherPartyHeader" styleClass="table-header-text" text="OTHER PARTY" GridPane.columnIndex="3" />
+                        <Label styleClass="table-header-text" text="OUTCOME" GridPane.columnIndex="4" />
+                        <Label fx:id="recordHeader" styleClass="table-header-text" text="RECORD" GridPane.columnIndex="5" />
+                    </children>
+                </GridPane>
+                <!-- PATTERN:LIST historyRows : role-specific representative history records -->
+                <VBox fx:id="historyRows" spacing="0.0">
+                    <children>
+                        <GridPane styleClass="table-data-row">
+                            <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0" /></padding>
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="13.0" /><ColumnConstraints percentWidth="24.0" /><ColumnConstraints percentWidth="11.0" /><ColumnConstraints percentWidth="21.0" /><ColumnConstraints percentWidth="15.0" /><ColumnConstraints percentWidth="16.0" />
+                            </columnConstraints>
+                            <children>
+                                <Label styleClass="table-cell-text" text="Oct 18, 2026" GridPane.columnIndex="0" />
+                                <Label styleClass="table-cell-primary" text="Fresh bread and pastries" GridPane.columnIndex="1" />
+                                <Label styleClass="table-cell-text" text="12.0" GridPane.columnIndex="2" />
+                                <Label styleClass="table-cell-text" text="Bayanihan Food Group" GridPane.columnIndex="3" />
+                                <Label styleClass="pill-food-org" text="Rescued" GridPane.columnIndex="4" />
+                                <!-- PATTERN:ACTION handleViewRecord -->
+                                <Button onAction="#handleViewRecord" styleClass="table-review-btn" text="View record" GridPane.columnIndex="5" />
+                            </children>
+                        </GridPane>
+                        <GridPane styleClass="table-data-row">
+                            <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0" /></padding>
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="13.0" /><ColumnConstraints percentWidth="24.0" /><ColumnConstraints percentWidth="11.0" /><ColumnConstraints percentWidth="21.0" /><ColumnConstraints percentWidth="15.0" /><ColumnConstraints percentWidth="16.0" />
+                            </columnConstraints>
+                            <children>
+                                <Label styleClass="table-cell-text" text="Oct 11, 2026" GridPane.columnIndex="0" />
+                                <Label styleClass="table-cell-primary" text="Canned vegetables" GridPane.columnIndex="1" />
+                                <Label styleClass="table-cell-text" text="8.5" GridPane.columnIndex="2" />
+                                <Label styleClass="table-cell-text" text="Community Kitchen" GridPane.columnIndex="3" />
+                                <Label styleClass="tag-reregistered" text="Cancelled" GridPane.columnIndex="4" />
+                                <Button onAction="#handleViewRecord" styleClass="table-review-btn" text="View record" GridPane.columnIndex="5" />
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+        <!-- PATTERN:DYNAMIC historyStatus -->
+        <Label fx:id="historyStatus" styleClass="text-muted" text="Showing representative history records." />
+    </children>
 </VBox>

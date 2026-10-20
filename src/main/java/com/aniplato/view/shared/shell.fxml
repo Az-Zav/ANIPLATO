@@ -65,15 +65,17 @@
                 <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-browse-listings, icon-my-listings, role-foodgroup" text="Browse Listings" />
                 <!-- PATTERN:NAV -> MY_OFFERS -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-pending-accounts, role-foodgroup" text="My Offers" />
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-my-offers, role-foodgroup" text="My Offers" />
                 <!-- PATTERN:NAV -> DONOR_DASHBOARD -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-dashboard, icon-dashboard, role-donor" text="Dashboard" />
                 <!-- PATTERN:NAV -> LISTING_FORM -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-form, icon-new-listing, role-donor" text="New Listing" />
                 <!-- PATTERN:NAV -> MY_LISTINGS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-listings, icon-my-listings, role-donor" text="My Listings" />
-                <!-- PATTERN:NAV -> LISTING_OFFERS -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-offers, icon-pending-accounts, role-donor" text="Incoming Offers" />
+                <!-- PATTERN:NAV -> DONOR_BROWSE_REQUESTS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-browse-requests, icon-browse-requests, role-donor" text="Browse Requests" />
+                <!-- PATTERN:NAV -> DONOR_MY_OFFERS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-my-offers, icon-my-offers, role-donor" text="My Offers" />
                 <!-- PATTERN:NAV -> HISTORY -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-history, icon-history, role-foodgroup, role-donor" text="History" />
                 <!-- PATTERN:NAV -> PROFILE -->

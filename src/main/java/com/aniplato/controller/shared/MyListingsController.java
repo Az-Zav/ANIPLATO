@@ -15,6 +15,7 @@ public class MyListingsController {
     @FXML private TextField listingSearchField;
     @FXML private VBox listingRowsBox;
     @FXML private Label emptyListingsLabel;
+    @FXML private DialogController dialogController;
 
     // PATTERN:DYNAMIC fills listing count and empty state
     @FXML
@@ -29,4 +30,10 @@ public class MyListingsController {
     @FXML private void handleFilterAccepted() { }
     @FXML private void handleFilterOpen() { }
     @FXML private void handleConfirmRelease() { }
+
+    // PATTERN:ACTION opens the existing cancel-listing confirmation dialog
+    @FXML
+    private void handleCancelListing() {
+        dialogController.showCancelListingMode("Artisan Sourdough & Baguettes", "San Roque Parish Feeding Mission");
+    }
 }

@@ -59,12 +59,15 @@ public final class Navigator {
         SAFETY_NOTICES("admin/safety-notices.fxml", Kind.IN_SHELL),
         REPORTS("admin/reports.fxml", Kind.IN_SHELL),
         DONOR_DASHBOARD("donor/dashboard.fxml", Kind.IN_SHELL),
+        DONOR_BROWSE_REQUESTS("donor/browse-request.fxml", Kind.IN_SHELL),
+        DONOR_MAKE_OFFER("donor/make-offer.fxml", Kind.IN_SHELL),
         FOODGROUP_DASHBOARD("foodgroup/dashboard.fxml", Kind.IN_SHELL),
         BROWSE_LISTINGS("foodgroup/browse-listings.fxml", Kind.IN_SHELL),
         MAKE_OFFER("foodgroup/make-offer.fxml", Kind.IN_SHELL),
         MY_OFFERS("foodgroup/my-offers.fxml", Kind.IN_SHELL),
+        DONOR_MY_OFFERS("shared/my-offers.fxml", Kind.IN_SHELL),
         LISTING_FORM("donor/new-listing.fxml", Kind.IN_SHELL),
-        MY_LISTINGS("shared/my-listings.fxml", Kind.IN_SHELL),
+        MY_LISTINGS("donor/my-listings.fxml", Kind.IN_SHELL),
         LISTING_OFFERS("donor/incoming-offers.fxml", Kind.IN_SHELL),
         HISTORY("shared/history.fxml", Kind.IN_SHELL),
         HANDOFF_RECORD("shared/handoff-record.fxml", Kind.IN_SHELL);
@@ -177,7 +180,7 @@ public final class Navigator {
     private static Role roleFor(Screen screen) {
         return switch (screen) {
             case FOODGROUP_DASHBOARD, BROWSE_LISTINGS, MAKE_OFFER, MY_OFFERS -> Role.FOOD_GROUP;
-            case DONOR_DASHBOARD, LISTING_FORM, MY_LISTINGS, LISTING_OFFERS -> Role.DONOR;
+            case DONOR_DASHBOARD, DONOR_BROWSE_REQUESTS, DONOR_MAKE_OFFER, DONOR_MY_OFFERS, LISTING_FORM, MY_LISTINGS, LISTING_OFFERS -> Role.DONOR;
             case ADMIN_DASHBOARD, PENDING_REGISTRATIONS, REVIEW_REGISTRATION,
                  ACCOUNTS, SAFETY_NOTICES, REPORTS -> Role.ADMIN;
             case PROFILE, HISTORY, HANDOFF_RECORD -> currentRole();

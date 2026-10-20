@@ -27,7 +27,14 @@
                 <VBox spacing="4.0">
                     <children>
                         <Label styleClass="dashboard-title" text="Welcome back, Sample Donor" />
-                        <Label styleClass="dashboard-subtitle" text="Here’s an overview of your food donations." />
+                        <Label styleClass="dashboard-subtitle" text="Sample location">
+                     <graphic>
+                        <ImageView>
+                           <image>
+                              <Image url="@../../../../../../../../../../Downloads/Container.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Label>
                     </children>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
@@ -52,7 +59,7 @@
 
         <HBox spacing="16.0">
             <children>
-                <VBox prefHeight="132.0" prefWidth="167.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <VBox prefHeight="156.0" prefWidth="179.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                     <children>
                         <Label styleClass="stat-card-title" text="ACTIVE LISTINGS">
                      <graphic>
@@ -71,9 +78,9 @@
                         <Label styleClass="dashboard-subtitle" text="7 offers to review" />
                     </children>
                 </VBox>
-                <VBox prefHeight="132.0" prefWidth="185.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <VBox prefHeight="156.0" prefWidth="173.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="stat-card-title" text="ACCEPTED, AWAITING PICKUP">
+                        <Label prefHeight="76.0" prefWidth="132.0" styleClass="stat-card-title" text="ACCEPTED, AWAITING PICKUP" textOverrun="CENTER_ELLIPSIS">
                      <graphic>
                         <HBox prefHeight="29.0" prefWidth="31.0">
                            <children>
@@ -90,7 +97,7 @@
                         <Label styleClass="dashboard-subtitle" text="Confirm release at pickup" />
                     </children>
                 </VBox>
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <VBox prefHeight="156.0" prefWidth="188.0" spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                     <children>
                         <Label styleClass="stat-card-title" text="KG RESCUED">
                      <graphic>
@@ -114,6 +121,30 @@
                         <Label styleClass="dashboard-subtitle" text="Total rescue to date" />
                     </children>
                 </VBox>
+            <VBox layoutX="562.0" layoutY="10.0" prefHeight="156.0" prefWidth="194.0" spacing="12.0" styleClass="stat-card">
+               <children>
+                  <Label styleClass="stat-card-title" text="NEEDED BY FOOD GROUPS">
+                     <graphic>
+                        <HBox prefHeight="29.0" prefWidth="31.0">
+                           <children>
+                              <ImageView>
+                                 <image>
+                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(2).png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </graphic>
+                  </Label>
+                  <HBox alignment="BASELINE_LEFT" spacing="5.0">
+                     <children>
+                        <Label fx:id="rescuedKgLabel1" styleClass="dashboard-metric-value" text="128" />
+                        <Label styleClass="dashboard-unit" text="kg" />
+                     </children>
+                  </HBox>
+                  <Label styleClass="dashboard-subtitle" text="Across 6 open requests " />
+               </children>
+            </VBox>
             </children>
         </HBox>
 
@@ -132,11 +163,12 @@
                 </HBox>
                 <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
                     <children>
-                        <Label prefWidth="300.0" styleClass="table-header-text" text="FOOD" />
-                        <Label prefWidth="100.0" styleClass="table-header-text" text="QUANTITY" />
-                        <Label prefWidth="150.0" styleClass="table-header-text" text="STATUS" />
-                        <Label prefWidth="160.0" styleClass="table-header-text" text="USE BY" />
-                        <Region HBox.hgrow="ALWAYS" />
+                        <Label prefHeight="14.0" prefWidth="165.0" styleClass="table-header-text" text="FOOD" />
+                        <Label prefWidth="100.0" styleClass="table-header-text" text="KG" />
+                        <Label prefHeight="14.0" prefWidth="93.0" styleClass="table-header-text" text="USE BY" />
+                        <Label prefHeight="14.0" prefWidth="90.0" styleClass="table-header-text" text="STATUS" />
+                  <Label layoutX="456.0" layoutY="20.0" prefHeight="14.0" prefWidth="178.0" styleClass="table-header-text" text="ACCEPTED OFFER" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
+                  <Label layoutX="576.0" layoutY="20.0" prefHeight="14.0" prefWidth="73.0" styleClass="table-header-text" text="PICK-UP" />
                     </children>
                 </HBox>
                 <!-- PATTERN:LIST recentListingsBox : one row per donor listing (sample row below) -->
@@ -144,15 +176,16 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
                             <children>
-                                <Label prefWidth="300.0" styleClass="dashboard-row-primary" text="Fresh vegetable boxes" />
-                                <Label prefWidth="100.0" styleClass="dashboard-row-text" text="24 kg" />
-                                <HBox prefWidth="150.0">
-                                    <children>
-                                        <Label styleClass="listing-status-open" text="Open" />
-                                    </children>
-                                </HBox>
-                                <Label prefWidth="160.0" styleClass="dashboard-row-text" text="Oct 12, 2026" />
-                                <Region HBox.hgrow="ALWAYS" />
+                                <Label prefHeight="15.0" prefWidth="174.0" styleClass="dashboard-row-primary" text="Fresh vegetable boxes" />
+                                <Label prefHeight="15.0" prefWidth="83.0" styleClass="dashboard-row-text" text="24 kg" />
+                        <Label layoutX="200.0" layoutY="26.0" prefHeight="15.0" prefWidth="102.0" styleClass="dashboard-row-text" text="Oct 12, 2026" />
+                                  <Label prefHeight="22.0" prefWidth="52.0" styleClass="listing-status-open" text="Open" />
+                        <Label prefHeight="15.0" prefWidth="177.0" styleClass="dashboard-row-text" text="Hub Community Kitchen">
+                           <HBox.margin>
+                              <Insets left="30.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label layoutX="501.0" layoutY="26.0" opacity="0.43" prefHeight="15.0" prefWidth="84.0" styleClass="dashboard-row-text" text="Today, 4:00 PM" textAlignment="CENTER" />
                             </children>
                         </HBox>
                     </children>

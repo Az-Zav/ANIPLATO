@@ -76,6 +76,25 @@ public class ProfileController {
             passwordStatusLabel.setText("Last changed Sep 1, 2026");
 
         } else if (isOrg) {
+            if (isFoodGroup) {
+                orgNameLabel.setText("Bayanihan Food Group");
+                orgRoleLabel.setText("Food group");
+                orgTypeLabel.setText("Community kitchen");
+                orgCityLabel.setText("Quezon City");
+                orgContactLabel.setText("Jose Reyes · 0918 456 7890");
+                orgApprovedDateLabel.setText("Oct 12, 2026");
+                loginEmailLabel.setText("contact@bayanihan.ph");
+                passwordStatusLabel.setText("Last changed Oct 12, 2026");
+            } else {
+                orgNameLabel.setText("Manila Artisanal Bakeshop");
+                orgRoleLabel.setText("Business donor");
+                orgTypeLabel.setText("Bakery");
+                orgCityLabel.setText("Mandaluyong City");
+                orgContactLabel.setText("Maria Santos · 0917 123 4567");
+                orgApprovedDateLabel.setText("Oct 5, 2026");
+                loginEmailLabel.setText("contact@manilabakeshop.ph");
+                passwordStatusLabel.setText("Last changed Oct 5, 2026");
+            }
             List<Document> alerts = maintenanceService.getCurrentDocumentAlerts();
             LocalDate today = LocalDate.now();
             long expiredCount = alerts.stream().filter(document -> document.isExpired(today)).count();
