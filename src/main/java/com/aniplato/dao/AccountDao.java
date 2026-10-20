@@ -76,6 +76,16 @@ public class AccountDao {
         }
     }
 
+    /** True if a login already uses this email (an account email is unique). */
+    public boolean existsByEmail(Connection c, String email) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM account WHERE email = ?")) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public String findPasswordHash(Connection c, int accountId) throws SQLException {
         String sql = "SELECT password_hash FROM account WHERE account_id = ?";
         try (PreparedStatement ps = c.prepareStatement(sql)) {

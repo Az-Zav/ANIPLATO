@@ -78,6 +78,20 @@ public class DocumentDao {
         }
     }
 
+    /** Saves an uploaded file, awaiting the admin's review. */
+    public void insert(Connection c, Document d) throws SQLException {
+        String sql = "INSERT INTO document (registration_id, doc_type, file_path, expires_on, uploaded_at) " +
+                "VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, d.registrationId);
+            ps.setString(2, d.type.dbValue());
+            ps.setString(3, d.filePath);
+            ps.setObject(4, d.expiresOn);
+            ps.setObject(5, d.uploadedAt);
+            ps.executeUpdate();
+        }
+    }
+
     private Document map(ResultSet rs) throws SQLException {
         Document document = new Document();
         document.id = rs.getInt("document_id");
