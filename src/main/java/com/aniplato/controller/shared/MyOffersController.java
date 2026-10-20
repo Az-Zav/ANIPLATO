@@ -1,5 +1,6 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.model.Account;
 import com.aniplato.util.Navigator;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -12,11 +13,11 @@ public class MyOffersController {
 
     @FXML
     private void initialize() {
-        Navigator.Role role = Navigator.currentRole();
-        if (role == Navigator.Role.DONOR) {
+        Account.Role role = Navigator.currentRole();
+        if (role == Account.Role.BUSINESS_DONOR || role == Account.Role.CASUAL_DONOR) {
             pageTitle.setText("My Offers");
             pageSubtitle.setText("Track offers you have made on available requests.");
-        } else if (role == Navigator.Role.FOOD_GROUP) {
+        } else if (role == Account.Role.FOOD_GROUP) {
             pageTitle.setText("My Offers");
             pageSubtitle.setText("Track your offers and accepted food pickups.");
         } else {

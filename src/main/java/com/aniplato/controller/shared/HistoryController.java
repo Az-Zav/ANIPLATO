@@ -1,5 +1,6 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.model.Account;
 import com.aniplato.util.Navigator;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -25,7 +26,7 @@ public class HistoryController {
         periodFilter.setItems(FXCollections.observableArrayList("Last 30 days", "Last 6 months", "This year"));
         periodFilter.getSelectionModel().select("This year");
 
-        if (Navigator.currentRole() == Navigator.Role.FOOD_GROUP) {
+        if (Navigator.currentRole() == Account.Role.FOOD_GROUP) {
             pageSubtitle.setText("Review rescued food, pickups, and partner activity.");
             rescuedValue.setText("96.0");
             handoffsValue.setText("18");
