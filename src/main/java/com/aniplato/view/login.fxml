@@ -118,8 +118,18 @@
                             <children>
                                 <Label styleClass="form-label" text="Password" />
                                 <PasswordField fx:id="passwordField" promptText="*************" />
+                                <!-- TODO(service): Forgot password. Unwired on purpose: no onAction and no nav- class until
+                                     AuthenticationService.requestPasswordReset exists (see LoginController). -->
+                                <HBox alignment="CENTER_RIGHT">
+                                    <children>
+                                        <Hyperlink fx:id="forgotPasswordLink" styleClass="terms-link" text="Forgot password?" />
+                                    </children>
+                                </HBox>
                             </children>
                         </VBox>
+
+                        <!-- Inline login error (A8): filled by LoginController, hidden until a login fails -->
+                        <Label fx:id="errorLabel" managed="false" styleClass="error-text" visible="false" wrapText="true" />
 
                         <!-- Log In Button -->
                         <!-- PATTERN:ACTION handleLogin -->
