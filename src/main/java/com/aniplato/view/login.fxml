@@ -14,151 +14,159 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ScrollPane?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.LoginController">
     <children>
 
-<HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel">
+<ScrollPane fitToWidth="true" styleClass="table-scroll">
     <stylesheets>
         <URL value="@aniplato.css" />
     </stylesheets>
-    <children>
-
-        <!-- LEFT SECTION: Green Hero Container -->
-        <VBox prefWidth="480.0" spacing="16.0" styleClass="left-panel" HBox.hgrow="ALWAYS">
-            <padding>
-                <Insets bottom="30.0" left="50.0" right="30.0" top="50.0" />
-            </padding>
+    <content>
+        <HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel">
+            <stylesheets>
+                <URL value="@aniplato.css" />
+            </stylesheets>
             <children>
-                <VBox spacing="10.0">
+
+                <!-- LEFT SECTION: Green Hero Container -->
+                <VBox prefWidth="480.0" spacing="16.0" styleClass="left-panel" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="30.0" left="50.0" right="30.0" top="50.0" />
+                    </padding>
                     <children>
-                        <Label text="Rescue Surplus.&#10;Feed Communities." textFill="WHITE" wrapText="true">
-                            <font>
-                                <Font name="System Bold" size="32.0" />
-                            </font>
-                        </Label>
-                        <Label text="A shared surplus board that gets surplus food from Metro Manila businesses to food groups before it spoils." textFill="#e2f0d9" wrapText="true">
-                            <font>
-                                <Font size="13.0" />
-                            </font>
-                        </Label>
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label text="Rescue Surplus.&#10;Feed Communities." textFill="WHITE" wrapText="true">
+                                    <font>
+                                        <Font name="System Bold" size="32.0" />
+                                    </font>
+                                </Label>
+                                <Label text="A shared surplus board that gets surplus food from Metro Manila businesses to food groups before it spoils." textFill="#e2f0d9" wrapText="true">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+
+                        <Region VBox.vgrow="ALWAYS" />
+
+                        <!-- HERO ILLUSTRATION -->
+                        <StackPane alignment="CENTER">
+                            <children>
+                                <ImageView fx:id="heroIllustration" fitHeight="340.0" fitWidth="400.0" scaleX="1.915" scaleY="1.915" translateX="-11.0" translateY="64.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/login_hero.png" />
+                                    </image>
+                                </ImageView>
+                            </children>
+                        </StackPane>
+
+                        <Region VBox.vgrow="ALWAYS" />
                     </children>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
-
-                <!-- HERO ILLUSTRATION -->
-                <StackPane alignment="CENTER">
+                <!-- RIGHT SECTION: Rounded White Form Card -->
+                <VBox fx:id="rightPanel" alignment="CENTER" prefWidth="520.0" styleClass="right-panel" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
+                    </padding>
                     <children>
-                        <ImageView fx:id="heroIllustration" fitHeight="340.0" fitWidth="400.0" scaleX="1.915" scaleY="1.915" translateX="-11.0" translateY="64.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@/assets/login_hero.png" />
-                            </image>
-                        </ImageView>
-                    </children>
-                </StackPane>
-
-                <Region VBox.vgrow="ALWAYS" />
-            </children>
-        </VBox>
-
-        <!-- RIGHT SECTION: Rounded White Form Card -->
-        <VBox fx:id="rightPanel" alignment="CENTER" prefWidth="520.0" styleClass="right-panel" HBox.hgrow="ALWAYS">
-            <padding>
-                <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
-            </padding>
-            <children>
-                <VBox fx:id="loginForm" maxWidth="360.0" spacing="24.0">
-                    <children>
-
-                        <!-- Header with Logo -->
-                        <HBox alignment="CENTER_LEFT" spacing="14.0">
+                        <VBox fx:id="loginForm" maxWidth="360.0" spacing="24.0">
                             <children>
-                                <ImageView fitHeight="52.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/assets/aniplato-logo-circle 1.png" />
-                                    </image>
-                                </ImageView>
-                                <VBox alignment="CENTER_LEFT">
+
+                                <!-- Header with Logo -->
+                                <HBox alignment="CENTER_LEFT" spacing="14.0">
                                     <children>
-                                        <HBox alignment="BASELINE_LEFT" spacing="4.0">
+                                        <ImageView fitHeight="52.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox alignment="CENTER_LEFT">
                                             <children>
-                                                <Label text="Welcome to " textFill="#111111">
+                                                <HBox alignment="BASELINE_LEFT" spacing="4.0">
+                                                    <children>
+                                                        <Label text="Welcome to " textFill="#111111">
+                                                            <font>
+                                                                <Font name="System Bold" size="22.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="ANIPLATO" textFill="#03521E">
+                                                            <font>
+                                                                <Font name="System Bold" size="22.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <Label text="Sign in to your ANIPLATO account." textFill="#666666">
                                                     <font>
-                                                        <Font name="System Bold" size="22.0" />
-                                                    </font>
-                                                </Label>
-                                                <Label text="ANIPLATO" textFill="#03521E">
-                                                    <font>
-                                                        <Font name="System Bold" size="22.0" />
+                                                        <Font size="13.0" />
                                                     </font>
                                                 </Label>
                                             </children>
-                                        </HBox>
-                                        <Label text="Sign in to your ANIPLATO account." textFill="#666666">
-                                            <font>
-                                                <Font size="13.0" />
-                                            </font>
-                                        </Label>
-                                    </children>
-                                </VBox>
-                            </children>
-                        </HBox>
-
-                        <!-- Email Field -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Email" />
-                                <TextField fx:id="emailField" promptText="you@organization.ph" />
-                            </children>
-                        </VBox>
-
-                        <!-- Password Field -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Password" />
-                                <PasswordField fx:id="passwordField" promptText="*************" />
-                                <!-- TODO(service): Forgot password. Unwired on purpose: no onAction and no nav- class until
-                                     AuthenticationService.requestPasswordReset exists (see LoginController). -->
-                                <!-- Inline login error (A8) shares this row: filled by LoginController, hidden until a login fails.
-                                     The row height is set by the link, so showing the error never moves the form. -->
-                                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                    <children>
-                                        <Label fx:id="errorLabel" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" HBox.hgrow="ALWAYS" />
-                                        <Hyperlink fx:id="forgotPasswordLink" styleClass="terms-link" text="Forgot password?" />
+                                        </VBox>
                                     </children>
                                 </HBox>
+
+                                <!-- Email Field -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Email" />
+                                        <TextField fx:id="emailField" promptText="you@organization.ph" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Password Field -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Password" />
+                                        <PasswordField fx:id="passwordField" promptText="*************" />
+                                        <!-- TODO(service): Forgot password. Unwired on purpose: no onAction and no nav- class until
+                                             AuthenticationService.requestPasswordReset exists (see LoginController). -->
+                                        <!-- Inline login error (A8) shares this row: filled by LoginController, hidden until a login fails.
+                                             The row height is set by the link, so showing the error never moves the form. -->
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                            <children>
+                                                <Label fx:id="errorLabel" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" HBox.hgrow="ALWAYS" />
+                                                <Hyperlink fx:id="forgotPasswordLink" styleClass="terms-link" text="Forgot password?" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Log In Button -->
+                                <!-- PATTERN:ACTION handleLogin -->
+                                <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" onAction="#handleLogin" styleClass="primary-button" text="➔  Log In" />
+
+                                <!-- Register Link -->
+                                <HBox alignment="CENTER" spacing="4.0">
+                                    <children>
+                                        <Label text="Don't have an account?" textFill="#666666">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <!-- PATTERN:NAV -> REGISTER -->
+                                        <Hyperlink fx:id="registerLink" styleClass="hyperlink, nav-register" text="Register">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Hyperlink>
+                                    </children>
+                                </HBox>
+
                             </children>
                         </VBox>
-
-                        <!-- Log In Button -->
-                        <!-- PATTERN:ACTION handleLogin -->
-                        <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" onAction="#handleLogin" styleClass="primary-button" text="➔  Log In" />
-
-                        <!-- Register Link -->
-                        <HBox alignment="CENTER" spacing="4.0">
-                            <children>
-                                <Label text="Don't have an account?" textFill="#666666">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
-                                <!-- PATTERN:NAV -> REGISTER -->
-                                <Hyperlink fx:id="registerLink" styleClass="hyperlink, nav-register" text="Register">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Hyperlink>
-                            </children>
-                        </HBox>
-
                     </children>
                 </VBox>
-            </children>
-        </VBox>
 
-    </children>
-</HBox>
+            </children>
+        </HBox>
+    </content>
+</ScrollPane>
 
         <!-- Shared modal overlay: Set New Password for a temporary-password login (R1.7) -->
         <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />

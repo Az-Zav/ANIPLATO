@@ -11,155 +11,160 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ScrollPane?>
 
-<VBox alignment="CENTER" prefHeight="850.0" prefWidth="1280.0" styleClass="register-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterSubmittedController">
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterSubmittedController">
     <stylesheets>
         <URL value="@aniplato.css" />
     </stylesheets>
-    <children>
-
-        <!-- MAIN CENTERING CARD CONTAINER -->
-        <VBox maxWidth="520.0" styleClass="card-container" VBox.vgrow="NEVER">
-            <padding>
-                <Insets bottom="36.0" left="40.0" right="40.0" top="36.0" />
-            </padding>
+    <content>
+        <VBox alignment="CENTER" prefHeight="850.0" prefWidth="1280.0" styleClass="register-bg">
             <children>
-                <VBox spacing="24.0">
-                    <children>
 
-                        <!-- HEADER SECTION -->
-                        <HBox alignment="CENTER_LEFT" spacing="14.0">
+                <!-- MAIN CENTERING CARD CONTAINER -->
+                <VBox maxWidth="520.0" styleClass="card-container" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="36.0" left="40.0" right="40.0" top="36.0" />
+                    </padding>
+                    <children>
+                        <VBox spacing="24.0">
                             <children>
-                                <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/assets/aniplato-logo-circle 1.png" />
-                                    </image>
-                                </ImageView>
-                                <VBox spacing="2.0">
+
+                                <!-- HEADER SECTION -->
+                                <HBox alignment="CENTER_LEFT" spacing="14.0">
                                     <children>
-                                        <Label text="Registration submitted" textFill="#111827">
+                                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Registration submitted" textFill="#111827">
+                                                    <font>
+                                                        <Font name="System Bold" size="20.0" />
+                                                    </font>
+                                                </Label>
+                                                <!-- PATTERN:DYNAMIC orgSubhead : "{orgName} · {city}" -->
+                                                <Label fx:id="orgSubheadLabel" text="Sample Bakeshop · Sample City" textFill="#6B7280">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- GREEN CONFIRMATION NOTICE BOX -->
+                                <VBox spacing="16.0" styleClass="notice-box">
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                    <children>
+                                        <!-- EMAIL ICON -->
+                                        <Label text="✉" textFill="#15803D">
                                             <font>
-                                                <Font name="System Bold" size="20.0" />
+                                                <Font size="28.0" />
                                             </font>
                                         </Label>
-                                        <!-- PATTERN:DYNAMIC orgSubhead : "{orgName} · {city}" -->
-                                        <Label fx:id="orgSubheadLabel" text="Sample Bakeshop · Sample City" textFill="#6B7280">
+
+                                        <Label text="Check your email" textFill="#111827">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+
+                                        <!-- PATTERN:DYNAMIC emailNotice : "We sent a confirmation to {email}. No account exists yet, so there's nothing to log in to." -->
+                                        <Label fx:id="emailNoticeLabel" text="We sent a confirmation to sample@organization.ph. No account exists yet, so there's nothing to log in to." textFill="#374151" wrapText="true">
                                             <font>
                                                 <Font size="12.0" />
                                             </font>
                                         </Label>
+
+                                        <!-- INSTRUCTIONAL STEP LIST -->
+                                        <VBox spacing="12.0">
+                                            <padding>
+                                                <Insets top="8.0" />
+                                            </padding>
+                                            <children>
+                                                <!-- Step 1 -->
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <StackPane>
+                                                            <children>
+                                                                <Circle fill="#15803D" radius="10.0" />
+                                                                <Label text="1" textFill="WHITE">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="10.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </StackPane>
+                                                        <Label text="An admin reviews your documents." textFill="#374151">
+                                                            <font>
+                                                                <Font size="12.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Step 2 -->
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <StackPane>
+                                                            <children>
+                                                                <Circle fill="#15803D" radius="10.0" />
+                                                                <Label text="2" textFill="WHITE">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="10.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </StackPane>
+                                                        <Label text="If approved, you get an email with temporary login details." textFill="#374151">
+                                                            <font>
+                                                                <Font size="12.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Step 3 -->
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <StackPane>
+                                                            <children>
+                                                                <Circle fill="#15803D" radius="10.0" />
+                                                                <Label text="3" textFill="WHITE">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="10.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </StackPane>
+                                                        <Label text="If not, the email gives the reason. Fix your documents and register again." textFill="#374151" wrapText="true">
+                                                            <font>
+                                                                <Font size="12.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </VBox>
-                            </children>
-                        </HBox>
 
-                        <!-- GREEN CONFIRMATION NOTICE BOX -->
-                        <VBox spacing="16.0" styleClass="notice-box">
-                            <padding>
-                                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                            </padding>
-                            <children>
-                                <!-- EMAIL ICON -->
-                                <Label text="✉" textFill="#15803D">
-                                    <font>
-                                        <Font size="28.0" />
-                                    </font>
-                                </Label>
+                                <!-- BACK TO LOGIN BUTTON -->
+                                <!-- PATTERN:NAV -> LOGIN -->
+                                <Button fx:id="backToLoginBtn" maxWidth="1.7976931348623157E308" styleClass="primary-button, nav-login" text="Back to login" />
 
-                                <Label text="Check your email" textFill="#111827">
-                                    <font>
-                                        <Font name="System Bold" size="16.0" />
-                                    </font>
-                                </Label>
-
-                                <!-- PATTERN:DYNAMIC emailNotice : "We sent a confirmation to {email}. No account exists yet, so there's nothing to log in to." -->
-                                <Label fx:id="emailNoticeLabel" text="We sent a confirmation to sample@organization.ph. No account exists yet, so there's nothing to log in to." textFill="#374151" wrapText="true">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
-
-                                <!-- INSTRUCTIONAL STEP LIST -->
-                                <VBox spacing="12.0">
-                                    <padding>
-                                        <Insets top="8.0" />
-                                    </padding>
-                                    <children>
-                                        <!-- Step 1 -->
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <StackPane>
-                                                    <children>
-                                                        <Circle fill="#15803D" radius="10.0" />
-                                                        <Label text="1" textFill="WHITE">
-                                                            <font>
-                                                                <Font name="System Bold" size="10.0" />
-                                                            </font>
-                                                        </Label>
-                                                    </children>
-                                                </StackPane>
-                                                <Label text="An admin reviews your documents." textFill="#374151">
-                                                    <font>
-                                                        <Font size="12.0" />
-                                                    </font>
-                                                </Label>
-                                            </children>
-                                        </HBox>
-
-                                        <!-- Step 2 -->
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <StackPane>
-                                                    <children>
-                                                        <Circle fill="#15803D" radius="10.0" />
-                                                        <Label text="2" textFill="WHITE">
-                                                            <font>
-                                                                <Font name="System Bold" size="10.0" />
-                                                            </font>
-                                                        </Label>
-                                                    </children>
-                                                </StackPane>
-                                                <Label text="If approved, you get an email with temporary login details." textFill="#374151">
-                                                    <font>
-                                                        <Font size="12.0" />
-                                                    </font>
-                                                </Label>
-                                            </children>
-                                        </HBox>
-
-                                        <!-- Step 3 -->
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <StackPane>
-                                                    <children>
-                                                        <Circle fill="#15803D" radius="10.0" />
-                                                        <Label text="3" textFill="WHITE">
-                                                            <font>
-                                                                <Font name="System Bold" size="10.0" />
-                                                            </font>
-                                                        </Label>
-                                                    </children>
-                                                </StackPane>
-                                                <Label text="If not, the email gives the reason. Fix your documents and register again." textFill="#374151" wrapText="true">
-                                                    <font>
-                                                        <Font size="12.0" />
-                                                    </font>
-                                                </Label>
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
                             </children>
                         </VBox>
-
-                        <!-- BACK TO LOGIN BUTTON -->
-                        <!-- PATTERN:NAV -> LOGIN -->
-                        <Button fx:id="backToLoginBtn" maxWidth="1.7976931348623157E308" styleClass="primary-button, nav-login" text="Back to login" />
-
                     </children>
                 </VBox>
+
             </children>
         </VBox>
-
-    </children>
-</VBox>
+    </content>
+</ScrollPane>

@@ -11,318 +11,326 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
 <!-- StackPane container allows overlaying dialog.fxml modally -->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.ProfileController">
     <children>
 
         <!-- MAIN DASHBOARD CONTENT -->
-        <VBox spacing="20.0" styleClass="dashboard-bg">
+        <ScrollPane fitToWidth="true" styleClass="table-scroll">
             <stylesheets>
-                <!-- Use @aniplato.css for files sitting directly inside view/ -->
                 <URL value="@aniplato.css" />
             </stylesheets>
-            <padding>
-                <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
-            </padding>
-            <children>
-
-                <Label styleClass="page-title" text="Profile" />
-
-                <!-- PATTERN:DYNAMIC visibility: docAlertBanner shown when documents are expiring or expired -->
-                <HBox fx:id="docAlertBanner" managed="false" styleClass="notice-box" visible="false">
+            <content>
+                <VBox spacing="20.0" styleClass="dashboard-bg">
+                    <stylesheets>
+                        <!-- Use @aniplato.css for files sitting directly inside view/ -->
+                        <URL value="@aniplato.css" />
+                    </stylesheets>
                     <padding>
-                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
                     </padding>
                     <children>
-                        <!-- PATTERN:DYNAMIC docAlertText : warning summary -->
-                        <Label fx:id="docAlertTextLabel" styleClass="form-label" text="1 document expired and 1 expires soon. Upload renewals below; an admin verifies each one." />
-                    </children>
-                </HBox>
 
-                <!-- =================================================================== -->
-                <!-- 1. ADMIN ACCOUNT CARD (Shown for ADMIN role)                        -->
-                <!-- =================================================================== -->
-                <!-- PATTERN:DYNAMIC visibility: adminCardBox shown for Admin role (default) -->
-                <VBox fx:id="adminCardBox" spacing="16.0" styleClass="table-card">
-                    <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-                    </padding>
-                    <children>
-                        <VBox spacing="4.0">
+                        <Label styleClass="page-title" text="Profile" />
+
+                        <!-- PATTERN:DYNAMIC visibility: docAlertBanner shown when documents are expiring or expired -->
+                        <HBox fx:id="docAlertBanner" managed="false" styleClass="notice-box" visible="false">
+                            <padding>
+                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                            </padding>
                             <children>
-                                <Label styleClass="section-title" text="Admin account" />
-                                <Label styleClass="text-muted" text="Admins don't have organization documents." />
+                                <!-- PATTERN:DYNAMIC docAlertText : warning summary -->
+                                <Label fx:id="docAlertTextLabel" styleClass="form-label" text="1 document expired and 1 expires soon. Upload renewals below; an admin verifies each one." />
                             </children>
-                        </VBox>
+                        </HBox>
 
-                        <GridPane hgap="16.0" vgap="8.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="35.0" />
-                                <ColumnConstraints percentWidth="35.0" />
-                                <ColumnConstraints percentWidth="30.0" />
-                            </columnConstraints>
+                        <!-- =================================================================== -->
+                        <!-- 1. ADMIN ACCOUNT CARD (Shown for ADMIN role)                        -->
+                        <!-- =================================================================== -->
+                        <!-- PATTERN:DYNAMIC visibility: adminCardBox shown for Admin role (default) -->
+                        <VBox fx:id="adminCardBox" spacing="16.0" styleClass="table-card">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
                             <children>
-                                <!-- NAME -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0">
+                                <VBox spacing="4.0">
                                     <children>
-                                        <Label styleClass="stat-card-title" text="NAME" />
-                                        <!-- PATTERN:DYNAMIC adminName : admin full name -->
-                                        <Label fx:id="adminNameLabel" styleClass="form-label" text="ANIPLATO Admin" />
+                                        <Label styleClass="section-title" text="Admin account" />
+                                        <Label styleClass="text-muted" text="Admins don't have organization documents." />
                                     </children>
                                 </VBox>
 
-                                <!-- ROLE -->
-                                <VBox spacing="6.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="ROLE" />
-                                        <!-- PATTERN:DYNAMIC adminRole : "Admin" -->
-                                        <Label fx:id="adminRoleLabel" styleClass="form-label" text="Admin" />
-                                    </children>
-                                </VBox>
-
-                                <!-- SINCE -->
-                                <VBox spacing="6.0" GridPane.columnIndex="2">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="SINCE" />
-                                        <!-- PATTERN:DYNAMIC adminSince : registration date -->
-                                        <Label fx:id="adminSinceLabel" styleClass="form-label" text="Sep 1, 2026" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </GridPane>
-                    </children>
-                </VBox>
-
-                <!-- =================================================================== -->
-                <!-- 2. ORGANIZATION CARD (Shown for DONOR and FOOD_GROUP roles)        -->
-                <!-- =================================================================== -->
-                <!-- PATTERN:DYNAMIC visibility: orgCardBox shown for organization roles -->
-                <VBox fx:id="orgCardBox" managed="false" spacing="16.0" styleClass="table-card" visible="false">
-                    <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-                    </padding>
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label styleClass="section-title" text="Organization" />
-                                <Label styleClass="text-muted" text="Name, type and city: contact the admin, since changes need your documents checked again." />
-                            </children>
-                        </VBox>
-
-                        <GridPane hgap="16.0" vgap="16.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="35.0" />
-                                <ColumnConstraints percentWidth="35.0" />
-                                <ColumnConstraints percentWidth="30.0" />
-                            </columnConstraints>
-                            <children>
-                                <!-- ROW 1 -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="NAME" />
-                                        <!-- PATTERN:DYNAMIC orgName : organization name -->
-                                        <Label fx:id="orgNameLabel" styleClass="form-label" text="Manila Artisanal Bakeshop" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="ROLE" />
-                                        <!-- PATTERN:DYNAMIC orgRole : role title -->
-                                        <Label fx:id="orgRoleLabel" styleClass="form-label" text="Business donor" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="TYPE" />
-                                        <!-- PATTERN:DYNAMIC orgType : entity type -->
-                                        <Label fx:id="orgTypeLabel" styleClass="form-label" text="Bakery" />
-                                    </children>
-                                </VBox>
-
-                                <!-- ROW 2 -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="CITY" />
-                                        <!-- PATTERN:DYNAMIC orgCity : city name -->
-                                        <Label fx:id="orgCityLabel" styleClass="form-label" text="Mandaluyong City" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="CONTACT PERSON · NUMBER" />
-                                        <!-- PATTERN:DYNAMIC orgContact : contact person name & phone -->
-                                        <Label fx:id="orgContactLabel" styleClass="form-label" text="Maria Santos · 0917 123 4567" />
-                                        <!-- PATTERN:ACTION handleEditContact -->
-                                        <Hyperlink onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="APPROVED" />
-                                        <!-- PATTERN:DYNAMIC orgApprovedDate : approval date -->
-                                        <Label fx:id="orgApprovedDateLabel" styleClass="form-label" text="Oct 5, 2026" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </GridPane>
-                    </children>
-                </VBox>
-
-                <!-- =================================================================== -->
-                <!-- 3. DOCUMENTS CARD (Shown for DONOR and FOOD_GROUP roles)           -->
-                <!-- =================================================================== -->
-                <!-- PATTERN:DYNAMIC visibility: docsCardBox shown for organization roles -->
-                <VBox fx:id="docsCardBox" managed="false" spacing="16.0" styleClass="table-card" visible="false">
-                    <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-                    </padding>
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label styleClass="section-title" text="Documents" />
-                                <Label styleClass="text-muted" text="Keep these current. An expired document suspends your account until a renewal is verified." />
-                            </children>
-                        </VBox>
-
-                        <!-- DOCUMENTS TABLE GRID -->
-                        <VBox spacing="0.0">
-                            <children>
-                                <!-- HEADER ROW -->
-                                <GridPane styleClass="table-header-row">
-                                    <padding>
-                                        <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
-                                    </padding>
+                                <GridPane hgap="16.0" vgap="8.0">
                                     <columnConstraints>
-                                        <ColumnConstraints percentWidth="28.0" />
-                                        <ColumnConstraints percentWidth="26.0" />
-                                        <ColumnConstraints percentWidth="18.0" />
-                                        <ColumnConstraints percentWidth="28.0" />
+                                        <ColumnConstraints percentWidth="35.0" />
+                                        <ColumnConstraints percentWidth="35.0" />
+                                        <ColumnConstraints percentWidth="30.0" />
                                     </columnConstraints>
                                     <children>
-                                        <Label styleClass="table-header-text" text="DOCUMENT" GridPane.columnIndex="0" />
-                                        <Label styleClass="table-header-text" text="FILE" GridPane.columnIndex="1" />
-                                        <Label styleClass="table-header-text" text="EXPIRES" GridPane.columnIndex="2" />
-                                        <Label styleClass="table-header-text" text="STATUS" GridPane.columnIndex="3" />
-                                    </children>
-                                </GridPane>
-
-                                <!-- PATTERN:LIST docRowsBox : list of required documents for this organization -->
-                                <VBox fx:id="docRowsBox">
-                                    <children>
-                                        <!-- SAMPLE ROW 1: VERIFIED -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="28.0" />
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="28.0" />
-                                            </columnConstraints>
+                                        <!-- NAME -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0">
                                             <children>
-                                                <Label styleClass="form-label" text="Business registration (DTI)" GridPane.columnIndex="0" />
-                                                <Label styleClass="table-cell-text" text="dti-certificate.pdf" GridPane.columnIndex="1" />
-                                                <Label styleClass="table-cell-text" text="Mar 14, 2029" GridPane.columnIndex="2" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
-                                                    <children>
-                                                        <Label styleClass="pill-food-donor" text="Verified" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <Hyperlink styleClass="terms-link" text="View file" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                        <!-- SAMPLE ROW 2: EXPIRES SOON WITH UPLOAD -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="28.0" />
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="28.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <Label styleClass="form-label" text="Mayor's / Business Permit" GridPane.columnIndex="0" />
-                                                <Label styleClass="table-cell-text" text="mayors-permit-2028.pdf" GridPane.columnIndex="1" />
-                                                <Label styleClass="table-cell-text" text="Nov 5, 2026" GridPane.columnIndex="2" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
-                                                    <children>
-                                                        <Label styleClass="tag-reregistered" text="Expires in 28 days" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleUploadRenewal -->
-                                                        <Button onAction="#handleUploadRenewal" styleClass="table-review-btn" text="Upload renewal" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-                                    </children>
-                                </VBox>
-                            </children>
-                        </VBox>
-                    </children>
-                </VBox>
-
-                <!-- =================================================================== -->
-                <!-- 4. ACCOUNT LOGIN & PASSWORD CARD (Common for ALL roles)           -->
-                <!-- =================================================================== -->
-                <VBox spacing="16.0" styleClass="table-card">
-                    <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-                    </padding>
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label styleClass="section-title" text="Account" />
-                                <Label styleClass="text-muted" text="Your login for the ANIPLATO app." />
-                            </children>
-                        </VBox>
-
-                        <GridPane hgap="16.0" vgap="8.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="50.0" />
-                                <ColumnConstraints percentWidth="50.0" />
-                            </columnConstraints>
-                            <children>
-                                <!-- LOGIN EMAIL -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="LOGIN EMAIL" />
-                                        <!-- PATTERN:DYNAMIC loginEmail : user login email -->
-                                        <Label fx:id="loginEmailLabel" styleClass="form-label" text="admin@aniplato.ph" />
-                                    </children>
-                                </VBox>
-
-                                <!-- PASSWORD -->
-                                <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="PASSWORD" />
-                                                <!-- PATTERN:DYNAMIC passwordStatus : password last changed string -->
-                                                <Label fx:id="passwordStatusLabel" styleClass="form-label" text="Last changed Sep 1, 2026" />
+                                                <Label styleClass="stat-card-title" text="NAME" />
+                                                <!-- PATTERN:DYNAMIC adminName : admin full name -->
+                                                <Label fx:id="adminNameLabel" styleClass="form-label" text="ANIPLATO Admin" />
                                             </children>
                                         </VBox>
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <!-- PATTERN:ACTION handleChangePassword -->
-                                        <Button onAction="#handleChangePassword" styleClass="secondary-button" text="Change password" />
+
+                                        <!-- ROLE -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="ROLE" />
+                                                <!-- PATTERN:DYNAMIC adminRole : "Admin" -->
+                                                <Label fx:id="adminRoleLabel" styleClass="form-label" text="Admin" />
+                                            </children>
+                                        </VBox>
+
+                                        <!-- SINCE -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="2">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="SINCE" />
+                                                <!-- PATTERN:DYNAMIC adminSince : registration date -->
+                                                <Label fx:id="adminSinceLabel" styleClass="form-label" text="Sep 1, 2026" />
+                                            </children>
+                                        </VBox>
                                     </children>
-                                </HBox>
+                                </GridPane>
                             </children>
-                        </GridPane>
+                        </VBox>
+
+                        <!-- =================================================================== -->
+                        <!-- 2. ORGANIZATION CARD (Shown for DONOR and FOOD_GROUP roles)        -->
+                        <!-- =================================================================== -->
+                        <!-- PATTERN:DYNAMIC visibility: orgCardBox shown for organization roles -->
+                        <VBox fx:id="orgCardBox" managed="false" spacing="16.0" styleClass="table-card" visible="false">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
+                            <children>
+                                <VBox spacing="4.0">
+                                    <children>
+                                        <Label styleClass="section-title" text="Organization" />
+                                        <Label styleClass="text-muted" text="Name, type and city: contact the admin, since changes need your documents checked again." />
+                                    </children>
+                                </VBox>
+
+                                <GridPane hgap="16.0" vgap="16.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="35.0" />
+                                        <ColumnConstraints percentWidth="35.0" />
+                                        <ColumnConstraints percentWidth="30.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <!-- ROW 1 -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="NAME" />
+                                                <!-- PATTERN:DYNAMIC orgName : organization name -->
+                                                <Label fx:id="orgNameLabel" styleClass="form-label" text="Manila Artisanal Bakeshop" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="ROLE" />
+                                                <!-- PATTERN:DYNAMIC orgRole : role title -->
+                                                <Label fx:id="orgRoleLabel" styleClass="form-label" text="Business donor" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="TYPE" />
+                                                <!-- PATTERN:DYNAMIC orgType : entity type -->
+                                                <Label fx:id="orgTypeLabel" styleClass="form-label" text="Bakery" />
+                                            </children>
+                                        </VBox>
+
+                                        <!-- ROW 2 -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="CITY" />
+                                                <!-- PATTERN:DYNAMIC orgCity : city name -->
+                                                <Label fx:id="orgCityLabel" styleClass="form-label" text="Mandaluyong City" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="CONTACT PERSON · NUMBER" />
+                                                <!-- PATTERN:DYNAMIC orgContact : contact person name & phone -->
+                                                <Label fx:id="orgContactLabel" styleClass="form-label" text="Maria Santos · 0917 123 4567" />
+                                                <!-- PATTERN:ACTION handleEditContact -->
+                                                <Hyperlink onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="APPROVED" />
+                                                <!-- PATTERN:DYNAMIC orgApprovedDate : approval date -->
+                                                <Label fx:id="orgApprovedDateLabel" styleClass="form-label" text="Oct 5, 2026" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <!-- =================================================================== -->
+                        <!-- 3. DOCUMENTS CARD (Shown for DONOR and FOOD_GROUP roles)           -->
+                        <!-- =================================================================== -->
+                        <!-- PATTERN:DYNAMIC visibility: docsCardBox shown for organization roles -->
+                        <VBox fx:id="docsCardBox" managed="false" spacing="16.0" styleClass="table-card" visible="false">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
+                            <children>
+                                <VBox spacing="4.0">
+                                    <children>
+                                        <Label styleClass="section-title" text="Documents" />
+                                        <Label styleClass="text-muted" text="Keep these current. An expired document suspends your account until a renewal is verified." />
+                                    </children>
+                                </VBox>
+
+                                <!-- DOCUMENTS TABLE GRID -->
+                                <VBox spacing="0.0">
+                                    <children>
+                                        <!-- HEADER ROW -->
+                                        <GridPane styleClass="table-header-row">
+                                            <padding>
+                                                <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+                                            </padding>
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="28.0" />
+                                                <ColumnConstraints percentWidth="26.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="28.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label styleClass="table-header-text" text="DOCUMENT" GridPane.columnIndex="0" />
+                                                <Label styleClass="table-header-text" text="FILE" GridPane.columnIndex="1" />
+                                                <Label styleClass="table-header-text" text="EXPIRES" GridPane.columnIndex="2" />
+                                                <Label styleClass="table-header-text" text="STATUS" GridPane.columnIndex="3" />
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- PATTERN:LIST docRowsBox : list of required documents for this organization -->
+                                        <VBox fx:id="docRowsBox">
+                                            <children>
+                                                <!-- SAMPLE ROW 1: VERIFIED -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="28.0" />
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="28.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <Label styleClass="form-label" text="Business registration (DTI)" GridPane.columnIndex="0" />
+                                                        <Label styleClass="table-cell-text" text="dti-certificate.pdf" GridPane.columnIndex="1" />
+                                                        <Label styleClass="table-cell-text" text="Mar 14, 2029" GridPane.columnIndex="2" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                            <children>
+                                                                <Label styleClass="pill-food-donor" text="Verified" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Hyperlink styleClass="terms-link" text="View file" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                                <!-- SAMPLE ROW 2: EXPIRES SOON WITH UPLOAD -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="28.0" />
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="28.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <Label styleClass="form-label" text="Mayor's / Business Permit" GridPane.columnIndex="0" />
+                                                        <Label styleClass="table-cell-text" text="mayors-permit-2028.pdf" GridPane.columnIndex="1" />
+                                                        <Label styleClass="table-cell-text" text="Nov 5, 2026" GridPane.columnIndex="2" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
+                                                            <children>
+                                                                <Label styleClass="tag-reregistered" text="Expires in 28 days" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleUploadRenewal -->
+                                                                <Button onAction="#handleUploadRenewal" styleClass="table-review-btn" text="Upload renewal" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <!-- =================================================================== -->
+                        <!-- 4. ACCOUNT LOGIN & PASSWORD CARD (Common for ALL roles)           -->
+                        <!-- =================================================================== -->
+                        <VBox spacing="16.0" styleClass="table-card">
+                            <padding>
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                            </padding>
+                            <children>
+                                <VBox spacing="4.0">
+                                    <children>
+                                        <Label styleClass="section-title" text="Account" />
+                                        <Label styleClass="text-muted" text="Your login for the ANIPLATO app." />
+                                    </children>
+                                </VBox>
+
+                                <GridPane hgap="16.0" vgap="8.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50.0" />
+                                        <ColumnConstraints percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <!-- LOGIN EMAIL -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="LOGIN EMAIL" />
+                                                <!-- PATTERN:DYNAMIC loginEmail : user login email -->
+                                                <Label fx:id="loginEmailLabel" styleClass="form-label" text="admin@aniplato.ph" />
+                                            </children>
+                                        </VBox>
+
+                                        <!-- PASSWORD -->
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="stat-card-title" text="PASSWORD" />
+                                                        <!-- PATTERN:DYNAMIC passwordStatus : password last changed string -->
+                                                        <Label fx:id="passwordStatusLabel" styleClass="form-label" text="Last changed Sep 1, 2026" />
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <!-- PATTERN:ACTION handleChangePassword -->
+                                                <Button onAction="#handleChangePassword" styleClass="secondary-button" text="Change password" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
                     </children>
                 </VBox>
-
-            </children>
-        </VBox>
+            </content>
+        </ScrollPane>
 
         <!-- DYNAMIC DIALOG OVERLAY INCLUSION -->
         <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />

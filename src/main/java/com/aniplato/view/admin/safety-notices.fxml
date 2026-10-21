@@ -12,282 +12,286 @@
 <?import javafx.scene.layout.VBox?>
 
 <!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
-<VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.SafetyNoticesController">
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.SafetyNoticesController">
     <stylesheets>
         <URL value="@../aniplato.css" />
     </stylesheets>
-    <padding>
-        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
-    </padding>
-    <children>
-
-        <!-- PAGE TITLE & SUBTITLE -->
-        <VBox spacing="4.0">
-            <children>
-                <Label styleClass="page-title" text="Safety Notices" />
-                <!-- PATTERN:DYNAMIC noticeSummary : summary counter string -->
-                <Label fx:id="noticeSummaryLabel" styleClass="text-muted" text="2 open · close each as dismissed, or suspend the account responsible" />
-            </children>
-        </VBox>
-
-        <!-- MAIN TABLE CARD -->
-        <VBox styleClass="table-card" VBox.vgrow="ALWAYS">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-bg">
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
             </padding>
             <children>
-                <VBox spacing="16.0" VBox.vgrow="ALWAYS">
+
+                <!-- PAGE TITLE & SUBTITLE -->
+                <VBox spacing="4.0">
                     <children>
-
-                        <!-- HEADER ROW -->
-                        <GridPane styleClass="table-header-row">
-                            <padding>
-                                <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
-                            </padding>
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="26.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="20.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                                <ColumnConstraints percentWidth="18.0" />
-                            </columnConstraints>
-                            <children>
-                                <Label styleClass="table-header-text" text="FLAGGED ACCOUNT" GridPane.columnIndex="0" />
-                                <Label styleClass="table-header-text" text="RAISED BY" GridPane.columnIndex="1" />
-                                <Label styleClass="table-header-text" text="LISTING" GridPane.columnIndex="2" />
-                                <Label styleClass="table-header-text" text="CONCERN" GridPane.columnIndex="3" />
-                                <Label styleClass="table-header-text" text="FLAGGED" GridPane.columnIndex="4" />
-                            </children>
-                        </GridPane>
-
-                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="table-scroll" VBox.vgrow="ALWAYS">
-                            <content>
-                                <!-- PATTERN:LIST safetyNoticeRowsBox -->
-                                <VBox fx:id="safetyNoticeRowsBox">
-                                    <children>
-
-                                        <!-- ROW 1: OPEN NOTICE #12 -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <VBox spacing="2.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Pioneer Catering Services" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Label styleClass="tag-reregistered" text="Open" />
-                                                                <Label styleClass="table-cell-muted" text="Notice #12" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Label styleClass="pill-food-org" text="San Roque Parish" />
-                                                    </children>
-                                                </HBox>
-                                                <Label styleClass="table-cell-text" text="Cooked Pancit Canton Trays" GridPane.columnIndex="2" wrapText="true" />
-                                                <Label styleClass="table-cell-text" text="Warm, sour smell at pickup" GridPane.columnIndex="3" wrapText="true" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
-                                                    <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 6, 7:40 PM" HBox.hgrow="ALWAYS" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleResolve -->
-                                                        <Button minWidth="75.0" onAction="#handleResolve" styleClass="table-review-btn" text="Resolve" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                        <!-- ROW 2: OPEN NOTICE #11 (SYSTEM FLAGGED) -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <VBox spacing="2.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="San Roque Parish Feeding Mission" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Label styleClass="tag-reregistered" text="Open" />
-                                                                <Label styleClass="table-cell-muted" text="Notice #11" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Label styleClass="pill-food-donor" text="System" />
-                                                    </children>
-                                                </HBox>
-                                                <Label styleClass="table-cell-text" text="Artisan Sourdough &amp; Baguettes · HR-2026-0412" GridPane.columnIndex="2" wrapText="true" />
-                                                <Label styleClass="table-cell-text" text="Overdue report · 3 days overdue" GridPane.columnIndex="3" wrapText="true" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
-                                                    <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 6, 3:10 PM" HBox.hgrow="ALWAYS" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleResolve -->
-                                                        <Button minWidth="75.0" onAction="#handleResolve" styleClass="table-review-btn" text="Resolve" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                        <!-- ROW 3: DISMISSED NOTICE #9 -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <VBox spacing="2.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Kalinga sa Maralita" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Label styleClass="pill-food-donor" text="Dismissed" />
-                                                                <Label styleClass="table-cell-muted" text="Notice #9 · note added" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Label styleClass="pill-food-donor" text="Manila Artisanal" />
-                                                    </children>
-                                                </HBox>
-                                                <Label styleClass="table-cell-text" text="Brioche &amp; Dinner Rolls" GridPane.columnIndex="2" wrapText="true" />
-                                                <Label styleClass="table-cell-text" text="Pickup two hours late" GridPane.columnIndex="3" wrapText="true" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
-                                                    <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 2, 5:05 PM" HBox.hgrow="ALWAYS" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleView -->
-                                                        <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                        <!-- ROW 4: DISMISSED NOTICE #8 (SYSTEM FLAGGED) -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <VBox spacing="2.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Hulo Community Kitchen" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Label styleClass="pill-food-donor" text="Dismissed" />
-                                                                <Label styleClass="table-cell-muted" text="Notice #8 · note added" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Label styleClass="pill-food-donor" text="System" />
-                                                    </children>
-                                                </HBox>
-                                                <Label styleClass="table-cell-text" text="Brioche &amp; Dinner Rolls · HR-2026-0398" GridPane.columnIndex="2" wrapText="true" />
-                                                <Label styleClass="table-cell-text" text="Overdue report · submitted late" GridPane.columnIndex="3" wrapText="true" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
-                                                    <children>
-                                                        <Label styleClass="table-cell-muted" text="Oct 1, 9:00 AM" HBox.hgrow="ALWAYS" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleView -->
-                                                        <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                        <!-- ROW 5: ACCOUNT SUSPENDED NOTICE #7 -->
-                                        <GridPane styleClass="table-data-row">
-                                            <padding>
-                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                            </padding>
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="26.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                                <ColumnConstraints percentWidth="18.0" />
-                                            </columnConstraints>
-                                            <children>
-                                                <VBox spacing="2.0" GridPane.columnIndex="0">
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Tondo Community Kitchen" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Label styleClass="required-star" text="Account suspended" />
-                                                                <Label styleClass="table-cell-muted" text="Notice #7 · note added" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                                                    <children>
-                                                        <Label styleClass="pill-food-donor" text="Boni Fresh Grocery" />
-                                                    </children>
-                                                </HBox>
-                                                <Label styleClass="table-cell-text" text="Fresh Pechay &amp; Ampalaya" GridPane.columnIndex="2" wrapText="true" />
-                                                <Label styleClass="table-cell-text" text="Food resold at market" GridPane.columnIndex="3" wrapText="true" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
-                                                    <children>
-                                                        <Label styleClass="table-cell-muted" text="Sep 28, 9:20 AM" HBox.hgrow="ALWAYS" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleView -->
-                                                        <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </GridPane>
-
-                                    </children>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
-
-                        <!-- PATTERN:DYNAMIC visibility: emptyLabel shown when no safety notices exist -->
-                        <Label fx:id="emptyLabel" managed="false" styleClass="text-muted" text="No safety notices flagged." visible="false" />
-
+                        <Label styleClass="page-title" text="Safety Notices" />
+                        <!-- PATTERN:DYNAMIC noticeSummary : summary counter string -->
+                        <Label fx:id="noticeSummaryLabel" styleClass="text-muted" text="2 open · close each as dismissed, or suspend the account responsible" />
                     </children>
                 </VBox>
+
+                <!-- MAIN TABLE CARD -->
+                <VBox styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <VBox spacing="16.0" VBox.vgrow="ALWAYS">
+                            <children>
+
+                                <!-- HEADER ROW -->
+                                <GridPane styleClass="table-header-row">
+                                    <padding>
+                                        <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+                                    </padding>
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="26.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label styleClass="table-header-text" text="FLAGGED ACCOUNT" GridPane.columnIndex="0" />
+                                        <Label styleClass="table-header-text" text="RAISED BY" GridPane.columnIndex="1" />
+                                        <Label styleClass="table-header-text" text="LISTING" GridPane.columnIndex="2" />
+                                        <Label styleClass="table-header-text" text="CONCERN" GridPane.columnIndex="3" />
+                                        <Label styleClass="table-header-text" text="FLAGGED" GridPane.columnIndex="4" />
+                                    </children>
+                                </GridPane>
+
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="table-scroll" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <!-- PATTERN:LIST safetyNoticeRowsBox -->
+                                        <VBox fx:id="safetyNoticeRowsBox">
+                                            <children>
+
+                                                <!-- ROW 1: OPEN NOTICE #12 -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="20.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <VBox spacing="2.0" GridPane.columnIndex="0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="Pioneer Catering Services" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Label styleClass="tag-reregistered" text="Open" />
+                                                                        <Label styleClass="table-cell-muted" text="Notice #12" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label styleClass="pill-food-org" text="San Roque Parish" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="table-cell-text" text="Cooked Pancit Canton Trays" GridPane.columnIndex="2" wrapText="true" />
+                                                        <Label styleClass="table-cell-text" text="Warm, sour smell at pickup" GridPane.columnIndex="3" wrapText="true" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                            <children>
+                                                                <Label styleClass="table-cell-muted" text="Oct 6, 7:40 PM" HBox.hgrow="ALWAYS" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleResolve -->
+                                                                <Button minWidth="75.0" onAction="#handleResolve" styleClass="table-review-btn" text="Resolve" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                                <!-- ROW 2: OPEN NOTICE #11 (SYSTEM FLAGGED) -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="20.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <VBox spacing="2.0" GridPane.columnIndex="0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="San Roque Parish Feeding Mission" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Label styleClass="tag-reregistered" text="Open" />
+                                                                        <Label styleClass="table-cell-muted" text="Notice #11" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label styleClass="pill-food-donor" text="System" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="table-cell-text" text="Artisan Sourdough &amp; Baguettes · HR-2026-0412" GridPane.columnIndex="2" wrapText="true" />
+                                                        <Label styleClass="table-cell-text" text="Overdue report · 3 days overdue" GridPane.columnIndex="3" wrapText="true" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                            <children>
+                                                                <Label styleClass="table-cell-muted" text="Oct 6, 3:10 PM" HBox.hgrow="ALWAYS" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleResolve -->
+                                                                <Button minWidth="75.0" onAction="#handleResolve" styleClass="table-review-btn" text="Resolve" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                                <!-- ROW 3: DISMISSED NOTICE #9 -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="20.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <VBox spacing="2.0" GridPane.columnIndex="0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="Kalinga sa Maralita" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Label styleClass="pill-food-donor" text="Dismissed" />
+                                                                        <Label styleClass="table-cell-muted" text="Notice #9 · note added" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label styleClass="pill-food-donor" text="Manila Artisanal" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="table-cell-text" text="Brioche &amp; Dinner Rolls" GridPane.columnIndex="2" wrapText="true" />
+                                                        <Label styleClass="table-cell-text" text="Pickup two hours late" GridPane.columnIndex="3" wrapText="true" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                            <children>
+                                                                <Label styleClass="table-cell-muted" text="Oct 2, 5:05 PM" HBox.hgrow="ALWAYS" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleView -->
+                                                                <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                                <!-- ROW 4: DISMISSED NOTICE #8 (SYSTEM FLAGGED) -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="20.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <VBox spacing="2.0" GridPane.columnIndex="0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="Hulo Community Kitchen" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Label styleClass="pill-food-donor" text="Dismissed" />
+                                                                        <Label styleClass="table-cell-muted" text="Notice #8 · note added" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label styleClass="pill-food-donor" text="System" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="table-cell-text" text="Brioche &amp; Dinner Rolls · HR-2026-0398" GridPane.columnIndex="2" wrapText="true" />
+                                                        <Label styleClass="table-cell-text" text="Overdue report · submitted late" GridPane.columnIndex="3" wrapText="true" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                            <children>
+                                                                <Label styleClass="table-cell-muted" text="Oct 1, 9:00 AM" HBox.hgrow="ALWAYS" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleView -->
+                                                                <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                                <!-- ROW 5: ACCOUNT SUSPENDED NOTICE #7 -->
+                                                <GridPane styleClass="table-data-row">
+                                                    <padding>
+                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                                    </padding>
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="26.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="20.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                        <ColumnConstraints percentWidth="18.0" />
+                                                    </columnConstraints>
+                                                    <children>
+                                                        <VBox spacing="2.0" GridPane.columnIndex="0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="Tondo Community Kitchen" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Label styleClass="required-star" text="Account suspended" />
+                                                                        <Label styleClass="table-cell-muted" text="Notice #7 · note added" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                                                            <children>
+                                                                <Label styleClass="pill-food-donor" text="Boni Fresh Grocery" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="table-cell-text" text="Fresh Pechay &amp; Ampalaya" GridPane.columnIndex="2" wrapText="true" />
+                                                        <Label styleClass="table-cell-text" text="Food resold at market" GridPane.columnIndex="3" wrapText="true" />
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="4">
+                                                            <children>
+                                                                <Label styleClass="table-cell-muted" text="Sep 28, 9:20 AM" HBox.hgrow="ALWAYS" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleView -->
+                                                                <Button minWidth="75.0" onAction="#handleView" styleClass="table-review-btn" text="View" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </GridPane>
+
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+
+                                <!-- PATTERN:DYNAMIC visibility: emptyLabel shown when no safety notices exist -->
+                                <Label fx:id="emptyLabel" managed="false" styleClass="text-muted" text="No safety notices flagged." visible="false" />
+
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
             </children>
         </VBox>
-
-    </children>
-</VBox>
+    </content>
+</ScrollPane>

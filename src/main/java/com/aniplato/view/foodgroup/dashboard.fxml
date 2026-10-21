@@ -10,142 +10,147 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
 <!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
 <!-- Icons to be changed to SVG icons later -->
 
-<VBox spacing="20.0" styleClass="dashboard-bg" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.FoodGroupDashboardController">
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.FoodGroupDashboardController">
     <stylesheets>
         <URL value="@../aniplato.css" />
     </stylesheets>
-    <padding>
-        <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
-    </padding>
-    <children>
-        <HBox alignment="CENTER_LEFT" spacing="16.0">
-            <children>
-                <VBox spacing="4.0">
-                    <children>
-                        <!-- PATTERN:DYNAMIC organizationName : "San Roque Parish Feeding Mission" -->
-                        <Label fx:id="organizationNameLabel" styleClass="page-title" text="Welcome, San Roque Parish Feeding Mission" />
-                        <!-- PATTERN:DYNAMIC city : "Mandaluyong City" -->
-                        <Label fx:id="cityLabel" styleClass="text-muted" text="Mandaluyong City" />
-                    </children>
-                </VBox>
-                <Region HBox.hgrow="ALWAYS" />
-                <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
-                <Button styleClass="primary-button, nav-browse-listings" text="Browse Listings" />
-            </children>
-        </HBox>
-
-        <HBox spacing="16.0">
-            <children>
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <Label styleClass="stat-card-title" text="OPEN LISTINGS">
-                     <graphic>
-                        <HBox prefHeight="22.0" prefWidth="27.0">
-                           <children>
-                              <ImageView>
-                                 <image>
-                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(3).png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </HBox>
-                     </graphic></Label>
-                        <!-- PATTERN:DYNAMIC openListingsCount : whole number -->
-                        <Label fx:id="openListingsCountLabel" styleClass="stat-value" text="05" />
-                        <Label styleClass="text-muted" text="Available in Mandaluyong City" />
-                    </children>
-                </VBox>
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <Label styleClass="stat-card-title" text="ACCEPTED OFFERS">
-                     <graphic>
-                        <HBox prefHeight="22.0" prefWidth="27.0">
-                           <children>
-                              <ImageView>
-                                 <image>
-                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(4).png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </HBox>
-                     </graphic></Label>
-                        <!-- PATTERN:DYNAMIC acceptedOffersCount : whole number -->
-                        <Label fx:id="acceptedOffersCountLabel" styleClass="stat-value" text="02" />
-                        <Label styleClass="text-muted" text="Confirm receipt after donor release" />
-                    </children>
-                </VBox>
-                <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <children>
-                        <Label styleClass="stat-card-title" text="KG RESCUED">
-                     <graphic>
-                        <HBox prefHeight="22.0" prefWidth="27.0">
-                           <children>
-                              <ImageView>
-                                 <image>
-                                    <Image url="@../../../../../../../../../../Downloads/Overlay%20(5).png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </HBox>
-                     </graphic></Label>
-                        <HBox alignment="BASELINE_LEFT" spacing="5.0">
-                            <children>
-                                <!-- PATTERN:DYNAMIC rescuedKg : whole number; unit is static -->
-                                <Label fx:id="rescuedKgLabel" styleClass="stat-value" text="2,340" />
-                                <Label styleClass="stat-unit" text="kg" />
-                            </children>
-                        </HBox>
-                        <Label styleClass="text-muted" text="Total rescued to date" />
-                    </children>
-                </VBox>
-            </children>
-        </HBox>
-
-        <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-bg">
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
             </padding>
             <children>
-                <HBox alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="16.0">
                     <children>
-                        <Label styleClass="section-title" text="Open Listings Near You" />
+                        <VBox spacing="4.0">
+                            <children>
+                                <!-- PATTERN:DYNAMIC organizationName : "San Roque Parish Feeding Mission" -->
+                                <Label fx:id="organizationNameLabel" styleClass="page-title" text="Welcome, San Roque Parish Feeding Mission" />
+                                <!-- PATTERN:DYNAMIC city : "Mandaluyong City" -->
+                                <Label fx:id="cityLabel" styleClass="text-muted" text="Mandaluyong City" />
+                            </children>
+                        </VBox>
                         <Region HBox.hgrow="ALWAYS" />
                         <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
-                        <Hyperlink styleClass="hyperlink, link-bold, link-lg, nav-browse-listings" text="View all →" />
+                        <Button styleClass="primary-button, nav-browse-listings" text="Browse Listings" />
                     </children>
                 </HBox>
-                <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
+
+                <HBox spacing="16.0">
                     <children>
-                        <Label prefWidth="270.0" styleClass="table-header-text" text="FOOD" />
-                        <Label prefWidth="205.0" styleClass="table-header-text" text="DONOR" />
-                        <Label prefWidth="70.0" styleClass="table-header-text" text="KG" />
-                        <Label prefWidth="145.0" styleClass="table-header-text" text="USE-BY" />
-                        <Region HBox.hgrow="ALWAYS" />
-                    </children>
-                </HBox>
-                <!-- PATTERN:LIST openListingsBox : one sample row; populate with nearby open listings -->
-                <VBox fx:id="openListingsBox">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label prefWidth="270.0" styleClass="table-cell-text" text="Assorted Pastries &amp; Ensaymada" />
-                                <Label prefWidth="205.0" styleClass="table-cell-text" text="Maria Artisanal Bakeshop" />
-                                <Label prefWidth="70.0" styleClass="table-cell-text" text="26 kg" />
-                                <Label prefWidth="145.0" styleClass="table-cell-muted" text="Today, 3:00 PM" />
+                                <Label styleClass="stat-card-title" text="OPEN LISTINGS">
+                             <graphic>
+                                <HBox prefHeight="22.0" prefWidth="27.0">
+                                   <children>
+                                      <ImageView>
+                                         <image>
+                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(3).png" />
+                                         </image>
+                                      </ImageView>
+                                   </children>
+                                </HBox>
+                             </graphic></Label>
+                                <!-- PATTERN:DYNAMIC openListingsCount : whole number -->
+                                <Label fx:id="openListingsCountLabel" styleClass="stat-value" text="05" />
+                                <Label styleClass="text-muted" text="Available in Mandaluyong City" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-card-title" text="ACCEPTED OFFERS">
+                             <graphic>
+                                <HBox prefHeight="22.0" prefWidth="27.0">
+                                   <children>
+                                      <ImageView>
+                                         <image>
+                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(4).png" />
+                                         </image>
+                                      </ImageView>
+                                   </children>
+                                </HBox>
+                             </graphic></Label>
+                                <!-- PATTERN:DYNAMIC acceptedOffersCount : whole number -->
+                                <Label fx:id="acceptedOffersCountLabel" styleClass="stat-value" text="02" />
+                                <Label styleClass="text-muted" text="Confirm receipt after donor release" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-card-title" text="KG RESCUED">
+                             <graphic>
+                                <HBox prefHeight="22.0" prefWidth="27.0">
+                                   <children>
+                                      <ImageView>
+                                         <image>
+                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(5).png" />
+                                         </image>
+                                      </ImageView>
+                                   </children>
+                                </HBox>
+                             </graphic></Label>
+                                <HBox alignment="BASELINE_LEFT" spacing="5.0">
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC rescuedKg : whole number; unit is static -->
+                                        <Label fx:id="rescuedKgLabel" styleClass="stat-value" text="2,340" />
+                                        <Label styleClass="stat-unit" text="kg" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="text-muted" text="Total rescued to date" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="section-title" text="Open Listings Near You" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:NAV -> MAKE_OFFER -->
-                                <Button styleClass="table-review-btn, nav-make-offer" text="Make Offer" />
+                                <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
+                                <Hyperlink styleClass="hyperlink, link-bold, link-lg, nav-browse-listings" text="View all →" />
                             </children>
                         </HBox>
+                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
+                            <children>
+                                <Label prefWidth="270.0" styleClass="table-header-text" text="FOOD" />
+                                <Label prefWidth="205.0" styleClass="table-header-text" text="DONOR" />
+                                <Label prefWidth="70.0" styleClass="table-header-text" text="KG" />
+                                <Label prefWidth="145.0" styleClass="table-header-text" text="USE-BY" />
+                                <Region HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                        <!-- PATTERN:LIST openListingsBox : one sample row; populate with nearby open listings -->
+                        <VBox fx:id="openListingsBox">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
+                                    <children>
+                                        <Label prefWidth="270.0" styleClass="table-cell-text" text="Assorted Pastries &amp; Ensaymada" />
+                                        <Label prefWidth="205.0" styleClass="table-cell-text" text="Maria Artisanal Bakeshop" />
+                                        <Label prefWidth="70.0" styleClass="table-cell-text" text="26 kg" />
+                                        <Label prefWidth="145.0" styleClass="table-cell-muted" text="Today, 3:00 PM" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:NAV -> MAKE_OFFER -->
+                                        <Button styleClass="table-review-btn, nav-make-offer" text="Make Offer" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <!-- PATTERN:DYNAMIC visibility: emptyListingsLabel shown when no nearby listings are open -->
+                        <Label fx:id="emptyListingsLabel" managed="false" styleClass="text-muted" text="No open listings nearby right now. Check back soon." visible="false" />
                     </children>
                 </VBox>
-                <!-- PATTERN:DYNAMIC visibility: emptyListingsLabel shown when no nearby listings are open -->
-                <Label fx:id="emptyListingsLabel" managed="false" styleClass="text-muted" text="No open listings nearby right now. Check back soon." visible="false" />
             </children>
         </VBox>
-    </children>
-</VBox>
+    </content>
+</ScrollPane>

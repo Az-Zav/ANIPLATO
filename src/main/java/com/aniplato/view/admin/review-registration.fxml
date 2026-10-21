@@ -12,255 +12,263 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
 <!-- In-shell screen: wrapped in StackPane to support modal dialog overlays -->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.admin.ReviewRegistrationController">
     <children>
 
         <!-- MAIN REVIEW REGISTRATION VIEW -->
-        <VBox spacing="20.0" styleClass="dashboard-bg">
+        <ScrollPane fitToWidth="true" styleClass="table-scroll">
             <stylesheets>
                 <URL value="@../aniplato.css" />
             </stylesheets>
-            <padding>
-                <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
-            </padding>
-            <children>
-
-                <Label fx:id="pageTitleLabel" styleClass="page-title" text="Review Registration" />
-
-                <!-- MAIN CARD -->
-                <VBox spacing="20.0" styleClass="table-card" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox spacing="20.0" styleClass="dashboard-bg">
+                    <stylesheets>
+                        <URL value="@../aniplato.css" />
+                    </stylesheets>
                     <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
                     </padding>
                     <children>
 
-                        <!-- BANNER HEADER -->
-                        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="table-header-row">
+                        <Label fx:id="pageTitleLabel" styleClass="page-title" text="Review Registration" />
+
+                        <!-- MAIN CARD -->
+                        <VBox spacing="20.0" styleClass="table-card" VBox.vgrow="ALWAYS">
                             <padding>
-                                <Insets bottom="16.0" left="20.0" right="20.0" top="16.0" />
+                                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                             </padding>
                             <children>
-                                <Label styleClass="stat-icon-green" text="🏢" />
-                                <!-- PATTERN:DYNAMIC orgTitle : organization name -->
-                                <Label fx:id="orgTitleLabel" styleClass="card-title" text="San Antonio Community Pantry" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:DYNAMIC statusPill : "PENDING" -->
-                                <Label fx:id="statusPillLabel" styleClass="tag-reregistered" text="🟠 PENDING" />
-                            </children>
-                        </HBox>
 
-                        <!-- ACCOUNT DETAILS FORM GRID -->
-                        <GridPane hgap="20.0" vgap="16.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="50.0" />
-                                <ColumnConstraints percentWidth="50.0" />
-                            </columnConstraints>
-                            <children>
-                                <!-- ORG / BUSINESS / HOUSEHOLD NAME -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label fx:id="nameHeaderLabel" styleClass="stat-card-title" text="ORGANIZATION NAME" />
-                                        <HBox alignment="CENTER_LEFT" styleClass="text-field">
-                                            <children>
-                                                <!-- PATTERN:DYNAMIC orgName : organization name -->
-                                                <Label fx:id="orgNameLabel" styleClass="form-label" text="San Antonio Community Pantry" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- ROLE -->
-                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="ROLE" />
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <!-- PATTERN:DYNAMIC rolePill : role name -->
-                                                <Label fx:id="rolePillLabel" styleClass="pill-food-org" text="Food group" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- CONTACT PERSON -->
-                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="CONTACT PERSON" />
-                                        <HBox alignment="CENTER_LEFT" styleClass="text-field">
-                                            <children>
-                                                <!-- PATTERN:DYNAMIC contactPerson : contact name & phone -->
-                                                <Label fx:id="contactPersonLabel" styleClass="table-cell-text" text="Elena R. Santos · 0918 234 5671" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- EMAIL -->
-                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="EMAIL" />
-                                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
-                                            <children>
-                                                <Label styleClass="text-muted" text="✉" />
-                                                <!-- PATTERN:DYNAMIC email : organization email -->
-                                                <Label fx:id="emailLabel" styleClass="table-cell-text" text="contact@sanantoniopantry.ph" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- ORGANIZATION TYPE (Hidden for Casual Donors via controller) -->
-                                <VBox fx:id="orgTypeBox" spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="ORGANIZATION TYPE" />
-                                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
-                                            <children>
-                                                <Label styleClass="text-muted" text="👥" />
-                                                <!-- PATTERN:DYNAMIC orgType : entity type -->
-                                                <Label fx:id="orgTypeLabel" styleClass="table-cell-text" text="Charity" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- CITY -->
-                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                    <children>
-                                        <Label styleClass="stat-card-title" text="CITY" />
-                                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
-                                            <children>
-                                                <Label styleClass="text-muted" text="🏢" />
-                                                <!-- PATTERN:DYNAMIC city : city name -->
-                                                <Label fx:id="cityLabel" styleClass="table-cell-text" text="Pasig City" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-                            </children>
-                        </GridPane>
-
-                        <!-- DOCUMENTS SECTION -->
-                        <VBox spacing="12.0">
-                            <children>
-                                <Label fx:id="documentsCountHeaderLabel" styleClass="form-label" text="DOCUMENTS (2)" />
-                                <Label styleClass="text-muted" text="Open each file, tick the three checks, then verify it or flag a problem. Expiry dates were typed by the applicant; confirm they match the file. Flagged problems go into the rejection email. Approve unlocks once every required document is verified." wrapText="true" />
-
-                                <!-- DOCUMENT CARD 1 -->
-                                <VBox spacing="12.0" styleClass="notice-box">
+                                <!-- BANNER HEADER -->
+                                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="table-header-row">
                                     <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                        <Insets bottom="16.0" left="20.0" right="20.0" top="16.0" />
                                     </padding>
                                     <children>
-                                        <HBox alignment="TOP_LEFT" spacing="16.0">
+                                        <Label styleClass="stat-icon-green" text="🏢" />
+                                        <!-- PATTERN:DYNAMIC orgTitle : organization name -->
+                                        <Label fx:id="orgTitleLabel" styleClass="card-title" text="San Antonio Community Pantry" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:DYNAMIC statusPill : "PENDING" -->
+                                        <Label fx:id="statusPillLabel" styleClass="tag-reregistered" text="🟠 PENDING" />
+                                    </children>
+                                </HBox>
+
+                                <!-- ACCOUNT DETAILS FORM GRID -->
+                                <GridPane hgap="20.0" vgap="16.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50.0" />
+                                        <ColumnConstraints percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <!-- ORG / BUSINESS / HOUSEHOLD NAME -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                             <children>
-                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                <Label fx:id="nameHeaderLabel" styleClass="stat-card-title" text="ORGANIZATION NAME" />
+                                                <HBox alignment="CENTER_LEFT" styleClass="text-field">
                                                     <children>
-                                                        <Label fx:id="doc1TitleLabel" styleClass="form-label" text="DSWD Certificate of Registration" />
-                                                        <!-- PATTERN:DYNAMIC doc1Meta : upload details -->
-                                                        <Label fx:id="doc1MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · Expires Jun 30, 2027 (entered by applicant)" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Hyperlink styleClass="terms-link" text="View file ↗" />
-                                                                <!-- PATTERN:DYNAMIC doc1File : filename -->
-                                                                <Label fx:id="doc1FileLabel" styleClass="table-cell-text" text="dswd-registration.pdf" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- CHECKLIST -->
-                                                <VBox spacing="6.0">
-                                                    <children>
-                                                        <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
-                                                        <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
-                                                        <CheckBox selected="true" styleClass="small-check" text="Issued for Pasig City" />
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- STATUS / ACTION BUTTONS -->
-                                                <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                                                    <children>
-                                                        <Button onAction="#handleFlagDoc1" styleClass="secondary-button" text="Flag problem" />
-                                                        <Button onAction="#handleVerifyDoc1" styleClass="table-review-btn" text="Verify" />
+                                                        <!-- PATTERN:DYNAMIC orgName : organization name -->
+                                                        <Label fx:id="orgNameLabel" styleClass="form-label" text="San Antonio Community Pantry" />
                                                     </children>
                                                 </HBox>
                                             </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
+                                        </VBox>
 
-                                <!-- DOCUMENT CARD 2 (Hidden for Casual Donors via controller) -->
-                                <VBox fx:id="doc2Box" spacing="12.0" styleClass="notice-box">
-                                    <padding>
-                                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                    </padding>
-                                    <children>
-                                        <HBox alignment="TOP_LEFT" spacing="16.0">
+                                        <!-- ROLE -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                             <children>
-                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                <Label styleClass="stat-card-title" text="ROLE" />
+                                                <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <Label fx:id="doc2TitleLabel" styleClass="form-label" text="Authorization letter" />
-                                                        <!-- PATTERN:DYNAMIC doc2Meta : upload details -->
-                                                        <Label fx:id="doc2MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · No expiry (marked by applicant) · Must name Elena R. Santos" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                                                            <children>
-                                                                <Hyperlink styleClass="terms-link" text="View file ↗" />
-                                                                <!-- PATTERN:DYNAMIC doc2File : filename -->
-                                                                <Label fx:id="doc2FileLabel" styleClass="table-cell-text" text="authorization-letter.pdf" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- CHECKLIST -->
-                                                <VBox spacing="6.0">
-                                                    <children>
-                                                        <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
-                                                        <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
-                                                        <CheckBox styleClass="small-check" text="Issued for Pasig City" />
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- ACTION BUTTONS -->
-                                                <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                                                    <children>
-                                                        <!-- PATTERN:ACTION handleFlagDoc2 -->
-                                                        <Button onAction="#handleFlagDoc2" styleClass="secondary-button" text="Flag problem" />
-                                                        <!-- PATTERN:ACTION handleVerifyDoc2 -->
-                                                        <Button onAction="#handleVerifyDoc2" styleClass="table-review-btn" text="Verify" />
+                                                        <!-- PATTERN:DYNAMIC rolePill : role name -->
+                                                        <Label fx:id="rolePillLabel" styleClass="pill-food-org" text="Food group" />
                                                     </children>
                                                 </HBox>
                                             </children>
-                                        </HBox>
+                                        </VBox>
+
+                                        <!-- CONTACT PERSON -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="CONTACT PERSON" />
+                                                <HBox alignment="CENTER_LEFT" styleClass="text-field">
+                                                    <children>
+                                                        <!-- PATTERN:DYNAMIC contactPerson : contact name & phone -->
+                                                        <Label fx:id="contactPersonLabel" styleClass="table-cell-text" text="Elena R. Santos · 0918 234 5671" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- EMAIL -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="EMAIL" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
+                                                    <children>
+                                                        <Label styleClass="text-muted" text="✉" />
+                                                        <!-- PATTERN:DYNAMIC email : organization email -->
+                                                        <Label fx:id="emailLabel" styleClass="table-cell-text" text="contact@sanantoniopantry.ph" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- ORGANIZATION TYPE (Hidden for Casual Donors via controller) -->
+                                        <VBox fx:id="orgTypeBox" spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="ORGANIZATION TYPE" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
+                                                    <children>
+                                                        <Label styleClass="text-muted" text="👥" />
+                                                        <!-- PATTERN:DYNAMIC orgType : entity type -->
+                                                        <Label fx:id="orgTypeLabel" styleClass="table-cell-text" text="Charity" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- CITY -->
+                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                            <children>
+                                                <Label styleClass="stat-card-title" text="CITY" />
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
+                                                    <children>
+                                                        <Label styleClass="text-muted" text="🏢" />
+                                                        <!-- PATTERN:DYNAMIC city : city name -->
+                                                        <Label fx:id="cityLabel" styleClass="table-cell-text" text="Pasig City" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+
+                                <!-- DOCUMENTS SECTION -->
+                                <VBox spacing="12.0">
+                                    <children>
+                                        <Label fx:id="documentsCountHeaderLabel" styleClass="form-label" text="DOCUMENTS (2)" />
+                                        <Label styleClass="text-muted" text="Open each file, tick the three checks, then verify it or flag a problem. Expiry dates were typed by the applicant; confirm they match the file. Flagged problems go into the rejection email. Approve unlocks once every required document is verified." wrapText="true" />
+
+                                        <!-- DOCUMENT CARD 1 -->
+                                        <VBox spacing="12.0" styleClass="notice-box">
+                                            <padding>
+                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                            </padding>
+                                            <children>
+                                                <HBox alignment="TOP_LEFT" spacing="16.0">
+                                                    <children>
+                                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <Label fx:id="doc1TitleLabel" styleClass="form-label" text="DSWD Certificate of Registration" />
+                                                                <!-- PATTERN:DYNAMIC doc1Meta : upload details -->
+                                                                <Label fx:id="doc1MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · Expires Jun 30, 2027 (entered by applicant)" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Hyperlink styleClass="terms-link" text="View file ↗" />
+                                                                        <!-- PATTERN:DYNAMIC doc1File : filename -->
+                                                                        <Label fx:id="doc1FileLabel" styleClass="table-cell-text" text="dswd-registration.pdf" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- CHECKLIST -->
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
+                                                                <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
+                                                                <CheckBox selected="true" styleClass="small-check" text="Issued for Pasig City" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- STATUS / ACTION BUTTONS -->
+                                                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                                            <children>
+                                                                <Button onAction="#handleFlagDoc1" styleClass="secondary-button" text="Flag problem" />
+                                                                <Button onAction="#handleVerifyDoc1" styleClass="table-review-btn" text="Verify" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- DOCUMENT CARD 2 (Hidden for Casual Donors via controller) -->
+                                        <VBox fx:id="doc2Box" spacing="12.0" styleClass="notice-box">
+                                            <padding>
+                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                            </padding>
+                                            <children>
+                                                <HBox alignment="TOP_LEFT" spacing="16.0">
+                                                    <children>
+                                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <Label fx:id="doc2TitleLabel" styleClass="form-label" text="Authorization letter" />
+                                                                <!-- PATTERN:DYNAMIC doc2Meta : upload details -->
+                                                                <Label fx:id="doc2MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · No expiry (marked by applicant) · Must name Elena R. Santos" />
+                                                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                                    <children>
+                                                                        <Hyperlink styleClass="terms-link" text="View file ↗" />
+                                                                        <!-- PATTERN:DYNAMIC doc2File : filename -->
+                                                                        <Label fx:id="doc2FileLabel" styleClass="table-cell-text" text="authorization-letter.pdf" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- CHECKLIST -->
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
+                                                                <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
+                                                                <CheckBox styleClass="small-check" text="Issued for Pasig City" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- ACTION BUTTONS -->
+                                                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                                            <children>
+                                                                <!-- PATTERN:ACTION handleFlagDoc2 -->
+                                                                <Button onAction="#handleFlagDoc2" styleClass="secondary-button" text="Flag problem" />
+                                                                <!-- PATTERN:ACTION handleVerifyDoc2 -->
+                                                                <Button onAction="#handleVerifyDoc2" styleClass="table-review-btn" text="Verify" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
                                     </children>
                                 </VBox>
+
+                                <!-- PATTERN:DYNAMIC registeredDate : registered date -->
+                                <Label fx:id="registeredDateLabel" styleClass="text-muted" text="📅 Registered Oct 1, 2026" />
 
                             </children>
                         </VBox>
 
-                        <!-- PATTERN:DYNAMIC registeredDate : registered date -->
-                        <Label fx:id="registeredDateLabel" styleClass="text-muted" text="📅 Registered Oct 1, 2026" />
+                        <!-- BOTTOM ACTION BAR -->
+                        <HBox alignment="CENTER_LEFT" spacing="16.0">
+                            <children>
+                                <!-- PATTERN:NAV -> PENDING_REGISTRATIONS -->
+                                <Button onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <!-- PATTERN:ACTION handleReject -->
+                                <Button onAction="#handleReject" styleClass="secondary-button" text="🚫 Reject" />
+                                <!-- PATTERN:ACTION handleApprove -->
+                                <Button onAction="#handleApprove" styleClass="primary-button" text="✓ Approve Organization" />
+                            </children>
+                        </HBox>
 
                     </children>
                 </VBox>
-
-                <!-- BOTTOM ACTION BAR -->
-                <HBox alignment="CENTER_LEFT" spacing="16.0">
-                    <children>
-                        <!-- PATTERN:NAV -> PENDING_REGISTRATIONS -->
-                        <Button onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <!-- PATTERN:ACTION handleReject -->
-                        <Button onAction="#handleReject" styleClass="secondary-button" text="🚫 Reject" />
-                        <!-- PATTERN:ACTION handleApprove -->
-                        <Button onAction="#handleApprove" styleClass="primary-button" text="✓ Approve Organization" />
-                    </children>
-                </HBox>
-
-            </children>
-        </VBox>
+            </content>
+        </ScrollPane>
 
         <!-- PATTERN:DYNAMIC visibility: Modal Dialog Overlay embedded via fx:include -->
         <fx:include fx:id="dialog" managed="false" source="../shared/dialog.fxml" visible="false" />

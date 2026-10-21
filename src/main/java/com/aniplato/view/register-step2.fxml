@@ -15,318 +15,326 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
 <!-- Outer screen wrapper with dark overlay capability for dialog.fxml -->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterStep2Controller">
     <children>
 
         <!-- MAIN CENTERING CONTAINER -->
-        <VBox alignment="CENTER" styleClass="dashboard-bg">
+        <ScrollPane fitToWidth="true" styleClass="table-scroll">
             <stylesheets>
                 <URL value="@aniplato.css" />
             </stylesheets>
-            <padding>
-                <Insets bottom="40.0" left="24.0" right="24.0" top="40.0" />
-            </padding>
-            <children>
-
-                <!-- CARD CONTAINER -->
-                <VBox maxWidth="520.0" spacing="20.0" styleClass="table-card">
+            <content>
+                <VBox alignment="CENTER" styleClass="dashboard-bg">
+                    <stylesheets>
+                        <URL value="@aniplato.css" />
+                    </stylesheets>
                     <padding>
-                        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                        <Insets bottom="40.0" left="24.0" right="24.0" top="40.0" />
                     </padding>
                     <children>
 
-                        <!-- HEADER SECTION WITH CIRCLE LOGO -->
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <!-- CARD CONTAINER -->
+                        <VBox maxWidth="520.0" spacing="20.0" styleClass="table-card">
+                            <padding>
+                                <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                            </padding>
                             <children>
-                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/assets/aniplato-logo-circle 1.png" />
-                                    </image>
-                                </ImageView>
-                                <VBox spacing="2.0">
+
+                                <!-- HEADER SECTION WITH CIRCLE LOGO -->
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
                                     <children>
-                                        <Label styleClass="card-title" text="Register for ANIPLATO" />
-                                        <Label styleClass="text-muted" text="An admin reviews your application before your account is created." />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </HBox>
-
-                        <!-- STEP PROGRESS INDICATOR BAR WITH VISIBLE CONNECTOR LINE -->
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                            <children>
-                                <!-- Step 1 Completed Circle -->
-                                <Label styleClass="stat-icon-green" text="✓" />
-                                <Label styleClass="form-label" text="Your details" />
-
-                                <!-- Visible Horizontal Line -->
-                                <Region maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="32.0" style="-fx-background-color: #E2E8F0;" HBox.hgrow="NEVER" />
-
-                                <!-- Step 2 Active Circle -->
-                                <Label styleClass="stat-icon-green" text="2" />
-                                <Label styleClass="form-label" text="Documents" />
-                            </children>
-                        </HBox>
-
-                        <!-- INSTRUCTION TEXT -->
-                        <!-- PATTERN:DYNAMIC instructionsLabel -->
-                        <Label fx:id="instructionsLabel" styleClass="text-muted" text="Upload one file for each item and type the expiry date printed on it, or tick No expiry where the document doesn't expire. Don't upload government IDs." wrapText="true" />
-
-                        <!-- ROLE BADGE HEADER -->
-                        <HBox>
-                            <children>
-                                <!-- PATTERN:DYNAMIC roleBadgeLabel : Required for: Business donor | Casual donor | Food group -->
-                                <Label fx:id="roleBadgeLabel" styleClass="pill-food-donor" text="Required for: Food group" />
-                            </children>
-                        </HBox>
-
-                        <!-- =================================================================== -->
-                        <!-- 1. BUSINESS DONOR DOCUMENTS CONTAINER                               -->
-                        <!-- =================================================================== -->
-                        <VBox fx:id="businessDonorDocsBox" managed="false" spacing="16.0" visible="false">
-                            <children>
-
-                                <!-- Mayor's / Business Permit -->
-                                <VBox spacing="6.0">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                            <children>
-                                                <Label styleClass="form-label" text="Mayor's / Business Permit *" />
-                                                <Label styleClass="text-muted" text="Current year" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <HBox fx:id="mayorsPermitFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
-                                                    </padding>
-                                                    <children>
-                                                        <Label text="📄" />
-                                                        <Label fx:id="mayorsPermitFileLabel" styleClass="form-label" text="mayors-permit-2026.pdf" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <Button onAction="#handleUploadMayorsPermit" styleClass="secondary-button" text="Replace" />
-                                                    </children>
-                                                </HBox>
-                                                <Button fx:id="mayorsPermitUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadMayorsPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
-                                                <DatePicker fx:id="mayorsPermitExpiryPicker" prefWidth="160.0" promptText="Dec 31, 2026" styleClass="text-field" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                                <!-- Sanitary Permit -->
-                                <VBox spacing="6.0">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                            <children>
-                                                <Label styleClass="form-label" text="Sanitary Permit *" />
-                                                <Label styleClass="text-muted" text="From the City Health Office" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <Button fx:id="sanitaryPermitUploadBtn" maxWidth="1.7976931348623157E308" onAction="#handleUploadSanitaryPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
-                                                <HBox fx:id="sanitaryPermitFileBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" styleClass="pill-food-donor" visible="false" HBox.hgrow="ALWAYS">
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
-                                                    </padding>
-                                                    <children>
-                                                        <Label text="📄" />
-                                                        <Label fx:id="sanitaryPermitFileLabel" styleClass="form-label" text="sanitary-permit-2026.pdf" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <Button onAction="#handleUploadSanitaryPermit" styleClass="secondary-button" text="Replace" />
-                                                    </children>
-                                                </HBox>
-                                                <DatePicker fx:id="sanitaryPermitExpiryPicker" prefWidth="160.0" promptText="Expiry date" styleClass="text-field" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                            </children>
-                        </VBox>
-
-                        <!-- =================================================================== -->
-                        <!-- 2. CASUAL DONOR DOCUMENTS CONTAINER                                 -->
-                        <!-- =================================================================== -->
-                        <VBox fx:id="casualDonorDocsBox" managed="false" spacing="16.0" visible="false">
-                            <children>
-
-                                <!-- Barangay Certificate -->
-                                <VBox spacing="6.0">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                            <children>
-                                                <Label styleClass="form-label" text="Barangay Certificate *" />
-                                                <Label styleClass="text-muted" text="From your barangay" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <HBox fx:id="barangayCertFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
-                                                    </padding>
-                                                    <children>
-                                                        <Label text="📄" />
-                                                        <Label fx:id="barangayCertFileLabel" styleClass="form-label" text="barangay-certificate.pdf" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <Button onAction="#handleUploadBarangayCert" styleClass="secondary-button" text="Replace" />
-                                                    </children>
-                                                </HBox>
-                                                <Button fx:id="barangayCertUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadBarangayCert" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
-                                                <DatePicker fx:id="barangayCertExpiryPicker" prefWidth="160.0" promptText="Apr 19, 2027" styleClass="text-field" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                            </children>
-                        </VBox>
-
-                        <!-- =================================================================== -->
-                        <!-- 3. FOOD GROUP DOCUMENTS CONTAINER                                  -->
-                        <!-- =================================================================== -->
-                        <!-- PATTERN:DYNAMIC visibility: foodGroupDocsBox shown for Food Groups -->
-                        <VBox fx:id="foodGroupDocsBox" spacing="16.0">
-                            <children>
-
-                                <!-- PATTERN:SECTION Credential (DSWD / PCNC / SEC / DepEd / Diocese) -->
-                                <VBox spacing="6.0">
-                                    <children>
+                                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                            </image>
+                                        </ImageView>
                                         <VBox spacing="2.0">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT" spacing="2.0">
+                                                <Label styleClass="card-title" text="Register for ANIPLATO" />
+                                                <Label styleClass="text-muted" text="An admin reviews your application before your account is created." />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- STEP PROGRESS INDICATOR BAR WITH VISIBLE CONNECTOR LINE -->
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <!-- Step 1 Completed Circle -->
+                                        <Label styleClass="stat-icon-green" text="✓" />
+                                        <Label styleClass="form-label" text="Your details" />
+
+                                        <!-- Visible Horizontal Line -->
+                                        <Region maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="32.0" style="-fx-background-color: #E2E8F0;" HBox.hgrow="NEVER" />
+
+                                        <!-- Step 2 Active Circle -->
+                                        <Label styleClass="stat-icon-green" text="2" />
+                                        <Label styleClass="form-label" text="Documents" />
+                                    </children>
+                                </HBox>
+
+                                <!-- INSTRUCTION TEXT -->
+                                <!-- PATTERN:DYNAMIC instructionsLabel -->
+                                <Label fx:id="instructionsLabel" styleClass="text-muted" text="Upload one file for each item and type the expiry date printed on it, or tick No expiry where the document doesn't expire. Don't upload government IDs." wrapText="true" />
+
+                                <!-- ROLE BADGE HEADER -->
+                                <HBox>
+                                    <children>
+                                        <!-- PATTERN:DYNAMIC roleBadgeLabel : Required for: Business donor | Casual donor | Food group -->
+                                        <Label fx:id="roleBadgeLabel" styleClass="pill-food-donor" text="Required for: Food group" />
+                                    </children>
+                                </HBox>
+
+                                <!-- =================================================================== -->
+                                <!-- 1. BUSINESS DONOR DOCUMENTS CONTAINER                               -->
+                                <!-- =================================================================== -->
+                                <VBox fx:id="businessDonorDocsBox" managed="false" spacing="16.0" visible="false">
+                                    <children>
+
+                                        <!-- Mayor's / Business Permit -->
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="4.0">
                                                     <children>
-                                                        <Label styleClass="form-label" text="Credential" />
-                                                        <Label styleClass="required-star" text=" *" />
+                                                        <Label styleClass="form-label" text="Mayor's / Business Permit *" />
+                                                        <Label styleClass="text-muted" text="Current year" />
                                                     </children>
                                                 </HBox>
-                                                <Label styleClass="text-muted" text="Any one: DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA or a diocese endorsement" wrapText="true" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <HBox fx:id="mayorsPermitFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <Label text="📄" />
+                                                                <Label fx:id="mayorsPermitFileLabel" styleClass="form-label" text="mayors-permit-2026.pdf" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Button onAction="#handleUploadMayorsPermit" styleClass="secondary-button" text="Replace" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Button fx:id="mayorsPermitUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadMayorsPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
+                                                        <DatePicker fx:id="mayorsPermitExpiryPicker" prefWidth="160.0" promptText="Dec 31, 2026" styleClass="text-field" />
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
 
-                                        <ComboBox fx:id="credentialTypeCombo" maxWidth="1.7976931348623157E308" promptText="DSWD Certificate of Registration" styleClass="combo-box">
-                                            <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="DSWD Certificate of Registration" />
-                                                    <String fx:value="PCNC Accreditation" />
-                                                    <String fx:value="SEC Certificate (Non-Stock)" />
-                                                    <String fx:value="DepEd/CHED/TESDA Certificate of Recognition" />
-                                                    <String fx:value="Diocese Endorsement Letter" />
-                                                </FXCollections>
-                                            </items>
-                                        </ComboBox>
-
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <!-- Sanitary Permit -->
+                                        <VBox spacing="6.0">
                                             <children>
-                                                <!-- PATTERN:DYNAMIC visibility: credentialFileBox shown once a file is uploaded; credentialUploadBtn until then -->
-                                                <HBox fx:id="credentialFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
-                                                    </padding>
+                                                <HBox alignment="CENTER_LEFT" spacing="4.0">
                                                     <children>
-                                                        <Label text="📄" />
-                                                        <!-- PATTERN:DYNAMIC credentialFileName : uploaded file name -->
-                                                        <Label fx:id="credentialFileLabel" styleClass="form-label" text="dswd-registration.pdf" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleUploadCredential -->
-                                                        <Button onAction="#handleUploadCredential" styleClass="secondary-button" text="Replace" />
+                                                        <Label styleClass="form-label" text="Sanitary Permit *" />
+                                                        <Label styleClass="text-muted" text="From the City Health Office" />
                                                     </children>
                                                 </HBox>
-
-                                                <!-- PATTERN:ACTION handleUploadCredential -->
-                                                <Button fx:id="credentialUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadCredential" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
-
-                                                <DatePicker fx:id="credentialExpiryPicker" prefWidth="160.0" promptText="Jun 30, 2027" styleClass="text-field" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Button fx:id="sanitaryPermitUploadBtn" maxWidth="1.7976931348623157E308" onAction="#handleUploadSanitaryPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
+                                                        <HBox fx:id="sanitaryPermitFileBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" styleClass="pill-food-donor" visible="false" HBox.hgrow="ALWAYS">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <Label text="📄" />
+                                                                <Label fx:id="sanitaryPermitFileLabel" styleClass="form-label" text="sanitary-permit-2026.pdf" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Button onAction="#handleUploadSanitaryPermit" styleClass="secondary-button" text="Replace" />
+                                                            </children>
+                                                        </HBox>
+                                                        <DatePicker fx:id="sanitaryPermitExpiryPicker" prefWidth="160.0" promptText="Expiry date" styleClass="text-field" />
+                                                    </children>
+                                                </HBox>
                                             </children>
-                                        </HBox>
+                                        </VBox>
 
-                                        <HBox alignment="CENTER_RIGHT">
-                                            <children>
-                                                <!-- PATTERN:ACTION handleCredentialNoExpiryToggle -->
-                                                <CheckBox fx:id="credentialNoExpiryCheck" onAction="#handleCredentialNoExpiryToggle" styleClass="small-check" text="No expiry" />
-                                            </children>
-                                        </HBox>
                                     </children>
                                 </VBox>
 
-                                <!-- Authorization Letter -->
-                                <VBox spacing="6.0">
+                                <!-- =================================================================== -->
+                                <!-- 2. CASUAL DONOR DOCUMENTS CONTAINER                                 -->
+                                <!-- =================================================================== -->
+                                <VBox fx:id="casualDonorDocsBox" managed="false" spacing="16.0" visible="false">
                                     <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="4.0">
+
+                                        <!-- Barangay Certificate -->
+                                        <VBox spacing="6.0">
                                             <children>
-                                                <Label styleClass="form-label" text="Authorization letter *" />
-                                                <Label styleClass="text-muted" text="Names the contact person" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <HBox fx:id="authLetterFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
-                                                    </padding>
+                                                <HBox alignment="CENTER_LEFT" spacing="4.0">
                                                     <children>
-                                                        <Label text="📄" />
-                                                        <!-- PATTERN:DYNAMIC authLetterFileName -->
-                                                        <Label fx:id="authLetterFileLabel" styleClass="form-label" text="authorization-letter.pdf" />
-                                                        <Region HBox.hgrow="ALWAYS" />
-                                                        <!-- PATTERN:ACTION handleUploadAuthLetter -->
-                                                        <Button onAction="#handleUploadAuthLetter" styleClass="secondary-button" text="Replace" />
+                                                        <Label styleClass="form-label" text="Barangay Certificate *" />
+                                                        <Label styleClass="text-muted" text="From your barangay" />
                                                     </children>
                                                 </HBox>
-                                                <Button fx:id="authLetterUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadAuthLetter" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
-                                                <DatePicker fx:id="authLetterExpiryPicker" disable="true" prefWidth="160.0" promptText="No expiry" styleClass="text-field" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <HBox fx:id="barangayCertFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <Label text="📄" />
+                                                                <Label fx:id="barangayCertFileLabel" styleClass="form-label" text="barangay-certificate.pdf" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Button onAction="#handleUploadBarangayCert" styleClass="secondary-button" text="Replace" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Button fx:id="barangayCertUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadBarangayCert" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
+                                                        <DatePicker fx:id="barangayCertExpiryPicker" prefWidth="160.0" promptText="Apr 19, 2027" styleClass="text-field" />
+                                                    </children>
+                                                </HBox>
                                             </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_RIGHT">
-                                            <children>
-                                                <!-- PATTERN:ACTION handleAuthLetterNoExpiryToggle -->
-                                                <CheckBox fx:id="authLetterNoExpiryCheck" selected="true" onAction="#handleAuthLetterNoExpiryToggle" styleClass="small-check" text="No expiry" />
-                                            </children>
-                                        </HBox>
+                                        </VBox>
+
                                     </children>
                                 </VBox>
 
-                                <!-- HELPER FOOTNOTE -->
-                                <Label styleClass="text-muted" text="Schools can use a DepEd, CHED or TESDA Certificate of Recognition. Parishes can use an SEC certificate or an endorsement letter from the diocese." wrapText="true" />
+                                <!-- =================================================================== -->
+                                <!-- 3. FOOD GROUP DOCUMENTS CONTAINER                                  -->
+                                <!-- =================================================================== -->
+                                <!-- PATTERN:DYNAMIC visibility: foodGroupDocsBox shown for Food Groups -->
+                                <VBox fx:id="foodGroupDocsBox" spacing="16.0">
+                                    <children>
+
+                                        <!-- PATTERN:SECTION Credential (DSWD / PCNC / SEC / DepEd / Diocese) -->
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <VBox spacing="2.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="2.0">
+                                                            <children>
+                                                                <Label styleClass="form-label" text="Credential" />
+                                                                <Label styleClass="required-star" text=" *" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="text-muted" text="Any one: DSWD, PCNC, SEC non-stock, DepEd/CHED/TESDA or a diocese endorsement" wrapText="true" />
+                                                    </children>
+                                                </VBox>
+
+                                                <ComboBox fx:id="credentialTypeCombo" maxWidth="1.7976931348623157E308" promptText="DSWD Certificate of Registration" styleClass="combo-box">
+                                                    <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                            <String fx:value="DSWD Certificate of Registration" />
+                                                            <String fx:value="PCNC Accreditation" />
+                                                            <String fx:value="SEC Certificate (Non-Stock)" />
+                                                            <String fx:value="DepEd/CHED/TESDA Certificate of Recognition" />
+                                                            <String fx:value="Diocese Endorsement Letter" />
+                                                        </FXCollections>
+                                                    </items>
+                                                </ComboBox>
+
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <!-- PATTERN:DYNAMIC visibility: credentialFileBox shown once a file is uploaded; credentialUploadBtn until then -->
+                                                        <HBox fx:id="credentialFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <Label text="📄" />
+                                                                <!-- PATTERN:DYNAMIC credentialFileName : uploaded file name -->
+                                                                <Label fx:id="credentialFileLabel" styleClass="form-label" text="dswd-registration.pdf" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleUploadCredential -->
+                                                                <Button onAction="#handleUploadCredential" styleClass="secondary-button" text="Replace" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <!-- PATTERN:ACTION handleUploadCredential -->
+                                                        <Button fx:id="credentialUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadCredential" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
+
+                                                        <DatePicker fx:id="credentialExpiryPicker" prefWidth="160.0" promptText="Jun 30, 2027" styleClass="text-field" />
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox alignment="CENTER_RIGHT">
+                                                    <children>
+                                                        <!-- PATTERN:ACTION handleCredentialNoExpiryToggle -->
+                                                        <CheckBox fx:id="credentialNoExpiryCheck" onAction="#handleCredentialNoExpiryToggle" styleClass="small-check" text="No expiry" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Authorization Letter -->
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="4.0">
+                                                    <children>
+                                                        <Label styleClass="form-label" text="Authorization letter *" />
+                                                        <Label styleClass="text-muted" text="Names the contact person" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <HBox fx:id="authLetterFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                                                            </padding>
+                                                            <children>
+                                                                <Label text="📄" />
+                                                                <!-- PATTERN:DYNAMIC authLetterFileName -->
+                                                                <Label fx:id="authLetterFileLabel" styleClass="form-label" text="authorization-letter.pdf" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <!-- PATTERN:ACTION handleUploadAuthLetter -->
+                                                                <Button onAction="#handleUploadAuthLetter" styleClass="secondary-button" text="Replace" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Button fx:id="authLetterUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadAuthLetter" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
+                                                        <DatePicker fx:id="authLetterExpiryPicker" disable="true" prefWidth="160.0" promptText="No expiry" styleClass="text-field" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT">
+                                                    <children>
+                                                        <!-- PATTERN:ACTION handleAuthLetterNoExpiryToggle -->
+                                                        <CheckBox fx:id="authLetterNoExpiryCheck" selected="true" onAction="#handleAuthLetterNoExpiryToggle" styleClass="small-check" text="No expiry" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- HELPER FOOTNOTE -->
+                                        <Label styleClass="text-muted" text="Schools can use a DepEd, CHED or TESDA Certificate of Recognition. Parishes can use an SEC certificate or an endorsement letter from the diocese." wrapText="true" />
+
+                                    </children>
+                                </VBox>
+
+                                <!-- CONSENT BOX -->
+                                <HBox spacing="10.0" styleClass="notice-box">
+                                    <padding>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                                    </padding>
+                                    <children>
+                                        <CheckBox fx:id="consentCheckBox" selected="true" />
+                                        <Label styleClass="text-muted" text="I agree that ANIPLATO may store my details and documents to verify my registration. Only I and the ANIPLATO admin can see my files." wrapText="true" HBox.hgrow="ALWAYS" />
+                                    </children>
+                                </HBox>
+
+                                <!-- ACTION BUTTONS ROW -->
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <padding>
+                                        <Insets top="8.0" />
+                                    </padding>
+                                    <children>
+                                        <!-- PATTERN:NAV -> REGISTER STEP 1 -->
+                                        <Button fx:id="backBtn" onAction="#handleBackToStep1" styleClass="secondary-button" text="← Back" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleSubmit -->
+                                        <Button fx:id="submitBtn" onAction="#handleConfirmSubmit" styleClass="primary-button" text="Submit registration" />
+                                    </children>
+                                </HBox>
 
                             </children>
                         </VBox>
 
-                        <!-- CONSENT BOX -->
-                        <HBox spacing="10.0" styleClass="notice-box">
-                            <padding>
-                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
-                            </padding>
-                            <children>
-                                <CheckBox fx:id="consentCheckBox" selected="true" />
-                                <Label styleClass="text-muted" text="I agree that ANIPLATO may store my details and documents to verify my registration. Only I and the ANIPLATO admin can see my files." wrapText="true" HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-
-                        <!-- ACTION BUTTONS ROW -->
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <padding>
-                                <Insets top="8.0" />
-                            </padding>
-                            <children>
-                                <!-- PATTERN:NAV -> REGISTER STEP 1 -->
-                                <Button fx:id="backBtn" onAction="#handleBackToStep1" styleClass="secondary-button" text="← Back" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:ACTION handleSubmit -->
-                                <Button fx:id="submitBtn" onAction="#handleConfirmSubmit" styleClass="primary-button" text="Submit registration" />
-                            </children>
-                        </HBox>
-
                     </children>
                 </VBox>
-
-            </children>
-        </VBox>
+            </content>
+        </ScrollPane>
 
         <!-- Dynamic Modal Overlay Inclusion -->
         <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />

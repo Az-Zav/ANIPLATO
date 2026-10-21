@@ -17,176 +17,184 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
 <!-- Outer screen wrapper with dark overlay capability -->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.RegisterController">
     <children>
 
         <!-- MAIN CENTERED REGISTRATION CONTAINER -->
-        <VBox alignment="CENTER" styleClass="dashboard-bg">
+        <ScrollPane fitToWidth="true" styleClass="table-scroll">
             <stylesheets>
                 <URL value="@aniplato.css" />
             </stylesheets>
-            <padding>
-                <Insets bottom="40.0" left="24.0" right="24.0" top="40.0" />
-            </padding>
-            <children>
-
-                <!-- CARD CONTAINER -->
-                <VBox maxWidth="520.0" spacing="20.0" styleClass="table-card">
+            <content>
+                <VBox alignment="CENTER" styleClass="dashboard-bg">
+                    <stylesheets>
+                        <URL value="@aniplato.css" />
+                    </stylesheets>
                     <padding>
-                        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                        <Insets bottom="40.0" left="24.0" right="24.0" top="40.0" />
                     </padding>
                     <children>
 
-                        <!-- BRANDING HEADER WITH CIRCLE LOGO IMAGE -->
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <!-- CARD CONTAINER -->
+                        <VBox maxWidth="520.0" spacing="20.0" styleClass="table-card">
+                            <padding>
+                                <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+                            </padding>
                             <children>
-                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/assets/aniplato-logo-circle 1.png" />
-                                    </image>
-                                </ImageView>
-                                <VBox spacing="2.0">
+
+                                <!-- BRANDING HEADER WITH CIRCLE LOGO IMAGE -->
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
                                     <children>
-                                        <Label styleClass="card-title" text="Register for ANIPLATO" />
-                                        <Label styleClass="text-muted" text="An admin reviews your application before your account is created." />
+                                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="card-title" text="Register for ANIPLATO" />
+                                                <Label styleClass="text-muted" text="An admin reviews your application before your account is created." />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- STEP INDICATOR -->
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-icon-green" text="1" />
+                                        <Label styleClass="form-label" text="Your details" />
+                                        <Region prefWidth="30.0" styleClass="text-muted" />
+                                        <Label styleClass="stat-card-title" text="2" />
+                                        <Label styleClass="text-muted" text="Documents" />
+                                    </children>
+                                </HBox>
+
+                                <!-- REGISTERING AS TOGGLE (Donor vs Food Group) -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Registering as *" />
+                                        <HBox spacing="8.0" styleClass="notice-box">
+                                            <padding>
+                                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                            </padding>
+                                            <children>
+                                                <!-- PATTERN:ACTION handleSelectDonor -->
+                                                <Button fx:id="donorRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectDonor" styleClass="primary-button" text="Donor" HBox.hgrow="ALWAYS" />
+                                                <!-- PATTERN:ACTION handleSelectFoodGroup -->
+                                                <Button fx:id="foodGroupRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectFoodGroup" styleClass="secondary-button" text="Food group" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
                                     </children>
                                 </VBox>
-                            </children>
-                        </HBox>
 
-                        <!-- STEP INDICATOR -->
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
-                                <Label styleClass="stat-icon-green" text="1" />
-                                <Label styleClass="form-label" text="Your details" />
-                                <Region prefWidth="30.0" styleClass="text-muted" />
-                                <Label styleClass="stat-card-title" text="2" />
-                                <Label styleClass="text-muted" text="Documents" />
-                            </children>
-                        </HBox>
-
-                        <!-- REGISTERING AS TOGGLE (Donor vs Food Group) -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Registering as *" />
-                                <HBox spacing="8.0" styleClass="notice-box">
-                                    <padding>
-                                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                    </padding>
+                                <!-- PERMITS SELECTION (RADIO GROUP WITH CONSTANT SIZE) -->
+                                <VBox spacing="8.0">
+                                    <fx:define>
+                                        <ToggleGroup fx:id="permitsToggleGroup" />
+                                    </fx:define>
                                     <children>
-                                        <!-- PATTERN:ACTION handleSelectDonor -->
-                                        <Button fx:id="donorRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectDonor" styleClass="primary-button" text="Donor" HBox.hgrow="ALWAYS" />
-                                        <!-- PATTERN:ACTION handleSelectFoodGroup -->
-                                        <Button fx:id="foodGroupRoleBtn" maxWidth="1.7976931348623157E308" onAction="#handleSelectFoodGroup" styleClass="secondary-button" text="Food group" HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="form-label" text="Do you have permits? *" />
+
+                                        <!-- HAS PERMITS CONTAINER -->
+                                        <HBox fx:id="permitCardHas" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-selected">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <children>
+                                                <RadioButton fx:id="hasPermitsRadio" selected="true" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I have a Mayor's Permit and Sanitary Permit" toggleGroup="$permitsToggleGroup" />
+                                            </children>
+                                        </HBox>
+
+                                        <!-- NO PERMITS CONTAINER -->
+                                        <HBox fx:id="permitCardNo" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-unselected">
+                                            <padding>
+                                                <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                                            </padding>
+                                            <children>
+                                                <RadioButton fx:id="noPermitsRadio" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I don't have permits" toggleGroup="$permitsToggleGroup" />
+                                            </children>
+                                        </HBox>
                                     </children>
-                                </HBox>
-                            </children>
-                        </VBox>
+                                </VBox>
 
-                        <!-- PERMITS SELECTION (RADIO GROUP WITH CONSTANT SIZE) -->
-                        <VBox spacing="8.0">
-                            <fx:define>
-                                <ToggleGroup fx:id="permitsToggleGroup" />
-                            </fx:define>
-                            <children>
-                                <Label styleClass="form-label" text="Do you have permits? *" />
-
-                                <!-- HAS PERMITS CONTAINER -->
-                                <HBox fx:id="permitCardHas" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-selected">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
+                                <!-- BUSINESS NAME FIELD -->
+                                <VBox spacing="6.0">
                                     <children>
-                                        <RadioButton fx:id="hasPermitsRadio" selected="true" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I have a Mayor's Permit and Sanitary Permit" toggleGroup="$permitsToggleGroup" />
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="form-label" text="Business name" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="text-muted" text="As shown on your permits" />
+                                            </children>
+                                        </HBox>
+                                        <TextField fx:id="businessNameField" promptText="e.g., Manila Artisanal Bakeshop" styleClass="text-field" />
                                     </children>
-                                </HBox>
+                                </VBox>
 
-                                <!-- NO PERMITS CONTAINER -->
-                                <HBox fx:id="permitCardNo" alignment="CENTER_LEFT" spacing="12.0" styleClass="permit-card-unselected">
-                                    <padding>
-                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                    </padding>
+                                <!-- CITY DROPDOWN -->
+                                <VBox spacing="6.0">
                                     <children>
-                                        <RadioButton fx:id="noPermitsRadio" onAction="#handlePermitSelectionChanged" styleClass="form-label" text="I don't have permits" toggleGroup="$permitsToggleGroup" />
+                                        <Label styleClass="form-label" text="City *" />
+                                        <ComboBox fx:id="cityComboBox" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city" styleClass="combo-box" />
+                                        <Label styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
                                     </children>
-                                </HBox>
-                            </children>
-                        </VBox>
+                                </VBox>
 
-                        <!-- BUSINESS NAME FIELD -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <HBox alignment="CENTER_LEFT">
+                                <!-- CONTACT PERSON & NUMBER GRID -->
+                                <GridPane hgap="12.0" vgap="6.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50.0" />
+                                        <ColumnConstraints percentWidth="50.0" />
+                                    </columnConstraints>
                                     <children>
-                                        <Label styleClass="form-label" text="Business name" />
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label styleClass="form-label" text="Contact person *" />
+                                                <TextField fx:id="contactPersonField" promptText="e.g., Maria Santos" styleClass="text-field" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label styleClass="form-label" text="Contact number *" />
+                                                <TextField fx:id="contactNumberField" promptText="e.g., 0917 123 4567" styleClass="text-field" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+                                <Label styleClass="text-muted" text="Shared only with the other party after an offer is accepted, so you can coordinate pickup directly." wrapText="true" />
+
+                                <!-- EMAIL FIELD -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Email *" />
+                                        <TextField fx:id="emailField" promptText="e.g., name@example.com" styleClass="text-field" />
+                                        <Label styleClass="text-muted" text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." wrapText="true" />
+                                    </children>
+                                </VBox>
+
+                                <!-- ACTION BAR -->
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <!-- PATTERN:NAV -> LOGIN -->
+                                        <Label styleClass="text-muted" text="Already approved?" />
+                                        <Hyperlink onAction="#handleNavLogin" styleClass="terms-link" text="Log in" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="text-muted" text="As shown on your permits" />
+                                        <!-- PATTERN:ACTION handleNextStep2 -->
+                                        <Button minWidth="160.0" onAction="#handleNextStep2" styleClass="primary-button" text="Next: Documents" />
                                     </children>
                                 </HBox>
-                                <TextField fx:id="businessNameField" promptText="e.g., Manila Artisanal Bakeshop" styleClass="text-field" />
+
                             </children>
                         </VBox>
-
-                        <!-- CITY DROPDOWN -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="City *" />
-                                <ComboBox fx:id="cityComboBox" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city" styleClass="combo-box" />
-                                <Label styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
-                            </children>
-                        </VBox>
-
-                        <!-- CONTACT PERSON & NUMBER GRID -->
-                        <GridPane hgap="12.0" vgap="6.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="50.0" />
-                                <ColumnConstraints percentWidth="50.0" />
-                            </columnConstraints>
-                            <children>
-                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="form-label" text="Contact person *" />
-                                        <TextField fx:id="contactPersonField" promptText="e.g., Maria Santos" styleClass="text-field" />
-                                    </children>
-                                </VBox>
-                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <children>
-                                        <Label styleClass="form-label" text="Contact number *" />
-                                        <TextField fx:id="contactNumberField" promptText="e.g., 0917 123 4567" styleClass="text-field" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </GridPane>
-                        <Label styleClass="text-muted" text="Shared only with the other party after an offer is accepted, so you can coordinate pickup directly." wrapText="true" />
-
-                        <!-- EMAIL FIELD -->
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Email *" />
-                                <TextField fx:id="emailField" promptText="e.g., name@example.com" styleClass="text-field" />
-                                <Label styleClass="text-muted" text="We send your confirmation and the approval result here. If approved, your temporary login details go to this address." wrapText="true" />
-                            </children>
-                        </VBox>
-
-                        <!-- ACTION BAR -->
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <children>
-                                <!-- PATTERN:NAV -> LOGIN -->
-                                <Label styleClass="text-muted" text="Already approved?" />
-                                <Hyperlink onAction="#handleNavLogin" styleClass="terms-link" text="Log in" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:ACTION handleNextStep2 -->
-                                <Button minWidth="160.0" onAction="#handleNextStep2" styleClass="primary-button" text="Next: Documents" />
-                            </children>
-                        </HBox>
 
                     </children>
                 </VBox>
-
-            </children>
-        </VBox>
+            </content>
+        </ScrollPane>
 
         <!-- Shared Modal Overlay Inclusion -->
         <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />
