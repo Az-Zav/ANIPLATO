@@ -92,7 +92,7 @@
                                 </VBox>
 
                                 <!-- PERMITS SELECTION (RADIO GROUP WITH CONSTANT SIZE) -->
-                                <VBox spacing="8.0">
+                                <VBox fx:id="permitsBox" spacing="8.0">
                                     <fx:define>
                                         <ToggleGroup fx:id="permitsToggleGroup" />
                                     </fx:define>
@@ -126,9 +126,9 @@
                                     <children>
                                         <HBox alignment="CENTER_LEFT">
                                             <children>
-                                                <Label styleClass="form-label" text="Business name" />
+                                                <Label fx:id="nameLabel" styleClass="form-label" text="Business name" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Label styleClass="text-muted" text="As shown on your permits" />
+                                                <Label fx:id="nameHintLabel" styleClass="text-muted" text="As shown on your permits" />
                                             </children>
                                         </HBox>
                                         <TextField fx:id="businessNameField" promptText="e.g., Manila Artisanal Bakeshop" styleClass="text-field" />
@@ -140,7 +140,7 @@
                                     <children>
                                         <Label styleClass="form-label" text="City *" />
                                         <ComboBox fx:id="cityComboBox" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city" styleClass="combo-box" />
-                                        <Label styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
+                                        <Label fx:id="cityHintLabel" styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
                                     </children>
                                 </VBox>
 
