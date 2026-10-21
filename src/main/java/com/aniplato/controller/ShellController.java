@@ -2,6 +2,7 @@ package com.aniplato.controller;
 
 import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
+import com.aniplato.service.StatsService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.Session;
@@ -28,6 +29,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /** Header, sidebar and content area shared by every logged-in screen. */
@@ -48,6 +52,8 @@ public class ShellController {
     private Timeline assistantPulse;
 
     private final AuthenticationService authenticationService = new AuthenticationService();
+    private final StatsService statsService = new StatsService();
+    private final List<Label> badges = new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -67,7 +73,11 @@ public class ShellController {
 
         // Highlight follows Navigator.currentScreen(): set now, and again after every in-shell navigation
         refreshActive();
-        Navigator.setScreenListener(this::refreshActive);
+        refreshBadges();
+        Navigator.setScreenListener(() -> {
+            refreshActive();
+            refreshBadges();   // an approval or resolved notice changes the counts
+        });
         startAssistantPulse();
 
     }
@@ -83,6 +93,27 @@ public class ShellController {
                     button.getStyleClass().remove(ACTIVE);
                     if (button.getStyleClass().contains(activeClass)) button.getStyleClass().add(ACTIVE);
                 });
+    }
+
+    /** Fills the admin sidebar counts from the database; a count of zero hides its badge (A9: derived, not stored). */
+    private void refreshBadges() {
+        if (badges.isEmpty()) return;
+        StatsService.AdminSummary summary = null;
+        try {
+            summary = statsService.getAdminSummary(LocalDate.now());
+        } catch (RuntimeException e) {
+            // no database: show no counts rather than wrong ones
+        }
+        for (Label badge : badges) {
+            int count = summary == null ? 0 : switch ((String) badge.getUserData()) {
+                case "pending" -> summary.pendingRegistrations();
+                case "notices" -> summary.openSafetyNotices();
+                default -> 0;
+            };
+            badge.setText(String.valueOf(count));
+            badge.setVisible(count > 0);
+            badge.setManaged(count > 0);
+        }
     }
 
     private void configureIcon(Button button) {
@@ -122,8 +153,10 @@ public class ShellController {
                 .filter(styleClass -> styleClass.startsWith("badge-"))
                 .findFirst()
                 .ifPresent(styleClass -> {
-                    Label badge = new Label(styleClass.substring("badge-".length()));
+                    Label badge = new Label();
                     badge.getStyleClass().add("sidebar-count-badge");
+                    badge.setUserData(styleClass.substring("badge-".length()));   // "pending" or "notices"
+                    badges.add(badge);
                     content.getChildren().add(badge);
                 });
 

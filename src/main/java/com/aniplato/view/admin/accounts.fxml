@@ -33,7 +33,7 @@
                         <VBox spacing="4.0">
                             <children>
                                 <Label styleClass="page-title" text="All Accounts" />
-                                <Label fx:id="accountsSummaryLabel" styleClass="text-muted" text="128 approved · 2 suspended · 5 with documents expiring in 30 days" />
+                                <Label fx:id="accountsSummaryLabel" styleClass="text-muted" text="" />
                             </children>
                         </VBox>
 
@@ -52,10 +52,10 @@
                                                 <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
                                             </padding>
                                             <columnConstraints>
-                                                <ColumnConstraints percentWidth="38.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="20.0" />
-                                                <ColumnConstraints percentWidth="22.0" />
+                                                <ColumnConstraints percentWidth="32.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="18.0" />
+                                                <ColumnConstraints percentWidth="32.0" />
                                             </columnConstraints>
                                             <children>
                                                 <Label styleClass="table-header-text" text="NAME" GridPane.columnIndex="0" />
@@ -73,6 +73,26 @@
                                                 </VBox>
                                             </content>
                                         </ScrollPane>
+
+                                        <!-- PAGINATION FOOTER ROW -->
+                                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                            <padding>
+                                                <Insets top="8.0" />
+                                            </padding>
+                                            <children>
+                                                <!-- PATTERN:DYNAMIC pageInfoLabel -->
+                                                <Label fx:id="pageInfoLabel" styleClass="text-muted" text="Showing 0 of 0" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <HBox spacing="6.0">
+                                                    <children>
+                                                        <!-- PATTERN:ACTION handlePrevPage -->
+                                                        <Button fx:id="prevPageBtn" onAction="#handlePrevPage" styleClass="secondary-button" text="‹ Previous" />
+                                                        <!-- PATTERN:ACTION handleNextPage -->
+                                                        <Button fx:id="nextPageBtn" onAction="#handleNextPage" styleClass="secondary-button" text="Next ›" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </HBox>
 
                                     </children>
                                 </VBox>

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.time.format.DateTimeFormatter;
 
@@ -282,6 +283,19 @@ public class RegistrationService {
                     Settings.DOCUMENT_WARNING_DAYS);
         } catch (SQLException e) {
             throw new DataAccessException("Could not load document expiry warnings", e);
+        }
+    }
+
+    /** The signed-in organization's documents for the Profile screen: the latest upload of each type. */
+    public List<Document> getMyDocuments() {
+        Account current = Session.require();
+        if (current.registration == null) return List.of();
+        try (Connection c = Database.getConnection()) {
+            Map<Document.Type, Document> latest = new LinkedHashMap<>();
+            for (Document d : documentDao.findByRegistration(c, current.registration.id)) latest.put(d.type, d);   // oldest first, so the newest wins
+            return new ArrayList<>(latest.values());
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load your documents", e);
         }
     }
 

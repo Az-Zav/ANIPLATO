@@ -42,7 +42,7 @@
                             </padding>
                             <children>
                                 <!-- PATTERN:DYNAMIC docAlertText : warning summary -->
-                                <Label fx:id="docAlertTextLabel" styleClass="form-label" text="1 document expired and 1 expires soon. Upload renewals below; an admin verifies each one." />
+                                <Label fx:id="docAlertTextLabel" styleClass="form-label" text="" />
                             </children>
                         </HBox>
 
@@ -74,7 +74,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="NAME" />
                                                 <!-- PATTERN:DYNAMIC adminName : admin full name -->
-                                                <Label fx:id="adminNameLabel" styleClass="form-label" text="ANIPLATO Admin" />
+                                                <Label fx:id="adminNameLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
@@ -83,7 +83,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="ROLE" />
                                                 <!-- PATTERN:DYNAMIC adminRole : "Admin" -->
-                                                <Label fx:id="adminRoleLabel" styleClass="form-label" text="Admin" />
+                                                <Label fx:id="adminRoleLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
@@ -92,7 +92,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="SINCE" />
                                                 <!-- PATTERN:DYNAMIC adminSince : registration date -->
-                                                <Label fx:id="adminSinceLabel" styleClass="form-label" text="Sep 1, 2026" />
+                                                <Label fx:id="adminSinceLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
                                     </children>
@@ -128,7 +128,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="NAME" />
                                                 <!-- PATTERN:DYNAMIC orgName : organization name -->
-                                                <Label fx:id="orgNameLabel" styleClass="form-label" text="Manila Artisanal Bakeshop" />
+                                                <Label fx:id="orgNameLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
@@ -136,15 +136,15 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="ROLE" />
                                                 <!-- PATTERN:DYNAMIC orgRole : role title -->
-                                                <Label fx:id="orgRoleLabel" styleClass="form-label" text="Business donor" />
+                                                <Label fx:id="orgRoleLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
                                         <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
                                             <children>
-                                                <Label styleClass="stat-card-title" text="TYPE" />
-                                                <!-- PATTERN:DYNAMIC orgType : entity type -->
-                                                <Label fx:id="orgTypeLabel" styleClass="form-label" text="Bakery" />
+                                                <Label styleClass="stat-card-title" text="EMAIL" />
+                                                <!-- PATTERN:DYNAMIC orgType : organization contact email (the schema has no organization type) -->
+                                                <Label fx:id="orgTypeLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
@@ -153,15 +153,15 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="CITY" />
                                                 <!-- PATTERN:DYNAMIC orgCity : city name -->
-                                                <Label fx:id="orgCityLabel" styleClass="form-label" text="Mandaluyong City" />
+                                                <Label fx:id="orgCityLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
                                         <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <Label styleClass="stat-card-title" text="CONTACT PERSON · NUMBER" />
+                                                <Label styleClass="stat-card-title" text="CONTACT PERSON" />
                                                 <!-- PATTERN:DYNAMIC orgContact : contact person name & phone -->
-                                                <Label fx:id="orgContactLabel" styleClass="form-label" text="Maria Santos · 0917 123 4567" />
+                                                <Label fx:id="orgContactLabel" styleClass="form-label" text="" />
                                                 <!-- PATTERN:ACTION handleEditContact -->
                                                 <Hyperlink onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
                                             </children>
@@ -171,7 +171,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="APPROVED" />
                                                 <!-- PATTERN:DYNAMIC orgApprovedDate : approval date -->
-                                                <Label fx:id="orgApprovedDateLabel" styleClass="form-label" text="Oct 5, 2026" />
+                                                <Label fx:id="orgApprovedDateLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
                                     </children>
@@ -220,56 +220,6 @@
                                         <!-- PATTERN:LIST docRowsBox : list of required documents for this organization -->
                                         <VBox fx:id="docRowsBox">
                                             <children>
-                                                <!-- SAMPLE ROW 1: VERIFIED -->
-                                                <GridPane styleClass="table-data-row">
-                                                    <padding>
-                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                                    </padding>
-                                                    <columnConstraints>
-                                                        <ColumnConstraints percentWidth="28.0" />
-                                                        <ColumnConstraints percentWidth="26.0" />
-                                                        <ColumnConstraints percentWidth="18.0" />
-                                                        <ColumnConstraints percentWidth="28.0" />
-                                                    </columnConstraints>
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Business registration (DTI)" GridPane.columnIndex="0" />
-                                                        <Label styleClass="table-cell-text" text="dti-certificate.pdf" GridPane.columnIndex="1" />
-                                                        <Label styleClass="table-cell-text" text="Mar 14, 2029" GridPane.columnIndex="2" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
-                                                            <children>
-                                                                <Label styleClass="pill-food-donor" text="Verified" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Hyperlink styleClass="terms-link" text="View file" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </GridPane>
-
-                                                <!-- SAMPLE ROW 2: EXPIRES SOON WITH UPLOAD -->
-                                                <GridPane styleClass="table-data-row">
-                                                    <padding>
-                                                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
-                                                    </padding>
-                                                    <columnConstraints>
-                                                        <ColumnConstraints percentWidth="28.0" />
-                                                        <ColumnConstraints percentWidth="26.0" />
-                                                        <ColumnConstraints percentWidth="18.0" />
-                                                        <ColumnConstraints percentWidth="28.0" />
-                                                    </columnConstraints>
-                                                    <children>
-                                                        <Label styleClass="form-label" text="Mayor's / Business Permit" GridPane.columnIndex="0" />
-                                                        <Label styleClass="table-cell-text" text="mayors-permit-2028.pdf" GridPane.columnIndex="1" />
-                                                        <Label styleClass="table-cell-text" text="Nov 5, 2026" GridPane.columnIndex="2" />
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="3">
-                                                            <children>
-                                                                <Label styleClass="tag-reregistered" text="Expires in 28 days" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <!-- PATTERN:ACTION handleUploadRenewal -->
-                                                                <Button onAction="#handleUploadRenewal" styleClass="table-review-btn" text="Upload renewal" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </GridPane>
                                             </children>
                                         </VBox>
                                     </children>
@@ -303,7 +253,7 @@
                                             <children>
                                                 <Label styleClass="stat-card-title" text="LOGIN EMAIL" />
                                                 <!-- PATTERN:DYNAMIC loginEmail : user login email -->
-                                                <Label fx:id="loginEmailLabel" styleClass="form-label" text="admin@aniplato.ph" />
+                                                <Label fx:id="loginEmailLabel" styleClass="form-label" text="" />
                                             </children>
                                         </VBox>
 
@@ -314,7 +264,7 @@
                                                     <children>
                                                         <Label styleClass="stat-card-title" text="PASSWORD" />
                                                         <!-- PATTERN:DYNAMIC passwordStatus : password last changed string -->
-                                                        <Label fx:id="passwordStatusLabel" styleClass="form-label" text="Last changed Sep 1, 2026" />
+                                                        <Label fx:id="passwordStatusLabel" styleClass="form-label" text="" />
                                                     </children>
                                                 </VBox>
                                                 <Region HBox.hgrow="ALWAYS" />

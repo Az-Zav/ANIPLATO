@@ -8,6 +8,7 @@ import com.aniplato.service.StatsService.AdminSummary;
 import com.aniplato.util.AdminSelection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
@@ -16,7 +17,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class AdminDashboardController {
 
@@ -26,6 +26,7 @@ public class AdminDashboardController {
     @FXML private Label rescueRateLabel;
     @FXML private Label openSafetyNoticesCountLabel;
     @FXML private Label documentsExpiringCountLabel;
+    @FXML private Label documentsExpiringCaptionLabel;
     @FXML private Label suspendedCountLabel;
 
     // Pending Accounts Table & Header Controls
@@ -43,20 +44,20 @@ public class AdminDashboardController {
     private final RegistrationService registrationService = new RegistrationService();
 
     // Pagination State
-    private int currentPage = 1;
-    private final int pageSize = 10;
-    private List<PendingRow> pending = List.of();
+    private static final int PAGE_SIZE = 10;
+    private final Pager<PendingRow> pager = new Pager<>(PAGE_SIZE);
 
     @FXML
     private void initialize() {
         try {
             AdminSummary summary = statsService.getAdminSummary(LocalDate.now());
-            pending = registrationService.getPending();
+            pager.setItems(registrationService.getPending());
             pendingCountLabel.setText(String.valueOf(summary.pendingRegistrations()));
             kgListedLabel.setText(AdminTable.kg(summary.kgListedThisMonth()));
             rescueRateLabel.setText(AdminTable.percent(summary.rescueRate()));
             openSafetyNoticesCountLabel.setText(String.valueOf(summary.openSafetyNotices()));
             documentsExpiringCountLabel.setText(String.valueOf(summary.documentsEnding()));
+            documentsExpiringCaptionLabel.setText("Within the next " + Settings.DOCUMENT_WARNING_DAYS + " days");
             suspendedCountLabel.setText(String.valueOf(summary.suspendedAccounts()));
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
             pageInfoLabel.setText("Could not load the dashboard. Check the database connection.");
@@ -66,24 +67,19 @@ public class AdminDashboardController {
     }
 
     /**
-     * Calculates page range, fills the rows of the current page and updates button states / footer text
+     * Fills the rows of the current page and updates button states / footer text
      */
     private void updatePaginationState() {
-        int total = pending.size();
-        int totalPages = Math.max(1, (int) Math.ceil((double) total / pageSize));
-        int startIndex = (currentPage - 1) * pageSize;
-        int endIndex = Math.min(currentPage * pageSize, total);
-
-        pageInfoLabel.setText(total == 0 ? "Showing 0 of 0" : "Showing " + (startIndex + 1) + "–" + endIndex + " of " + total);
-        totalPendingBadgeLabel.setText(total + " total");
-        prevPageBtn.setDisable(currentPage <= 1);
-        nextPageBtn.setDisable(currentPage >= totalPages);
+        pageInfoLabel.setText(pager.info());
+        totalPendingBadgeLabel.setText(pager.total() + " total");
+        prevPageBtn.setDisable(!pager.hasPrevious());
+        nextPageBtn.setDisable(!pager.hasNext());
 
         // PATTERN:LIST one row per pending registration on this page
         pendingRowsBox.getChildren().clear();
-        for (PendingRow row : pending.subList(startIndex, endIndex)) pendingRowsBox.getChildren().add(buildRow(row));
-        emptyLabel.setVisible(total == 0);
-        emptyLabel.setManaged(total == 0);
+        for (PendingRow row : pager.current()) pendingRowsBox.getChildren().add(buildRow(row));
+        emptyLabel.setVisible(pager.total() == 0);
+        emptyLabel.setManaged(pager.total() == 0);
     }
 
     /** Organization, role, city, and the registered date with the Review button. */
@@ -102,19 +98,14 @@ public class AdminDashboardController {
 
     @FXML
     private void handlePrevPage() {
-        if (currentPage > 1) {
-            currentPage--;
-            updatePaginationState();
-        }
+        pager.previous();
+        updatePaginationState();
     }
 
     @FXML
     private void handleNextPage() {
-        int totalPages = (int) Math.ceil((double) pending.size() / pageSize);
-        if (currentPage < totalPages) {
-            currentPage++;
-            updatePaginationState();
-        }
+        pager.next();
+        updatePaginationState();
     }
 
     @FXML

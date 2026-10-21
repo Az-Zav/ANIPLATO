@@ -106,7 +106,7 @@
                                 </HBox>
                                 <!-- PATTERN:DYNAMIC documentsExpiringCount : whole number -->
                                 <Label fx:id="documentsExpiringCountLabel" styleClass="stat-value" text="5" />
-                                <Label styleClass="text-muted" text="Within the next 30 days" />
+                                <Label fx:id="documentsExpiringCaptionLabel" styleClass="text-muted" text="" />
                             </children>
                         </VBox>
 

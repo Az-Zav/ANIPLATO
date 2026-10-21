@@ -55,11 +55,11 @@
                 <!-- PATTERN:NAV -> ADMIN_DASHBOARD -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, sidebar-button-active, nav-admin-dashboard, icon-dashboard, role-admin" text="Dashboard" />
                 <!-- PATTERN:NAV -> PENDING_REGISTRATIONS -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-pending-registrations, icon-pending-accounts, badge-14, role-admin" text="Pending Accounts" />
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-pending-registrations, icon-pending-accounts, badge-pending, role-admin" text="Pending Accounts" />
                 <!-- PATTERN:NAV -> REPORTS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-reports, icon-reports, role-admin" text="Reports" />
                 <!-- PATTERN:NAV -> SAFETY_NOTICES -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-safety-notices, icon-safety-notices, badge-2, role-admin" text="Safety Notices" />
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-safety-notices, icon-safety-notices, badge-notices, role-admin" text="Safety Notices" />
                 <!-- PATTERN:NAV -> ACCOUNTS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-accounts, icon-all-accounts, role-admin" text="All Accounts" />
                 <!-- PATTERN:NAV -> FOODGROUP_DASHBOARD -->
