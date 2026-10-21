@@ -63,19 +63,10 @@ public class LoginController {
         errorLabel.setVisible(false);
     }
 
-    // TODO(service): Forgot password link. AuthenticationService.requestPasswordReset is built and the Profile
-    // screen reaches it through DialogController.showForgotPasswordMode; this link is still unwired.
-    // Wire it to open that same dialog mode, or call the service directly as below.
-    //
     // FXML: forgotPasswordLink onAction="#handleForgotPassword"
-    // PATTERN:ACTION
-    // @FXML
-    // private void handleForgotPassword() {
-    //     try {
-    //         authenticationService.requestPasswordReset(emailField.getText());
-    //         // show the same confirmation either way: "If that email has an account, a temporary password is on its way."
-    //     } catch (RuleViolationException e) {
-    //         showError(e.getMessage());   // A8, e.g. blank email
-    //     }
-    // }
+    // PATTERN:ACTION opens the Forgot Password dialog with whatever email was typed (R1.7)
+    @FXML
+    private void handleForgotPassword() {
+        dialogController.showForgotPasswordMode(emailField.getText());
+    }
 }
