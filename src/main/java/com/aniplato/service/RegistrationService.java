@@ -98,7 +98,7 @@ public class RegistrationService {
         checkDetails(f);
         checkDocuments(f.role, uploads);
         LocalDateTime now = LocalDateTime.now();
-        inTransaction("Could not save the registration", c -> {
+        Database.inTransaction("Could not save the registration", c -> {
             f.id = registrationDao.insert(c, f, now);
             for (DocumentUpload upload : uploads) {
                 Document d = new Document();
@@ -163,7 +163,7 @@ public class RegistrationService {
         String temporaryPassword = authenticationService.generateTemporaryPassword();
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
-        Approval approval = inTransaction("Could not approve the registration", c -> {
+        Approval approval = Database.inTransaction("Could not approve the registration", c -> {
             Registration r = requirePending(c, registrationId);
             List<Document> documents = documentDao.findByRegistration(c, r.id);
             for (Document d : documents) {
@@ -217,7 +217,7 @@ public class RegistrationService {
             throw new RuleViolationException("Keep the reason under " + MAX_REASON_LENGTH + " characters.");
         }
         LocalDateTime now = LocalDateTime.now();
-        Rejection rejection = inTransaction("Could not reject the registration", c -> {
+        Rejection rejection = Database.inTransaction("Could not reject the registration", c -> {
             Registration r = requirePending(c, registrationId);
             registrationDao.reject(c, r.id, trimmed, admin.id, now);
             logDao.logStatusChange(c, REGISTRATION_ENTITY, r.id, Registration.Status.PENDING.name(),
@@ -261,7 +261,7 @@ public class RegistrationService {
 
     /** Maintenance suspension for registrations with a current, verified expired document (6.6, A3). */
     public void suspendAccountsWithExpiredDocuments(LocalDate today) {
-        inTransaction("Could not suspend accounts with expired documents", c -> {
+        Database.inTransaction("Could not suspend accounts with expired documents", c -> {
             List<DocumentDao.ExpiredRegistration> expired = documentDao.findCurrentExpiredRegistrations(c, today);
             for (DocumentDao.ExpiredRegistration registration : expired) {
                 if (accountDao.suspendIfActive(c, registration.accountId(), DOCUMENT_EXPIRED_REASON) > 0) {
@@ -360,7 +360,7 @@ public class RegistrationService {
 
     private void reviewDocument(int documentId, Document.Review review, String reason) {
         Account admin = requireAdmin();
-        inTransaction("Could not save the document review", c -> {
+        Database.inTransaction("Could not save the document review", c -> {
             Document d = documentDao.findById(c, documentId);
             if (d == null) throw new RuleViolationException("This document no longer exists.");
             if (review == null && d.review != Document.Review.OK) throw new RuleViolationException("This document is not verified.");
@@ -415,7 +415,7 @@ public class RegistrationService {
         Account admin = requireAdmin();
         if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the suspension.");
         String why = reason.trim();
-        inTransaction("Could not suspend the account", c -> {
+        Database.inTransaction("Could not suspend the account", c -> {
             if (accountDao.suspendIfActive(c, accountId, why) == 0) {
                 throw new RuleViolationException("This account is not Active.");
             }
@@ -428,7 +428,7 @@ public class RegistrationService {
     /** Admin gives a Suspended account its full access back. */
     public void reinstateAccount(int accountId) {
         Account admin = requireAdmin();
-        inTransaction("Could not reinstate the account", c -> {
+        Database.inTransaction("Could not reinstate the account", c -> {
             if (accountDao.reinstateIfSuspended(c, accountId) == 0) {
                 throw new RuleViolationException("This account is not Suspended.");
             }
@@ -436,24 +436,5 @@ public class RegistrationService {
                     Account.Status.ACTIVE.name(), null, admin.id);   // A3
             return null;
         });
-    }
-    private <T> T inTransaction(String message, Work<T> work) {
-        try (Connection c = Database.getConnection()) {
-            c.setAutoCommit(false);
-            try {
-                T result = work.run(c);
-                c.commit();
-                return result;
-            } catch (SQLException | RuntimeException e) {
-                c.rollback();
-                throw e;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(message, e);
-        }
-    }
-
-    private interface Work<T> {
-        T run(Connection c) throws SQLException;
     }
 }

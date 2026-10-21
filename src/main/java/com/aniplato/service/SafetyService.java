@@ -23,6 +23,7 @@ public class SafetyService {
 
     private static final String ENTITY = "NOTICE";   // status_change.entity_type
     private static final int MAX_TEXT_LENGTH = 500;   // safety_notice.concern and admin_note
+    private static final String SAVE_ERROR = "Could not save the safety notice";
 
     private final SafetyNoticeDao noticeDao = new SafetyNoticeDao();
     private final OfferDao offerDao = new OfferDao();
@@ -38,7 +39,7 @@ public class SafetyService {
         Account me = Session.require();
         String text = requireText(concern, "Describe the concern.");
 
-        return inTransaction(c -> {
+        return Database.inTransaction(SAVE_ERROR, c -> {
             Offer offer = offerDao.findById(c, offerId);
             if (offer == null) throw new RuleViolationException("That offer no longer exists.");
             if (offer.status != Offer.Status.ACCEPTED && offer.status != Offer.Status.COMPLETED) {
@@ -86,7 +87,7 @@ public class SafetyService {
         Account admin = requireAdmin();
         String note = requireText(adminNote, "Write a note before dismissing the notice.");
 
-        inTransaction(c -> {
+        Database.inTransaction(SAVE_ERROR, c -> {
             SafetyNotice notice = requireOpen(c, noticeId);
             resolve(c, notice, SafetyNotice.Status.DISMISSED, note, admin.id);
             return null;
@@ -101,7 +102,7 @@ public class SafetyService {
         Account admin = requireAdmin();
         String note = requireText(adminNote, "Write a note before suspending the account.");
 
-        inTransaction(c -> {
+        Database.inTransaction(SAVE_ERROR, c -> {
             SafetyNotice notice = requireOpen(c, noticeId);
             int flaggedId = flaggedAccountId(c, notice);
             resolve(c, notice, SafetyNotice.Status.ACCOUNT_SUSPENDED, note, admin.id);
@@ -146,27 +147,5 @@ public class SafetyService {
             throw new RuleViolationException("Keep it to " + MAX_TEXT_LENGTH + " characters or fewer.");
         }
         return trimmed;
-    }
-
-    /** Body of one transaction. */
-    private interface Work<T> {
-        T run(Connection c) throws SQLException;
-    }
-
-    /** Runs the work in one transaction (A2): commits if it finishes, rolls back on any exception. */
-    private <T> T inTransaction(Work<T> work) {
-        try (Connection c = Database.getConnection()) {
-            c.setAutoCommit(false);
-            try {
-                T result = work.run(c);
-                c.commit();
-                return result;
-            } catch (SQLException | RuntimeException e) {
-                c.rollback();
-                throw e;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not save the safety notice", e);
-        }
     }
 }
