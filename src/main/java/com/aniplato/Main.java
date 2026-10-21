@@ -1,7 +1,10 @@
 package com.aniplato;
 
+import com.aniplato.model.Account;
+import com.aniplato.util.DevPreview;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.Session;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -15,7 +18,13 @@ public class Main extends Application {
         // Baseline 1280x720 scene; Navigator swaps its root
         Scene scene = new Scene(new Pane(), 1280, 720);
         Navigator.init(scene);
-        Navigator.show(Screen.LOGIN);
+        Account preview = DevPreview.fromEnvironment();   // TEMPORARY: see DevPreview
+        if (preview != null) {
+            Session.start(preview);
+            Navigator.show(Screen.SHELL);
+        } else {
+            Navigator.show(Screen.LOGIN);
+        }
 
         primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System");
         primaryStage.setScene(scene);
