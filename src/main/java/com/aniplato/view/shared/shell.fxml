@@ -92,7 +92,7 @@
             <children>
                 <!-- PATTERN:DYNAMIC current screen content -->
                 <StackPane fx:id="contentArea" />
-                <VBox alignment="BOTTOM_RIGHT" spacing="12.0" StackPane.alignment="BOTTOM_RIGHT">
+                <VBox alignment="BOTTOM_RIGHT" pickOnBounds="false" spacing="12.0" StackPane.alignment="BOTTOM_RIGHT">
                     <padding><Insets bottom="22.0" right="24.0" /></padding>
                     <children>
                         <VBox fx:id="assistantPanel" managed="false" maxHeight="460.0" maxWidth="360.0" prefHeight="460.0" prefWidth="360.0" spacing="0.0" styleClass="assistant-panel" visible="false">

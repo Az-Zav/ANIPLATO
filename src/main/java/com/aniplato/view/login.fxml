@@ -24,7 +24,7 @@
         <URL value="@aniplato.css" />
     </stylesheets>
     <content>
-        <HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel">
+        <HBox fx:id="loginRoot" minHeight="720.0" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel">
             <stylesheets>
                 <URL value="@aniplato.css" />
             </stylesheets>
