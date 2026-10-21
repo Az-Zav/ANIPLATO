@@ -56,7 +56,7 @@ Each module wires screens that already exist in FXML to the call chains below (t
 | 7 | **Accept offer** | incoming-offers, accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
 | 8 | **Handoff** | confirm release/receipt dialogs, handoff-record, history | `confirmRelease`, `confirmReceipt`, `buildHandoffRecord`, `cancelPost` | 6 | 7 |
 | 9 | **Requests (Route 2)** | new-listing as request, browse-request (donor), donor make-offer, `[FE]` my-requests, `[FE]` offers-received | `createRequest`, `sendRequestOffer`, `UseDetail`; reuses modules 5 to 8 | 3b, 4 | 8 |
-| 10 | **Report and safety** | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; fix `SafetyNoticeDao.insert` (`kind` column) | 7 | 8 |
+| 10 | **Report and safety** | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; let `SafetyNoticeDao.insert` take a notice with no raiser (the overdue kind) | 7 | 8 |
 | 11 | **Dashboards, history, reports** | three dashboards, history, admin reports | `StatsService`; all values derived (A9) | 9 | 8, 10 |
 | 12 | **Maintenance** | all screens (runs on screen load) | rewrite `MaintenanceService`, re-attach to the shell | 10 | 5 to 10 |
 | 13 | **Seed and polish** | whole app | demo seed, README, AI chat (stretch) | 12 | all |
@@ -184,7 +184,7 @@ admin/safety-notices.fxml → SafetyNoticesController
   dismiss → SafetyService.dismiss ⚠ → SafetyNoticeDao.updateStatus
   suspend → SafetyService.suspendFlaggedAccount → AccountStatusService.suspend → AccountDao.suspendIfActive → LogDao → (email)
 ```
-**Status:** [built, tested] `SafetyService.raise/getNoticeRows/dismiss/suspendFlaggedAccount` and the admin screen. `raise` has no screen yet: the Flag Concern dialog is not wired. [new] `Report` model, `ReportDao.insert`, `ReportService`, `submit-report` screen. `SafetyNoticeDao.insert` leaves out `kind`; the column is `ENUM … NOT NULL`, so MySQL fills `CONCERN`, which is right for a concern. The overdue-report notice (module 10) must set `kind = 'OVERDUE_REPORT'` explicitly. The report deadline and "submitted late" are derived, not stored (A9).
+**Status:** [built, tested] `SafetyService.raise/getNoticeRows/dismiss/suspendFlaggedAccount` and the admin screen. `raise` has no screen yet: the Flag Concern dialog is not wired. [new] `Report` model, `ReportDao.insert`, `ReportService`, `submit-report` screen. `SafetyNoticeDao.insert` now writes `kind` (the model defaults to `CONCERN`). The overdue-report notice (module 10) sets `OVERDUE_REPORT` and the insert must then accept a null `raised_by` and `concern`, which the table allows. The report deadline and "submitted late" are derived, not stored (A9).
 
 ## 8. Admin accounts and profile — 6.3
 ```

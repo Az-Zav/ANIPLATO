@@ -15,14 +15,15 @@ import java.util.List;
 public class SafetyNoticeDao {
 
     public int insert(Connection c, SafetyNotice notice) throws SQLException {
-        String sql = "INSERT INTO safety_notice (offer_id, raised_by, concern, status, raised_at) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO safety_notice (offer_id, kind, raised_by, concern, status, raised_at) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, notice.offerId);
-            ps.setInt(2, notice.raisedBy);
-            ps.setString(3, notice.concern);
-            ps.setString(4, notice.status.name());
-            ps.setObject(5, notice.raisedAt);
+            ps.setString(2, notice.kind.name());
+            ps.setInt(3, notice.raisedBy);
+            ps.setString(4, notice.concern);
+            ps.setString(5, notice.status.name());
+            ps.setObject(6, notice.raisedAt);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) throw new SQLException("Creating a safety notice did not return an id");
@@ -59,6 +60,7 @@ public class SafetyNoticeDao {
         SafetyNotice notice = new SafetyNotice();
         notice.id = rs.getInt("notice_id");
         notice.offerId = rs.getInt("offer_id");
+        notice.kind = SafetyNotice.Kind.valueOf(rs.getString("kind"));
         notice.raisedBy = rs.getInt("raised_by");
         notice.concern = rs.getString("concern");
         notice.status = SafetyNotice.Status.valueOf(rs.getString("status"));
