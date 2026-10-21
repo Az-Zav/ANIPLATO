@@ -152,6 +152,7 @@ Safety notices and suspensions can happen at any time after an offer is accepted
 * Approve creates the account and emails a temporary password.
 * Reject requires a reason, which is emailed. The applicant may register again.
 * The temporary password never expires. Login with it reaches only Change Password until a new one is set.
+* Forgot password emails a new temporary password, which works the same way. The screen gives the same answer whether or not the email has an account.
 * The role is fixed at registration. It sets the required documents and the food categories a donor may post: Business raw, packaged, baked and cooked; Casual raw and sealed-packaged only.
 * A business without both permits is not rejected. It registers as Casual. To upgrade, it uploads the permits, which creates a new registration for the same account, reviewed like any other. Approval changes the role to Business and points the account to the new registration. The old one stays as history. A rejected upgrade changes nothing.
 * A food group needs a standing feeding activity (feeding program, parish pantry, school feeding, volunteer group). One-off individual volunteers are not accepted.
@@ -632,6 +633,7 @@ aniplato/
   * Checks email and password (BCrypt).
   * Blocks login until the temporary password is replaced.
   * Changes passwords (at least 8 characters, different from the current one).
+  * Forgot password: emails a new temporary password and requires Change Password at the next login.
 
 * **RegistrationService**
   * Saves registrations and upgrades with their documents, and sends the "Received" email.
@@ -879,7 +881,7 @@ erDiagram
   email_log {
     int email_id PK
     varchar to_email
-    enum kind "RECEIVED, APPROVED, NOT_APPROVED"
+    enum kind "RECEIVED, APPROVED, NOT_APPROVED, PASSWORD_RESET"
     datetime sent_at
     boolean success
     varchar error "null"

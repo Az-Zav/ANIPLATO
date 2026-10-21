@@ -186,7 +186,7 @@ erDiagram
   email_log {
     int email_id PK
     varchar to_email
-    enum kind "RECEIVED, APPROVED, NOT_APPROVED"
+    enum kind "RECEIVED, APPROVED, NOT_APPROVED, PASSWORD_RESET"
     datetime sent_at
     boolean success
     varchar error "null"
