@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.SubmitReportController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
+    <content>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="24.0" right="24.0" top="24.0" /></padding>
+            <children>
+                <Label styleClass="page-title" text="Submit Report" />
+                <VBox spacing="18.0" styleClass="table-card">
+                    <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+                    <children>
+                        <Label styleClass="section-title" text="Event or program" />
+                        <VBox spacing="6.0"><children><Label styleClass="form-label" text="Event or program name *" /><TextField text="School feeding program" /></children></VBox>
+                        <HBox spacing="16.0"><children><VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="People actually served *" /><TextField text="82" /></children></VBox><VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="Event date *" /><DatePicker /></children></VBox></children></HBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="Photos" />
+                        <VBox spacing="8.0"><children><Label styleClass="form-label" text="Event photos *" /><HBox spacing="8.0"><children><Button styleClass="upload-preview" text="+&#10;Add photo" /><Region styleClass="upload-preview" minWidth="68.0" minHeight="68.0" /><Region styleClass="upload-preview" minWidth="68.0" minHeight="68.0" /><Region styleClass="upload-preview" minWidth="68.0" minHeight="68.0" /></children></HBox><Label styleClass="text-muted" text="1 to 5 photos of the event." /></children></VBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="What was held" />
+                        <VBox spacing="6.0"><children><Label styleClass="form-label" text="Short description *" /><TextArea prefRowCount="2" text="Evening meal served at the parish hall to 82 pupils, seniors and families." /><Label styleClass="text-muted" text="The donor can see this report on the handoff record." /></children></VBox>
+                        <HBox spacing="8.0" styleClass="notice-box"><children><CheckBox selected="true" text="Photo consent: Photos show no identifiable children, and identifiable adults have consented." wrapText="true" /><Label styleClass="text-muted" text="Required. Saved with a timestamp when you submit." wrapText="true" /></children></HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="8.0"><children><!-- PATTERN:NAV -> MY_REQUESTS --><Button onAction="#handleCancel" styleClass="secondary-button" text="Cancel" /><!-- PATTERN:ACTION handleSubmit --><Button onAction="#handleSubmit" styleClass="primary-button" text="Submit report" /></children></HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

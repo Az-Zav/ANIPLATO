@@ -1,15 +1,16 @@
 package com.aniplato.util;
 
+import java.io.IOException;
+import java.net.URL;
+
 import com.aniplato.model.Account;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * Switches screens. The only class that knows view paths.
@@ -31,6 +32,7 @@ public final class Navigator {
 
         // Screens loaded into the shell's content area
         PROFILE("profile.fxml", Kind.IN_SHELL),
+        MY_REQUESTS("shared/my-requests.fxml", Kind.IN_SHELL),
         ADMIN_DASHBOARD("admin/dashboard.fxml", Kind.IN_SHELL),
         PENDING_REGISTRATIONS("admin/pending-registrations.fxml", Kind.IN_SHELL),
         REVIEW_REGISTRATION("admin/review-registration.fxml", Kind.IN_SHELL),
