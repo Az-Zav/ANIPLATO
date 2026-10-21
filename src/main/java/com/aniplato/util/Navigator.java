@@ -32,7 +32,10 @@ public final class Navigator {
 
         // Screens loaded into the shell's content area
         PROFILE("profile.fxml", Kind.IN_SHELL),
-        MY_REQUESTS("shared/my-requests.fxml", Kind.IN_SHELL),
+        MY_REQUESTS("foodgroup/my-requests.fxml", Kind.IN_SHELL),
+        NEW_REQUEST("foodgroup/new-request.fxml", Kind.IN_SHELL),
+        FOODGROUP_OFFERS_RECEIVED("foodgroup/incoming-offers.fxml", Kind.IN_SHELL),
+        FOODGROUP_SUBMIT_REPORT("foodgroup/submit-report.fxml", Kind.IN_SHELL),
         ADMIN_DASHBOARD("admin/dashboard.fxml", Kind.IN_SHELL),
         PENDING_REGISTRATIONS("admin/pending-registrations.fxml", Kind.IN_SHELL),
         REVIEW_REGISTRATION("admin/review-registration.fxml", Kind.IN_SHELL),
@@ -118,6 +121,7 @@ public final class Navigator {
             case MAKE_OFFER -> Screen.BROWSE_LISTINGS;
             case LISTING_OFFERS -> Screen.MY_LISTINGS;
             case HANDOFF_RECORD -> Screen.HISTORY;
+            case NEW_REQUEST, FOODGROUP_OFFERS_RECEIVED, FOODGROUP_SUBMIT_REPORT -> Screen.MY_REQUESTS;
             default -> screen;
         };
     }
