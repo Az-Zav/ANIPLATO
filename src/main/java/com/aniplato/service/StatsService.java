@@ -49,7 +49,7 @@ public class StatsService {
 
     /** The six dashboard cards, for the month that contains {@code today}. */
     public AdminSummary getAdminSummary(LocalDate today) {
-        requireAdmin();
+        Session.requireAdmin();
         YearMonth month = YearMonth.from(today);
         LocalDateTime from = month.atDay(1).atStartOfDay();
         LocalDateTime to = month.plusMonths(1).atDay(1).atStartOfDay();
@@ -72,7 +72,7 @@ public class StatsService {
 
     /** Months that have posts, newest first; the current month is always offered. */
     public List<YearMonth> getReportMonths(LocalDate today) {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             List<YearMonth> months = new ArrayList<>(postDao.findMonthsWithPosts(c));
             YearMonth current = YearMonth.from(today);
@@ -85,7 +85,7 @@ public class StatsService {
 
     /** Every metric of section 3 for one month, and the By City rows. */
     public MonthlyReport getReport(YearMonth month, LocalDateTime now) {
-        requireAdmin();
+        Session.requireAdmin();
         LocalDateTime from = month.atDay(1).atStartOfDay();
         LocalDateTime to = month.plusMonths(1).atDay(1).atStartOfDay();
         try (Connection c = Database.getConnection()) {
@@ -119,9 +119,5 @@ public class StatsService {
 
     private static double sum(List<PostDao.CityTotals> rows, java.util.function.ToDoubleFunction<PostDao.CityTotals> field) {
         return rows.stream().mapToDouble(field).sum();
-    }
-
-    private static void requireAdmin() {
-        if (Session.require().role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
     }
 }

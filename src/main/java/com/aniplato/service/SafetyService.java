@@ -64,7 +64,7 @@ public class SafetyService {
 
     /** Every notice for the admin's Safety Notices screen, newest first. */
     public List<SafetyNotice> getNotices() {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             return noticeDao.findAll(c);
         } catch (SQLException e) {
@@ -74,7 +74,7 @@ public class SafetyService {
 
     /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
     public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             return noticeDao.findRows(c);
         } catch (SQLException e) {
@@ -84,7 +84,7 @@ public class SafetyService {
 
     /** Admin closes an Open notice without action. The note is required. */
     public void dismiss(int noticeId, String adminNote) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String note = requireText(adminNote, "Write a note before dismissing the notice.");
 
         Database.inTransaction(SAVE_ERROR, c -> {
@@ -99,7 +99,7 @@ public class SafetyService {
      * One transaction (A2); the suspension itself goes through RegistrationService (R7.2).
      */
     public void suspendFlaggedAccount(int noticeId, String adminNote) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String note = requireText(adminNote, "Write a note before suspending the account.");
 
         Database.inTransaction(SAVE_ERROR, c -> {
@@ -132,12 +132,6 @@ public class SafetyService {
             throw new RuleViolationException("Notice #" + noticeId + " has already been resolved.");
         }
         return notice;
-    }
-
-    private Account requireAdmin() {
-        Account me = Session.require();
-        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
-        return me;
     }
 
     private static String requireText(String text, String missingMessage) {

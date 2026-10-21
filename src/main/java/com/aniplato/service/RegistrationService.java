@@ -159,7 +159,7 @@ public class RegistrationService {
      * The Approved email goes out after the commit. Returns false only if that email failed.
      */
     public boolean approve(int registrationId) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String temporaryPassword = authenticationService.generateTemporaryPassword();
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
@@ -210,7 +210,7 @@ public class RegistrationService {
      * after the commit. Returns whether it was sent.
      */
     public boolean reject(int registrationId, String reason) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String trimmed = trim(reason);
         if (trimmed.isEmpty()) throw new RuleViolationException("Write the reason for rejecting.");
         if (trimmed.length() > MAX_REASON_LENGTH) {
@@ -237,13 +237,6 @@ public class RegistrationService {
     private record Approval(Registration registration, boolean newAccount) { }
 
     private record Rejection(Registration registration, String reasons) { }
-
-    /** Only the admin reviews registrations (6.5). */
-    private static Account requireAdmin() {
-        Account me = Session.require();
-        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
-        return me;
-    }
 
     /** The registration, still Pending; another admin action may have reviewed it already. */
     private Registration requirePending(Connection c, int registrationId) throws SQLException {
@@ -322,7 +315,7 @@ public class RegistrationService {
 
     /** Pending registrations, oldest first. */
     public List<PendingRow> getPending() {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             List<PendingRow> rows = new ArrayList<>();
             for (Registration r : registrationDao.findByStatus(c, Registration.Status.PENDING)) {
@@ -337,7 +330,7 @@ public class RegistrationService {
 
     /** One registration with all its documents. */
     public ReviewDetail getForReview(int registrationId) {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             Registration r = registrationDao.findById(c, registrationId);
             if (r == null) throw new RuleViolationException("This registration no longer exists.");
@@ -359,7 +352,7 @@ public class RegistrationService {
     }
 
     private void reviewDocument(int documentId, Document.Review review, String reason) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         Database.inTransaction("Could not save the document review", c -> {
             Document d = documentDao.findById(c, documentId);
             if (d == null) throw new RuleViolationException("This document no longer exists.");
@@ -381,7 +374,7 @@ public class RegistrationService {
 
     /** Every organization account, with the next document that ends within the warning period. */
     public AccountsOverview getAccounts(LocalDate today) {
-        requireAdmin();
+        Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
             Map<Integer, DocumentDao.ExpiringDocument> next = new HashMap<>();
             for (DocumentDao.ExpiringDocument d : documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS))) {
@@ -412,7 +405,7 @@ public class RegistrationService {
 
     /** Admin suspends an Active account; the reason is shown to the organization (6.3). */
     public void suspendAccount(int accountId, String reason) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the suspension.");
         String why = reason.trim();
         Database.inTransaction("Could not suspend the account", c -> {
@@ -427,7 +420,7 @@ public class RegistrationService {
 
     /** Admin gives a Suspended account its full access back. */
     public void reinstateAccount(int accountId) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         Database.inTransaction("Could not reinstate the account", c -> {
             if (accountDao.reinstateIfSuspended(c, accountId) == 0) {
                 throw new RuleViolationException("This account is not Suspended.");
