@@ -8,7 +8,6 @@ import javafx.scene.layout.VBox;
 /** Shared screen. Never checks the role. */
 public class MyListingsController {
 
-    @FXML private Label listingCountLabel;
     @FXML private Label activeListingsCountLabel;
     @FXML private Label awaitingPickupCountLabel;
     @FXML private Label openOnBoardCountLabel;
@@ -17,10 +16,10 @@ public class MyListingsController {
     @FXML private Label emptyListingsLabel;
     @FXML private DialogController dialogController;
 
-    // PATTERN:DYNAMIC fills listing count and empty state
+    // PATTERN:DYNAMIC fills the three stat cards and the empty state
     @FXML
     private void initialize() {
-        // TODO(service): listingCountLabel.setText(listingService.countForDonor(...) + " listings")
+        // TODO(service): fill activeListingsCountLabel, awaitingPickupCountLabel and openOnBoardCountLabel (and their kg lines)
         // TODO(service): add one row to listingRowsBox per donor listing
         // TODO(service): show emptyListingsLabel when the donor has no listings
     }

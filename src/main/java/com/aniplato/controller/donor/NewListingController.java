@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,7 +22,6 @@ public class NewListingController {
     @FXML private TextField quantityField;
     @FXML private DatePicker useByDatePicker;
     @FXML private TextField pickupWindowField;
-    @FXML private TextArea notesArea;
     @FXML private HBox photoRowBox;
     @FXML private Label photoStatusLabel;
 

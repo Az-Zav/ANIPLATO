@@ -30,14 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class FxmlWiringTest {
 
     private static final Path VIEWS = Path.of("src", "main", "java", "com", "aniplato", "view");
-    /**
-     * Wiring gaps that exist today in unfinished screens (see docs/CLEANUP-REPORT.md). The test fails on
-     * any other gap, and fails again once one of these is fixed, so remove it from this list then.
-     */
-    private static final Set<String> KNOWN_GAPS = Set.of(
-            "donor/my-listings.fxml: MyListingsController.listingCountLabel",
-            "donor/new-listing.fxml: NewListingController.notesArea");
-
     private static final List<String> FX =List.of("http://javafx.com/fxml/1", "http://javafx.com/fxml");   // both spellings are in use
 
     private static String fxAttribute(Element e, String name) {
@@ -141,7 +133,7 @@ class FxmlWiringTest {
                 }
             }
         }
-        assertEquals(new TreeSet<>(KNOWN_GAPS), gaps, "an @FXML field with no fx:id stays null and fails when the screen uses it");
+        assertEquals(new TreeSet<String>(), gaps, "an @FXML field with no fx:id stays null and fails when the screen uses it");
     }
 
     @Test
