@@ -13,3 +13,6 @@ mail.user=
 mail.password=
 # Optional display name; defaults to mail.user.
 #mail.from=ANIPLATO <your-address@gmail.com>
+
+# Optional: where uploaded documents are stored. Point every dev at one shared folder to see each other's files.
+#uploads.dir=uploads

@@ -5,6 +5,7 @@ import com.aniplato.model.Account;
 import com.aniplato.model.Admin;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
+import com.aniplato.service.FileStorageService;
 import com.aniplato.service.MaintenanceService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Session;
@@ -196,7 +197,7 @@ public class ProfileController {
     }
 
     private void openFile(Document d) {
-        File file = new File("uploads", d.filePath);
+        File file = new FileStorageService().resolve(d.filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
                 DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");

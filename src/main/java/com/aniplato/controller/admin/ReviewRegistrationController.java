@@ -6,6 +6,7 @@ import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
+import com.aniplato.service.FileStorageService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.ReviewDetail;
 import com.aniplato.util.AdminSelection;
@@ -192,7 +193,7 @@ public class ReviewRegistrationController {
     /** Opens the uploaded file in the system's viewer. */
     private void open(int index) {
         if (index >= documents.size()) return;
-        File file = new File("uploads", documents.get(index).filePath);
+        File file = new FileStorageService().resolve(documents.get(index).filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
                 DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");

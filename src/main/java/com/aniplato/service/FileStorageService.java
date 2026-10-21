@@ -2,6 +2,7 @@ package com.aniplato.service;
 
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
+import com.aniplato.util.AppConfig;
 import com.aniplato.util.Settings;
 
 import java.io.File;
@@ -14,10 +15,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-/** Saves uploads under uploads/ and returns paths relative to that folder. */
+/** Saves uploads under the uploads folder (uploads.dir in db.properties, default uploads/) and returns paths relative to it. */
 public class FileStorageService {
 
-    private static final Path ROOT = Paths.get("uploads");
     private static final Set<String> ALLOWED = Set.of("pdf", "jpg", "jpeg", "png");
 
     /** Rejects a missing file, a type other than PDF/JPG/PNG, or a file over the size limit (R1.1). */
@@ -38,12 +38,22 @@ public class FileStorageService {
         validate(file);
         String name = UUID.randomUUID() + "." + extensionOf(file);
         try {
-            Files.createDirectories(ROOT);
-            Files.copy(file.toPath(), ROOT.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+            Path root = root();
+            Files.createDirectories(root);
+            Files.copy(file.toPath(), root.resolve(name), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new DataAccessException("Could not save the uploaded file", e);
         }
         return name;
+    }
+
+    /** The stored file for a relative path returned by {@link #save}. */
+    public File resolve(String relativePath) {
+        return root().resolve(relativePath).toFile();
+    }
+
+    private static Path root() {
+        return Paths.get(AppConfig.get("uploads.dir", "uploads"));
     }
 
     private static String extensionOf(File file) {
