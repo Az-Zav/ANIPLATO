@@ -184,7 +184,7 @@ admin/safety-notices.fxml → SafetyNoticesController
   dismiss → SafetyService.dismiss ⚠ → SafetyNoticeDao.updateStatus
   suspend → SafetyService.suspendFlaggedAccount → AccountStatusService.suspend → AccountDao.suspendIfActive → LogDao → (email)
 ```
-**Status:** [built, tested] `SafetyService.raise/getNotices/getNoticeRows/dismiss/suspendFlaggedAccount` and the admin screen. `raise` has no screen yet: the Flag Concern dialog is not wired. [new] `Report` model, `ReportDao.insert`, `ReportService`, `submit-report` screen. `SafetyNoticeDao.insert` leaves out `kind`; the column is `ENUM … NOT NULL`, so MySQL fills `CONCERN`, which is right for a concern. The overdue-report notice (module 10) must set `kind = 'OVERDUE_REPORT'` explicitly. The report deadline and "submitted late" are derived, not stored (A9).
+**Status:** [built, tested] `SafetyService.raise/getNoticeRows/dismiss/suspendFlaggedAccount` and the admin screen. `raise` has no screen yet: the Flag Concern dialog is not wired. [new] `Report` model, `ReportDao.insert`, `ReportService`, `submit-report` screen. `SafetyNoticeDao.insert` leaves out `kind`; the column is `ENUM … NOT NULL`, so MySQL fills `CONCERN`, which is right for a concern. The overdue-report notice (module 10) must set `kind = 'OVERDUE_REPORT'` explicitly. The report deadline and "submitted late" are derived, not stored (A9).
 
 ## 8. Admin accounts and profile — 6.3
 ```

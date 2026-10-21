@@ -80,9 +80,5 @@ public class Document {
     public boolean expiresWithin(int days, LocalDate today) {
         return expiresOn != null && !isExpired(today) && !expiresOn.isAfter(today.plusDays(days));
     }
-
-    public boolean isAwaitingReview() {
-        return review == null;
-    }
 }
  

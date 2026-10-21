@@ -31,16 +31,6 @@ public class SafetyNoticeDao {
         }
     }
 
-    public List<SafetyNotice> findAll(Connection c) throws SQLException {
-        String sql = "SELECT * FROM safety_notice ORDER BY raised_at DESC, notice_id DESC";
-        try (PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            List<SafetyNotice> notices = new ArrayList<>();
-            while (rs.next()) notices.add(map(rs));
-            return notices;
-        }
-    }
-
     public SafetyNotice findById(Connection c, int noticeId) throws SQLException {
         String sql = "SELECT * FROM safety_notice WHERE notice_id = ?";
         try (PreparedStatement ps = c.prepareStatement(sql)) {

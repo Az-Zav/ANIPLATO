@@ -17,10 +17,6 @@ public class SafetyNotice {
     public LocalDateTime resolvedAt;        // null until resolved
     public LocalDateTime raisedAt;
 
-    public boolean isOpen() {
-        return status == Status.OPEN;
-    }
-
     /** How the notice is named on screens. */
     public String label() {
         return "Notice #" + id;

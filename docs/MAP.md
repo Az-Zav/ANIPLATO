@@ -33,7 +33,7 @@ view/*.fxml ──► controller/*Controller ──► service/*Service ──�
 | **RegistrationService** | applying, and the admin's decision | `cities`, `checkDetails`, `submit`, `approve`, `reject`, `getPending`, `getForReview` |
 | **DocumentReviewService** | verifying documents, document lists and warnings | `verifyDocument`, `undoVerification`, `getMyDocuments`, `getCurrentDocumentAlerts` |
 | **AccountStatusService** | suspend, reinstate, expiry suspension, account list | `suspendAccount`, `reinstateAccount`, `suspend(Connection, …)`, `suspendAccountsWithExpiredDocuments`, `getAccounts` |
-| **SafetyService** | safety notices | `raise`, `getNotices`, `getNoticeRows`, `dismiss`, `suspendFlaggedAccount` |
+| **SafetyService** | safety notices | `raise`, `getNoticeRows`, `dismiss`, `suspendFlaggedAccount` |
 | **StatsService** | every admin number (derived, never stored, A9) | `getAdminSummary`, `getReportMonths`, `getReport` |
 | **EmailService** | the four emails and `email_log` | `sendReceived`, `sendApproved`, `sendNotApproved`, `sendPasswordReset` |
 | **FileStorageService** | uploads (PDF, JPG, PNG, 5 MB) under `uploads.dir` | `validate`, `save`, `resolve` |

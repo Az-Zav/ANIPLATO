@@ -103,16 +103,6 @@ public class AccountDao {
         return account;
     }
 
-    /** The account id for an email, or null when no account uses it (an approval for an existing login is an upgrade). */
-    public Integer findIdByEmail(Connection c, String email) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement("SELECT account_id FROM account WHERE email = ?")) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : null;
-            }
-        }
-    }
-
     public int reinstateIfSuspended(Connection c, int accountId) throws SQLException {
         String sql = "UPDATE account SET status = 'ACTIVE', suspend_reason = NULL " +
                 "WHERE account_id = ? AND status = 'SUSPENDED'";

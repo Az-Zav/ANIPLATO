@@ -59,16 +59,6 @@ public class SafetyService {
         });
     }
 
-    /** Every notice for the admin's Safety Notices screen, newest first. */
-    public List<SafetyNotice> getNotices() {
-        Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
-            return noticeDao.findAll(c);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load safety notices", e);
-        }
-    }
-
     /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
     public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
         Session.requireAdmin();

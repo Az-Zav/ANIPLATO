@@ -30,7 +30,6 @@ class SafetyServiceTest extends DbTest {
         int notice = Fixtures.concern(offer, GROUP, "The bread was moldy.");
         loginAs(ADMIN);
 
-        assertEquals(1, safety.getNotices().size());
         var rows = safety.getNoticeRows();
         assertEquals(1, rows.size());
         assertEquals(notice, rows.get(0).id());
@@ -43,7 +42,6 @@ class SafetyServiceTest extends DbTest {
     void onlyAnAdminSeesOrResolvesNotices() {
         int notice = Fixtures.concern(offer, GROUP, "x");
         loginAs(BUSINESS);
-        assertRule("Only an admin can do this.", safety::getNotices);
         assertRule("Only an admin can do this.", safety::getNoticeRows);
         assertRule("Only an admin can do this.", () -> safety.dismiss(notice, "note"));
         assertRule("Only an admin can do this.", () -> safety.suspendFlaggedAccount(notice, "note"));
