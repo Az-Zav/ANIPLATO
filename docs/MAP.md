@@ -4,6 +4,7 @@ What is in the project, why each file exists, and which feature uses it. **Singl
 
 **Legend:** ✅ built and tested · 🟡 partly built · ⬜ not built (screens exist as placeholders) · 🔧 infrastructure shared by every feature.
 **Reading a chain:** `Screen → Controller.handler → Service.method → Dao.method → table`. ⚠ = the service can throw `RuleViolationException`, which the screen shows as a message.
+**Diagram colours:** blue = screen, grey = controller or util, green = service, orange = DAO, purple = table; a dashed grey box = planned, not built.
 
 ## 1. Features
 
@@ -352,7 +353,25 @@ Files: `service/AuthenticationService.java`, `controller/LoginController.java`, 
 | `PasswordHasher.matches` | BCrypt check | AuthenticationService | AuthenticationServiceTest |
 | `EmailService.sendPasswordReset` | the reset email | AuthenticationService | AuthenticationServiceTest (send fails, is logged) |
 
-Flow: `login.fxml → LoginController.handleLogin → AuthenticationService.login ⚠ → AccountDao.findByEmail, findPasswordHash → Session.start`; temporary password `→ DialogController.showSetNewPasswordMode → AuthenticationService.changePassword ⚠ → AccountDao.updatePassword`; forgot `→ LoginController / ProfileController.handleForgotPassword → ForgotPasswordDialogController → AuthenticationService.requestPasswordReset → EmailService.sendPasswordReset → AccountDao.setTemporaryPassword`.
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  LG([login.fxml]):::screen --> LC[LoginController<br/>handleLogin]:::ctrl
+  LC --> LO{{AuthenticationService<br/>login}}:::svc
+  LO -. rule fails, message shown .-> LC
+  LO --> FE[AccountDao<br/>findByEmail<br/>findPasswordHash]:::dao --> TA[(account)]:::tbl
+  LO --> SS[Session.start]:::ctrl
+  LC -- temporary password --> NP[SetNewPasswordDialogController]:::ctrl --> CP{{AuthenticationService<br/>changePassword}}:::svc --> UP[AccountDao<br/>updatePassword]:::dao --> TA
+  PF([profile.fxml<br/>or the login link]):::screen --> FP[ForgotPasswordDialogController]:::ctrl --> RP{{AuthenticationService<br/>requestPasswordReset}}:::svc
+  RP --> EM[EmailService<br/>sendPasswordReset]:::svc --> EL[(email_log)]:::tbl
+  RP --> TP[AccountDao<br/>setTemporaryPassword]:::dao --> TA
+```
 
 ### REGISTER: apply for an account ✅
 
@@ -377,7 +396,36 @@ Files: `service/RegistrationService.java`, `controller/RegisterController.java`,
 | `RegistrationDraft.setUploads` | remembers them on Back | RegisterStep2Controller | none |
 | `RegistrationDraft.clear` | forgets the draft once submitted | RegisterSubmittedController | none |
 
-Flow: `register.fxml → RegisterController → RegistrationService.cities, checkDetails ⚠`; `register-step2.fxml → RegisterStep2Controller.handleConfirmSubmit → RegistrationService.submit ⚠` *(one transaction: FileStorageService.save, RegistrationDao.insert, DocumentDao.insert, LogDao)* `→ EmailService.sendReceived`.
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  S1([register.fxml]):::screen --> RC[RegisterController]:::ctrl --> CD{{RegistrationService<br/>cities and checkDetails}}:::svc
+  CD --> CI[CityDao<br/>findAll]:::dao --> TC[(city)]:::tbl
+  CD --> AE[AccountDao<br/>existsByEmail]:::dao --> TA[(account)]:::tbl
+  S2([register-step2.fxml]):::screen --> R2[RegisterStep2Controller<br/>with UploadSlot]:::ctrl --> SB{{RegistrationService<br/>submit}}:::svc
+  SB -. rule fails, message in place .-> R2
+  subgraph TX[one transaction A2]
+    FS[FileStorageService<br/>save]:::svc
+    RD[RegistrationDao<br/>insert]:::dao
+    DD[DocumentDao<br/>insert]:::dao
+    LG[LogDao<br/>logStatusChange]:::dao
+  end
+  SB --> FS
+  SB --> RD
+  SB --> DD
+  SB --> LG
+  FS --> UP[(uploads folder)]:::tbl
+  RD --> TR[(registration)]:::tbl
+  DD --> TD[(document)]:::tbl
+  LG --> TL[(status_change)]:::tbl
+  SB --> EM[EmailService<br/>sendReceived]:::svc --> EL[(email_log)]:::tbl
+```
 
 ### REVIEW: the admin reviews applications ✅
 
@@ -407,7 +455,40 @@ Files: `service/RegistrationService.java`, `service/DocumentReviewService.java`,
 | `AdminSelection.selectRegistration` | remembers the application the admin opened | PendingRegistrationsController, AdminDashboardController | none (UI state) |
 | `AdminSelection.registrationId` | reads it on the Review screen | ReviewRegistrationController | none |
 
-Flow: `pending-registrations.fxml → PendingRegistrationsController → RegistrationService.getPending → RegistrationDao.findByStatus`; `review-registration.fxml → ReviewRegistrationController → RegistrationService.getForReview`; verify `→ DocumentReviewService.verifyDocument ⚠ → DocumentDao.markReviewed → LogDao`; approve `→ DialogController.showApproveMode → ApproveDialogController → RegistrationService.approve ⚠` *(one transaction)* `→ EmailService.sendApproved`; reject `→ RejectDialogController → RegistrationService.reject ⚠ → EmailService.sendNotApproved`.
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  Q([pending-registrations.fxml]):::screen --> PC[PendingRegistrationsController]:::ctrl --> GP{{RegistrationService<br/>getPending}}:::svc --> RF[RegistrationDao<br/>findByStatus]:::dao --> TR[(registration)]:::tbl
+  RV([review-registration.fxml]):::screen --> RC[ReviewRegistrationController]:::ctrl
+  RC --> GR{{RegistrationService<br/>getForReview}}:::svc --> RF
+  RC --> VD{{DocumentReviewService<br/>verifyDocument<br/>undoVerification}}:::svc --> MR[DocumentDao<br/>markReviewed]:::dao --> TD[(document)]:::tbl
+  RC --> AD[ApproveDialogController]:::ctrl --> AP{{RegistrationService<br/>approve}}:::svc
+  RC --> RJD[RejectDialogController]:::ctrl --> RJ{{RegistrationService<br/>reject}}:::svc
+  AP -. rule fails, message shown .-> AD
+  subgraph TX[one transaction A2 for approve]
+    M1[DocumentDao<br/>markOk]:::dao
+    M2[RegistrationDao<br/>approve]:::dao
+    M3[AccountDao<br/>insert or moveToRegistration]:::dao
+    LG[LogDao]:::dao
+  end
+  AP --> M1
+  AP --> M2
+  AP --> M3
+  AP --> LG
+  M1 --> TD
+  M2 --> TR
+  M3 --> TA[(account)]:::tbl
+  LG --> TL[(status_change)]:::tbl
+  AP --> EA[EmailService<br/>sendApproved]:::svc
+  RJ --> M4[RegistrationDao<br/>reject]:::dao --> TR
+  RJ --> EN[EmailService<br/>sendNotApproved]:::svc
+```
 
 ### ACCOUNTS: the admin manages accounts ✅
 
@@ -424,7 +505,34 @@ Files: `service/AccountStatusService.java`, `controller/admin/AccountsController
 | `AccountDao.reinstateIfSuspended` | Suspended to Active; 0 rows if it was not Suspended | AccountStatusService | AccountStatusTest |
 | `DocumentDao.findEndingBy` | verified documents in force that end by a date | AccountStatusService, StatsService | AccountStatusTest |
 
-Flow: `accounts.fxml → AccountsController → AccountStatusService.getAccounts`; suspend `→ DialogController.showSuspendAccountMode → AccountStatusService.suspendAccount ⚠ → AccountDao.suspendIfActive → LogDao`; reinstate `→ showReinstateAccountMode → AccountStatusService.reinstateAccount ⚠ → AccountDao.reinstateIfSuspended → LogDao`.
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  A([accounts.fxml]):::screen --> AC[AccountsController]:::ctrl --> GA{{AccountStatusService<br/>getAccounts}}:::svc
+  GA --> FO[AccountDao<br/>findAllOrganizations]:::dao --> TA[(account)]:::tbl
+  GA --> FE[DocumentDao<br/>findEndingBy]:::dao --> TD[(document)]:::tbl
+  AC --> SD[SuspendAccountDialogController]:::ctrl --> SA{{AccountStatusService<br/>suspendAccount}}:::svc
+  AC --> RD[ReinstateAccountDialogController]:::ctrl --> RA{{AccountStatusService<br/>reinstateAccount}}:::svc
+  SA -. rule fails, message shown .-> SD
+  subgraph TX[one transaction A2]
+    SI[AccountDao<br/>suspendIfActive]:::dao
+    RI[AccountDao<br/>reinstateIfSuspended]:::dao
+    LG[LogDao]:::dao
+  end
+  SA --> SI
+  RA --> RI
+  SA --> LG
+  RA --> LG
+  SI --> TA
+  RI --> TA
+  LG --> TL[(status_change)]:::tbl
+```
 
 ### PROFILE: the organization's own profile 🟡
 
@@ -436,7 +544,23 @@ Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/sha
 | `DocumentReviewService.getCurrentDocumentAlerts` | verified documents expired or ending within 30 days | ProfileController | DocumentReviewTest |
 | `DocumentDao.findCurrentAlerts` | the query behind the warning banner | DocumentReviewService | DocumentReviewTest |
 
-Flow: `profile.fxml → ProfileController → DocumentReviewService.getMyDocuments, getCurrentDocumentAlerts → DocumentDao`; password buttons go through AUTH. *Edit, renewal and upgrade are not built: FLOWS.md module 4.*
+**Flow** (dashed = not built yet)
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:5 3,color:#475569
+  P([profile.fxml]):::screen --> PC[ProfileController]:::ctrl
+  PC --> MD{{DocumentReviewService<br/>getMyDocuments<br/>getCurrentDocumentAlerts}}:::svc --> DF[DocumentDao<br/>findByRegistration<br/>findCurrentAlerts]:::dao --> TD[(document)]:::tbl
+  PC --> FS[FileStorageService<br/>resolve]:::svc --> UP[(uploads folder)]:::tbl
+  PC -. password buttons .-> AU[see AUTH]:::ctrl
+  PC -.-> ED[RegistrationService<br/>updateProfile<br/>submitUpgrade]:::planned
+  PC -.-> RN[DocumentReviewService<br/>uploadRenewal]:::planned
+```
 
 ### SAFETY: safety notices 🟡
 
@@ -456,7 +580,42 @@ Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNo
 | `OfferDao.findParties` | who made an offer and who posted what it is on | SafetyService | SafetyServiceTest |
 | `OfferDao.findStatus` | an offer's status | SafetyService | SafetyServiceTest |
 
-Flow: `safety-notices.fxml → SafetyNoticesController → SafetyService.getNoticeRows`; resolve `→ DialogController.showResolveSafetyNoticeMode → SafetyService.dismiss / suspendFlaggedAccount ⚠` *(one transaction)* `→ AccountStatusService.suspend`; a closed notice `→ showNoticeResolvedMode`. *Raising from a screen and the overdue-report notice: FLOWS.md module 10.*
+**Flow** (dashed = not built yet)
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:5 3,color:#475569
+  N([safety-notices.fxml]):::screen --> NC[SafetyNoticesController]:::ctrl --> GR{{SafetyService<br/>getNoticeRows}}:::svc --> FR[SafetyNoticeDao<br/>findRows]:::dao --> TN[(safety_notice)]:::tbl
+  NC --> RS[ResolveSafetyDialogController]:::ctrl
+  RS --> DI{{SafetyService<br/>dismiss}}:::svc
+  RS --> SF{{SafetyService<br/>suspendFlaggedAccount}}:::svc
+  DI -. rule fails, message shown .-> RS
+  subgraph TX[one transaction A2]
+    RE[SafetyNoticeDao<br/>resolve]:::dao
+    PA[OfferDao<br/>findParties]:::dao
+    SU{{AccountStatusService<br/>suspend}}:::svc
+    LG[LogDao]:::dao
+  end
+  DI --> RE
+  SF --> RE
+  SF --> PA
+  SF --> SU
+  DI --> LG
+  SF --> LG
+  RE --> TN
+  PA --> TO[(offer)]:::tbl
+  SU --> TA[(account)]:::tbl
+  LG --> TL[(status_change)]:::tbl
+  NC --> NR[NoticeResolvedDialogController<br/>shows the result]:::ctrl
+  FD([Flag concern dialog<br/>not wired yet]):::planned -.-> RA{{SafetyService<br/>raise}}:::svc
+  RA --> OS[OfferDao<br/>findStatus<br/>findParties]:::dao --> TO
+  RA --> IN[SafetyNoticeDao<br/>insert]:::dao --> TN
+```
 
 ### STATS: admin numbers ✅
 
@@ -481,7 +640,28 @@ Files: `service/StatsService.java`, `controller/admin/AdminDashboardController.j
 | `RegistrationDao.countByStatus` | applications in one status | StatsService | StatsServiceTest |
 | `AccountDao.countSuspended` | suspended accounts | StatsService | StatsServiceTest |
 
-Flow: `dashboard.fxml → AdminDashboardController`, `ShellController → StatsService.getAdminSummary → RegistrationDao, PostDao, SafetyNoticeDao, DocumentDao, AccountDao`; `reports.fxml → ReportsController → StatsService.getReportMonths, getReport → PostDao, OfferDao, ReportDao`.
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  D([admin dashboard.fxml]):::screen --> DC[AdminDashboardController]:::ctrl --> AS{{StatsService<br/>getAdminSummary}}:::svc
+  SH[ShellController<br/>sidebar badges]:::ctrl --> AS
+  R([reports.fxml]):::screen --> RC[ReportsController]:::ctrl --> RM{{StatsService<br/>getReportMonths<br/>getReport}}:::svc
+  AS --> RG[RegistrationDao<br/>countByStatus]:::dao --> TR[(registration)]:::tbl
+  AS --> AC[AccountDao<br/>countSuspended]:::dao --> TA[(account)]:::tbl
+  AS --> SN[SafetyNoticeDao<br/>countOpen]:::dao --> TN[(safety_notice)]:::tbl
+  AS --> DE[DocumentDao<br/>findEndingBy]:::dao --> TD[(document)]:::tbl
+  AS --> PD[PostDao<br/>totalsByCity<br/>sumKgListed]:::dao --> TP[(post)]:::tbl
+  RM --> PD
+  RM --> PC[PostDao<br/>countWithOffers<br/>countWithAcceptedOffer<br/>findMonthsWithPosts]:::dao --> TP
+  RM --> OC[OfferDao<br/>countCompleted<br/>countAccepted<br/>countLapsed]:::dao --> TO[(offer)]:::tbl
+  RM --> RP[ReportDao<br/>sumPeopleServed<br/>countHandoffsPastDeadline<br/>countReportedOnTime]:::dao --> TRP[(report)]:::tbl
+```
 
 ### MAINT: automatic checks 🟡
 
@@ -494,11 +674,55 @@ Files: `service/MaintenanceService.java`, `controller/ShellController.java`, `ut
 | `DocumentDao.findCurrentExpiredRegistrations` | the accounts that query finds | AccountStatusService | AccountStatusTest |
 | `Navigator.setBeforeScreenListener` | lets the shell run something before each in-shell screen loads | ShellController | ShellMaintenanceTest |
 
-Flow: `Navigator.show → beforeScreenListener → ShellController.runMaintenance → MaintenanceService.runMaintenance → AccountStatusService.suspendAccountsWithExpiredDocuments → AccountDao.suspendIfActive → LogDao`, then the screen loads. A failing check is printed and skipped. *Five more checks: FLOWS.md modules 5 to 10, one line each.*
+**Flow** (dashed = not built yet)
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:5 3,color:#475569
+  NV[Navigator.show<br/>any in-shell screen]:::ctrl --> BL[beforeScreenListener]:::ctrl --> SC[ShellController<br/>runMaintenance]:::ctrl --> MS{{MaintenanceService<br/>runMaintenance}}:::svc
+  SC -. a failing check is printed and skipped .-> NV
+  MS -.-> P1[1 lapse accepted offers<br/>module 8]:::planned
+  MS -.-> P2[2 expire listings<br/>module 5]:::planned
+  MS -.-> P3[3 expire requests<br/>module 9]:::planned
+  MS -.-> P4[4 expire offered offers<br/>module 6]:::planned
+  MS -.-> P5[5 flag overdue reports<br/>module 10]:::planned
+  MS --> ES{{AccountStatusService<br/>suspendAccountsWithExpiredDocuments}}:::svc
+  subgraph TX[one transaction A2]
+    FE[DocumentDao<br/>findCurrentExpiredRegistrations]:::dao
+    SI[AccountDao<br/>suspendIfActive]:::dao
+    LG[LogDao]:::dao
+  end
+  ES --> FE
+  ES --> SI
+  ES --> LG
+  FE --> TD[(document)]:::tbl
+  SI --> TA[(account)]:::tbl
+  LG --> TL[(status_change)]:::tbl
+  NV --> SL([the screen loads]):::screen
+```
 
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
+
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  M[Main]:::ctrl --> NI[Navigator.init]:::ctrl --> NL([login.fxml]):::screen
+  NL --> NS[Navigator.show SHELL]:::ctrl --> SH([shell.fxml]):::screen --> SC[ShellController<br/>sidebar, badges, assistant]:::ctrl
+  SC --> NC[Navigator.setContent<br/>setScreenListener<br/>setBeforeScreenListener]:::ctrl
+  NC --> IN([in-shell screens fill the content area]):::screen
+  SC --> LO[handleLogout]:::ctrl --> AL{{AuthenticationService<br/>logout}}:::svc --> NL
+```
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
@@ -516,11 +740,40 @@ Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Naviga
 
 Files: `controller/shared/DialogController.java`, `controller/shared/dialog/` (all), `view/shared/dialog.fxml`, `view/shared/dialog/` (all). Sixteen dialogs; eight do a real action (Reject, Approve, Suspend, Reinstate, Resolve notice, Notice resolved, Set new password, Forgot password) and eight only open and close until their feature is built.
 
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  S([any screen]):::screen -- fx:include dialog.fxml --> DC[DialogController<br/>showXxxMode]:::ctrl
+  DC -- opens one card, closes the rest --> CARD[the 16 DialogCard classes]:::ctrl
+  CARD -- the 8 real dialogs only --> SV{{a service call}}:::svc
+  SV -. rule fails, message shown .-> ER[DialogController.showError]:::ctrl
+  CARD -- Back or Close --> DC
+```
+
 The `showXxxMode` methods are in `DialogController` and are outside the service/DAO coverage rule; section 6 lists the ones nothing calls yet. Test: `DialogControllerTest`.
 
 ### PLATFORM: foundations 🔧
 
 Files: `util/AppConfig.java`, `util/Database.java`, `util/Session.java`, `util/Settings.java`, `util/PasswordHasher.java`, `service/EmailService.java`, `service/FileStorageService.java`, `dao/LogDao.java`, `exception/` (both), `sql/` (all), `pom.xml`.
+
+**Flow**
+
+```mermaid
+flowchart LR
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  SV{{any service that writes}}:::svc --> TX[Database.inTransaction]:::ctrl --> GC[Database.getConnection]:::ctrl --> AC[AppConfig<br/>db.properties or a -Daniplato override]:::ctrl --> DB[(MySQL)]:::tbl
+  TX -- an exception rolls everything back --> SV
+  SV --> LG[LogDao<br/>logStatusChange]:::dao --> TL[(status_change)]:::tbl
+  SV --> EM[EmailService]:::svc --> EL[(email_log)]:::tbl
+  SV --> FS[FileStorageService]:::svc --> UP[(uploads.dir)]:::tbl
+```
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|

@@ -1,6 +1,6 @@
 # ANIPLATO Feature Flows
 
-One block per feature: the call chain, then the files it touches. Build in this order. Spec stage numbers refer to `Project Spec.md`.
+One diagram per feature: the call chain, then what is still to build. Build in this order. Spec stage numbers refer to `Project Spec.md`.
 Notation: `Screen → Controller.handler → Service.method → Dao.method → table`. `⚠` = throws `RuleViolationException` (shown by `DialogController.showError`).
 
 ## Conventions
@@ -75,158 +75,278 @@ Each module wires screens that already exist in FXML to the call chains below (t
 
 ---
 
-## 1. Login (built; verify only) — Stage 1, R1.7
-```
-login.fxml → LoginController.handleLogin
-  → AuthenticationService.login ⚠ → AccountDao.findByEmail, findPasswordHash → account
-  → Session.start
-  → mustChangePassword ? DialogController.showSetNewPasswordMode → AuthenticationService.changePassword → AccountDao.updatePassword
-  → Navigator.show(SHELL)
+## How to read the diagrams
+
+Dashed boxes are **planned**; a solid green outline is something that **already exists** and is reused. Colours: blue = screen, grey = controller, green = service, orange = DAO, purple = table. A dotted arrow back to the controller is a broken rule shown as a message. Method names are proposals (C7). The built features have their diagrams in [MAP.md](MAP.md) section 5 (AUTH, REGISTER, REVIEW, ACCOUNTS, PROFILE, SAFETY, STATS, MAINT, SHELL, POPUPS, PLATFORM).
+
+## 1. Login: built
+See MAP.md, AUTH. Nothing to build.
+
+## 2. Register and approve: built
+See MAP.md, REGISTER and REVIEW. Nothing to build.
+
+## 3a. Post a listing (Route 1): Stage 2A
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  NL([new-listing.fxml]):::screen --> C1[NewListingController<br/>handlePost]:::ctrl --> S1{{PostService<br/>createListing}}:::svc
+  S1 -. rule fails, message shown .-> C1
+  subgraph TX[one transaction A2]
+    P1[PostDao<br/>insert]:::dao
+    P2[DetailDao<br/>insertFood]:::dao
+    P3[PhotoDao<br/>insert per photo]:::dao
+    F1[FileStorageService<br/>save]:::built
+    L1[LogDao<br/>logStatusChange]:::built
+  end
+  S1 --> P1
+  S1 --> P2
+  S1 --> P3
+  S1 --> F1
+  S1 --> L1
+  P1 --> T1[(post)]:::tbl
+  P2 --> T2[(food_detail)]:::tbl
+  P3 --> T3[(photo)]:::tbl
+  L1 --> T4[(status_change)]:::tbl
+  ML([my-listings.fxml]):::screen --> C2[MyListingsController]:::ctrl --> S2{{PostService<br/>listMine}}:::svc --> P4[PostDao<br/>findByOwner]:::dao --> T1
 ```
 
-## 2. Register and approve — Stage 1
-```
-register.fxml → RegisterController.handleNext
-  → RegistrationService.checkDetails ⚠ (+ cities() → CityDao.findAll)
-register-step2.fxml → RegisterStep2Controller.handleSubmit
-  → RegistrationService.submit ⚠   [one transaction]
-      → FileStorageService.save (per document)
-      → RegistrationDao.insert → registration
-      → DocumentDao.insert → document
-      → EmailService.sendReceived → email_log
-register-submitted.fxml
+Rules: account Active and documents current, kg above 0, use-by in the future, window ends before use-by, 1 to 5 photos, category allowed for the role, storage set, attestation ticked. Rows on My Listings lead to Review offers (module 7), Confirm Release (8) and Cancel (8).
 
-pending-registrations.fxml → PendingRegistrationsController → RegistrationService.getPending → RegistrationDao
-review-registration.fxml → ReviewRegistrationController
-  approve → RegistrationService.approve ⚠   [one transaction]
-      → DocumentDao.updateReview, AuthenticationService.generateTemporaryPassword + PasswordHasher
-      → AccountDao.insert (or move to new registration for upgrade) → RegistrationDao.updateStatus
-      → LogDao.insertStatusChange → EmailService.sendApproved
-  reject  → RegistrationService.reject ⚠ → RegistrationDao.updateStatus → LogDao → EmailService.sendNotApproved
-```
-**Status:** [built, tested] the whole of this feature: applying (`cities`, `checkDetails`, `submit`) and the admin side (`getPending`, `getForReview`, `DocumentReviewService.verifyDocument`, `approve`, `reject`). Document preview (PDFBox, 7.5) opens the file with the desktop viewer through `FileStorageService.resolve`.
+**Status:** [new] `Post` and `FoodDetail` models, `PostService`, `DetailDao`, `PhotoDao`; `PostDao` exists but holds only the dashboard totals. The old `Listing*` code was deleted in the cleanup.
 
-## 3a. Post a listing (Route 1) — Stage 2A
-```
-donor/new-listing.fxml → NewListingController.handlePost
-  → PostService.createListing ⚠   [one transaction]
-      rules: account Active + documents current, kg>0, use-by future, window < use-by,
-             1–5 photos, category allowed for role, storage set, attestation ticked
-      → PostDao.insert → post
-      → DetailDao.insertFood → food_detail
-      → PhotoDao.insert (per photo) after FileStorageService.save → photo
-      → LogDao.insertStatusChange
-  → Navigator.show(MY_LISTINGS)
+## 3b. Post a request (Route 2): Stage 2B
 
-donor/my-listings.fxml → MyListingsController → PostService.listMine → PostDao.findByOwner
-  (rows: Open "Review offers" → incoming-offers; Accepted "Confirm Release" → feature 6; "Cancel listing" → Cancel Post dialog → PostService.cancelPost)
-```
-**Status:** [new] `Post`, `FoodDetail` models; `PostService`, `DetailDao`, `PhotoDao`; `PostDao` exists but holds only the dashboard totals. `Listing`, `ListingDao`, `ListingService`, `OfferService` and `MaintenanceService` (all on the removed `listing` table) were deleted in the cleanup. `OfferDao` keeps `findStatus`, `findParties` and the three counts; `Offer` keeps only its `Status` enum. Feature 4 adds the rest.
-
-## 3b. Post a request (Route 2) — Stage 2B
-```
-foodgroup/new-request.fxml → NewRequestController.handlePost
-  → PostService.createRequest ⚠   [one transaction]
-      → PostDao.insert → DetailDao.insertUse → use_detail → PhotoDao.insert → LogDao
-```
-Reuses everything from 3a; adds `UseDetail`, `new-request` screen, and `foodgroup/my-requests.fxml` → `MyRequestsController` → `PostService.listMine` (rows: "Review offers", "Confirm Receipt", "Cancel request").
-
-## 4. Browse and offer — Stage 3
-```
-foodgroup/browse-listings.fxml → BrowseListingsController → PostService.listOpenListings(viewer city first, hides suspended) → PostDao.findOpen
-donor/browse-requests.fxml     → BrowseRequestsController → PostService.listOpenRequests (casual: raw/sealed only)
-
-foodgroup/make-offer.fxml → FoodGroupMakeOfferController.handleSend
-  → OfferService.sendListingOffer ⚠   [one transaction]
-      rules: post Open, no existing offer, pickup inside window, 1–5 photos, attestation
-      → OfferDao.insert → PhotoDao.insert → LogDao
-donor/make-offer.fxml → DonorMakeOfferController.handleSend
-  → OfferService.sendRequestOffer ⚠  (+ DetailDao.insertFood for the offered food)
-
-donor/my-offers.fxml + foodgroup/my-offers.fxml → MyOffersController (x2) → OfferService.listMine → OfferDao.findByOfferer
-  withdraw → OfferService.withdraw ⚠ → OfferDao.updateStatus → LogDao
-```
-New: `BrowseRequestsController`, `DonorMakeOfferController`, `FoodGroupMakeOfferController` (rename existing `MakeOfferController`).
-
-## 5. Accept / decline an offer — Stage 4
-```
-donor/incoming-offers.fxml (Route 1) + foodgroup/offers-received.fxml (Route 2) → same service calls
-  load    → OfferService.listForPost → OfferDao.findByPost
-  accept  → OfferService.acceptOffer ⚠   [one transaction]
-      → OfferDao.updateStatus(accepted) + decline all other Offered
-      → PostDao.updateStatus(Accepted), agreed kg → LogDao (each change)
-  decline → OfferService.declineOffer ⚠ → OfferDao.updateStatus → LogDao
-phone reveal: OfferService.getContactPhone (only A7 path; owner/admin/accepted other side)
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  NR([new-request.fxml]):::screen --> C1[NewRequestController<br/>handlePost]:::ctrl --> S1{{PostService<br/>createRequest}}:::svc
+  S1 -. rule fails, message shown .-> C1
+  subgraph TX[one transaction A2]
+    P1[PostDao<br/>insert]:::dao
+    P2[DetailDao<br/>insertUse]:::dao
+    P3[PhotoDao<br/>insert]:::dao
+    L1[LogDao<br/>logStatusChange]:::built
+  end
+  S1 --> P1
+  S1 --> P2
+  S1 --> P3
+  S1 --> L1
+  P1 --> T1[(post)]:::tbl
+  P2 --> T2[(use_detail)]:::tbl
+  MR([my-requests.fxml]):::screen --> C2[MyRequestsController]:::ctrl --> S2{{PostService<br/>listMine}}:::svc
 ```
 
-Suspended offerers' offers are filtered out of `listForPost` (Stage 4).
+Reuses everything from 3a. Rows on My Requests: Review offers, Confirm Receipt, Cancel request.
 
-## 6. Handoff and receipt — Stage 5 (handoff part)
-```
-Confirm Release dialog, opened from donor my-listings (Route 1) and donor my-offers (Route 2)
-  → OfferService.confirmRelease ⚠ → OfferDao.updateReleased → LogDao
-Confirm Receipt dialog (shows "before confirming" checks), opened from foodgroup my-offers (Route 1) and my-requests (Route 2)
-  → OfferService.confirmReceipt ⚠   [one transaction]
-      → OfferDao.updateStatus(Completed) → PostDao.updateStatus(Rescued) → LogDao
-shared/handoff-record.fxml → HandoffRecordController → OfferService.buildHandoffRecord
-```
-The handoff record number is `HR-year-offer_id`, derived, not stored. The "Submit report" button sits on the food group's `handoff-record.fxml` (shows "Due <date>"); the donor's record shows the submitted report read-only.
-Cancel (Stage 6): `MyPostsController.handleCancel → PostService.cancelPost ⚠ [one transaction] → PostDao + OfferDao (decline/cancel) → LogDao`.
+## 4. Browse and offer: Stage 3
 
-## 7. Report and safety notice — Stage 5 (report), 6.3
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  BL([browse-listings.fxml]):::screen --> BC[BrowseListingsController]:::ctrl --> OL{{PostService<br/>listOpenListings}}:::svc --> FO[PostDao<br/>findOpen]:::dao --> TP[(post)]:::tbl
+  BR([browse-request.fxml]):::screen --> BQ[BrowseRequestsController]:::ctrl --> OR{{PostService<br/>listOpenRequests}}:::svc --> FO
+  MF([food group make-offer.fxml]):::screen --> MC[MakeOfferController]:::ctrl --> SL{{OfferService<br/>sendListingOffer}}:::svc
+  MD([donor make-offer.fxml]):::screen --> MDC[MakeOfferController donor]:::ctrl --> SR{{OfferService<br/>sendRequestOffer}}:::svc
+  SL -. rule fails, message shown .-> MC
+  subgraph TX[one transaction A2 per offer]
+    O1[OfferDao<br/>insert]:::dao
+    O2[PhotoDao<br/>insert]:::dao
+    O3[DetailDao<br/>insertUse or insertFood]:::dao
+    LG[LogDao<br/>logStatusChange]:::built
+  end
+  SL --> O1
+  SR --> O1
+  SL --> O2
+  SR --> O2
+  SL --> O3
+  SR --> O3
+  SL --> LG
+  SR --> LG
+  O1 --> TO[(offer)]:::tbl
+  MO([my-offers.fxml]):::screen --> MOC[MyOffersController]:::ctrl --> LM{{OfferService<br/>listMine}}:::svc --> FB[OfferDao<br/>findByOfferer]:::dao --> TO
+  MOC --> WD[WithdrawOfferDialogController]:::ctrl --> WO{{OfferService<br/>withdraw}}:::svc --> US[OfferDao<br/>updateStatus]:::dao --> TO
 ```
-shared/submit-report.fxml → SubmitReportController.handleSubmit
-  → ReportService.submit ⚠ → ReportDao.insert → PhotoDao.insert (deadline = receipt + Settings; late flagged by derive)
-shared/handoff-record → ReportService.findForHandoff (read-only for donor)
 
-flag concern (handoff-record) → SafetyService.raise ⚠ → SafetyNoticeDao.insert → LogDao
-admin/safety-notices.fxml → SafetyNoticesController
-  dismiss → SafetyService.dismiss ⚠ → SafetyNoticeDao.updateStatus
-  suspend → SafetyService.suspendFlaggedAccount → AccountStatusService.suspend → AccountDao.suspendIfActive → LogDao → (email)
-```
-**Status:** [built, tested] `SafetyService.raise/getNoticeRows/dismiss/suspendFlaggedAccount` and the admin screen. `raise` has no screen yet: the Flag Concern dialog is not wired. [new] `Report` model, `ReportDao.insert`, `ReportService`, `submit-report` screen. `SafetyNoticeDao.insert` now writes `kind` (the model defaults to `CONCERN`). The overdue-report notice (module 10) sets `OVERDUE_REPORT` and the insert must then accept a null `raised_by` and `concern`, which the table allows. The report deadline and "submitted late" are derived, not stored (A9).
+Rules: listings and requests in the viewer's city first; posts from suspended posters hidden; a Casual donor sees only raw or sealed-packaged requests; one offer per account per post; Route 1 pickup inside the listing's window; Route 2 kg not above the request.
 
-## 8. Admin accounts and profile — 6.3
-```
-admin/accounts.fxml → AccountsController
-  list      → AccountStatusService.getAccounts → AccountDao.findAllOrganizations            [built]
-  suspend   → AccountStatusService.suspendAccount ⚠ → AccountDao.suspendIfActive → LogDao   [built]
-  reinstate → AccountStatusService.reinstateAccount ⚠ → AccountDao.reinstateIfSuspended → LogDao   [built]
-profile.fxml → ProfileController
-  documents → DocumentReviewService.getMyDocuments, getCurrentDocumentAlerts             [built]
-  edit      → RegistrationService.updateProfile ⚠ → AccountDao/RegistrationDao            [new]
-  renewal   → DocumentReviewService.uploadRenewal ⚠ → FileStorageService → DocumentDao.insert   [new]
-  upgrade   → RegistrationService.submitUpgrade ⚠ → new Pending registration (same path as 2)   [new]
-  password  → ProfileController → AuthenticationService.changePassword                    [built]
-```
-**Status:** list, suspend, reinstate, document verify/undo, document lists and the expiry suspension are [built, tested]; edit, renewal and upgrade are [new]. Reinstate on a verified renewal (6.3) needs an admin step to verify the renewal. Figma answers it: `accounts.fxml` shows "Renewal uploaded → Review", which opens `review-registration.fxml`. Each document there gets three checks plus Verified/Undo (`DocumentReviewService.verifyDocument`, `undoVerification`); Approve unlocks when all are verified. Profile has Upload Renewal and Upgrade to Business dialogs (they open and close today).
+**Status:** the two `MakeOfferController`s stay two (a donor offer and a food group offer are different forms). `OfferDao` has only `findStatus`, `findParties` and the counts today.
 
-## 9. Dashboards, History, Reports — Section 3
-```
-*/dashboard.fxml (admin, donor, foodgroup) → *DashboardController → StatsService.forCurrentUser / forAdmin → PostDao/OfferDao/ReportDao aggregate queries
-shared/history.fxml → HistoryController → StatsService.history → OfferDao/PostDao
-admin/reports.fxml → ReportsController → StatsService.metrics
-```
-All values derived on read (A9), nothing stored.
+## 5. Accept or decline an offer: Stage 4
 
-## 10. Maintenance — 6.6
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  IO([incoming-offers.fxml<br/>donor and food group]):::screen --> IC[IncomingOffersController]:::ctrl --> LP{{OfferService<br/>listForPost}}:::svc --> FP[OfferDao<br/>findByPost]:::dao --> TO[(offer)]:::tbl
+  IC --> AD[AcceptOfferDialogController]:::ctrl --> AO{{OfferService<br/>acceptOffer}}:::svc
+  IC --> DO{{OfferService<br/>declineOffer}}:::svc
+  AO -. rule fails, message shown .-> AD
+  subgraph TX[one transaction A2]
+    A1[OfferDao<br/>markAccepted]:::dao
+    A2[OfferDao<br/>declineOthers]:::dao
+    A3[PostDao<br/>markAccepted]:::dao
+    LG[LogDao<br/>every change]:::built
+  end
+  AO --> A1
+  AO --> A2
+  AO --> A3
+  AO --> LG
+  A1 --> TO
+  A2 --> TO
+  A3 --> TP[(post)]:::tbl
+  IC --> CP{{OfferService<br/>getContactPhone}}:::svc
 ```
-Shell load → MaintenanceService.runMaintenance (calls services only, A4), in order:
-  OfferService.lapseOverdueAcceptedOffers → PostService.expireOverdue → OfferService.expireOverdueOffered
-  → ReportService.flagOverdueReports (→ SafetyService) → AccountStatusService.suspendAccountsWithExpiredDocuments   [built, tested]
-Profile banner → DocumentReviewService.getCurrentDocumentAlerts   [built; ProfileController calls it directly]
-```
-Attach to `ShellController` only now. The old `MaintenanceService` was deleted in the cleanup (it called deleted services); write it again here as a class that only calls other services (A4). Each service's lapse/expire method is added in the feature that owns that status (3a, 4, 5, 7, 8) and only wired here.
 
-## 11. Shell, navigation, logout — A5
+`getContactPhone` is the only way a phone number is returned (A7): to the owner, an admin, or the other side of an Accepted, not yet closed offer. Offers from a suspended offerer are left out of `listForPost`.
+
+## 6. Handoff, receipt and cancel: Stages 5 and 6
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  CR[ConfirmReleaseDialogController]:::ctrl --> RL{{OfferService<br/>confirmRelease}}:::svc --> MR[OfferDao<br/>markReleased]:::dao --> TO[(offer)]:::tbl
+  CC[ConfirmReceiptDialogController]:::ctrl --> RC{{OfferService<br/>confirmReceipt}}:::svc
+  RC -. receipt before release is refused .-> CC
+  subgraph TX1[one transaction A2 for receipt]
+    M1[OfferDao<br/>markCompleted]:::dao
+    M2[PostDao<br/>markRescued]:::dao
+    L1[LogDao]:::built
+  end
+  RC --> M1
+  RC --> M2
+  RC --> L1
+  M1 --> TO
+  M2 --> TP[(post)]:::tbl
+  HR([handoff-record.fxml]):::screen --> HC[HandoffRecordController]:::ctrl --> BH{{OfferService<br/>buildHandoffRecord}}:::svc
+  CL[CancelListingDialogController]:::ctrl --> CP{{PostService<br/>cancelPost}}:::svc
+  subgraph TX2[one transaction A2 for cancel]
+    K1[PostDao<br/>markCancelled]:::dao
+    K2[OfferDao<br/>decline or cancel the offers]:::dao
+    L2[LogDao]:::built
+  end
+  CP --> K1
+  CP --> K2
+  CP --> L2
+  K1 --> TP
+  K2 --> TO
 ```
-shared/shell.fxml → ShellController → Navigator.show(role dashboard) ; nav-* menu per role ; logout → AuthenticationService.logout → Session.clear → Navigator.show(LOGIN)
+
+The record number is `HR-year-offer_id`, derived and never stored; it says it is not a government certificate. A Completed handoff cannot be cancelled.
+
+## 7. Report and safety notice: Stage 5 (report), 6.3
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  SR([submit-report.fxml]):::screen --> SC[SubmitReportController<br/>handleSubmit]:::ctrl --> RS{{ReportService<br/>submit}}:::svc
+  RS -. rule fails, message shown .-> SC
+  subgraph TX[one transaction A2]
+    R1[ReportDao<br/>insert]:::dao
+    R2[PhotoDao<br/>insert]:::dao
+  end
+  RS --> R1
+  RS --> R2
+  R1 --> TR[(report)]:::tbl
+  HR([handoff-record.fxml]):::screen --> FH{{ReportService<br/>findForHandoff}}:::svc
+  FD[FlagSafetyDialogController]:::ctrl --> RA{{SafetyService<br/>raise}}:::built
+  MS[MaintenanceService]:::built --> FO{{ReportService<br/>flagOverdueReports}}:::svc --> IO[SafetyNoticeDao<br/>insertOverdue]:::dao --> TN[(safety_notice)]:::tbl
 ```
-**Status:** [built]. Check only; add menu entries (Browse requests, New request, My offers) as features 3b and 4 land.
+
+Resolving a notice is already built (MAP.md, SAFETY). The report is due 7 days after receipt; "submitted late" is derived (A9). `SafetyNoticeDao.insert` writes `kind`; the overdue notice has no raiser and no concern, so its insert must accept nulls for both.
+
+## 8. Profile, renewals and upgrade: 6.3
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  classDef built fill:#ffffff,stroke:#16a34a,color:#111827
+  PC[ProfileController<br/>handleEditContact]:::ctrl --> UP{{RegistrationService<br/>updateProfile}}:::svc --> UC[RegistrationDao<br/>updateContact]:::dao --> TR[(registration)]:::tbl
+  RD[UploadRenewalDialogController<br/>with UploadSlot]:::ctrl --> UR{{DocumentReviewService<br/>uploadRenewal}}:::svc
+  subgraph TX[one transaction A2]
+    F1[FileStorageService<br/>save]:::built
+    D1[DocumentDao<br/>insert]:::built
+    L1[LogDao]:::built
+  end
+  UR --> F1
+  UR --> D1
+  UR --> L1
+  D1 --> TD[(document)]:::tbl
+  UB[UpgradeBusinessDonorDialogController<br/>with UploadSlot]:::ctrl --> SU{{RegistrationService<br/>submitUpgrade}}:::svc --> R1[RegistrationDao<br/>insert]:::built
+  VD{{DocumentReviewService<br/>verifyDocument}}:::built -. a verified renewal reinstates an account suspended for Document expired .-> RE{{AccountStatusService<br/>reinstate by the system}}:::svc
+```
+
+List, suspend, reinstate, verify and the document lists are built (MAP.md, ACCOUNTS and PROFILE). The admin reaches a renewal from Accounts through Review (Figma: "Renewal uploaded, Review").
+
+## 9. Dashboards, History, Reports: Section 3
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
+  classDef ctrl fill:#f1f5f9,stroke:#64748b,stroke-dasharray:5 3,color:#111827
+  classDef svc fill:#e8f7ee,stroke:#2f9e5a,stroke-dasharray:5 3,color:#111827
+  classDef dao fill:#fff4e0,stroke:#d98a00,stroke-dasharray:5 3,color:#111827
+  classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
+  DD([donor dashboard.fxml]):::screen --> DC[DonorDashboardController]:::ctrl --> DS{{StatsService<br/>getDonorSummary}}:::svc
+  FD([food group dashboard.fxml]):::screen --> FC[FoodGroupDashboardController]:::ctrl --> FS{{StatsService<br/>getFoodGroupSummary}}:::svc
+  HI([history.fxml]):::screen --> HC[HistoryController]:::ctrl --> GH{{StatsService<br/>getHistory}}:::svc
+  DS --> PO[PostDao<br/>per-user totals]:::dao --> TP[(post)]:::tbl
+  FS --> PO
+  GH --> OD[OfferDao<br/>handoffs of one user]:::dao --> TO[(offer)]:::tbl
+```
+
+All values are derived on read (A9). The admin dashboard and reports are built (MAP.md, STATS).
+
+## 10. Maintenance: 6.6
+Built and attached (MAP.md, MAINT). Each module below adds exactly one line to `MaintenanceService.runMaintenance`, at the position 6.6 gives it, with a test in `MaintenanceServiceTest`:
+
+| Order | Line | Added by |
+|---|---|---|
+| 1 | `offerService.lapseOverdueAcceptedOffers` | module 8 |
+| 2 | `postService.expireOverdueListings` | module 5 |
+| 3 | `postService.expireOverdueRequests` | module 9 |
+| 4 | `offerService.expireOverdueOffered` | module 6 |
+| 5 | `reportService.flagOverdueReports` | module 10 |
+| 6 | `accountStatusService.suspendAccountsWithExpiredDocuments` | built |
+
+## 11. Shell, navigation, logout: A5
+Built (MAP.md, SHELL). Add sidebar entries (Browse requests, New request, My offers) as modules 5 and 6 land.
 
 ## 12. Demo data and finish
-`sql/seed.sql` (one full loop per route, one expired post, one suspended account, per Spec section 5 Demo); README. The AI assistant (spec stretch) has Figma frames ("Donor Dashboard – AI chat open") but stays out of this plan until everything above works. The donor Suspended restricted view is part of feature 9 (dashboard).
-
+`sql/seed.sql` (one full loop per route, one expired post, one suspended account, per Spec section 5 Demo); README. The AI assistant (spec stretch) has Figma frames but stays out of this plan until everything above works. The donor Suspended restricted view is part of module 11.
 
 ---
 
