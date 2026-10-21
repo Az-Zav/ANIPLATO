@@ -22,14 +22,12 @@ public class UpgradeBusinessDonorDialogController extends DialogCard {
 
     @FXML
     private void handleChooseMayorPermitFile() {
-        // TODO(file-picker): Open FileChooser and update selectedMayorPermitFileLabel
-        selectedMayorPermitFileLabel.setText("mayors-permit-2026.pdf");
+        // TODO(file-picker): choose the file with an UploadSlot and show it in selectedMayorPermitFileLabel (FLOWS.md module 4)
     }
 
     @FXML
     private void handleChooseSanitaryPermitFile() {
-        // TODO(file-picker): Open FileChooser and update selectedSanitaryPermitFileLabel
-        selectedSanitaryPermitFileLabel.setText("sanitary-permit-2026.pdf");
+        // TODO(file-picker): choose the file with an UploadSlot and show it in selectedSanitaryPermitFileLabel (FLOWS.md module 4)
     }
 
     // PATTERN:ACTION confirms upgrading to business donor

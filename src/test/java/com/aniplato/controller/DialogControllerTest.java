@@ -286,6 +286,16 @@ class DialogControllerTest {
     }
 
     @Test
+    void theUpgradeUploadButtonsDoNotInventAFileName() {
+        fx(() -> dialogs.showUpgradeBusinessDonorMode());
+        Node card = onlyShownCard();
+        fx(() -> all(card, Button.class).stream().filter(b -> b.getText() != null && b.getText().contains("Upload PDF"))
+                .forEach(Button::fire));
+        assertEquals(2, textIn(card).split("No file chosen", -1).length - 1, "both permits still show no file");
+        assertFalse(textIn(card).contains(".pdf\n"), "no made-up file name");
+    }
+
+    @Test
     void flagSafetyConcernStartsEmpty() {
         fx(() -> dialogs.showFlagSafetyConcernMode());
         assertEquals("", all(onlyShownCard(), TextArea.class).get(0).getText());
