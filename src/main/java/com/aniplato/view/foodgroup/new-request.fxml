@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.NewRequestController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
+    <content>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="24.0" /></padding>
+            <children>
+                <Label styleClass="page-title" text="New Request" />
+                <VBox spacing="18.0" styleClass="table-card">
+                    <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+                    <children>
+                        <Label styleClass="section-title" text="Food needed" />
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label styleClass="form-label" text="What food do you need? *" />
+                                <TextField fx:id="foodNeededField" text="Bread and pastries for a school feeding program" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Accepted categories *" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <CheckBox text="Raw" />
+                                        <CheckBox text="Cooked" />
+                                        <CheckBox selected="true" text="Baked" />
+                                        <CheckBox selected="true" text="Packaged" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="text-muted" text="Pick every category you can accept. Not allowed: milk products, tomato- or milk-based cooked food, or food already served." wrapText="true" />
+                            </children>
+                        </VBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="Quantity &amp; timing" />
+                        <HBox spacing="16.0">
+                            <children>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <children><Label styleClass="form-label" text="Kg needed *" /><TextField text="40.0" /></children>
+                                </VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <children><Label styleClass="form-label" text="Needed by *" /><DatePicker /></children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="Event or program" />
+                        <VBox spacing="6.0">
+                            <children><Label styleClass="form-label" text="Event or program name *" /><TextField text="School feeding program" /></children>
+                        </VBox>
+                        <HBox spacing="16.0">
+                            <children>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="How many people *" /><TextField text="120" /></children></VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="Event date *" /><DatePicker /></children></VBox>
+                            </children>
+                        </HBox>
+                        <VBox spacing="6.0"><children><Label styleClass="form-label" text="Who it feeds *" /><TextField text="Grade school pupils" /></children></VBox>
+                        <VBox spacing="6.0"><children><Label styleClass="form-label" text="Where should the food go? *" /><TextField text="San Roque Elementary School, Mandaluyong City" /></children></VBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="Photos" />
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Photos *" />
+                                <HBox spacing="8.0"><children>
+                                    <Button styleClass="upload-preview" text="+&#10;Add photo" />
+                                    <Region styleClass="upload-preview" minWidth="60.0" minHeight="60.0" />
+                                    <Region styleClass="upload-preview" minWidth="60.0" minHeight="60.0" />
+                                    <Region styleClass="upload-preview" minWidth="60.0" minHeight="60.0" />
+                                </children></HBox>
+                                <Label styleClass="text-muted" text="1 to 5 photos of past events or your venue. For a new event, the recipients." />
+                            </children>
+                        </VBox>
+                        <Region styleClass="divider" minHeight="1.0" />
+                        <Label styleClass="section-title" text="Message &amp; confirmation" />
+                        <VBox spacing="6.0"><children><Label styleClass="form-label" text="Message to donors (optional)" /><TextArea prefRowCount="2" text="We can pick up with two volunteers." /></children></VBox>
+                        <HBox spacing="8.0" styleClass="notice-box"><children><CheckBox selected="true" text="Group attestation: We will give this food away free, will not sell it, and will handle it safely after pickup. Photos show no identifiable children, and identifiable adults have consented." wrapText="true" /><Label styleClass="text-muted" text="Required. Saved with a timestamp when you post." wrapText="true" /></children></HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                            <children>
+                                <!-- PATTERN:NAV -> MY_REQUESTS -->
+                                <Button onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                                <!-- PATTERN:ACTION handlePost -->
+                                <Button onAction="#handlePost" styleClass="primary-button" text="Post" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
