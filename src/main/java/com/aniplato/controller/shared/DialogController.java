@@ -4,6 +4,7 @@ import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
@@ -11,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class DialogController {
@@ -105,6 +107,9 @@ public class DialogController {
     @FXML
     private void initialize() {
         hideAllDialogs();
+        // Every green confirmation badge shows the bundled check icon
+        rejectDialogBox.getParent().lookupAll(".modal-icon-green-box").forEach(node ->
+                ((StackPane) node).getChildren().setAll(SvgIcon.load("/assets/Check_Button.svg", 40)));
     }
 
     /** 1. Prepares dialog for Reject Org mode */
@@ -379,8 +384,15 @@ public class DialogController {
             showError("Please enter your email address.");
             return;
         }
-        // TODO(service): Call authenticationService.requestPasswordReset(email)
+        try {
+            authenticationService.requestPasswordReset(email);
+        } catch (RuleViolationException e) {
+            showError(e.getMessage());   // A8
+            return;
+        }
         closeOverlay();
+        // same answer either way, so the dialog does not reveal which emails have accounts
+        new Alert(Alert.AlertType.INFORMATION, "If that email has an account, a temporary password is on its way.").showAndWait();
     }
 
     // PATTERN:ACTION confirms upgrading to business donor
