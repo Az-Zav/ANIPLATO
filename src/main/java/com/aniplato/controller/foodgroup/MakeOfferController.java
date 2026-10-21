@@ -28,7 +28,7 @@ public class MakeOfferController {
         Navigator.show(Navigator.Screen.BROWSE_LISTINGS);
     }
 
-    // PATTERN:ACTION placeholder: validates and submits the offer through OfferService
+    // PATTERN:ACTION placeholder: validates and submits the offer through the offer service (FLOWS.md module 6)
     @FXML
     private void handleSendOffer() {
         // TODO(service): offerService.makeOffer(...) -- R4.1

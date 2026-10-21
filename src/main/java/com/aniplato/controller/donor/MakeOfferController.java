@@ -84,7 +84,7 @@ public class MakeOfferController {
             return;
         }
 
-        // TODO(service): submit the offer through OfferService
+        // TODO(service): submit the offer through the offer service (FLOWS.md module 6)
         formStatusLabel.setText("Offer sent successfully.");
     }
 

@@ -4,7 +4,6 @@ import com.aniplato.support.DbTest;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -126,11 +125,40 @@ class SafetyServiceTest extends DbTest {
     //---RAISING A CONCERN---
 
     @Test
-    @Disabled("Known bug, see docs/CLEANUP-REPORT.md: raise() reads the old listing model and "
-            + "SafetyNoticeDao.insert leaves out the NOT NULL kind column. Rewritten in FLOWS.md module 10.")
-    void eitherSideOfAnAcceptedOfferCanRaiseAConcern() {
-        loginAs(GROUP);
-        int notice = safety.raise(offer, "The bread was moldy.");
+    void eitherSideOfAnAcceptedOfferCanRaiseAConcernAndItIsLogged() {
+        int groupId = loginAs(GROUP).id;
+        int notice = safety.raise(offer, "  The bread was moldy.  ");
+
         assertEquals("OPEN", noticeStatus(notice));
+        assertEquals("CONCERN", TestDb.scalar("SELECT kind FROM safety_notice WHERE notice_id = ?", notice));
+        assertEquals("The bread was moldy.", TestDb.scalar("SELECT concern FROM safety_notice WHERE notice_id = ?", notice));
+        assertEquals((long) groupId, TestDb.count("SELECT raised_by FROM safety_notice WHERE notice_id = ?", notice));
+        assertEquals(1L, TestDb.count("SELECT COUNT(*) FROM status_change WHERE entity_type = 'NOTICE' AND entity_id = ? "
+                + "AND from_status IS NULL AND to_status = 'OPEN' AND changed_by = ?", notice, groupId));
+
+        loginAs(BUSINESS);
+        assertEquals("OPEN", noticeStatus(safety.raise(offer, "They never came.")));
+    }
+
+    @Test
+    void aSuspendedAccountMayStillRaiseAConcern() {
+        TestDb.exec("UPDATE account SET status = 'SUSPENDED', suspend_reason = 'test' WHERE email = ?", GROUP);
+        loginAs(GROUP);
+        assertEquals("OPEN", noticeStatus(safety.raise(offer, "Still a concern.")));
+    }
+
+    @Test
+    void raiseChecksTheConcernTheOfferAndWhoIsRaisingIt() {
+        loginAs(GROUP);
+        assertRule("Describe the concern.", () -> safety.raise(offer, " "));
+        assertRule("That offer no longer exists.", () -> safety.raise(99999, "x"));
+
+        TestDb.exec("UPDATE offer SET status = 'OFFERED' WHERE offer_id = ?", offer);
+        assertRule("A concern can be raised only on an accepted or completed offer.", () -> safety.raise(offer, "x"));
+        TestDb.exec("UPDATE offer SET status = 'ACCEPTED' WHERE offer_id = ?", offer);
+
+        loginAs(CASUAL);
+        assertRule("Only the donor or the food group of this offer can raise a concern.", () -> safety.raise(offer, "x"));
+        assertEquals(0L, TestDb.count("SELECT COUNT(*) FROM safety_notice"));
     }
 }

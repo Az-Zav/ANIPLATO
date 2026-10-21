@@ -7,7 +7,6 @@ import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.service.DocumentReviewService;
 import com.aniplato.service.FileStorageService;
-import com.aniplato.service.MaintenanceService;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
@@ -65,7 +64,6 @@ public class ProfileController {
     @FXML private Label loginEmailLabel;
     @FXML private Label passwordStatusLabel;
 
-    private final MaintenanceService maintenanceService = new MaintenanceService();
     private final DocumentReviewService documentReviewService = new DocumentReviewService();
 
     @FXML
@@ -173,7 +171,7 @@ public class ProfileController {
     private void loadDocumentAlert() {
         List<Document> alerts;
         try {
-            alerts = maintenanceService.getCurrentDocumentAlerts();
+            alerts = documentReviewService.getCurrentDocumentAlerts(LocalDate.now());
         } catch (RuntimeException e) {
             return;   // no banner is better than a wrong one
         }

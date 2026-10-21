@@ -1,13 +1,11 @@
 package com.aniplato.service;
 
-import com.aniplato.dao.ListingDao;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
 import com.aniplato.dao.SafetyNoticeDao;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
-import com.aniplato.model.Listing;
 import com.aniplato.model.Offer;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.util.Database;
@@ -27,7 +25,6 @@ public class SafetyService {
 
     private final SafetyNoticeDao noticeDao = new SafetyNoticeDao();
     private final OfferDao offerDao = new OfferDao();
-    private final ListingDao listingDao = new ListingDao();
     private final LogDao logDao = new LogDao();
     private final AccountStatusService accountStatusService = new AccountStatusService();
 
@@ -40,13 +37,13 @@ public class SafetyService {
         String text = requireText(concern, "Describe the concern.");
 
         return Database.inTransaction(SAVE_ERROR, c -> {
-            Offer offer = offerDao.findById(c, offerId);
-            if (offer == null) throw new RuleViolationException("That offer no longer exists.");
-            if (offer.status != Offer.Status.ACCEPTED && offer.status != Offer.Status.COMPLETED) {
+            OfferDao.Parties parties = offerDao.findParties(c, offerId);
+            if (parties == null) throw new RuleViolationException("That offer no longer exists.");
+            Offer.Status status = offerDao.findStatus(c, offerId);
+            if (status != Offer.Status.ACCEPTED && status != Offer.Status.COMPLETED) {
                 throw new RuleViolationException("A concern can be raised only on an accepted or completed offer.");
             }
-            int posterId = listingDao.findById(c, offer.listingId).postedBy;
-            if (me.id != offer.groupId && me.id != posterId) {
+            if (me.id != parties.offererId() && me.id != parties.posterId()) {
                 throw new RuleViolationException("Only the donor or the food group of this offer can raise a concern.");
             }
 
