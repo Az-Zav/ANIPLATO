@@ -69,8 +69,6 @@ public class DialogController {
     @FXML private TextField newExpiryDateField;
 
     // 11. SET NEW PASSWORD CONTAINER & FIELDS
-    // FXML: dialog.fxml fx:ids setNewPasswordDialogBox, newPasswordField, confirmPasswordField;
-    // the confirm button needs onAction="#handleConfirmSetNewPassword"
     @FXML private VBox setNewPasswordDialogBox;
     @FXML private PasswordField currentPasswordField;
     @FXML private PasswordField newPasswordField;
@@ -93,6 +91,16 @@ public class DialogController {
     @FXML private CheckBox receiptConditionCheck;
     @FXML private Label receiptNoticeLabel;
 
+    // 14. FORGOT PASSWORD CONTAINER & FIELDS
+    @FXML private VBox forgotPasswordDialogBox;
+    @FXML private TextField forgotPasswordEmailField;
+
+    // 15. UPGRADE TO BUSINESS DONOR CONTAINER & FIELDS
+    @FXML private VBox upgradeBusinessDonorDialogBox;
+    @FXML private Label selectedMayorPermitFileLabel;
+    @FXML private TextField mayorPermitExpiryDateField;
+    @FXML private Label selectedSanitaryPermitFileLabel;
+    @FXML private TextField sanitaryPermitExpiryDateField;
 
     @FXML
     private void initialize() {
@@ -188,11 +196,7 @@ public class DialogController {
         newExpiryDateField.clear();
     }
 
-    /**
-     * 11. Prepares dialog for Set New Password mode (login with a temporary password, or Profile).
-     * @param currentPassword prefilled in "current password" (the temporary password just used); null leaves it blank
-     * @param onDone          runs after the new password is saved
-     */
+    /** 11. Prepares dialog for Set New Password mode */
     public void showSetNewPasswordMode(String currentPassword, Runnable onDone) {
         this.afterPasswordSet = onDone;
         showDialog(setNewPasswordDialogBox);
@@ -225,6 +229,23 @@ public class DialogController {
         }
     }
 
+    /** 14. Prepares dialog for Forgot Password mode */
+    public void showForgotPasswordMode(String email) {
+        showDialog(forgotPasswordDialogBox);
+        if (forgotPasswordEmailField != null) {
+            forgotPasswordEmailField.setText(email != null ? email : "");
+        }
+    }
+
+    /** 15. Prepares dialog for Upgrade to Business Donor mode */
+    public void showUpgradeBusinessDonorMode() {
+        showDialog(upgradeBusinessDonorDialogBox);
+        if (selectedMayorPermitFileLabel != null) selectedMayorPermitFileLabel.setText("No file chosen");
+        if (mayorPermitExpiryDateField != null) mayorPermitExpiryDateField.clear();
+        if (selectedSanitaryPermitFileLabel != null) selectedSanitaryPermitFileLabel.setText("No file chosen");
+        if (sanitaryPermitExpiryDateField != null) sanitaryPermitExpiryDateField.clear();
+    }
+
     @FXML
     private void handleSwitchToFlagSafety() {
         showFlagSafetyConcernMode();
@@ -233,6 +254,22 @@ public class DialogController {
     @FXML
     private void handleChooseRenewalFile() {
         // TODO(file-picker): Open FileChooser and update selectedRenewalFileLabel
+    }
+
+    @FXML
+    private void handleChooseMayorPermitFile() {
+        // TODO(file-picker): Open FileChooser and update selectedMayorPermitFileLabel
+        if (selectedMayorPermitFileLabel != null) {
+            selectedMayorPermitFileLabel.setText("mayors-permit-2026.pdf");
+        }
+    }
+
+    @FXML
+    private void handleChooseSanitaryPermitFile() {
+        // TODO(file-picker): Open FileChooser and update selectedSanitaryPermitFileLabel
+        if (selectedSanitaryPermitFileLabel != null) {
+            selectedSanitaryPermitFileLabel.setText("sanitary-permit-2026.pdf");
+        }
     }
 
     // PATTERN:ACTION cancels dialog overlay
@@ -334,6 +371,24 @@ public class DialogController {
         closeOverlay();
     }
 
+    // PATTERN:ACTION confirms forgot password request
+    @FXML
+    private void handleConfirmForgotPassword() {
+        String email = forgotPasswordEmailField != null ? forgotPasswordEmailField.getText().trim() : "";
+        if (email.isEmpty()) {
+            showError("Please enter your email address.");
+            return;
+        }
+        // TODO(service): Call authenticationService.requestPasswordReset(email)
+        closeOverlay();
+    }
+
+    // PATTERN:ACTION confirms upgrading to business donor
+    @FXML
+    private void handleConfirmUpgradeBusinessDonor() {
+        closeOverlay();
+    }
+
     private void showDialog(VBox dialogBox) {
         hideAllDialogs();
         if (dialogBox != null) {
@@ -360,6 +415,8 @@ public class DialogController {
         if (setNewPasswordDialogBox != null) { setNewPasswordDialogBox.setVisible(false); setNewPasswordDialogBox.setManaged(false); }
         if (withdrawOfferDialogBox != null) { withdrawOfferDialogBox.setVisible(false); withdrawOfferDialogBox.setManaged(false); }
         if (confirmReceiptDialogBox != null) { confirmReceiptDialogBox.setVisible(false); confirmReceiptDialogBox.setManaged(false); }
+        if (forgotPasswordDialogBox != null) { forgotPasswordDialogBox.setVisible(false); forgotPasswordDialogBox.setManaged(false); }
+        if (upgradeBusinessDonorDialogBox != null) { upgradeBusinessDonorDialogBox.setVisible(false); upgradeBusinessDonorDialogBox.setManaged(false); }
     }
 
     private void closeOverlay() {
