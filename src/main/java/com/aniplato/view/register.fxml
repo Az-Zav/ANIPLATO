@@ -176,6 +176,9 @@
                                     </children>
                                 </VBox>
 
+                                <!-- Rule failures and load errors show here (A8) -->
+                                <Label fx:id="errorLabel" managed="false" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" wrapText="true" />
+
                                 <!-- ACTION BAR -->
                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
                                     <children>

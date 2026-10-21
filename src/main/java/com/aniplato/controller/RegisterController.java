@@ -1,8 +1,15 @@
 package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.exception.DataAccessException;
+import com.aniplato.exception.RuleViolationException;
+import com.aniplato.model.Account;
+import com.aniplato.model.City;
+import com.aniplato.model.Registration;
+import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.RegistrationDraft;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -38,22 +45,53 @@ public class RegisterController {
 
     // Form Inputs
     @FXML private TextField businessNameField;
-    @FXML private ComboBox<String> cityComboBox;
+    @FXML private ComboBox<City> cityComboBox;
     @FXML private TextField contactPersonField;
     @FXML private TextField contactNumberField;
     @FXML private TextField emailField;
 
+    // FXML: errorLabel (style class "error-text") shows a failed check in place, instead of a dialog (A8)
+    @FXML private Label errorLabel;
+
+    private final RegistrationService registrationService = new RegistrationService();
     private boolean isDonorSelected = true;
 
     @FXML
     private void initialize() {
-        if (cityComboBox != null) {
-            cityComboBox.getItems().addAll(
-                    "Pasig City", "Mandaluyong City", "Marikina City", "Quezon City", "Manila", "Taguig City"
-            );
-        }
+        loadCities();
+        restoreDraft();
         updatePermitCardStyles();
         updateFormForRole();
+        // the message goes away as soon as the user edits a field
+        for (TextField field : new TextField[] {businessNameField, contactPersonField, contactNumberField, emailField}) {
+            field.textProperty().addListener((o, was, now) -> hideError());
+        }
+        cityComboBox.valueProperty().addListener((o, was, now) -> hideError());
+    }
+
+    private void loadCities() {
+        try {
+            cityComboBox.getItems().setAll(registrationService.cities());
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            showError("Could not load the city list. Check the database connection and reopen this screen.");
+        }
+    }
+
+    /** Coming back from step 2 (Back button): put the typed details and the role choice back. */
+    private void restoreDraft() {
+        Registration draft = RegistrationDraft.get();
+        if (draft == null) return;
+        if (draft.role == Account.Role.FOOD_GROUP) {
+            handleSelectFoodGroup();
+        } else {
+            handleSelectDonor();
+            (draft.role == Account.Role.BUSINESS_DONOR ? hasPermitsRadio : noPermitsRadio).setSelected(true);
+        }
+        businessNameField.setText(draft.name);
+        cityComboBox.setValue(draft.city);
+        contactPersonField.setText(draft.contactPerson);
+        contactNumberField.setText(draft.contactPhone);
+        emailField.setText(draft.email);
     }
 
     // PATTERN:ACTION updates permit card styles so only the selected item is green
@@ -149,6 +187,41 @@ public class RegisterController {
     // PATTERN:ACTION validates step 1 inputs and routes to Step 2 Documents
     @FXML
     private void handleNextStep2() {
+        hideError();
+        Registration form = new Registration();
+        form.role = selectedRole();
+        form.name = businessNameField.getText();
+        form.city = cityComboBox.getValue();
+        form.contactPerson = contactPersonField.getText();
+        form.contactPhone = contactNumberField.getText();
+        form.email = emailField.getText();
+        try {
+            registrationService.checkDetails(form);   // R1 rules live in the service (A1)
+        } catch (RuleViolationException e) {
+            showError(e.getMessage());   // A8
+            return;
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            showError("Could not check your details. Check the database connection and try again.");
+            return;
+        }
+        RegistrationDraft.set(form);   // step 2 adds the documents and submits
         Navigator.show(Screen.REGISTER_STEP2);
+    }
+
+    /** Food group, or a donor with ("I have permits") or without permits: Business or Casual. */
+    private Account.Role selectedRole() {
+        if (!isDonorSelected) return Account.Role.FOOD_GROUP;
+        return hasPermitsRadio.isSelected() ? Account.Role.BUSINESS_DONOR : Account.Role.CASUAL_DONOR;
+    }
+
+    private void showError(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
+    }
+
+    private void hideError() {
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
     }
 }
