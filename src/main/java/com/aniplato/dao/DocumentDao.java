@@ -140,19 +140,6 @@ public class DocumentDao {
 
     /** A document in force that has expired or expires soon, for the All Accounts note. */
     public record ExpiringDocument(int registrationId, Document.Type type, LocalDate expiresOn) { }
-
-    public List<Document> findByRegistration(Connection c, int registrationId) throws SQLException {
-        String sql = "SELECT * FROM document WHERE registration_id = ? ORDER BY uploaded_at, document_id";
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, registrationId);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<Document> documents = new ArrayList<>();
-                while (rs.next()) documents.add(map(rs));
-                return documents;
-            }
-        }
-    }
-
     public Document findById(Connection c, int documentId) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("SELECT * FROM document WHERE document_id = ?")) {
             ps.setInt(1, documentId);

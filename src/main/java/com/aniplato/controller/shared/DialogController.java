@@ -87,8 +87,6 @@ public class DialogController {
 
     // What the admin dialogs do on confirm. A callback may throw RuleViolationException: the message is shown
     // and the dialog stays open (A8). A dialog opened without a callback keeps its old behaviour.
-    private Runnable onApprove;
-    private Consumer<String> onReject;           // gets the reason typed in the dialog
     private Consumer<String> onSuspend;          // gets the reason typed in the dialog
     private Runnable onReinstate;
     private Consumer<String> onDismissNotice;    // gets the admin note
@@ -141,18 +139,6 @@ public class DialogController {
         }
     }
 
-    /** Reject with a real action: {@code onConfirm} gets the reason. */
-    public void showRejectMode(String orgName, Consumer<String> onConfirm) {
-        showRejectMode(orgName);
-        onReject = onConfirm;
-    }
-
-    /** Approve with a real action. */
-    public void showApproveMode(String orgName, String orgEmail, Runnable onConfirm) {
-        showApproveMode(orgName, orgEmail);
-        onApprove = onConfirm;
-    }
-
     /** Suspend with a real action: {@code onConfirm} gets the reason. */
     public void showSuspendAccountMode(String orgName, Consumer<String> onConfirm) {
         showSuspendAccountMode(orgName);
@@ -174,26 +160,16 @@ public class DialogController {
     }
 
     /** 1. Prepares dialog for Reject Org mode */
-<<<<<<< HEAD
-    public void showRejectMode(String orgName) {
-        onReject = null;
-=======
     public void showRejectMode(int registrationId, String orgName) {
         this.reviewedRegistrationId = registrationId;
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
         showDialog(rejectDialogBox);
         rejectDescriptionLabel.setText("We’ll email " + orgName + " your reason so they can fix their documents and register again. No account is created.");
         rejectReasonTextArea.clear();
     }
 
     /** 2. Prepares dialog for Approve Org mode */
-<<<<<<< HEAD
-    public void showApproveMode(String orgName, String orgEmail) {
-        onApprove = null;
-=======
     public void showApproveMode(int registrationId, String orgName, String orgEmail) {
         this.reviewedRegistrationId = registrationId;
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
         showDialog(approveDialogBox);
         approveDescriptionLabel.setText("We’ll create " + orgName + "’s account and email temporary login details to " + orgEmail + ".");
     }
@@ -367,16 +343,11 @@ public class DialogController {
     // PATTERN:ACTION confirms rejection
     @FXML
     private void handleConfirmReject() {
-<<<<<<< HEAD
-        if (onReject != null) {
-            confirm(() -> onReject.accept(rejectReasonTextArea.getText()));
-=======
         boolean emailed;
         try {
             emailed = registrationService.reject(reviewedRegistrationId, rejectReasonTextArea.getText());
         } catch (RuleViolationException e) {
             showError(e.getMessage());   // A8: stay open so the reason can be fixed
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
             return;
         }
         closeOverlay();
@@ -387,17 +358,12 @@ public class DialogController {
     // PATTERN:ACTION confirms approval
     @FXML
     private void handleConfirmApprove() {
-<<<<<<< HEAD
-        if (onApprove != null) {
-            confirm(onApprove);
-=======
         boolean emailed;
         try {
             emailed = registrationService.approve(reviewedRegistrationId);
         } catch (RuleViolationException e) {
             closeOverlay();
             showError(e.getMessage());   // A8
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
             return;
         }
         closeOverlay();

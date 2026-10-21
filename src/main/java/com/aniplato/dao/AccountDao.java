@@ -113,38 +113,6 @@ public class AccountDao {
         }
     }
 
-    /** Creates the login of an approved registration; it must change its temporary password first (R1.7). */
-    public int insert(Connection c, String email, String passwordHash, Account.Role role, int registrationId,
-                      LocalDateTime now) throws SQLException {
-        String sql = "INSERT INTO account (email, password_hash, role, status, must_change_password, " +
-                "password_changed_at, registration_id, created_at) VALUES (?, ?, ?, 'ACTIVE', TRUE, ?, ?, ?)";
-        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, email);
-            ps.setString(2, passwordHash);
-            ps.setString(3, role.name());
-            ps.setObject(4, now);
-            ps.setInt(5, registrationId);
-            ps.setObject(6, now);
-            ps.executeUpdate();
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                keys.next();
-                return keys.getInt(1);
-            }
-        }
-    }
-
-    /** An approved upgrade: the existing account takes the new role and points to the new registration. */
-    public int moveToRegistration(Connection c, int accountId, Account.Role role, int registrationId)
-            throws SQLException {
-        String sql = "UPDATE account SET role = ?, registration_id = ? WHERE account_id = ?";
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, role.name());
-            ps.setInt(2, registrationId);
-            ps.setInt(3, accountId);
-            return ps.executeUpdate();
-        }
-    }
-
     public int reinstateIfSuspended(Connection c, int accountId) throws SQLException {
         String sql = "UPDATE account SET status = 'ACTIVE', suspend_reason = NULL " +
                 "WHERE account_id = ? AND status = 'SUSPENDED'";

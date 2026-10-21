@@ -15,7 +15,6 @@ import com.aniplato.util.Database;
 import com.aniplato.util.PasswordHasher;
 import com.aniplato.util.Settings;
 import com.aniplato.util.Session;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
 import java.sql.Connection;
@@ -23,10 +22,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+import java.time.format.DateTimeFormatter;
 
 /** Submit, review, approve and reject registrations; document review. */
 public class RegistrationService {
@@ -171,6 +171,9 @@ public class RegistrationService {
                 }
                 if (d.isExpired(today)) {
                     throw new RuleViolationException("The " + d.type.label() + " has expired. Reject the registration instead.");
+                }
+                if (d.review != Document.Review.OK) {
+                    throw new RuleViolationException("Verify the " + d.type.label() + " before approving.");   // R1.4: the admin verifies each file first
                 }
             }
             for (Document d : documents) {
@@ -353,80 +356,6 @@ public class RegistrationService {
             return null;
         });
     }
-
-    /**
-     * Approve is one transaction (A2): the registration becomes Approved and the account is created
-     * (or, for an upgrade, the existing account moves to the new registration). The temporary
-     * password is only emailed, after the commit (R1.5).
-     */
-    public void approve(int registrationId) {
-        Account admin = requireAdmin();
-        String[] toEmail = new String[3];   // email, organization name, temporary password (null for an upgrade)
-        inTransaction("Could not approve the registration", c -> {
-            Registration r = requirePending(c, registrationId);
-            checkApprovable(documentDao.findByRegistration(c, registrationId), LocalDate.now());
-            LocalDateTime now = LocalDateTime.now();
-            registrationDao.markReviewed(c, registrationId, Registration.Status.APPROVED, null, admin.id, now);
-            logDao.logStatusChange(c, REGISTRATION_ENTITY, registrationId, Registration.Status.PENDING.name(),
-                    Registration.Status.APPROVED.name(), null, admin.id);   // A3
-            Integer existing = accountDao.findIdByEmail(c, r.email);
-            if (existing == null) {
-                String temporary = new AuthenticationService().generateTemporaryPassword();
-                int accountId = accountDao.insert(c, r.email, BCrypt.hashpw(temporary, BCrypt.gensalt()), r.role,
-                        registrationId, now);
-                logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, null, Account.Status.ACTIVE.name(), null, admin.id);
-                toEmail[0] = r.email;
-                toEmail[1] = r.name;
-                toEmail[2] = temporary;
-            } else {
-                accountDao.moveToRegistration(c, existing, r.role, registrationId);   // upgrade: same login, new role
-            }
-            return null;
-        });
-        if (toEmail[2] != null) emailService.sendApproved(toEmail[0], toEmail[1], toEmail[2]);   // after the commit
-    }
-
-    /** Reject saves the reason and emails it (R1.6). The applicant may register again. */
-    public void reject(int registrationId, String reason) {
-        Account admin = requireAdmin();
-        if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the rejection.");
-        String why = reason.trim();
-        if (why.length() > 500) throw new RuleViolationException("Keep the reason to 500 characters or fewer.");
-        Registration[] rejected = new Registration[1];
-        inTransaction("Could not reject the registration", c -> {
-            rejected[0] = requirePending(c, registrationId);
-            registrationDao.markReviewed(c, registrationId, Registration.Status.REJECTED, why, admin.id,
-                    LocalDateTime.now());
-            logDao.logStatusChange(c, REGISTRATION_ENTITY, registrationId, Registration.Status.PENDING.name(),
-                    Registration.Status.REJECTED.name(), why, admin.id);   // A3
-            return null;
-        });
-        emailService.sendNotApproved(rejected[0].email, rejected[0].name, why);   // after the commit
-    }
-
-    private Registration requirePending(Connection c, int registrationId) throws SQLException {
-        Registration r = registrationDao.findById(c, registrationId);
-        if (r == null || r.status != Registration.Status.PENDING) {
-            throw new RuleViolationException("This registration has already been reviewed.");
-        }
-        return r;
-    }
-
-    /** Approve only if every document is verified and unexpired (R1.4). */
-    private void checkApprovable(List<Document> documents, LocalDate today) {
-        for (Document d : documents) {
-            if (d.review == Document.Review.FLAGGED) {
-                throw new RuleViolationException("The " + d.type.label() + " is flagged. Reject the registration instead.");
-            }
-            if (d.isAwaitingReview()) {
-                throw new RuleViolationException("Verify the " + d.type.label() + " before approving.");
-            }
-            if (d.isExpired(today)) {
-                throw new RuleViolationException("The " + d.type.label() + " has expired.");
-            }
-        }
-    }
-
     //---ADMIN: ALL ACCOUNTS---
 
     /** One line of the All Accounts list. */
@@ -494,13 +423,6 @@ public class RegistrationService {
             return null;
         });
     }
-
-    private static Account requireAdmin() {
-        Account me = Session.require();
-        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
-        return me;
-    }
-
     private <T> T inTransaction(String message, Work<T> work) {
         try (Connection c = Database.getConnection()) {
             c.setAutoCommit(false);

@@ -75,7 +75,6 @@ public class ReviewRegistrationController {
 
     @FXML private Label registeredDateLabel;
 
-<<<<<<< HEAD
     // FXML: errorLabel (style class "error-text") shows why Approve is not possible yet (A8)
     @FXML private Label errorLabel;
     @FXML private Button rejectBtn;
@@ -84,10 +83,6 @@ public class ReviewRegistrationController {
     private final RegistrationService registrationService = new RegistrationService();
     private int registrationId;
     private List<Document> documents = List.of();
-=======
-    // TODO(service): set from the row picked on Pending Registrations when the screen loads real data
-    private int registrationId;
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
 
     @FXML
     private void initialize() {
@@ -239,43 +234,16 @@ public class ReviewRegistrationController {
 
     @FXML
     private void handleReject() {
-<<<<<<< HEAD
-        dialogController.showRejectMode(orgNameLabel.getText(), reason -> {
-            registrationService.reject(registrationId, reason);   // saves the reason and emails it
-            Navigator.show(Screen.PENDING_REGISTRATIONS);
-        });
-=======
-        if (dialogController != null) {
-            String name = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
-                    ? orgNameLabel.getText()
-                    : "Santos Household";
-            dialogController.showRejectMode(registrationId, name);
-        }
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
+        dialogController.showRejectMode(registrationId, orgNameLabel.getText());   // the dialog rejects and emails
     }
 
     @FXML
     private void handleApprove() {
-<<<<<<< HEAD
         if (documents.stream().anyMatch(d -> d.review != Document.Review.OK)) {
             showError("Verify every document before approving.");   // A8; the service checks this too
             return;
-=======
-        if (dialogController != null) {
-            String name = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
-                    ? orgNameLabel.getText()
-                    : "Santos Household";
-            String email = (emailLabel != null && !emailLabel.getText().isEmpty())
-                    ? emailLabel.getText()
-                    : "maria.santos@email.com";
-
-            dialogController.showApproveMode(registrationId, name, email);
->>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
         }
         hideError();
-        dialogController.showApproveMode(orgNameLabel.getText(), emailLabel.getText(), () -> {
-            registrationService.approve(registrationId);          // creates the account and emails the temporary password
-            Navigator.show(Screen.PENDING_REGISTRATIONS);
-        });
+        dialogController.showApproveMode(registrationId, orgNameLabel.getText(), emailLabel.getText());   // the dialog approves and emails
     }
 }
