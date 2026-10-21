@@ -31,6 +31,7 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 ## Tests
 - `mvn test` needs MySQL running. Tests use their own **`aniplato_test`** database, rebuilt from `sql/schema.sql` and `sql/seed.sql` before every test, and refuse any other database. They read the MySQL user and password from your `db.properties` (or `ANIPLATO_TEST_DB_USER` / `ANIPLATO_TEST_DB_PASSWORD`). They never send real email and never touch `uploads/`.
 - Skip them with `mvn package -DskipTests` if you have no MySQL.
+- `MapCoverageTest` fails when a file, or a public method of a service, DAO, util or model class, has no row in `docs/MAP.md`: add the row in the same pull request.
 - `ArchitectureTest` fails the build on a layer breach or a class over 300 lines. `FxmlWiringTest` fails when an FXML and its controller do not match. `DialogControllerTest` drives the real popups (needs a desktop).
 - Tests assume today's seed data. If you change `sql/seed.sql`, update the tests that depend on it in the same pull request.
 
@@ -63,6 +64,7 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 - [ ] `mvn test` passes (or you said why it cannot run).
 - [ ] I searched for an existing method before adding one.
 - [ ] Every method `scripts/new-methods.sh` lists is in my blueprint, or I explain it in the pull request.
+- [ ] Every file and public method I added has a row in `docs/MAP.md`.
 - [ ] I can explain my service method line by line, including what happens when step 3 fails.
 - [ ] My pull request does one thing and names the spec rule or module it implements.
 

@@ -1,5 +1,5 @@
 package com.aniplato.service;
 
-/** Read-only totals and rates for dashboards, reports and History. */
+/** Saves the food group's documentation report and works out its deadline (spec 7.3). Not built yet: FLOWS.md module 10. */
 public class ReportService {
 }
