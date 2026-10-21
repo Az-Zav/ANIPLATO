@@ -15,7 +15,6 @@ import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -149,14 +148,9 @@ public class ReviewRegistrationController {
         file.setText(new File(d.filePath).getName());
 
         boolean verified = d.review == Document.Review.OK;
-        if (checks.getChildren().size() > 2 && checks.getChildren().get(2) instanceof CheckBox cityCheck) {
-            cityCheck.setText("Issued for " + cityLabel.getText());   // the third check names the applicant's city
-        }
-        for (Node node : checks.getChildren()) {
-            if (node instanceof CheckBox box) {
-                box.setSelected(verified);
-                box.setDisable(verified);   // a verified document's checks stay grey until Undo
-            }
+        // the third reminder names the applicant's city
+        if (checks.getChildren().size() > 2 && checks.getChildren().get(2) instanceof Label cityNote) {
+            cityNote.setText("• Issued for " + cityLabel.getText());
         }
         // Verify until the document is verified; then a "Verified" tag with an Undo link (as in the design)
         show(verify, !verified);
@@ -169,21 +163,15 @@ public class ReviewRegistrationController {
         node.setManaged(shown);
     }
 
-    @FXML private void handleVerifyDoc1() { verify(0, doc1Checks); }
-    @FXML private void handleVerifyDoc2() { verify(1, doc2Checks); }
+    @FXML private void handleVerifyDoc1() { verify(0); }
+    @FXML private void handleVerifyDoc2() { verify(1); }
     @FXML private void handleUndoDoc1() { run(() -> registrationService.undoVerification(documents.get(0).id)); }
     @FXML private void handleUndoDoc2() { run(() -> registrationService.undoVerification(documents.get(1).id)); }
     @FXML private void handleViewDoc1() { open(0); }
     @FXML private void handleViewDoc2() { open(1); }
 
-    /** R1.4: the admin ticks the three checks, then verifies. */
-    private void verify(int index, VBox checks) {
-        boolean allTicked = checks.getChildren().stream()
-                .allMatch(node -> !(node instanceof CheckBox box) || box.isSelected());
-        if (!allTicked) {
-            DialogController.showError("Tick all three checks before verifying the document.");
-            return;
-        }
+    /** R1.4: the admin opens the file, compares it with the reminders, then verifies it. */
+    private void verify(int index) {
         run(() -> registrationService.verifyDocument(documents.get(index).id));
     }
 

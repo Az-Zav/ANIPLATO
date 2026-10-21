@@ -3,7 +3,6 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -151,7 +150,7 @@
                                 <VBox spacing="12.0">
                                     <children>
                                         <Label fx:id="documentsCountHeaderLabel" styleClass="form-label" text="DOCUMENTS (2)" />
-                                        <Label styleClass="text-muted" text="Open each file, tick the three checks, then verify it. Expiry dates were typed by the applicant; confirm they match the file. Approve unlocks once every required document is verified." wrapText="true" />
+                                        <Label styleClass="text-muted" text="Open each file and confirm it is current, the name matches, and it was issued for the applicant's city. Then verify it. Approve unlocks once every required document is verified." wrapText="true" />
 
                                         <!-- DOCUMENT CARD 1 -->
                                         <VBox spacing="12.0" styleClass="notice-box">
@@ -179,9 +178,9 @@
                                                         <!-- CHECKLIST -->
                                                         <VBox fx:id="doc1Checks" spacing="6.0">
                                                             <children>
-                                                                <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
-                                                                <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
-                                                                <CheckBox selected="true" styleClass="small-check" text="Issued for Pasig City" />
+                                                                <Label styleClass="doc-subtitle" text="• Current, not expired" />
+                                                                <Label styleClass="doc-subtitle" text="• Name matches registration" />
+                                                                <Label styleClass="doc-subtitle" text="• Issued for Pasig City" />
                                                             </children>
                                                         </VBox>
 
@@ -224,9 +223,9 @@
                                                         <!-- CHECKLIST -->
                                                         <VBox fx:id="doc2Checks" spacing="6.0">
                                                             <children>
-                                                                <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
-                                                                <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
-                                                                <CheckBox styleClass="small-check" text="Issued for Pasig City" />
+                                                                <Label styleClass="doc-subtitle" text="• Current, not expired" />
+                                                                <Label styleClass="doc-subtitle" text="• Name matches registration" />
+                                                                <Label styleClass="doc-subtitle" text="• Issued for Pasig City" />
                                                             </children>
                                                         </VBox>
 
