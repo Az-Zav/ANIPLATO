@@ -8,6 +8,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -105,15 +106,14 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <HBox fx:id="mayorsPermitFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                        <HBox fx:id="mayorsPermitFileBox" alignment="CENTER_LEFT" minWidth="0.0" prefWidth="0.0" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
                                                             </padding>
                                                             <children>
-                                                                <Label text="📄" />
-                                                                <Label fx:id="mayorsPermitFileLabel" styleClass="form-label" text="mayors-permit-2026.pdf" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Button onAction="#handleUploadMayorsPermit" styleClass="secondary-button" text="Replace" />
+                                                                <Label minWidth="-Infinity" text="📄" />
+                                                                <Label fx:id="mayorsPermitFileLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" styleClass="form-label" text="mayors-permit-2026.pdf" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                                                                <Hyperlink minWidth="-Infinity" onAction="#handleUploadMayorsPermit" styleClass="terms-link" text="Replace file" />
                                                             </children>
                                                         </HBox>
                                                         <Button fx:id="mayorsPermitUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadMayorsPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
@@ -135,15 +135,14 @@
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
                                                         <Button fx:id="sanitaryPermitUploadBtn" maxWidth="1.7976931348623157E308" onAction="#handleUploadSanitaryPermit" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" HBox.hgrow="ALWAYS" />
-                                                        <HBox fx:id="sanitaryPermitFileBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" styleClass="pill-food-donor" visible="false" HBox.hgrow="ALWAYS">
+                                                        <HBox fx:id="sanitaryPermitFileBox" alignment="CENTER_LEFT" managed="false" minWidth="0.0" prefWidth="0.0" spacing="8.0" styleClass="pill-food-donor" visible="false" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
                                                             </padding>
                                                             <children>
-                                                                <Label text="📄" />
-                                                                <Label fx:id="sanitaryPermitFileLabel" styleClass="form-label" text="sanitary-permit-2026.pdf" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Button onAction="#handleUploadSanitaryPermit" styleClass="secondary-button" text="Replace" />
+                                                                <Label minWidth="-Infinity" text="📄" />
+                                                                <Label fx:id="sanitaryPermitFileLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" styleClass="form-label" text="sanitary-permit-2026.pdf" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                                                                <Hyperlink minWidth="-Infinity" onAction="#handleUploadSanitaryPermit" styleClass="terms-link" text="Replace file" />
                                                             </children>
                                                         </HBox>
                                                         <DatePicker fx:id="sanitaryPermitExpiryPicker" prefWidth="160.0" promptText="Expiry date" styleClass="text-field" />
@@ -172,15 +171,14 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <HBox fx:id="barangayCertFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                        <HBox fx:id="barangayCertFileBox" alignment="CENTER_LEFT" minWidth="0.0" prefWidth="0.0" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
                                                             </padding>
                                                             <children>
-                                                                <Label text="📄" />
-                                                                <Label fx:id="barangayCertFileLabel" styleClass="form-label" text="barangay-certificate.pdf" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Button onAction="#handleUploadBarangayCert" styleClass="secondary-button" text="Replace" />
+                                                                <Label minWidth="-Infinity" text="📄" />
+                                                                <Label fx:id="barangayCertFileLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" styleClass="form-label" text="barangay-certificate.pdf" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                                                                <Hyperlink minWidth="-Infinity" onAction="#handleUploadBarangayCert" styleClass="terms-link" text="Replace file" />
                                                             </children>
                                                         </HBox>
                                                         <Button fx:id="barangayCertUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadBarangayCert" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
@@ -215,32 +213,21 @@
                                                     </children>
                                                 </VBox>
 
-                                                <ComboBox fx:id="credentialTypeCombo" maxWidth="1.7976931348623157E308" promptText="DSWD Certificate of Registration" styleClass="combo-box">
-                                                    <items>
-                                                        <FXCollections fx:factory="observableArrayList">
-                                                            <String fx:value="DSWD Certificate of Registration" />
-                                                            <String fx:value="PCNC Accreditation" />
-                                                            <String fx:value="SEC Certificate (Non-Stock)" />
-                                                            <String fx:value="DepEd/CHED/TESDA Certificate of Recognition" />
-                                                            <String fx:value="Diocese Endorsement Letter" />
-                                                        </FXCollections>
-                                                    </items>
-                                                </ComboBox>
+                                                <ComboBox fx:id="credentialTypeCombo" maxWidth="1.7976931348623157E308" promptText="Choose a credential" styleClass="combo-box" />
 
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
                                                         <!-- PATTERN:DYNAMIC visibility: credentialFileBox shown once a file is uploaded; credentialUploadBtn until then -->
-                                                        <HBox fx:id="credentialFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                        <HBox fx:id="credentialFileBox" alignment="CENTER_LEFT" minWidth="0.0" prefWidth="0.0" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
                                                             </padding>
                                                             <children>
-                                                                <Label text="📄" />
+                                                                <Label minWidth="-Infinity" text="📄" />
                                                                 <!-- PATTERN:DYNAMIC credentialFileName : uploaded file name -->
-                                                                <Label fx:id="credentialFileLabel" styleClass="form-label" text="dswd-registration.pdf" />
-                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label fx:id="credentialFileLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" styleClass="form-label" text="dswd-registration.pdf" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
                                                                 <!-- PATTERN:ACTION handleUploadCredential -->
-                                                                <Button onAction="#handleUploadCredential" styleClass="secondary-button" text="Replace" />
+                                                                <Hyperlink minWidth="-Infinity" onAction="#handleUploadCredential" styleClass="terms-link" text="Replace file" />
                                                             </children>
                                                         </HBox>
 
@@ -271,17 +258,16 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <HBox fx:id="authLetterFileBox" alignment="CENTER_LEFT" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
+                                                        <HBox fx:id="authLetterFileBox" alignment="CENTER_LEFT" minWidth="0.0" prefWidth="0.0" spacing="8.0" styleClass="pill-food-donor" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
                                                             </padding>
                                                             <children>
-                                                                <Label text="📄" />
+                                                                <Label minWidth="-Infinity" text="📄" />
                                                                 <!-- PATTERN:DYNAMIC authLetterFileName -->
-                                                                <Label fx:id="authLetterFileLabel" styleClass="form-label" text="authorization-letter.pdf" />
-                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label fx:id="authLetterFileLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" styleClass="form-label" text="authorization-letter.pdf" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
                                                                 <!-- PATTERN:ACTION handleUploadAuthLetter -->
-                                                                <Button onAction="#handleUploadAuthLetter" styleClass="secondary-button" text="Replace" />
+                                                                <Hyperlink minWidth="-Infinity" onAction="#handleUploadAuthLetter" styleClass="terms-link" text="Replace file" />
                                                             </children>
                                                         </HBox>
                                                         <Button fx:id="authLetterUploadBtn" managed="false" maxWidth="1.7976931348623157E308" onAction="#handleUploadAuthLetter" styleClass="upload-button" text="⇪  Upload PDF, JPG or PNG   Max 5 MB" visible="false" HBox.hgrow="ALWAYS" />
@@ -309,10 +295,13 @@
                                         <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
                                     </padding>
                                     <children>
-                                        <CheckBox fx:id="consentCheckBox" selected="true" />
+                                        <CheckBox fx:id="consentCheckBox" />
                                         <Label styleClass="text-muted" text="I agree that ANIPLATO may store my details and documents to verify my registration. Only I and the ANIPLATO admin can see my files." wrapText="true" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
+
+                                <!-- Rule failures and upload errors show here (A8) -->
+                                <Label fx:id="errorLabel" managed="false" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" wrapText="true" />
 
                                 <!-- ACTION BUTTONS ROW -->
                                 <HBox alignment="CENTER_LEFT" spacing="12.0">

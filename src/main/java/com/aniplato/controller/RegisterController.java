@@ -10,6 +10,9 @@ import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.RegistrationDraft;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -19,6 +22,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 public class RegisterController {
 
@@ -54,6 +58,7 @@ public class RegisterController {
     @FXML private Label errorLabel;
 
     private final RegistrationService registrationService = new RegistrationService();
+    private final FilteredList<City> visibleCities = new FilteredList<>(FXCollections.observableArrayList());
     private boolean isDonorSelected = true;
 
     @FXML
@@ -69,9 +74,37 @@ public class RegisterController {
         cityComboBox.valueProperty().addListener((o, was, now) -> hideError());
     }
 
+    /** The city field is searchable: typing narrows the list to the cities whose name contains the text. */
     private void loadCities() {
+        cityComboBox.setItems(visibleCities);
+        cityComboBox.setVisibleRowCount(6);
+        cityComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(City city) {
+                return city == null ? "" : city.name;
+            }
+
+            @Override
+            public City fromString(String text) {
+                return cityNamed(text);   // null until the text is exactly a city's name
+            }
+        });
+        cityComboBox.getEditor().textProperty().addListener((o, was, typed) -> {
+            City chosen = cityComboBox.getValue();
+            if (chosen != null && chosen.name.equals(typed)) return;   // text was filled by picking; keep the full list
+            String needle = typed == null ? "" : typed.trim().toLowerCase();
+            visibleCities.setPredicate(city -> city.name.toLowerCase().contains(needle));
+            if (cityComboBox.isFocused() && !visibleCities.isEmpty() && !needle.isEmpty()) cityComboBox.show();
+        });
+        // the list opens by itself: on focus, on a click in the field, and while typing
+        cityComboBox.getEditor().focusedProperty().addListener((o, was, focused) -> {
+            if (focused && !visibleCities.isEmpty()) cityComboBox.show();
+        });
+        cityComboBox.getEditor().setOnMousePressed(e -> {
+            if (!cityComboBox.isShowing() && !visibleCities.isEmpty()) cityComboBox.show();
+        });
         try {
-            cityComboBox.getItems().setAll(registrationService.cities());
+            ((ObservableList<City>) visibleCities.getSource()).setAll(registrationService.cities());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
             showError("Could not load the city list. Check the database connection and reopen this screen.");
         }
@@ -191,7 +224,7 @@ public class RegisterController {
         Registration form = new Registration();
         form.role = selectedRole();
         form.name = businessNameField.getText();
-        form.city = cityComboBox.getValue();
+        form.city = cityNamed(cityComboBox.getEditor().getText());   // typed text counts only if it is a real city
         form.contactPerson = contactPersonField.getText();
         form.contactPhone = contactNumberField.getText();
         form.email = emailField.getText();
@@ -206,6 +239,13 @@ public class RegisterController {
         }
         RegistrationDraft.set(form);   // step 2 adds the documents and submits
         Navigator.show(Screen.REGISTER_STEP2);
+    }
+
+    /** The city whose name is exactly {@code text} (ignoring case), or null. */
+    private City cityNamed(String text) {
+        if (text == null) return null;
+        String wanted = text.trim();
+        return visibleCities.getSource().stream().filter(c -> c.name.equalsIgnoreCase(wanted)).findFirst().orElse(null);
     }
 
     /** Food group, or a donor with ("I have permits") or without permits: Business or Casual. */

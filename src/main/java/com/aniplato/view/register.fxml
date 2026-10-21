@@ -139,7 +139,16 @@
                                 <VBox spacing="6.0">
                                     <children>
                                         <Label styleClass="form-label" text="City *" />
-                                        <ComboBox fx:id="cityComboBox" maxWidth="1.7976931348623157E308" promptText="🔍 Search a city" styleClass="combo-box" />
+                                        <StackPane alignment="CENTER_LEFT">
+                                            <children>
+                                                <ComboBox fx:id="cityComboBox" editable="true" maxWidth="1.7976931348623157E308" promptText="Search a city" styleClass="combo-box, search-combo" />
+                                                <Region maxHeight="14.0" maxWidth="14.0" mouseTransparent="true" prefHeight="14.0" prefWidth="14.0" styleClass="search-icon" StackPane.alignment="CENTER_LEFT">
+                                                    <StackPane.margin>
+                                                        <Insets left="12.0" />
+                                                    </StackPane.margin>
+                                                </Region>
+                                            </children>
+                                        </StackPane>
                                         <Label fx:id="cityHintLabel" styleClass="text-muted" text="Must match the city on your Mayor's Permit." />
                                     </children>
                                 </VBox>

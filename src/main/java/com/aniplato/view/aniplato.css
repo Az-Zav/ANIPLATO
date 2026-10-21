@@ -110,6 +110,41 @@
     -fx-border-width: 1.5px;
 }
 
+/* Editable (searchable) combo: the inner text field must not draw a second border */
+.combo-box .text-field,
+.combo-box .text-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Searchable city field: magnifier icon on the left, no dropdown arrow (the list opens by itself) */
+.search-combo {
+    -fx-min-height: 42px;
+    -fx-pref-height: 42px;
+}
+
+.search-combo .text-field,
+.search-combo .text-field:focused {
+    -fx-padding: 0 0 0 20px;
+}
+
+.search-combo > .arrow-button {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-padding: 0;
+}
+
+.search-combo > .arrow-button > .arrow {
+    -fx-padding: 0;
+}
+
+.search-icon {
+    -fx-background-color: #9CA3AF;
+    -fx-shape: "M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z";
+}
+
 /* Notice Box */
 .notice-box {
     -fx-background-color: #F0FDF4;
