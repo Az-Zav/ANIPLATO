@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+        <VBox fx:id="card" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.dialog.UpgradeBusinessDonorDialogController" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <StackPane fx:id="upgradeBusinessDonorIconBox" styleClass="modal-icon-green-box" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Upgrade to Business donor" />
+                                <Label styleClass="text-muted" text="Upload your Mayor's Permit and Sanitary Permit with their expiry dates. An admin reviews them, and you stay a Casual donor until they're approved." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0">
+                    <children>
+                        <!-- MAYOR'S PERMIT FILE & DATE -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Mayor's / Business Permit *" />
+                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChooseMayorPermitFile" styleClass="secondary-button" text="⇪  Upload PDF, JPG or PNG (max 5 MB)" />
+                                <Label fx:id="selectedMayorPermitFileLabel" styleClass="doc-subtitle" text="No file chosen" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Expiry date *" />
+                                <TextField fx:id="mayorPermitExpiryDateField" promptText="MM / DD / YYYY" styleClass="text-field" />
+                            </children>
+                        </VBox>
+
+                        <!-- SANITARY PERMIT FILE & DATE -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Sanitary Permit *" />
+                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChooseSanitaryPermitFile" styleClass="secondary-button" text="⇪  Upload PDF, JPG or PNG (max 5 MB)" />
+                                <Label fx:id="selectedSanitaryPermitFileLabel" styleClass="doc-subtitle" text="No file chosen" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Expiry date *" />
+                                <TextField fx:id="sanitaryPermitExpiryDateField" promptText="MM / DD / YYYY" styleClass="text-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button minWidth="150.0" onAction="#handleConfirmUpgradeBusinessDonor" styleClass="primary-button" text="Submit for review" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>

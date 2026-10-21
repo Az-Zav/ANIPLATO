@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+        <VBox fx:id="card" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.dialog.WithdrawOfferDialogController" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <StackPane fx:id="withdrawOfferIconBox" styleClass="modal-icon-red-box" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Withdraw your offer?" />
+                                <Label fx:id="withdrawOfferDescriptionLabel" styleClass="text-muted" text="Manila Artisanal Bakeshop won’t see this offer anymore. You can send a new one while the listing is still open." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button minWidth="120.0" onAction="#handleConfirmWithdrawOffer" styleClass="danger-button" text="✕ Withdraw" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>

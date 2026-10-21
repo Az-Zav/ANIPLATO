@@ -145,6 +145,22 @@ class DialogControllerTest {
         assertFalse(fx(() -> root.isManaged()));
     }
 
+    //---SCREENS THAT EMBED THE DIALOGS---
+
+    @Test
+    void screensThatIncludeTheDialogsStillLoadThem() {
+        for (String screen : List.of("login", "register", "register-step2")) {
+            Parent loaded = fx(() -> {
+                try {
+                    return new FXMLLoader(DialogController.class.getResource("/com/aniplato/view/" + screen + ".fxml")).load();
+                } catch (Exception e) {
+                    throw new IllegalStateException(screen, e);
+                }
+            });
+            assertEquals(15, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all fifteen dialogs");
+        }
+    }
+
     //---OPENING---
 
     @Test

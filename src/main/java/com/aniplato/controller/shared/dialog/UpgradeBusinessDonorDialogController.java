@@ -1,0 +1,40 @@
+package com.aniplato.controller.shared.dialog;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+
+/** Upgrade to Business Donor. Does nothing but close until the upgrade feature is built (FLOWS.md module 4). */
+public class UpgradeBusinessDonorDialogController extends DialogCard {
+
+    @FXML private Label selectedMayorPermitFileLabel;
+    @FXML private TextField mayorPermitExpiryDateField;
+    @FXML private Label selectedSanitaryPermitFileLabel;
+    @FXML private TextField sanitaryPermitExpiryDateField;
+
+    public void show() {
+        open();
+        selectedMayorPermitFileLabel.setText("No file chosen");
+        mayorPermitExpiryDateField.clear();
+        selectedSanitaryPermitFileLabel.setText("No file chosen");
+        sanitaryPermitExpiryDateField.clear();
+    }
+
+    @FXML
+    private void handleChooseMayorPermitFile() {
+        // TODO(file-picker): Open FileChooser and update selectedMayorPermitFileLabel
+        selectedMayorPermitFileLabel.setText("mayors-permit-2026.pdf");
+    }
+
+    @FXML
+    private void handleChooseSanitaryPermitFile() {
+        // TODO(file-picker): Open FileChooser and update selectedSanitaryPermitFileLabel
+        selectedSanitaryPermitFileLabel.setText("sanitary-permit-2026.pdf");
+    }
+
+    // PATTERN:ACTION confirms upgrading to business donor
+    @FXML
+    private void handleConfirmUpgradeBusinessDonor() {
+        close();
+    }
+}

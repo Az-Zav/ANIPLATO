@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+        <VBox fx:id="card" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.dialog.ConfirmReceiptDialogController" managed="false" maxWidth="520.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <Label styleClass="modal-icon-green" text="📦" />
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Confirm receipt?" />
+                                <Label styleClass="text-muted" text="Confirm that you received this food from the donor." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <GridPane hgap="12.0" styleClass="notice-box" vgap="8.0">
+                    <padding>
+                        <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+                    </padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="30.0" />
+                        <ColumnConstraints percentWidth="70.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="text-muted" text="Food" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="receiptFoodLabel" styleClass="form-label" text="Cooked Adobo &amp; Rice Trays" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="text-muted" text="Quantity" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="receiptQuantityLabel" styleClass="form-label" text="24 kg (as listed)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="text-muted" text="Donor" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="receiptDonorLabel" styleClass="form-label" text="Pioneer Catering Services" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="text-muted" text="Pickup" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="receiptPickupLabel" styleClass="form-label" text="Today, 7:30 PM" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label styleClass="text-muted" text="Contact" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <Label fx:id="receiptContactLabel" styleClass="form-label" text="Jun Dela Cruz · 0919 456 7788" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Before confirming" />
+                        <CheckBox fx:id="receiptQuantityCheck" selected="true" styleClass="small-check" text="Quantity matches the listing" />
+                        <CheckBox fx:id="receiptConditionCheck" selected="true" styleClass="small-check" text="Food arrived sealed and within its use-by time" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="pill-food-donor">
+                    <padding>
+                        <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="text-success-bold" text="ⓘ" />
+                        <Label fx:id="receiptNoticeLabel" styleClass="table-cell-text" text="Pioneer Catering Services confirmed release at 7:28 PM. Confirming receipt marks this listing Rescued." wrapText="true" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+
+                <Hyperlink onAction="#handleSwitchToFlagSafety" styleClass="required-star" text="Something wrong with the food? Flag a safety concern" />
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button minWidth="130.0" onAction="#handleConfirmReceipt" styleClass="primary-button" text="Confirm Receipt" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
