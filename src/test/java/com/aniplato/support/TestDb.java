@@ -81,8 +81,9 @@ public final class TestDb {
     }
 
     public static long count(String sql, Object... args) {
-        Number n = scalar(sql, args);
-        return n == null ? 0 : n.longValue();
+        Object value = scalar(sql, args);
+        if (value instanceof Boolean b) return b ? 1 : 0;
+        return value == null ? 0 : ((Number) value).longValue();
     }
 
     /** Runs an INSERT/UPDATE/DELETE to set a test up or to simulate a change made elsewhere. */
