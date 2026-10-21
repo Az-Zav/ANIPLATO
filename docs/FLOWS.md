@@ -51,9 +51,9 @@ Each module wires screens that already exist in FXML to the call chains below (t
 | 2 | **Registration** | register, register-step2, register-submitted | wire `checkDetails`, `submit`, `cities`; real city list, file picker, expiry dates, consent, Received email | 2 | 1 |
 | 3 | **Admin review** | pending-registrations, review-registration, approve/reject dialogs | `RegistrationService`: `listPending`, `getForReview`, `verifyDocument`, `approve`, `reject`; new DAO methods; document preview | 2 | 2 |
 | 4 | **Profile, accounts** | profile, accounts, suspend/reinstate/renewal/upgrade dialogs | `updateProfile`, `uploadRenewal`, `submitUpgrade`, `suspend`, `reinstate`, `listAccounts` | 8 | 3 |
-| 5 | **Post a listing** | new-listing (+ `listing-form`), my-listings, cancel dialog | `Post`/`FoodDetail`/`Photo` models, `PostService`, `PostDao`, `DetailDao`, `PhotoDao`; delete old `Listing*` | 3a | 4 |
+| 5 | **Post a listing** | new-listing, my-listings, cancel dialog | `Post`/`FoodDetail`/`Photo` models, `PostService`, `PostDao`, `DetailDao`, `PhotoDao` | 3a | 4 |
 | 6 | **Browse and offer** | browse-listings (food group), make-offer, my-offers (shared) | `OfferService.sendListingOffer`, `withdraw`, `listMine`; rewrite `OfferDao` | 4 | 5 |
-| 7 | **Accept offer** | incoming-offers (`listing-offers`), accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
+| 7 | **Accept offer** | incoming-offers, accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
 | 8 | **Handoff** | confirm release/receipt dialogs, handoff-record, history | `confirmRelease`, `confirmReceipt`, `buildHandoffRecord`, `cancelPost` | 6 | 7 |
 | 9 | **Requests (Route 2)** | new-listing as request, browse-request (donor), donor make-offer, `[FE]` my-requests, `[FE]` offers-received | `createRequest`, `sendRequestOffer`, `UseDetail`; reuses modules 5 to 8 | 3b, 4 | 8 |
 | 10 | **Report and safety** | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; fix `SafetyNoticeDao.insert` (`kind` column) | 7 | 8 |
@@ -281,7 +281,7 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 
 | | |
 |---|---|
-| **Add** | **Dao:** `OfferDao.findByPost`, `markAccepted`, `declineOthers(c, postId, keepOfferId)`; `PostDao.markAccepted(c, postId, agreedKg)`. **Service:** `OfferService.listForPost(postId)`, `acceptOffer(offerId)` (one transaction: this offer Accepted, every other Offered one Declined, post Accepted, agreed kg fixed, every change logged), `declineOffer(offerId)`, `getContactPhone(offerId)` (the **only** place a phone number is returned, A7). **Controller:** `ListingOffersController` / the food group's offers-received screen; wire `AcceptOfferDialogController`. |
+| **Add** | **Dao:** `OfferDao.findByPost`, `markAccepted`, `declineOthers(c, postId, keepOfferId)`; `PostDao.markAccepted(c, postId, agreedKg)`. **Service:** `OfferService.listForPost(postId)`, `acceptOffer(offerId)` (one transaction: this offer Accepted, every other Offered one Declined, post Accepted, agreed kg fixed, every change logged), `declineOffer(offerId)`, `getContactPhone(offerId)` (the **only** place a phone number is returned, A7). **Controller:** `IncomingOffersController` (donor) and `FoodGroupIncomingOffersController` (food group); wire `AcceptOfferDialogController`. |
 | **Reuse** | `OfferDao.findParties/findStatus`, `LogDao`, `Database.inTransaction` |
 | **Not here** | Handoff (8). |
 | **Done when** | only the poster can accept or decline · only an Offered, unexpired offer can be accepted · accepting declines the others **in the same transaction**: a forced failure leaves everything unchanged · Route 1 agreed kg is the listing's, Route 2 the offer's · a Suspended poster cannot accept · `getContactPhone` returns a number only to the owner, an admin, or the other side of an Accepted, not yet closed offer, and no list query ever returns a phone number |
