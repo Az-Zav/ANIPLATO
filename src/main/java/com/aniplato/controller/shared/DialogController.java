@@ -9,6 +9,7 @@ import com.aniplato.controller.shared.dialog.DialogCard;
 import com.aniplato.controller.shared.dialog.DialogHost;
 import com.aniplato.controller.shared.dialog.FlagSafetyDialogController;
 import com.aniplato.controller.shared.dialog.ForgotPasswordDialogController;
+import com.aniplato.controller.shared.dialog.NoticeResolvedDialogController;
 import com.aniplato.controller.shared.dialog.ReinstateAccountDialogController;
 import com.aniplato.controller.shared.dialog.RejectDialogController;
 import com.aniplato.controller.shared.dialog.ResolveSafetyDialogController;
@@ -52,6 +53,7 @@ public class DialogController implements DialogHost {
     @FXML private ConfirmReceiptDialogController confirmReceiptController;
     @FXML private ForgotPasswordDialogController forgotPasswordController;
     @FXML private UpgradeBusinessDonorDialogController upgradeBusinessDonorController;
+    @FXML private NoticeResolvedDialogController noticeResolvedController;
 
     private List<DialogCard> cards;
 
@@ -60,7 +62,7 @@ public class DialogController implements DialogHost {
         cards = List.of(rejectController, approveController, resolveSafetyController, suspendController,
                 reinstateController, cancelListingController, confirmReleaseController, flagSafetyController,
                 acceptOfferController, uploadRenewalController, setNewPasswordController, withdrawOfferController,
-                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController);
+                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController, noticeResolvedController);
         cards.forEach(card -> card.attach(this));
         hideAll();
 
@@ -205,5 +207,10 @@ public class DialogController implements DialogHost {
     /** 15. Upgrade to Business Donor */
     public void showUpgradeBusinessDonorMode() {
         upgradeBusinessDonorController.show();
+    }
+
+    /** 16. A closed safety notice: how it was resolved ("Dismissed", "Account suspended") and the admin's note. */
+    public void showNoticeResolvedMode(String how, String adminNote) {
+        noticeResolvedController.show(how, adminNote);
     }
 }

@@ -6,7 +6,6 @@ import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.service.SafetyService;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -93,7 +92,6 @@ public class SafetyNoticesController {
     // PATTERN:ACTION shows how a closed notice was resolved
     private void view(NoticeRow notice) {
         String how = notice.status() == SafetyNotice.Status.DISMISSED ? "Dismissed" : "Account suspended";
-        new Alert(Alert.AlertType.INFORMATION, how + "\n\nAdmin note: "
-                + (notice.adminNote() == null ? "—" : notice.adminNote())).showAndWait();
+        dialogController.showNoticeResolvedMode(how, notice.adminNote());
     }
 }

@@ -29,5 +29,6 @@
         <fx:include fx:id="confirmReceipt" source="dialog/confirm-receipt.fxml" />
         <fx:include fx:id="forgotPassword" source="dialog/forgot-password.fxml" />
         <fx:include fx:id="upgradeBusinessDonor" source="dialog/upgrade-business-donor.fxml" />
+        <fx:include fx:id="noticeResolved" source="dialog/notice-resolved.fxml" />
     </children>
 </VBox>

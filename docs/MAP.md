@@ -22,7 +22,7 @@ view/*.fxml ──► controller/*Controller ──► service/*Service ──�
 | DAO | `dao/` | AccountDao, RegistrationDao, DocumentDao, CityDao, SafetyNoticeDao, OfferDao, PostDao, ReportDao, LogDao |
 | Service | `service/` | AuthenticationService, RegistrationService, DocumentReviewService, AccountStatusService, SafetyService, StatsService, EmailService, FileStorageService |
 | Controller | `controller/` | one per screen; admin screens are wired, donor and food group screens are not yet |
-| Dialogs | `controller/shared/dialog/` + `view/shared/dialog/` | 15 dialogs, one controller and one FXML each, opened through `DialogController` |
+| Dialogs | `controller/shared/dialog/` + `view/shared/dialog/` | 16 dialogs, one controller and one FXML each, opened through `DialogController` |
 | Util | `util/` | AppConfig, Database, Session, Navigator, Settings, PasswordHasher, SvgIcon, AdminSelection, RegistrationDraft |
 
 ## 2. Who owns which rule
@@ -87,11 +87,11 @@ view/*.fxml ──► controller/*Controller ──► service/*Service ──�
 
 ## 4. The popups
 
-`DialogController` is the only thing a screen talks to. It opens one of 15 cards and closes the others.
+`DialogController` is the only thing a screen talks to. It opens one of 16 cards and closes the others.
 
 ```
 screen.fxml ── <fx:include fx:id="dialog" source="…/dialog.fxml"> ──► DialogController (open / close / showError)
-                                                                          │ owns 15 included cards
+                                                                          │ owns 16 included cards
 dialog.fxml ── <fx:include source="dialog/reject.fxml"> … ──► RejectDialogController extends DialogCard
 ```
 
@@ -100,6 +100,7 @@ dialog.fxml ── <fx:include source="dialog/reject.fxml"> … ──► Reject
 | Reject Org, Approve Org | `RejectDialogController`, `ApproveDialogController` | yes (RegistrationService) |
 | Suspend, Reinstate, Resolve Safety Notice | `SuspendAccount…`, `ReinstateAccount…`, `ResolveSafety…` | yes, through a callback the screen passes in |
 | Set New Password, Forgot Password | `SetNewPassword…`, `ForgotPassword…` | yes (AuthenticationService) |
+| Notice Resolved | `NoticeResolvedDialogController` | yes: shows how a closed safety notice was resolved (read only) |
 | Cancel Listing, Confirm Release, Confirm Receipt, Flag Safety, Accept Offer, Withdraw Offer, Upload Renewal, Upgrade to Business Donor | one each | **no, they only open and close** until their feature is built |
 
 To add a dialog: a card FXML in `view/shared/dialog/`, a `DialogCard` subclass, one `fx:include` in `dialog.fxml`, one `showXxxMode` in `DialogController`. `DialogControllerTest` and `FxmlWiringTest` fail if the wiring is wrong.

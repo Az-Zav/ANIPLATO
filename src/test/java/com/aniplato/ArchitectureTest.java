@@ -32,9 +32,6 @@ class ArchitectureTest {
     private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of(
             "controller/admin/SafetyNoticesController.java");   // only the NoticeRow record type
 
-    private static final List<String> POPUPS_OUTSIDE_THE_DIALOGS = List.of(
-            "controller/admin/SafetyNoticesController.java");   // builds its own Alert (A: all popups go through DialogController)
-
     private static final List<String> UTILS_USING_A_SERVICE = List.of(
             "util/RegistrationDraft.java");   // holds the DocumentUpload record
 
@@ -124,10 +121,9 @@ class ArchitectureTest {
 
     @Test
     void allPopupsGoThroughTheDialogs() throws IOException {
-        assertOnlyKnown("Popups are DialogController dialogs or DialogController.showError. Known exceptions are listed in this test.",
-                filesWhere(s -> !s.path().startsWith("controller/shared/Dialog") && !in(s, "controller/shared/dialog")
-                        && s.text().contains("new Alert(")),
-                POPUPS_OUTSIDE_THE_DIALOGS);
+        List<String> breaches = filesWhere(s -> !s.path().startsWith("controller/shared/Dialog")
+                && !in(s, "controller/shared/dialog") && s.text().contains("new Alert("));
+        assertEquals(List.of(), breaches, "Popups are dialogs in controller/shared/dialog, or DialogController.showError");
     }
 
     //---SIZE---

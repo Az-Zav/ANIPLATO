@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
- * without anyone clicking through 15 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
+ * without anyone clicking through 16 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
  * Error paths are not covered here: they open a modal Alert, which would block the test.
  */
 class DialogControllerTest {
@@ -130,7 +130,7 @@ class DialogControllerTest {
                     throw new IllegalStateException(screen, e);
                 }
             });
-            assertEquals(15, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all fifteen dialogs");
+            assertEquals(16, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all sixteen dialogs");
         }
     }
 
@@ -139,7 +139,7 @@ class DialogControllerTest {
     @Test
     void everyDialogStartsHidden() {
         assertEquals(0, shownCards().size());
-        assertEquals(15, fx(() -> root.lookupAll(".modal-card").size()), "all fifteen dialogs are on the screen");
+        assertEquals(16, fx(() -> root.lookupAll(".modal-card").size()), "all sixteen dialogs are on the screen");
     }
 
     @Test
@@ -265,6 +265,24 @@ class DialogControllerTest {
         fx(() -> dialogs.showUpgradeBusinessDonorMode());
         String text = textIn(onlyShownCard());
         assertEquals(2, text.split("No file chosen", -1).length - 1, "one per permit");
+    }
+
+    @Test
+    void aResolvedNoticeShowsHowItWasResolvedAndTheAdminNote() {
+        fx(() -> dialogs.showNoticeResolvedMode("Account suspended", "Unsafe food reported"));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Account suspended"));
+        assertTrue(textIn(card).contains("Admin note: Unsafe food reported"));
+
+        fx(() -> dialogs.showNoticeResolvedMode("Dismissed", null));
+        assertTrue(textIn(onlyShownCard()).contains("Admin note: —"));
+    }
+
+    @Test
+    void closeClosesTheResolvedNoticeDialog() {
+        fx(() -> dialogs.showNoticeResolvedMode("Dismissed", "ok"));
+        click(onlyShownCard(), "Close");
+        assertAllClosed();
     }
 
     @Test
