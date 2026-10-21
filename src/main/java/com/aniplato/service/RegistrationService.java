@@ -24,19 +24,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.time.format.DateTimeFormatter;
 
-/** Submit, review, approve and reject registrations; document review. */
+/** Stage 1: applying for an account, and the admin deciding on it (approve, reject) from the review queue. */
 public class RegistrationService {
 
     private static final String ACCOUNT_ENTITY = "ACCOUNT";
     private static final String REGISTRATION_ENTITY = "REGISTRATION";
     private static final String DOCUMENT_ENTITY = "DOCUMENT";
     private static final int MAX_REASON_LENGTH = 500;   // registration.rejection_reason
-    private static final String DOCUMENT_EXPIRED_REASON = "Document expired";
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final Pattern CONTACT_NUMBER = Pattern.compile("^\\d{" + Settings.CONTACT_NUMBER_DIGITS + "}$");
 
@@ -252,58 +247,6 @@ public class RegistrationService {
         return value == null ? "" : value.trim();
     }
 
-    /** Maintenance suspension for registrations with a current, verified expired document (6.6, A3). */
-    public void suspendAccountsWithExpiredDocuments(LocalDate today) {
-        Database.inTransaction("Could not suspend accounts with expired documents", c -> {
-            List<DocumentDao.ExpiredRegistration> expired = documentDao.findCurrentExpiredRegistrations(c, today);
-            for (DocumentDao.ExpiredRegistration registration : expired) {
-                if (accountDao.suspendIfActive(c, registration.accountId(), DOCUMENT_EXPIRED_REASON) > 0) {
-                    logDao.logStatusChange(c, ACCOUNT_ENTITY, registration.accountId(),
-                            Account.Status.ACTIVE.name(), Account.Status.SUSPENDED.name(),
-                            DOCUMENT_EXPIRED_REASON, null);
-                }
-            }
-            return null;
-        });
-    }
-
-    /** Returns expired and soon-to-expire verified documents for the signed-in organization. */
-    public List<Document> getCurrentDocumentAlerts(LocalDate today) {
-        Account current = Session.current();
-        if (current == null || current.registration == null) return List.of();
-        try (Connection c = Database.getConnection()) {
-            return documentDao.findCurrentAlerts(c, current.registration.id, today,
-                    Settings.DOCUMENT_WARNING_DAYS);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load document expiry warnings", e);
-        }
-    }
-
-    /** The signed-in organization's documents for the Profile screen: the latest upload of each type. */
-    public List<Document> getMyDocuments() {
-        Account current = Session.require();
-        if (current.registration == null) return List.of();
-        try (Connection c = Database.getConnection()) {
-            Map<Document.Type, Document> latest = new LinkedHashMap<>();
-            for (Document d : documentDao.findByRegistration(c, current.registration.id)) latest.put(d.type, d);   // oldest first, so the newest wins
-            return new ArrayList<>(latest.values());
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load your documents", e);
-        }
-    }
-
-    /** Used by SafetyService so every suspension remains owned by this service (A3, A4). */
-    public void suspend(Connection c, int accountId, String reason, int changedBy) throws SQLException {
-        suspend(c, accountId, reason, Integer.valueOf(changedBy));
-    }
-
-    private void suspend(Connection c, int accountId, String reason, Integer changedBy) throws SQLException {
-        if (accountDao.suspendIfActive(c, accountId, reason) > 0) {
-            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.ACTIVE.name(),
-                    Account.Status.SUSPENDED.name(), reason, changedBy);
-        }
-    }
-
     //---ADMIN: REVIEW QUEUE (Stage 1 review)---
 
     /** One line of the Pending Accounts list. */
@@ -339,95 +282,5 @@ public class RegistrationService {
         } catch (SQLException e) {
             throw new DataAccessException("Could not load the registration", e);
         }
-    }
-
-    /** Admin confirms a document matches the applicant's name and city (R1.4). */
-    public void verifyDocument(int documentId) {
-        reviewDocument(documentId, Document.Review.OK, null);
-    }
-
-    /** Admin takes a verification back, so the document awaits review again. */
-    public void undoVerification(int documentId) {
-        reviewDocument(documentId, null, null);
-    }
-
-    private void reviewDocument(int documentId, Document.Review review, String reason) {
-        Account admin = Session.requireAdmin();
-        Database.inTransaction("Could not save the document review", c -> {
-            Document d = documentDao.findById(c, documentId);
-            if (d == null) throw new RuleViolationException("This document no longer exists.");
-            if (review == null && d.review != Document.Review.OK) throw new RuleViolationException("This document is not verified.");
-            String from = d.review == null ? "AWAITING_REVIEW" : d.review.name();
-            documentDao.markReviewed(c, documentId, review, reason, admin.id, LocalDateTime.now());
-            logDao.logStatusChange(c, "DOCUMENT", documentId, from, review == null ? "AWAITING_REVIEW" : review.name(), reason, admin.id);   // A3
-            return null;
-        });
-    }
-    //---ADMIN: ALL ACCOUNTS---
-
-    /** One line of the All Accounts list. */
-    public record AccountRow(int accountId, String name, Account.Role role, String city, Account.Status status,
-                             String statusNote, String documentNote, boolean documentEnding) { }
-
-    /** The list with the numbers above it. Counts are worked out from the rows (A9). */
-    public record AccountsOverview(List<AccountRow> rows, int approved, int suspended, int documentsEnding) { }
-
-    /** Every organization account, with the next document that ends within the warning period. */
-    public AccountsOverview getAccounts(LocalDate today) {
-        Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
-            Map<Integer, DocumentDao.ExpiringDocument> next = new HashMap<>();
-            for (DocumentDao.ExpiringDocument d : documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS))) {
-                next.putIfAbsent(d.registrationId(), d);   // the list is soonest first
-            }
-            List<AccountRow> rows = new ArrayList<>();
-            int suspended = 0;
-            int ending = 0;
-            for (Account a : accountDao.findAllOrganizations(c)) {
-                DocumentDao.ExpiringDocument doc = next.get(a.registration.id);
-                if (doc != null) ending++;
-                boolean isSuspended = a.status == Account.Status.SUSPENDED;
-                if (isSuspended) suspended++;
-                rows.add(new AccountRow(a.id, a.registration.name, a.role, a.registration.city.name, a.status,
-                        a.suspendReason, documentNote(doc, today), doc != null));
-            }
-            return new AccountsOverview(rows, rows.size(), suspended, ending);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load accounts", e);
-        }
-    }
-
-    private static String documentNote(DocumentDao.ExpiringDocument doc, LocalDate today) {
-        if (doc == null) return "Documents current";
-        String date = doc.expiresOn().format(java.time.format.DateTimeFormatter.ofPattern("MMM d"));
-        return doc.type().label() + (doc.expiresOn().isBefore(today) ? " ended " : " ends ") + date;
-    }
-
-    /** Admin suspends an Active account; the reason is shown to the organization (6.3). */
-    public void suspendAccount(int accountId, String reason) {
-        Account admin = Session.requireAdmin();
-        if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the suspension.");
-        String why = reason.trim();
-        Database.inTransaction("Could not suspend the account", c -> {
-            if (accountDao.suspendIfActive(c, accountId, why) == 0) {
-                throw new RuleViolationException("This account is not Active.");
-            }
-            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.ACTIVE.name(),
-                    Account.Status.SUSPENDED.name(), why, admin.id);   // A3
-            return null;
-        });
-    }
-
-    /** Admin gives a Suspended account its full access back. */
-    public void reinstateAccount(int accountId) {
-        Account admin = Session.requireAdmin();
-        Database.inTransaction("Could not reinstate the account", c -> {
-            if (accountDao.reinstateIfSuspended(c, accountId) == 0) {
-                throw new RuleViolationException("This account is not Suspended.");
-            }
-            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.SUSPENDED.name(),
-                    Account.Status.ACTIVE.name(), null, admin.id);   // A3
-            return null;
-        });
     }
 }

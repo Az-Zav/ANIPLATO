@@ -3,9 +3,9 @@ package com.aniplato.controller.admin;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.Account;
-import com.aniplato.service.RegistrationService;
-import com.aniplato.service.RegistrationService.AccountRow;
-import com.aniplato.service.RegistrationService.AccountsOverview;
+import com.aniplato.service.AccountStatusService;
+import com.aniplato.service.AccountStatusService.AccountRow;
+import com.aniplato.service.AccountStatusService.AccountsOverview;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -31,7 +31,7 @@ public class AccountsController {
 
     private static final int PAGE_SIZE = 10;
 
-    private final RegistrationService registrationService = new RegistrationService();
+    private final AccountStatusService accountStatusService = new AccountStatusService();
     private final Pager<AccountRow> pager = new Pager<>(PAGE_SIZE);
 
     // PATTERN:DYNAMIC fills the summary and the list from the organization accounts
@@ -43,7 +43,7 @@ public class AccountsController {
     private void load() {
         AccountsOverview overview;
         try {
-            overview = registrationService.getAccounts(LocalDate.now());
+            overview = accountStatusService.getAccounts(LocalDate.now());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
             accountsSummaryLabel.setText("Could not load the accounts. Check the database connection.");
             return;
@@ -93,14 +93,14 @@ public class AccountsController {
 
     private void suspend(AccountRow account) {
         dialogController.showSuspendAccountMode(account.name(), reason -> {
-            registrationService.suspendAccount(account.accountId(), reason);   // the service needs a reason
+            accountStatusService.suspendAccount(account.accountId(), reason);   // the service needs a reason
             load();
         });
     }
 
     private void reinstate(AccountRow account) {
         dialogController.showReinstateAccountMode(account.name(), null, () -> {
-            registrationService.reinstateAccount(account.accountId());
+            accountStatusService.reinstateAccount(account.accountId());
             load();
         });
     }

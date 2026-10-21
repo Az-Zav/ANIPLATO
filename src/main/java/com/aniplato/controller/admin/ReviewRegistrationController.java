@@ -3,9 +3,9 @@ package com.aniplato.controller.admin;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
+import com.aniplato.service.DocumentReviewService;
 import com.aniplato.service.FileStorageService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.ReviewDetail;
@@ -81,6 +81,7 @@ public class ReviewRegistrationController {
     @FXML private Button approveBtn;
 
     private final RegistrationService registrationService = new RegistrationService();
+    private final DocumentReviewService documentReviewService = new DocumentReviewService();
     private int registrationId;
     private List<Document> documents = List.of();
 
@@ -166,14 +167,14 @@ public class ReviewRegistrationController {
 
     @FXML private void handleVerifyDoc1() { verify(0); }
     @FXML private void handleVerifyDoc2() { verify(1); }
-    @FXML private void handleUndoDoc1() { run(() -> registrationService.undoVerification(documents.get(0).id)); }
-    @FXML private void handleUndoDoc2() { run(() -> registrationService.undoVerification(documents.get(1).id)); }
+    @FXML private void handleUndoDoc1() { run(() -> documentReviewService.undoVerification(documents.get(0).id)); }
+    @FXML private void handleUndoDoc2() { run(() -> documentReviewService.undoVerification(documents.get(1).id)); }
     @FXML private void handleViewDoc1() { open(0); }
     @FXML private void handleViewDoc2() { open(1); }
 
     /** R1.4: the admin opens the file, compares it with the reminders, then verifies it. */
     private void verify(int index) {
-        run(() -> registrationService.verifyDocument(documents.get(index).id));
+        run(() -> documentReviewService.verifyDocument(documents.get(index).id));
     }
 
     /** Runs a service action, shows a broken rule (A8), then re-reads the registration so the screen matches the database. */

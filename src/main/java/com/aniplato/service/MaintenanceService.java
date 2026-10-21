@@ -11,7 +11,8 @@ public class MaintenanceService {
 
     private final OfferService offerService = new OfferService();
     private final ListingService listingService = new ListingService();
-    private final RegistrationService registrationService = new RegistrationService();
+    private final AccountStatusService accountStatusService = new AccountStatusService();
+    private final DocumentReviewService documentReviewService = new DocumentReviewService();
 
     /** Runs the automatic checks in the order specified in section 6.6. */
     public void runMaintenance() {
@@ -19,11 +20,11 @@ public class MaintenanceService {
         offerService.lapseOverdueAcceptedOffers(now);
         listingService.expireOverdueOpenListings(now);
         offerService.expireOverdueOfferedOffers(now);
-        registrationService.suspendAccountsWithExpiredDocuments(LocalDate.now());
+        accountStatusService.suspendAccountsWithExpiredDocuments(LocalDate.now());
     }
 
     /** Current user's expired or soon-to-expire documents for the Profile warning banner. */
     public List<Document> getCurrentDocumentAlerts() {
-        return registrationService.getCurrentDocumentAlerts(LocalDate.now());
+        return documentReviewService.getCurrentDocumentAlerts(LocalDate.now());
     }
 }

@@ -5,9 +5,9 @@ import com.aniplato.model.Account;
 import com.aniplato.model.Admin;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
+import com.aniplato.service.DocumentReviewService;
 import com.aniplato.service.FileStorageService;
 import com.aniplato.service.MaintenanceService;
-import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
@@ -66,7 +66,7 @@ public class ProfileController {
     @FXML private Label passwordStatusLabel;
 
     private final MaintenanceService maintenanceService = new MaintenanceService();
-    private final RegistrationService registrationService = new RegistrationService();
+    private final DocumentReviewService documentReviewService = new DocumentReviewService();
 
     @FXML
     private void initialize() {
@@ -105,7 +105,7 @@ public class ProfileController {
         docRowsBox.getChildren().clear();
         List<Document> documents;
         try {
-            documents = registrationService.getMyDocuments();
+            documents = documentReviewService.getMyDocuments();
         } catch (RuntimeException e) {
             docRowsBox.getChildren().add(styled(new Label("Could not load your documents."), "text-muted"));
             return;
