@@ -1088,3 +1088,24 @@
     -fx-text-fill: #DC2626;
     -fx-font-size: 12px;
 }
+
+/* Container Box */
+.modal-icon-green-box {
+    -fx-background-color: #E8F5E9;
+    -fx-background-radius: 8px;
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
+    -fx-alignment: center;
+}
+
+/* Vector Shape Icon */
+.check-svg-icon {
+    -fx-shape: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
+    -fx-background-color: #1B5E20;
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-max-width: 18px;
+    -fx-max-height: 18px;
+}

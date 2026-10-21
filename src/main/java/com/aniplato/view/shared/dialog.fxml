@@ -12,6 +12,8 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="CENTER" styleClass="modal-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.DialogController">
@@ -50,9 +52,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="100.0" onAction="#handleConfirmReject" styleClass="danger-button" text="✕ Reject" />
                     </children>
                 </HBox>
@@ -69,7 +72,11 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-green" text="✓" />
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Approve this organization?" />
@@ -79,9 +86,10 @@
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="110.0" onAction="#handleConfirmApprove" styleClass="primary-button" text="✓ Approve" />
                     </children>
                 </HBox>
@@ -115,8 +123,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="90.0" onAction="#handleDismissSafetyNotice" styleClass="secondary-button" text="Dismiss" />
                         <Button minWidth="140.0" onAction="#handleSuspendFromSafetyNotice" styleClass="danger-button" text="Suspend account" />
                     </children>
@@ -151,9 +161,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="110.0" onAction="#handleConfirmSuspend" styleClass="danger-button" text="✕ Suspend" />
                     </children>
                 </HBox>
@@ -170,7 +181,11 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-green" text="✓" />
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Reinstate this account?" />
@@ -180,9 +195,10 @@
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="110.0" onAction="#handleConfirmReinstate" styleClass="primary-button" text="Reinstate" />
                     </children>
                 </HBox>
@@ -216,9 +232,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="100.0" onAction="#handleCancel" styleClass="secondary-button" text="Keep listing" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="130.0" onAction="#handleConfirmCancelListing" styleClass="danger-button" text="✕ Cancel listing" />
                     </children>
                 </HBox>
@@ -291,9 +308,10 @@
 
                 <Hyperlink onAction="#handleSwitchToFlagSafety" styleClass="required-star" text="Something wrong with the food? Flag a safety concern" />
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="130.0" onAction="#handleConfirmRelease" styleClass="primary-button" text="Confirm Release" />
                     </children>
                 </HBox>
@@ -327,9 +345,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="120.0" onAction="#handleConfirmFlagSafety" styleClass="danger-button" text="Send to admin" />
                     </children>
                 </HBox>
@@ -356,9 +375,10 @@
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="110.0" onAction="#handleConfirmAcceptOffer" styleClass="primary-button" text="Accept offer" />
                     </children>
                 </HBox>
@@ -375,7 +395,11 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-green" text="✓" />
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label fx:id="uploadRenewalTitleLabel" styleClass="modal-title" text="Upload renewal: Sanitary Permit" />
@@ -404,9 +428,10 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="150.0" onAction="#handleConfirmUploadRenewal" styleClass="primary-button" text="Submit for review" />
                     </children>
                 </HBox>
@@ -423,7 +448,11 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-green" text="✓" />
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Set a new password" />
@@ -463,8 +492,10 @@
 
                 <Label styleClass="text-muted" text="This step can’t be skipped. You’ll see it each time you log in with the temporary password until you set your own." wrapText="true" />
 
-                <HBox alignment="CENTER_RIGHT">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="140.0" onAction="#handleConfirmSetNewPassword" styleClass="primary-button" text="Save password" />
                     </children>
                 </HBox>
@@ -474,7 +505,6 @@
         <!-- =================================================================== -->
         <!-- 12. WITHDRAW OFFER DIALOG (FOOD GROUP)                              -->
         <!-- =================================================================== -->
-        <!-- PATTERN:DYNAMIC visibility: withdrawOfferDialogBox shown when withdrawing offer -->
         <VBox fx:id="withdrawOfferDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
@@ -486,18 +516,16 @@
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Withdraw your offer?" />
-                                <!-- PATTERN:DYNAMIC withdrawOfferDescription -->
                                 <Label fx:id="withdrawOfferDescriptionLabel" styleClass="text-muted" text="Manila Artisanal Bakeshop won’t see this offer anymore. You can send a new one while the listing is still open." wrapText="true" />
                             </children>
                         </VBox>
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <!-- PATTERN:ACTION handleCancel -->
-                        <Button minWidth="100.0" onAction="#handleCancel" styleClass="secondary-button" text="Keep offer" />
-                        <!-- PATTERN:ACTION handleConfirmWithdrawOffer -->
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="120.0" onAction="#handleConfirmWithdrawOffer" styleClass="danger-button" text="✕ Withdraw" />
                     </children>
                 </HBox>
@@ -507,7 +535,6 @@
         <!-- =================================================================== -->
         <!-- 13. CONFIRM RECEIPT DIALOG (FOOD GROUP)                             -->
         <!-- =================================================================== -->
-        <!-- PATTERN:DYNAMIC visibility: confirmReceiptDialogBox shown when confirming receipt -->
         <VBox fx:id="confirmReceiptDialogBox" managed="false" maxWidth="520.0" spacing="20.0" styleClass="modal-card" visible="false">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
@@ -525,7 +552,6 @@
                     </children>
                 </HBox>
 
-                <!-- DETAILS GRID -->
                 <GridPane hgap="12.0" styleClass="notice-box" vgap="8.0">
                     <padding>
                         <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
@@ -552,7 +578,6 @@
                     </children>
                 </GridPane>
 
-                <!-- CHECKLIST -->
                 <VBox spacing="8.0">
                     <children>
                         <Label styleClass="form-label" text="Before confirming" />
@@ -561,7 +586,6 @@
                     </children>
                 </VBox>
 
-                <!-- NOTICE BANNER -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="pill-food-donor">
                     <padding>
                         <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
@@ -572,15 +596,125 @@
                     </children>
                 </HBox>
 
-                <!-- LINK TO FLAG SAFETY -->
                 <Hyperlink onAction="#handleSwitchToFlagSafety" styleClass="required-star" text="Something wrong with the food? Flag a safety concern" />
 
-                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <!-- PATTERN:ACTION handleCancel -->
-                        <Button minWidth="80.0" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
-                        <!-- PATTERN:ACTION handleConfirmReceipt -->
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
                         <Button minWidth="130.0" onAction="#handleConfirmReceipt" styleClass="primary-button" text="Confirm Receipt" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 14. FORGOT PASSWORD DIALOG                                          -->
+        <!-- =================================================================== -->
+        <VBox fx:id="forgotPasswordDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Forgot your password?" />
+                                <Label styleClass="text-muted" text="Enter your account's email address below. If an account matches, we'll send instructions to reset your password." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="form-label" text="Enter your email *" />
+                        <TextField fx:id="forgotPasswordEmailField" promptText="e.g., name@organization.ph" styleClass="text-field" />
+                        <Label styleClass="text-muted" text="We'll send a password reset link or temporary access code to this address." wrapText="true" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button minWidth="130.0" onAction="#handleConfirmForgotPassword" styleClass="primary-button" text="Send reset email" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- =================================================================== -->
+        <!-- 15. UPGRADE TO BUSINESS DONOR DIALOG                                -->
+        <!-- =================================================================== -->
+        <VBox fx:id="upgradeBusinessDonorDialogBox" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox spacing="16.0">
+                    <children>
+                        <StackPane styleClass="modal-icon-green-box">
+                            <children>
+                                <Region styleClass="check-svg-icon" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="modal-title" text="Upgrade to Business donor" />
+                                <Label styleClass="text-muted" text="Upload your Mayor's Permit and Sanitary Permit with their expiry dates. An admin reviews them, and you stay a Casual donor until they're approved." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0">
+                    <children>
+                        <!-- MAYOR'S PERMIT FILE & DATE -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Mayor's / Business Permit *" />
+                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChooseMayorPermitFile" styleClass="secondary-button" text="⇪  Upload PDF, JPG or PNG (max 5 MB)" />
+                                <Label fx:id="selectedMayorPermitFileLabel" styleClass="doc-subtitle" text="No file chosen" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Expiry date *" />
+                                <TextField fx:id="mayorPermitExpiryDateField" promptText="MM / DD / YYYY" styleClass="text-field" />
+                            </children>
+                        </VBox>
+
+                        <!-- SANITARY PERMIT FILE & DATE -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Sanitary Permit *" />
+                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChooseSanitaryPermitFile" styleClass="secondary-button" text="⇪  Upload PDF, JPG or PNG (max 5 MB)" />
+                                <Label fx:id="selectedSanitaryPermitFileLabel" styleClass="doc-subtitle" text="No file chosen" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="form-label" text="Expiry date *" />
+                                <TextField fx:id="sanitaryPermitExpiryDateField" promptText="MM / DD / YYYY" styleClass="text-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button onAction="#handleCancel" styleClass="secondary-button" text="← Back" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button minWidth="150.0" onAction="#handleConfirmUpgradeBusinessDonor" styleClass="primary-button" text="Submit for review" />
                     </children>
                 </HBox>
             </children>

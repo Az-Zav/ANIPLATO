@@ -1,9 +1,10 @@
 package com.aniplato.controller;
 
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Account.Role;
 import com.aniplato.model.Document;
 import com.aniplato.service.MaintenanceService;
 import com.aniplato.util.Navigator;
-import com.aniplato.model.Account.Role;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -13,6 +14,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class ProfileController {
+
+    // Nested Dialog Controller (Injected from <fx:include fx:id="dialog" ... />)
+    @FXML private DialogController dialogController;
 
     // Dynamic Visibility Containers
     @FXML private HBox docAlertBanner;
@@ -43,7 +47,8 @@ public class ProfileController {
 
     private final MaintenanceService maintenanceService = new MaintenanceService();
 
-    // PATTERN:DYNAMIC fills placeholders according to current authenticated user role
+
+    //This is for testing only
     @FXML
     private void initialize() {
         Role activeRole = Navigator.currentRole();
@@ -53,56 +58,67 @@ public class ProfileController {
         boolean isFoodGroup = (activeRole == Role.FOOD_GROUP);
         boolean isOrg = isDonor || isFoodGroup;
 
-        // Toggle Container Visibilities
-        adminCardBox.setVisible(isAdmin);
-        adminCardBox.setManaged(isAdmin);
+        if (adminCardBox != null) {
+            adminCardBox.setVisible(isAdmin);
+            adminCardBox.setManaged(isAdmin);
+        }
 
-        orgCardBox.setVisible(isOrg);
-        orgCardBox.setManaged(isOrg);
+        if (orgCardBox != null) {
+            orgCardBox.setVisible(isOrg);
+            orgCardBox.setManaged(isOrg);
+        }
 
-        docsCardBox.setVisible(isOrg);
-        docsCardBox.setManaged(isOrg);
+        if (docsCardBox != null) {
+            docsCardBox.setVisible(isOrg);
+            docsCardBox.setManaged(isOrg);
+        }
 
         if (isAdmin) {
-            docAlertBanner.setVisible(false);
-            docAlertBanner.setManaged(false);
+            if (docAlertBanner != null) {
+                docAlertBanner.setVisible(false);
+                docAlertBanner.setManaged(false);
+            }
 
-            // TODO(service): populate with real admin profile data from service
-            adminNameLabel.setText("ANIPLATO Admin");
-            adminRoleLabel.setText("Admin");
-            adminSinceLabel.setText("Sep 1, 2026");
+            if (adminNameLabel != null) adminNameLabel.setText("ANIPLATO Admin");
+            if (adminRoleLabel != null) adminRoleLabel.setText("Admin");
+            if (adminSinceLabel != null) adminSinceLabel.setText("Sep 1, 2026");
 
-            loginEmailLabel.setText("admin@aniplato.ph");
-            passwordStatusLabel.setText("Last changed Sep 1, 2026");
+            if (loginEmailLabel != null) loginEmailLabel.setText("admin@aniplato.ph");
+            if (passwordStatusLabel != null) passwordStatusLabel.setText("Last changed Sep 1, 2026");
 
         } else if (isOrg) {
             if (isFoodGroup) {
-                orgNameLabel.setText("Bayanihan Food Group");
-                orgRoleLabel.setText("Food group");
-                orgTypeLabel.setText("Community kitchen");
-                orgCityLabel.setText("Quezon City");
-                orgContactLabel.setText("Jose Reyes · 0918 456 7890");
-                orgApprovedDateLabel.setText("Oct 12, 2026");
-                loginEmailLabel.setText("contact@bayanihan.ph");
-                passwordStatusLabel.setText("Last changed Oct 12, 2026");
+                if (orgNameLabel != null) orgNameLabel.setText("Bayanihan Food Group");
+                if (orgRoleLabel != null) orgRoleLabel.setText("Food group");
+                if (orgTypeLabel != null) orgTypeLabel.setText("Community kitchen");
+                if (orgCityLabel != null) orgCityLabel.setText("Quezon City");
+                if (orgContactLabel != null) orgContactLabel.setText("Jose Reyes · 0918 456 7890");
+                if (orgApprovedDateLabel != null) orgApprovedDateLabel.setText("Oct 12, 2026");
+                if (loginEmailLabel != null) loginEmailLabel.setText("contact@bayanihan.ph");
+                if (passwordStatusLabel != null) passwordStatusLabel.setText("Last changed Oct 12, 2026");
             } else {
-                orgNameLabel.setText("Manila Artisanal Bakeshop");
-                orgRoleLabel.setText("Business donor");
-                orgTypeLabel.setText("Bakery");
-                orgCityLabel.setText("Mandaluyong City");
-                orgContactLabel.setText("Maria Santos · 0917 123 4567");
-                orgApprovedDateLabel.setText("Oct 5, 2026");
-                loginEmailLabel.setText("contact@manilabakeshop.ph");
-                passwordStatusLabel.setText("Last changed Oct 5, 2026");
+                if (orgNameLabel != null) orgNameLabel.setText("Manila Artisanal Bakeshop");
+                if (orgRoleLabel != null) orgRoleLabel.setText("Business donor");
+                if (orgTypeLabel != null) orgTypeLabel.setText("Bakery");
+                if (orgCityLabel != null) orgCityLabel.setText("Mandaluyong City");
+                if (orgContactLabel != null) orgContactLabel.setText("Maria Santos · 0917 123 4567");
+                if (orgApprovedDateLabel != null) orgApprovedDateLabel.setText("Oct 5, 2026");
+                if (loginEmailLabel != null) loginEmailLabel.setText("contact@manilabakeshop.ph");
+                if (passwordStatusLabel != null) passwordStatusLabel.setText("Last changed Oct 5, 2026");
             }
+
             List<Document> alerts = maintenanceService.getCurrentDocumentAlerts();
             LocalDate today = LocalDate.now();
             long expiredCount = alerts.stream().filter(document -> document.isExpired(today)).count();
             long upcomingCount = alerts.size() - expiredCount;
             boolean hasAlerts = !alerts.isEmpty();
-            docAlertBanner.setVisible(hasAlerts);
-            docAlertBanner.setManaged(hasAlerts);
-            if (hasAlerts) {
+
+            if (docAlertBanner != null) {
+                docAlertBanner.setVisible(hasAlerts);
+                docAlertBanner.setManaged(hasAlerts);
+            }
+
+            if (hasAlerts && docAlertTextLabel != null) {
                 StringBuilder message = new StringBuilder();
                 if (expiredCount > 0) {
                     message.append(expiredCount).append(expiredCount == 1 ? " document expired" : " documents expired");
@@ -114,26 +130,41 @@ public class ProfileController {
                 }
                 docAlertTextLabel.setText(message + ". Upload renewals below; an admin verifies each one.");
             }
-
-            // TODO(service): populate with real organization profile & documents data from service
         }
     }
 
-    // PATTERN:ACTION placeholder: opens contact edit dialog
+    // PATTERN:ACTION handleEditContact - triggered by Hyperlink in Organization card
     @FXML
     private void handleEditContact() {
-        // TODO(service): open dialog to edit contact person and phone number
+        // TODO(service): open dialog or form to update organization contact info
     }
 
-    // PATTERN:ACTION placeholder: uploads renewal document
+    // PATTERN:ACTION handleUploadRenewal - triggered by 'Upload renewal' button in Documents card
     @FXML
     private void handleUploadRenewal() {
-        // TODO(service): trigger file chooser and save renewal document
+        if (dialogController != null) {
+            dialogController.showUploadRenewalMode("Mayor's / Business Permit");
+        }
     }
 
-    // PATTERN:ACTION placeholder: opens change password dialog/screen
+    // PATTERN:ACTION handleForgotPassword - triggered by 'Forgot password' button in Account card
+    @FXML
+    private void handleForgotPassword() {
+        if (dialogController != null) {
+            String currentEmail = (loginEmailLabel != null) ? loginEmailLabel.getText() : "";
+            dialogController.showForgotPasswordMode(currentEmail);
+        }
+    }
+
+    // PATTERN:ACTION handleChangePassword - triggered by 'Change password' button in Account card
     @FXML
     private void handleChangePassword() {
-        // TODO(service): handle password change action
+        if (dialogController != null) {
+            dialogController.showSetNewPasswordMode(null, () -> {
+                if (passwordStatusLabel != null) {
+                    passwordStatusLabel.setText("Last changed just now");
+                }
+            });
+        }
     }
 }
