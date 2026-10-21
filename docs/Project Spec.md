@@ -353,7 +353,7 @@ Suspended access: a Suspended account cannot post, send an offer, or accept an o
 
 * Active → Suspended: admin suspends (reason written), or a document expires (automatic).
 
-* Suspended → Active: admin reinstates (reason written), or a renewal is uploaded and verified for a document-expiry suspension.
+* Suspended → Active: admin reinstates, or a renewal is uploaded and verified for a document-expiry suspension.
 
 **Registration changes:**
 
