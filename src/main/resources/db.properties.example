@@ -1,4 +1,15 @@
-# Copy this file to db.properties and fill in your own password. db.properties is git-ignored.
+# Copy this file to db.properties and fill in your MySQL password and SMTP login. db.properties is git-ignored.
 url=jdbc:mysql://localhost:3306/aniplato?useSSL=false&serverTimezone=Asia/Manila
 user=root
 password=
+
+# Email (SMTP). Gmail: turn on 2-Step Verification, then create an App Password at
+# https://myaccount.google.com/apppasswords and paste it as mail.password (not your Gmail password).
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.auth=true
+mail.smtp.starttls.enable=true
+mail.user=
+mail.password=
+# Optional display name; defaults to mail.user.
+#mail.from=ANIPLATO <your-address@gmail.com>
