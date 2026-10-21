@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 
 /** SQL only. One DAO per table. */
@@ -103,6 +104,47 @@ public class AccountDao {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, passwordHash);
             ps.setObject(2, changedAt);
+            ps.setInt(3, accountId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Replaces the password with a temporary one; login then reaches only Change Password (R1.7). */
+    public int setTemporaryPassword(Connection c, int accountId, String passwordHash) throws SQLException {
+        String sql = "UPDATE account SET password_hash = ?, must_change_password = TRUE WHERE account_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, passwordHash);
+            ps.setInt(2, accountId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Creates the login of an approved registration with a temporary password (R1.5) and returns its id. */
+    public int insert(Connection c, String email, String passwordHash, Account.Role role, int registrationId,
+                      LocalDateTime createdAt) throws SQLException {
+        String sql = "INSERT INTO account (email, password_hash, role, status, must_change_password, " +
+                "password_changed_at, registration_id, created_at) VALUES (?, ?, ?, 'ACTIVE', TRUE, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, email);
+            ps.setString(2, passwordHash);
+            ps.setString(3, role.name());
+            ps.setObject(4, createdAt);
+            ps.setInt(5, registrationId);
+            ps.setObject(6, createdAt);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                return keys.getInt(1);
+            }
+        }
+    }
+
+    /** An approved upgrade: the account points to the new registration and takes its role (6.2 Stage 1). */
+    public int moveToRegistration(Connection c, int accountId, int registrationId, Account.Role role) throws SQLException {
+        String sql = "UPDATE account SET registration_id = ?, role = ? WHERE account_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            ps.setString(2, role.name());
             ps.setInt(3, accountId);
             return ps.executeUpdate();
         }

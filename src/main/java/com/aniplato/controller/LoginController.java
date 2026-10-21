@@ -65,14 +65,9 @@ public class LoginController {
         errorLabel.setVisible(false);
     }
 
-    // TODO(service): Forgot password. Deferred; wire when the reset flow is built:
-    //   1. AuthenticationService.requestPasswordReset(String email): if the account exists, generate a temporary
-    //      password (generateTemporaryPassword), hash it, set must_change_password = TRUE, then email it
-    //      (EmailService.Kind.PASSWORD_RESET + email/reset.html). Return nothing and give the same answer whether
-    //      or not the email exists, so the screen does not reveal which emails have accounts.
-    //   2. Schema: add PASSWORD_RESET to email_log.kind (update sql/schema.sql, spec 7.6 and the ER diagram together).
-    //   3. Spec: add the flow to 6.2 Stage 1 and the method to 7.3 AuthenticationService.
-    //   4. View: dialog.fxml needs a "Forgot password" mode (email field + Send); Figma frame not designed yet.
+    // TODO(service): Forgot password link. AuthenticationService.requestPasswordReset is built and the Profile
+    // screen reaches it through DialogController.showForgotPasswordMode; this link is still unwired.
+    // Wire it to open that same dialog mode, or call the service directly as below.
     //
     // FXML: forgotPasswordLink onAction="#handleForgotPassword"
     // PATTERN:ACTION

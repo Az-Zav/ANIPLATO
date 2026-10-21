@@ -49,6 +49,9 @@ public class ReviewRegistrationController {
 
     @FXML private Label registeredDateLabel;
 
+    // TODO(service): set from the row picked on Pending Registrations when the screen loads real data
+    private int registrationId;
+
     @FXML
     private void initialize() {
         // You can read the selected account mode/type from your Navigator or session state
@@ -221,7 +224,7 @@ public class ReviewRegistrationController {
             String name = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
                     ? orgNameLabel.getText()
                     : "Santos Household";
-            dialogController.showRejectMode(name);
+            dialogController.showRejectMode(registrationId, name);
         }
     }
 
@@ -235,7 +238,7 @@ public class ReviewRegistrationController {
                     ? emailLabel.getText()
                     : "maria.santos@email.com";
 
-            dialogController.showApproveMode(name, email);
+            dialogController.showApproveMode(registrationId, name, email);
         }
     }
 }
