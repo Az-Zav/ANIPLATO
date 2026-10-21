@@ -2,6 +2,7 @@ package com.aniplato.controller;
 
 import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
+import com.aniplato.service.MaintenanceService;
 import com.aniplato.service.StatsService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
@@ -53,6 +54,7 @@ public class ShellController {
 
     private final AuthenticationService authenticationService = new AuthenticationService();
     private final StatsService statsService = new StatsService();
+    private final MaintenanceService maintenanceService = new MaintenanceService();
     private final List<Label> badges = new ArrayList<>();
 
     @FXML
@@ -74,12 +76,22 @@ public class ShellController {
         // Highlight follows Navigator.currentScreen(): set now, and again after every in-shell navigation
         refreshActive();
         refreshBadges();
+        Navigator.setBeforeScreenListener(this::runMaintenance);
         Navigator.setScreenListener(() -> {
             refreshActive();
             refreshBadges();   // an approval or resolved notice changes the counts
         });
         startAssistantPulse();
 
+    }
+
+    /** 6.6: the automatic checks run before each screen loads. A failing check never blocks the screen. */
+    private void runMaintenance() {
+        try {
+            maintenanceService.runMaintenance();
+        } catch (RuntimeException e) {
+            System.err.println("Automatic checks failed: " + e.getMessage());
+        }
     }
 
     /** Highlights the sidebar button for the screen being shown (a detail screen highlights its parent). */

@@ -84,6 +84,7 @@ public final class Navigator {
     private static StackPane content;
     private static Screen currentScreen;
     private static Runnable screenListener;
+    private static Runnable beforeScreenListener;
 
     private Navigator() {}
 
@@ -112,6 +113,11 @@ public final class Navigator {
     /** Called by ShellController so the sidebar can refresh its highlight after every in-shell navigation. */
     public static void setScreenListener(Runnable listener) {
         screenListener = listener;
+    }
+
+    /** Called by ShellController so something can run before each in-shell screen loads (the 6.6 automatic checks). */
+    public static void setBeforeScreenListener(Runnable listener) {
+        beforeScreenListener = listener;
     }
 
     /** The screen whose sidebar button should look active while the given screen is shown. */
@@ -143,6 +149,7 @@ public final class Navigator {
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
             screenListener = null;                // so does the shell's highlight listener
+            beforeScreenListener = null;          // and its before-load listener
             currentScreen = screen;
             scene.setRoot(load(screen));
         } else {
@@ -150,6 +157,7 @@ public final class Navigator {
             if (content == null) {
                 scene.setRoot(load(Screen.SHELL));
             }
+            if (beforeScreenListener != null) beforeScreenListener.run();   // so the screen shows the result of the checks
             content.getChildren().setAll(load(screen));
             if (screenListener != null) screenListener.run();   // move the sidebar highlight
         }
