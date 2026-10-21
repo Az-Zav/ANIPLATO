@@ -976,3 +976,9 @@
     -fx-background-color: #FFF1F2;
     -fx-border-color: #F87171;
 }
+
+/* Inline form error (login) */
+.error-text {
+    -fx-text-fill: #DC2626;
+    -fx-font-size: 12px;
+}

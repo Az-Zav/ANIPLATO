@@ -12,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 /** SQL only. One DAO per table. */
 public class AccountDao {
@@ -21,7 +20,7 @@ public class AccountDao {
         String sql = """
                 SELECT a.account_id, a.email, a.role, a.status, a.suspend_reason,
                        a.must_change_password, a.password_changed_at, a.created_at, a.admin_name,
-                       r.registration_id, r.org_name, r.org_type, r.contact_person, r.email AS registration_email,
+                       r.registration_id, r.name AS registration_name, r.contact_person, r.email AS registration_email,
                        r.status AS registration_status, r.rejection_reason, r.reviewed_by, r.reviewed_at,
                        r.submitted_at, city.city_id, city.name AS city_name
                 FROM account a
@@ -37,7 +36,7 @@ public class AccountDao {
                 Account.Role role = Account.Role.valueOf(rs.getString("role"));
                 Account account = switch (role) {
                     case ADMIN -> new Admin();
-                    case DONOR -> new Donor();
+                    case BUSINESS_DONOR, CASUAL_DONOR -> new Donor();
                     case FOOD_GROUP -> new FoodGroup();
                 };
                 account.id = rs.getInt("account_id");
@@ -55,8 +54,7 @@ public class AccountDao {
                     Registration registration = new Registration();
                     registration.id = rs.getInt("registration_id");
                     registration.role = role;
-                    registration.orgName = rs.getString("org_name");
-                    registration.orgType = Account.OrgType.valueOf(rs.getString("org_type").toUpperCase(Locale.ROOT));
+                    registration.name = rs.getString("registration_name");
                     registration.contactPerson = rs.getString("contact_person");
                     registration.email = rs.getString("registration_email");
                     registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
@@ -74,6 +72,16 @@ public class AccountDao {
                     account.registration = registration;
                 }
                 return account;
+            }
+        }
+    }
+
+    /** True if a login already uses this email (an account email is unique). */
+    public boolean existsByEmail(Connection c, String email) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM account WHERE email = ?")) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
             }
         }
     }

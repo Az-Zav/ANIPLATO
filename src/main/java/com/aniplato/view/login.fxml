@@ -15,7 +15,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.LoginController">
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.LoginController">
+    <children>
+
+<HBox fx:id="loginRoot" prefHeight="720.0" prefWidth="1280.0" styleClass="left-panel">
     <stylesheets>
         <URL value="@aniplato.css" />
     </stylesheets>
@@ -115,6 +118,16 @@
                             <children>
                                 <Label styleClass="form-label" text="Password" />
                                 <PasswordField fx:id="passwordField" promptText="*************" />
+                                <!-- TODO(service): Forgot password. Unwired on purpose: no onAction and no nav- class until
+                                     AuthenticationService.requestPasswordReset exists (see LoginController). -->
+                                <!-- Inline login error (A8) shares this row: filled by LoginController, hidden until a login fails.
+                                     The row height is set by the link, so showing the error never moves the form. -->
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <Label fx:id="errorLabel" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" HBox.hgrow="ALWAYS" />
+                                        <Hyperlink fx:id="forgotPasswordLink" styleClass="terms-link" text="Forgot password?" />
+                                    </children>
+                                </HBox>
                             </children>
                         </VBox>
 
@@ -146,3 +159,9 @@
 
     </children>
 </HBox>
+
+        <!-- Shared modal overlay: Set New Password for a temporary-password login (R1.7) -->
+        <fx:include fx:id="dialog" managed="false" source="shared/dialog.fxml" visible="false" />
+
+    </children>
+</StackPane>

@@ -1,5 +1,6 @@
 package com.aniplato.util;
 
+import com.aniplato.model.Account;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -20,28 +21,6 @@ import java.net.URL;
 public final class Navigator {
 
     public enum Kind { WINDOW, IN_SHELL }
-    public enum Role {
-        ADMIN("Admin", "admin"),
-        FOOD_GROUP("Food Group", "foodgroup"),
-        DONOR("Food Donor", "donor");
-
-        private final String displayName;
-        private final String key;
-
-        Role(String displayName, String key) {
-            this.displayName = displayName;
-            this.key = key;
-        }
-
-        public String displayName() {
-            return displayName;
-        }
-
-        public String key() {
-            return key;
-        }
-    }
-
     public enum Screen {
         // Full-window screens (replace the whole scene)
         LOGIN("login.fxml", Kind.WINDOW),
@@ -98,7 +77,6 @@ public final class Navigator {
 
     private static Scene scene;
     private static StackPane content;
-    private static Role currentRole;
     private static Screen currentScreen;
     private static Runnable screenListener;
 
@@ -142,8 +120,9 @@ public final class Navigator {
         };
     }
 
-    public static Role currentRole() {
-        return currentRole == null ? Role.ADMIN : currentRole;
+    /** The logged-in account's role. Only valid while someone is logged in. */
+    public static Account.Role currentRole() {
+        return Session.require().role;
     }
 
     public static Screen currentScreen() {
@@ -151,48 +130,30 @@ public final class Navigator {
     }
 
     public static void show(Screen screen) {
+        if (screen == Screen.SHELL) {             // "open the app": the logged-in role's dashboard inside the shell
+            show(dashboardFor(currentRole()));
+            return;
+        }
         if (screen.kind == Kind.WINDOW) {
             content = null;                       // the shell sets it again when it loads
             screenListener = null;                // so does the shell's highlight listener
-            if (screen == Screen.SHELL) {
-                if (currentRole == null) currentRole = Role.ADMIN;
-                if (currentScreen == null || currentScreen.kind == Kind.WINDOW) {
-                    currentScreen = dashboardFor(currentRole);
-                }
-            } else {
-                currentRole = null;
-                currentScreen = screen;
-            }
+            currentScreen = screen;
             scene.setRoot(load(screen));
         } else {
-            Role role = roleFor(screen);
-            if (content == null || currentRole != role) {
-                currentRole = role;
-                currentScreen = screen;
+            currentScreen = screen;
+            if (content == null) {
                 scene.setRoot(load(Screen.SHELL));
             }
-            currentScreen = screen;
             content.getChildren().setAll(load(screen));
             if (screenListener != null) screenListener.run();   // move the sidebar highlight
         }
     }
 
-    private static Role roleFor(Screen screen) {
-        return switch (screen) {
-            case FOODGROUP_DASHBOARD, BROWSE_LISTINGS, MAKE_OFFER, MY_OFFERS -> Role.FOOD_GROUP;
-            case DONOR_DASHBOARD, DONOR_BROWSE_REQUESTS, DONOR_MAKE_OFFER, DONOR_MY_OFFERS, LISTING_FORM, MY_LISTINGS, LISTING_OFFERS -> Role.DONOR;
-            case ADMIN_DASHBOARD, PENDING_REGISTRATIONS, REVIEW_REGISTRATION,
-                 ACCOUNTS, SAFETY_NOTICES, REPORTS -> Role.ADMIN;
-            case PROFILE, HISTORY, HANDOFF_RECORD -> currentRole();
-            default -> Role.ADMIN;
-        };
-    }
-
-    private static Screen dashboardFor(Role role) {
+    private static Screen dashboardFor(Account.Role role) {
         return switch (role) {
             case ADMIN -> Screen.ADMIN_DASHBOARD;
             case FOOD_GROUP -> Screen.FOODGROUP_DASHBOARD;
-            case DONOR -> Screen.DONOR_DASHBOARD;
+            case BUSINESS_DONOR, CASUAL_DONOR -> Screen.DONOR_DASHBOARD;
         };
     }
 
