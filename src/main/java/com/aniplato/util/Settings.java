@@ -17,4 +17,6 @@ public final class Settings {
     public static final int MAX_UPLOAD_MB = 5;
     /** New passwords must be at least this long. */
     public static final int MIN_PASSWORD_LENGTH = 8;
+    /** Contact numbers are exactly this many digits (PH mobile, e.g. 09171234567). */
+    public static final int CONTACT_NUMBER_DIGITS = 11;
 }

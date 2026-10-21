@@ -34,6 +34,7 @@ public class RegistrationService {
     private static final int MAX_REASON_LENGTH = 500;   // registration.rejection_reason
     private static final String DOCUMENT_EXPIRED_REASON = "Document expired";
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+    private static final Pattern CONTACT_NUMBER = Pattern.compile("^\\d{" + Settings.CONTACT_NUMBER_DIGITS + "}$");
 
     /** One file chosen on the registration form: its expiry date, or the "No expiry" box ticked. */
     public record DocumentUpload(Document.Type type, File file, LocalDate expiresOn, boolean noExpiry) { }
@@ -71,6 +72,9 @@ public class RegistrationService {
         if (f.city == null) throw new RuleViolationException("Choose your city.");
         if (f.contactPerson.isEmpty()) throw new RuleViolationException("Enter the contact person.");
         if (f.contactPhone.isEmpty()) throw new RuleViolationException("Enter a contact number.");
+        if (!CONTACT_NUMBER.matcher(f.contactPhone).matches()) {
+            throw new RuleViolationException("The contact number must be exactly " + Settings.CONTACT_NUMBER_DIGITS + " digits.");
+        }
         if (!EMAIL.matcher(f.email).matches()) throw new RuleViolationException("Enter a valid email address.");
         try (Connection c = Database.getConnection()) {
             if (accountDao.existsByEmail(c, f.email)) {
