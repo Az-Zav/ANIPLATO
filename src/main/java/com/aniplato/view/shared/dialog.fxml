@@ -448,8 +448,8 @@
 
                 <VBox spacing="16.0">
                     <children>
-                        <!-- CURRENT PASSWORD FIELD -->
-                        <VBox spacing="8.0">
+                        <!-- CURRENT PASSWORD FIELD (hidden on first login: the login password is passed in) -->
+                        <VBox fx:id="currentPasswordRow" spacing="8.0">
                             <children>
                                 <Label styleClass="form-label" text="Current password *" />
                                 <PasswordField fx:id="currentPasswordField" promptText="Your current password" styleClass="text-field" />

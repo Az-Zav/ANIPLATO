@@ -9,8 +9,12 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
+import jakarta.activation.DataHandler;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,15 +22,18 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Properties;
 
 /**
- * Sends the three emails and writes email_log.
+ * Sends the four emails and writes email_log.
  *
- * SMTP settings come from mail.properties on the classpath (next to db.properties): the standard
- * Jakarta Mail keys (mail.smtp.host, mail.smtp.port, mail.smtp.auth, mail.smtp.starttls.enable)
- * plus mail.user, mail.password and mail.from. If the file is missing or sending fails, the email
- * is logged with success = false and the action that triggered it still goes through.
+ * SMTP settings come from db.properties: the standard Jakarta Mail keys (mail.smtp.host,
+ * mail.smtp.port, mail.smtp.auth, mail.smtp.starttls.enable) plus mail.user, mail.password and
+ * mail.from. If they are missing or sending fails, the email is logged with success = false and
+ * the action that triggered it still goes through.
+ *
+ * Templates use {{name}} placeholders; every value is HTML-escaped. The logo is sent inline as cid:logo@aniplato.
  */
 public class EmailService {
 
@@ -34,7 +41,8 @@ public class EmailService {
     public enum Kind {
         RECEIVED("received.html", "ANIPLATO: we received your registration"),
         APPROVED("approved.html", "ANIPLATO: your registration is approved"),
-        NOT_APPROVED("not-approved.html", "ANIPLATO: your registration was not approved");
+        NOT_APPROVED("not-approved.html", "ANIPLATO: your registration was not approved"),
+        PASSWORD_RESET("forgot-password.html", "ANIPLATO: your password was reset");
 
         private final String template;
         private final String subject;
@@ -45,40 +53,43 @@ public class EmailService {
         }
     }
 
-    private static final String MAIL_CONFIG = "/mail.properties";
+    private static final String MAIL_CONFIG = "/db.properties";
     private static final String TEMPLATE_ROOT = "/email/";
+    private static final String LOGO = "/assets/aniplato-logo-circle 1.png";
+    private static final String LOGO_CID = "logo@aniplato";   // templates use src="cid:logo@aniplato"
     private static final int MAX_ERROR_LENGTH = 300;   // email_log.error
 
     private final LogDao logDao = new LogDao();
 
     /** Confirms a submitted registration (R1). */
     public boolean sendReceived(String to, String orgName) {
-        String message = "Thank you for registering " + orgName + " with ANIPLATO. "
-                + "An admin will check your documents. We will email you the result. "
-                + "No account exists yet, so there is nothing to log in to.";
-        return send(Kind.RECEIVED, to, message);
+        return send(Kind.RECEIVED, to, Map.of("orgName", orgName));
     }
 
     /** Sends the temporary password of an approved registration (R1.5, R1.7). */
     public boolean sendApproved(String to, String orgName, String temporaryPassword) {
-        String message = orgName + " is approved. Log in with this email and the temporary password: "
-                + temporaryPassword + "\n\nYou will be asked to set your own password the first time you log in.";
-        return send(Kind.APPROVED, to, message);
+        return send(Kind.APPROVED, to, Map.of("orgName", orgName, "email", to, "password", temporaryPassword));
     }
 
     /** Sends the admin's reasons for a rejection (R1.6). */
     public boolean sendNotApproved(String to, String orgName, String reasons) {
-        String message = "The registration of " + orgName + " was not approved for these reasons:\n\n"
-                + reasons + "\n\nYou may fix them and register again.";
-        return send(Kind.NOT_APPROVED, to, message);
+        return send(Kind.NOT_APPROVED, to, Map.of("orgName", orgName, "reasons", reasons));
+    }
+
+    /** Sends a temporary password for a forgotten one (R1.7). */
+    public boolean sendPasswordReset(String to, String temporaryPassword) {
+        return send(Kind.PASSWORD_RESET, to, Map.of("email", to, "password", temporaryPassword));
     }
 
     /** Fills the template, sends it and logs the attempt. Returns whether it was sent. Never throws a mail error. */
-    private boolean send(Kind kind, String to, String message) {
+    private boolean send(Kind kind, String to, Map<String, String> values) {
         String error = null;
         try {
             Properties config = loadConfig();
-            String html = loadTemplate(kind).replace("{{message}}", toHtml(message));
+            String html = loadTemplate(kind);
+            for (Map.Entry<String, String> v : values.entrySet()) {
+                html = html.replace("{{" + v.getKey() + "}}", toHtml(v.getValue()));
+            }
             Session mailSession = Session.getInstance(config, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -89,7 +100,7 @@ public class EmailService {
             mail.setFrom(new InternetAddress(config.getProperty("mail.from", config.getProperty("mail.user"))));
             mail.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             mail.setSubject(kind.subject, StandardCharsets.UTF_8.name());
-            mail.setContent(html, "text/html; charset=UTF-8");
+            mail.setContent(withLogo(html));
             Transport.send(mail);
         } catch (MessagingException | IOException e) {
             error = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
@@ -105,11 +116,35 @@ public class EmailService {
         return success;
     }
 
+    /** The HTML body plus the logo as an inline image the template shows with src="cid:logo@aniplato". */
+    private MimeMultipart withLogo(String html) throws MessagingException, IOException {
+        MimeMultipart related = new MimeMultipart("related; type=\"text/html\"");
+        MimeBodyPart body = new MimeBodyPart();
+        body.setContent(html, "text/html; charset=UTF-8");
+        related.addBodyPart(body);
+
+        try (InputStream in = EmailService.class.getResourceAsStream(LOGO)) {
+            if (in == null) return related;   // send without the logo rather than not at all
+            MimeBodyPart logo = new MimeBodyPart();
+            logo.setDataHandler(new DataHandler(new ByteArrayDataSource(in.readAllBytes(), "image/png")));
+            logo.setContentID("<" + LOGO_CID + ">");   // id@domain form: Gmail ignores a bare id
+            logo.setDisposition(MimeBodyPart.INLINE);
+            logo.setFileName("aniplato-logo.png");
+            related.addBodyPart(logo);
+        }
+        return related;
+    }
+
     private Properties loadConfig() throws IOException {
         try (InputStream in = EmailService.class.getResourceAsStream(MAIL_CONFIG)) {
             if (in == null) throw new IOException("Missing " + MAIL_CONFIG + " (SMTP settings)");
             Properties p = new Properties();
             p.load(in);
+            for (String key : new String[] {"mail.smtp.host", "mail.user", "mail.password"}) {
+                String value = p.getProperty(key);
+                if (value == null || value.isBlank()) throw new IOException("Missing '" + key + "' in db.properties");
+                p.setProperty(key, value.trim());
+            }
             return p;
         }
     }

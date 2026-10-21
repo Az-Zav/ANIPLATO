@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -76,6 +77,31 @@ public class DocumentDao {
                 while (rs.next()) documents.add(map(rs));
                 return documents;
             }
+        }
+    }
+
+    /** Every file uploaded with a registration, oldest first. */
+    public List<Document> findByRegistration(Connection c, int registrationId) throws SQLException {
+        String sql = "SELECT * FROM document WHERE registration_id = ? ORDER BY uploaded_at, document_id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Document> documents = new ArrayList<>();
+                while (rs.next()) documents.add(map(rs));
+                return documents;
+            }
+        }
+    }
+
+    /** Awaiting review → OK. Returns 0 if it was already reviewed. */
+    public int markOk(Connection c, int documentId, int reviewedBy, LocalDateTime reviewedAt) throws SQLException {
+        String sql = "UPDATE document SET review = 'OK', reviewed_by = ?, reviewed_at = ? " +
+                "WHERE document_id = ? AND review IS NULL";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, reviewedBy);
+            ps.setObject(2, reviewedAt);
+            ps.setInt(3, documentId);
+            return ps.executeUpdate();
         }
     }
 

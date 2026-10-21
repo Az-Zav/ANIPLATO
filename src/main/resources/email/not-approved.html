@@ -1,1 +1,59 @@
-<html><body><h3>Your registration was not approved</h3><p>{{message}}</p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your registration was not approved</title>
+</head>
+<body style="margin:0; padding:0; background-color:#F2F5F3; font-family:'Segoe UI', Helvetica, Arial, sans-serif; color:#333333;">
+<div style="display:none; max-height:0; overflow:hidden;">The registration of {{orgName}} was not approved. The admin's reasons are inside, and you may register again.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F2F5F3;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; background-color:#FFFFFF; border-radius:12px; overflow:hidden; border:1px solid #E0E6E2;">
+
+        <!-- Header -->
+        <tr>
+          <td style="padding:28px 32px 20px 32px; border-bottom:4px solid #03521E;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="vertical-align:middle; padding-right:12px;"><img src="cid:logo@aniplato" width="44" height="44" alt="" style="display:block; border:0;"></td>
+                <td style="vertical-align:middle; font-size:22px; font-weight:bold; letter-spacing:2px; color:#03521E;">ANIPLATO</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px;">
+            <span style="display:inline-block; padding:4px 12px; border-radius:999px; background-color:#FBE5E3; color:#A3261A; font-size:12px; font-weight:bold; letter-spacing:0.5px;">NOT APPROVED</span>
+            <h1 style="margin:16px 0 12px 0; font-size:22px; line-height:1.3; color:#1E2A22;">Your registration was not approved</h1>
+            <p style="margin:0 0 16px 0; font-size:15px; line-height:1.6;">The admin did not approve the registration of <strong>{{orgName}}</strong>. The admin's reasons:</p>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="padding:14px 16px; background-color:#FDF3F2; border-left:4px solid #A3261A; border-radius:6px; font-size:15px; line-height:1.6; color:#3A2A28;">
+                  {{reasons}}
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:20px 0 0 0; font-size:15px; line-height:1.6;"><strong>You may register again.</strong> Fix the points above and submit a new registration.</p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:20px 32px; background-color:#F7F9F8; border-top:1px solid #E0E6E2; font-size:12px; line-height:1.5; color:#7A887F;">
+            ANIPLATO &middot; Surplus food, shared across Metro Manila<br>
+            This is an automated message. Please do not reply.
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

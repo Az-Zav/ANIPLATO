@@ -3,6 +3,7 @@ package com.aniplato.controller.shared;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.AuthenticationService;
+import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.SvgIcon;
@@ -75,10 +76,13 @@ public class DialogController {
 
     // 11. SET NEW PASSWORD CONTAINER & FIELDS
     @FXML private VBox setNewPasswordDialogBox;
+    @FXML private VBox currentPasswordRow;
     @FXML private PasswordField currentPasswordField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
     private final AuthenticationService authenticationService = new AuthenticationService();
+    private final RegistrationService registrationService = new RegistrationService();
+    private Integer reviewedRegistrationId;   // the registration the Approve or Reject dialog acts on
     private Runnable afterPasswordSet;  // what to do once the new password is saved
 
     // What the admin dialogs do on confirm. A callback may throw RuleViolationException: the message is shown
@@ -170,16 +174,26 @@ public class DialogController {
     }
 
     /** 1. Prepares dialog for Reject Org mode */
+<<<<<<< HEAD
     public void showRejectMode(String orgName) {
         onReject = null;
+=======
+    public void showRejectMode(int registrationId, String orgName) {
+        this.reviewedRegistrationId = registrationId;
+>>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
         showDialog(rejectDialogBox);
         rejectDescriptionLabel.setText("We’ll email " + orgName + " your reason so they can fix their documents and register again. No account is created.");
         rejectReasonTextArea.clear();
     }
 
     /** 2. Prepares dialog for Approve Org mode */
+<<<<<<< HEAD
     public void showApproveMode(String orgName, String orgEmail) {
         onApprove = null;
+=======
+    public void showApproveMode(int registrationId, String orgName, String orgEmail) {
+        this.reviewedRegistrationId = registrationId;
+>>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
         showDialog(approveDialogBox);
         approveDescriptionLabel.setText("We’ll create " + orgName + "’s account and email temporary login details to " + orgEmail + ".");
     }
@@ -269,6 +283,10 @@ public class DialogController {
         this.afterPasswordSet = onDone;
         showDialog(setNewPasswordDialogBox);
         currentPasswordField.setText(currentPassword == null ? "" : currentPassword);
+        // R1.7 first login: the temporary password was just typed at login, so only ask for the new one
+        boolean askCurrent = currentPassword == null;
+        currentPasswordRow.setVisible(askCurrent);
+        currentPasswordRow.setManaged(askCurrent);
         newPasswordField.clear();
         confirmPasswordField.clear();
     }
@@ -349,22 +367,42 @@ public class DialogController {
     // PATTERN:ACTION confirms rejection
     @FXML
     private void handleConfirmReject() {
+<<<<<<< HEAD
         if (onReject != null) {
             confirm(() -> onReject.accept(rejectReasonTextArea.getText()));
+=======
+        boolean emailed;
+        try {
+            emailed = registrationService.reject(reviewedRegistrationId, rejectReasonTextArea.getText());
+        } catch (RuleViolationException e) {
+            showError(e.getMessage());   // A8: stay open so the reason can be fixed
+>>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
             return;
         }
         closeOverlay();
+        if (!emailed) showError("The registration was rejected, but the email could not be sent. Check the email log.");
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
 
     // PATTERN:ACTION confirms approval
     @FXML
     private void handleConfirmApprove() {
+<<<<<<< HEAD
         if (onApprove != null) {
             confirm(onApprove);
+=======
+        boolean emailed;
+        try {
+            emailed = registrationService.approve(reviewedRegistrationId);
+        } catch (RuleViolationException e) {
+            closeOverlay();
+            showError(e.getMessage());   // A8
+>>>>>>> 477a88c294d197fd24a5efb24ad7c2ef2eae7213
             return;
         }
         closeOverlay();
+        if (!emailed) showError("The account was created, but the email could not be sent. "
+                + "The user can get a temporary password with Forgot password.");
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
 

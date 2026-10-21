@@ -10,6 +10,7 @@ import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.RegistrationDraft;
+import com.aniplato.util.Settings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -19,6 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -64,6 +66,9 @@ public class RegisterController {
     @FXML
     private void initialize() {
         loadCities();
+        // the contact number field takes digits only, up to the allowed length
+        contactNumberField.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().matches("\\d{0," + Settings.CONTACT_NUMBER_DIGITS + "}") ? change : null));
         restoreDraft();
         updatePermitCardStyles();
         updateFormForRole();

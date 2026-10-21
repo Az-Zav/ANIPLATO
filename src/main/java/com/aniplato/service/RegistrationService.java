@@ -12,6 +12,7 @@ import com.aniplato.model.City;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.util.Database;
+import com.aniplato.util.PasswordHasher;
 import com.aniplato.util.Settings;
 import com.aniplato.util.Session;
 import org.mindrot.jbcrypt.BCrypt;
@@ -32,8 +33,11 @@ public class RegistrationService {
 
     private static final String ACCOUNT_ENTITY = "ACCOUNT";
     private static final String REGISTRATION_ENTITY = "REGISTRATION";
+    private static final String DOCUMENT_ENTITY = "DOCUMENT";
+    private static final int MAX_REASON_LENGTH = 500;   // registration.rejection_reason
     private static final String DOCUMENT_EXPIRED_REASON = "Document expired";
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+    private static final Pattern CONTACT_NUMBER = Pattern.compile("^\\d{" + Settings.CONTACT_NUMBER_DIGITS + "}$");
 
     /** One file chosen on the registration form: its expiry date, or the "No expiry" box ticked. */
     public record DocumentUpload(Document.Type type, File file, LocalDate expiresOn, boolean noExpiry) { }
@@ -44,6 +48,7 @@ public class RegistrationService {
     private final CityDao cityDao = new CityDao();
     private final FileStorageService fileStorageService = new FileStorageService();
     private final EmailService emailService = new EmailService();
+    private final AuthenticationService authenticationService = new AuthenticationService();
     private final LogDao logDao = new LogDao();
 
     //---APPLYING (Stage 1)---
@@ -70,6 +75,9 @@ public class RegistrationService {
         if (f.city == null) throw new RuleViolationException("Choose your city.");
         if (f.contactPerson.isEmpty()) throw new RuleViolationException("Enter the contact person.");
         if (f.contactPhone.isEmpty()) throw new RuleViolationException("Enter a contact number.");
+        if (!CONTACT_NUMBER.matcher(f.contactPhone).matches()) {
+            throw new RuleViolationException("The contact number must be exactly " + Settings.CONTACT_NUMBER_DIGITS + " digits.");
+        }
         if (!EMAIL.matcher(f.email).matches()) throw new RuleViolationException("Enter a valid email address.");
         try (Connection c = Database.getConnection()) {
             if (accountDao.existsByEmail(c, f.email)) {
@@ -139,6 +147,108 @@ public class RegistrationService {
                 throw new RuleViolationException("Your " + upload.type().label() + " has expired. Upload a current one.");
             }
         }
+    }
+
+    //---REVIEWING (admin)---
+
+    /**
+     * Approves a Pending registration (6.2 Stage 1, 6.3): every document must be unexpired and not flagged.
+     * Awaiting documents become OK; a new registration gets an Active account with a temporary password (R1.5),
+     * an upgrade moves the existing Casual account to it and changes its role. One transaction (A2).
+     * The Approved email goes out after the commit. Returns false only if that email failed.
+     */
+    public boolean approve(int registrationId) {
+        Account admin = requireAdmin();
+        String temporaryPassword = authenticationService.generateTemporaryPassword();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
+        Approval approval = inTransaction("Could not approve the registration", c -> {
+            Registration r = requirePending(c, registrationId);
+            List<Document> documents = documentDao.findByRegistration(c, r.id);
+            for (Document d : documents) {
+                if (d.review == Document.Review.FLAGGED) {
+                    throw new RuleViolationException("The " + d.type.label() + " is flagged. Reject the registration instead.");
+                }
+                if (d.isExpired(today)) {
+                    throw new RuleViolationException("The " + d.type.label() + " has expired. Reject the registration instead.");
+                }
+            }
+            for (Document d : documents) {
+                if (documentDao.markOk(c, d.id, admin.id, now) > 0) {
+                    logDao.logStatusChange(c, DOCUMENT_ENTITY, d.id, null, Document.Review.OK.name(), null, admin.id);
+                }
+            }
+            registrationDao.approve(c, r.id, admin.id, now);
+            logDao.logStatusChange(c, REGISTRATION_ENTITY, r.id, Registration.Status.PENDING.name(),
+                    Registration.Status.APPROVED.name(), null, admin.id);
+
+            // the email is unique to accounts, and checkDetails blocks it on a new registration, so a match is an upgrade
+            Account existing = accountDao.findByEmail(c, r.email);
+            if (existing == null) {
+                int accountId = accountDao.insert(c, r.email, PasswordHasher.hash(temporaryPassword), r.role, r.id, now);
+                logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, null, Account.Status.ACTIVE.name(), null, admin.id);
+            } else if (existing.role == Account.Role.CASUAL_DONOR && r.role == Account.Role.BUSINESS_DONOR) {
+                accountDao.moveToRegistration(c, existing.id, r.id, r.role);
+            } else {
+                // e.g. a second registration sent while the first was pending, then the first approved
+                throw new RuleViolationException("This email already has an account. Reject this registration.");
+            }
+            return new Approval(r, existing == null);
+        });
+        if (!approval.newAccount()) return true;   // an upgrade keeps its password, so there is nothing to send
+        // after the commit: a failed send is logged in email_log and the user can use Forgot password
+        return emailService.sendApproved(approval.registration().email, approval.registration().name, temporaryPassword);
+    }
+
+    /**
+     * Rejects a Pending registration with the admin's reason (6.2 Stage 1, 6.3). No account is created, and a
+     * rejected upgrade changes nothing. The Not approved email, with the reason and any document flags, goes out
+     * after the commit. Returns whether it was sent.
+     */
+    public boolean reject(int registrationId, String reason) {
+        Account admin = requireAdmin();
+        String trimmed = trim(reason);
+        if (trimmed.isEmpty()) throw new RuleViolationException("Write the reason for rejecting.");
+        if (trimmed.length() > MAX_REASON_LENGTH) {
+            throw new RuleViolationException("Keep the reason under " + MAX_REASON_LENGTH + " characters.");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Rejection rejection = inTransaction("Could not reject the registration", c -> {
+            Registration r = requirePending(c, registrationId);
+            registrationDao.reject(c, r.id, trimmed, admin.id, now);
+            logDao.logStatusChange(c, REGISTRATION_ENTITY, r.id, Registration.Status.PENDING.name(),
+                    Registration.Status.REJECTED.name(), trimmed, admin.id);
+            StringBuilder reasons = new StringBuilder(trimmed);
+            for (Document d : documentDao.findByRegistration(c, r.id)) {
+                if (d.review == Document.Review.FLAGGED && d.flagReason != null) {
+                    reasons.append("\n").append(d.type.label()).append(": ").append(d.flagReason);
+                }
+            }
+            return new Rejection(r, reasons.toString());
+        });
+        return emailService.sendNotApproved(rejection.registration().email, rejection.registration().name,
+                rejection.reasons());
+    }
+
+    private record Approval(Registration registration, boolean newAccount) { }
+
+    private record Rejection(Registration registration, String reasons) { }
+
+    /** Only the admin reviews registrations (6.5). */
+    private static Account requireAdmin() {
+        Account me = Session.require();
+        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
+        return me;
+    }
+
+    /** The registration, still Pending; another admin action may have reviewed it already. */
+    private Registration requirePending(Connection c, int registrationId) throws SQLException {
+        Registration r = registrationDao.findById(c, registrationId);
+        if (r == null) throw new RuleViolationException("This registration no longer exists.");
+        if (r.status != Registration.Status.PENDING) {
+            throw new RuleViolationException("This registration was already reviewed.");
+        }
+        return r;
     }
 
     private static String trim(String value) {
