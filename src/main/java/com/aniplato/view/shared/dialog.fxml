@@ -35,7 +35,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-red" text="✕" />
+                        <StackPane fx:id="rejectIconBox" styleClass="modal-icon-red-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Reject this organization?" />
@@ -72,7 +72,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="approveIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Approve this organization?" />
@@ -140,7 +140,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-red" text="✕" />
+                        <StackPane fx:id="suspendIconBox" styleClass="modal-icon-red-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Suspend this account?" />
@@ -177,7 +177,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="reinstateIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Reinstate this account?" />
@@ -207,7 +207,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-red" text="✕" />
+                        <StackPane fx:id="cancelListingIconBox" styleClass="modal-icon-red-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Cancel this listing?" />
@@ -357,7 +357,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="acceptOfferIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Accept this offer?" />
@@ -387,7 +387,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="uploadRenewalIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label fx:id="uploadRenewalTitleLabel" styleClass="modal-title" text="Upload renewal: Sanitary Permit" />
@@ -436,7 +436,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="setNewPasswordIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Set a new password" />
@@ -496,7 +496,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <Label styleClass="modal-icon-red" text="✕" />
+                        <StackPane fx:id="withdrawOfferIconBox" styleClass="modal-icon-red-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Withdraw your offer?" />
@@ -602,7 +602,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="forgotPasswordIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Forgot your password?" />
@@ -640,7 +640,7 @@
             <children>
                 <HBox spacing="16.0">
                     <children>
-                        <StackPane styleClass="modal-icon-green-box" />
+                        <StackPane fx:id="upgradeBusinessDonorIconBox" styleClass="modal-icon-green-box" />
                         <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label styleClass="modal-title" text="Upgrade to Business donor" />

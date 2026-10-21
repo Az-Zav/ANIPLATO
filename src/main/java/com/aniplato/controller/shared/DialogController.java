@@ -107,9 +107,22 @@ public class DialogController {
     @FXML
     private void initialize() {
         hideAllDialogs();
-        // Every green confirmation badge shows the bundled check icon
-        rejectDialogBox.getParent().lookupAll(".modal-icon-green-box").forEach(node ->
-                ((StackPane) node).getChildren().setAll(SvgIcon.load("/assets/Check_Button.svg", 40)));
+
+        // Populate all green confirmation badge hosts with Check_Button.svg
+        if (rejectDialogBox != null && rejectDialogBox.getParent() != null) {
+            rejectDialogBox.getParent().lookupAll(".modal-icon-green-box").forEach(node -> {
+                if (node instanceof StackPane) {
+                    ((StackPane) node).getChildren().setAll(SvgIcon.load("/assets/Check_Button.svg", 24));
+                }
+            });
+
+            // Populate all red rejection/cancellation badge hosts with Reject_Button.svg
+            rejectDialogBox.getParent().lookupAll(".modal-icon-red-box").forEach(node -> {
+                if (node instanceof StackPane) {
+                    ((StackPane) node).getChildren().setAll(SvgIcon.load("/assets/Reject_Button.svg", 24));
+                }
+            });
+        }
     }
 
     /** 1. Prepares dialog for Reject Org mode */

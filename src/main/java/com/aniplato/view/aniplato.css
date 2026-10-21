@@ -1124,7 +1124,7 @@
     -fx-font-size: 12px;
 }
 
-/* Container Box */
+/* Green Container Box (for Check_Button.svg) */
 .modal-icon-green-box {
     -fx-background-color: #E8F5E9;
     -fx-background-radius: 8px;
@@ -1135,3 +1135,13 @@
     -fx-alignment: center;
 }
 
+/* Red Container Box (for Reject_Button.svg) */
+.modal-icon-red-box {
+    -fx-background-color: #FFEBEE;
+    -fx-background-radius: 8px;
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
+    -fx-alignment: center;
+}

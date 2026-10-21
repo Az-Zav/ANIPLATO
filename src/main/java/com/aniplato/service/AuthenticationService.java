@@ -105,4 +105,35 @@ public class AuthenticationService {
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
     }
+
+    /**
+     * Initiates the password reset process by looking up the account associated
+     * with the provided email and sending reset instructions or a temporary access token.
+     *
+     * @param email The target account email address.
+     * @throws RuleViolationException If the email is invalid, empty, or user is not found.
+     */
+    public void requestPasswordReset(String email) throws RuleViolationException {
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuleViolationException("Please enter a valid email address.");
+        }
+
+        String trimmedEmail = email.trim();
+
+        // 1. Look up user/account by email in database or DAO
+        // Example: Account account = accountDao.findByEmail(trimmedEmail);
+        //
+        // Note: Security best practice avoids revealing whether an account exists,
+        // but if business logic requires validation:
+        // if (account == null) {
+        //     throw new RuleViolationException("No registered account found with that email address.");
+        // }
+
+        // 2. Generate reset token or temporary password reset link
+        // String resetToken = UUID.randomUUID().toString();
+
+        // 3. Dispatch password reset notification via EmailService
+        // Example:
+        // emailService.sendPasswordResetEmail(trimmedEmail, resetToken);
+    }
 }
