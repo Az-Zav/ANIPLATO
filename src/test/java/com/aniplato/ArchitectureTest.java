@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The rules in AGENTS.md and the spec's section 7.4, checked on the source files so a breach fails the
@@ -24,10 +23,6 @@ class ArchitectureTest {
 
     private static final Path MAIN = Path.of("src", "main", "java", "com", "aniplato");
     private static final int MAX_LINES = 300;
-
-    /** Files already over the limit. Split them, then delete the entry. */
-    private static final Map<String, Integer> OVER_LIMIT = Map.of(
-            "controller/RegisterStep2Controller.java", 342);
 
     private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of(
             "controller/admin/SafetyNoticesController.java");   // only the NoticeRow record type
@@ -131,15 +126,6 @@ class ArchitectureTest {
         for (Source s : sources()) {
             if (s.lines().size() > MAX_LINES) over.put(s.path(), s.lines().size());
         }
-        // an entry may only stay while its file is still over the limit, and no listed file may grow
-        Map<String, Integer> allowed = new TreeMap<>(OVER_LIMIT);
-        for (Map.Entry<String, Integer> e : over.entrySet()) {
-            Integer limit = allowed.get(e.getKey());
-            assertTrue(limit != null && e.getValue() <= limit,
-                    e.getKey() + " has " + e.getValue() + " lines; keep classes under " + MAX_LINES + " (split it instead of adding to it)");
-        }
-        for (String listed : allowed.keySet()) {
-            assertTrue(over.containsKey(listed), listed + " is under " + MAX_LINES + " lines now: remove it from OVER_LIMIT");
-        }
+        assertEquals(Map.of(), over, "keep classes under " + MAX_LINES + " lines: split them instead of adding to them");
     }
 }
