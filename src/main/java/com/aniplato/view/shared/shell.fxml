@@ -68,6 +68,8 @@
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-browse-listings, icon-my-listings, role-foodgroup" text="Browse Listings" />
                 <!-- PATTERN:NAV -> MY_OFFERS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-my-offers, role-foodgroup" text="My Offers" />
+                <!-- PATTERN:NAV -> MY_REQUESTS -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-requests, icon-browse-requests, role-foodgroup" text="My Requests" />
                 <!-- PATTERN:NAV -> DONOR_DASHBOARD -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-dashboard, icon-dashboard, role-donor" text="Dashboard" />
                 <!-- PATTERN:NAV -> LISTING_FORM -->
