@@ -103,6 +103,13 @@ class ArchitectureTest {
     }
 
     @Test
+    void maintenanceOnlyCallsOtherServices() throws IOException {
+        List<String> breaches = filesWhere(s -> s.path().equals("service/MaintenanceService.java")
+                && Pattern.compile("import com\\.aniplato\\.(dao|util\\.Database)").matcher(s.text()).find());
+        assertEquals(List.of(), breaches, "MaintenanceService changes data only by calling other services (A4)");
+    }
+
+    @Test
     void daosDoNotCallServices() throws IOException {
         List<String> breaches = filesWhere(s -> in(s, "dao") && s.text().contains("import com.aniplato.service."));
         assertEquals(List.of(), breaches, "Calls go View -> Controller -> Service -> DAO, never back up");
