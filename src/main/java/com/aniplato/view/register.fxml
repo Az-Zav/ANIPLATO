@@ -24,7 +24,7 @@
     <children>
 
         <!-- MAIN CENTERED REGISTRATION CONTAINER -->
-        <ScrollPane fitToWidth="true" styleClass="table-scroll">
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="table-scroll">
             <stylesheets>
                 <URL value="@aniplato.css" />
             </stylesheets>
