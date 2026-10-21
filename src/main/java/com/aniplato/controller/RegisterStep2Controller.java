@@ -7,7 +7,7 @@ import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.service.FileStorageService;
 import com.aniplato.service.RegistrationService;
-import com.aniplato.service.RegistrationService.DocumentUpload;
+import com.aniplato.model.DocumentUpload;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.RegistrationDraft;

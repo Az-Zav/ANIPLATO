@@ -3,7 +3,7 @@ package com.aniplato.service;
 import com.aniplato.model.Account;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
-import com.aniplato.service.RegistrationService.DocumentUpload;
+import com.aniplato.model.DocumentUpload;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.TestDb;
 import org.junit.jupiter.api.Test;

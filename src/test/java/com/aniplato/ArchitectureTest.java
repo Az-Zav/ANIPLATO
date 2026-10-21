@@ -32,9 +32,6 @@ class ArchitectureTest {
     private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of(
             "controller/admin/SafetyNoticesController.java");   // only the NoticeRow record type
 
-    private static final List<String> UTILS_USING_A_SERVICE = List.of(
-            "util/RegistrationDraft.java");   // holds the DocumentUpload record
-
     //---HELPERS---
 
     private record Source(String path, List<String> lines) {
@@ -114,9 +111,9 @@ class ArchitectureTest {
 
     @Test
     void utilitiesDoNotDependOnServicesOrDaos() throws IOException {
-        assertOnlyKnown("util/ sits below the services. Known exceptions are listed in this test.",
-                filesWhere(s -> in(s, "util") && Pattern.compile("import com\\.aniplato\\.(service|dao)\\.").matcher(s.text()).find()),
-                UTILS_USING_A_SERVICE);
+        List<String> breaches = filesWhere(s -> in(s, "util")
+                && Pattern.compile("import com\\.aniplato\\.(service|dao)\\.").matcher(s.text()).find());
+        assertEquals(List.of(), breaches, "util/ sits below the services and DAOs");
     }
 
     @Test

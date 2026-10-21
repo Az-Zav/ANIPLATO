@@ -10,13 +10,13 @@ import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.City;
 import com.aniplato.model.Document;
+import com.aniplato.model.DocumentUpload;
 import com.aniplato.model.Registration;
 import com.aniplato.util.Database;
 import com.aniplato.util.PasswordHasher;
 import com.aniplato.util.Settings;
 import com.aniplato.util.Session;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -34,9 +34,6 @@ public class RegistrationService {
     private static final int MAX_REASON_LENGTH = 500;   // registration.rejection_reason
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final Pattern CONTACT_NUMBER = Pattern.compile("^\\d{" + Settings.CONTACT_NUMBER_DIGITS + "}$");
-
-    /** One file chosen on the registration form: its expiry date, or the "No expiry" box ticked. */
-    public record DocumentUpload(Document.Type type, File file, LocalDate expiresOn, boolean noExpiry) { }
 
     private final AccountDao accountDao = new AccountDao();
     private final DocumentDao documentDao = new DocumentDao();
