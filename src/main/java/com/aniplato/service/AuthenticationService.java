@@ -14,7 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-/** Login, logout, change password, temporary password (R1.7). */
+/** Login, logout, change password, forgot password, temporary password (R1.7). */
 public class AuthenticationService {
 
     private static final int TEMP_PASSWORD_LENGTH = 12;
@@ -23,6 +23,7 @@ public class AuthenticationService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final AccountDao accountDao = new AccountDao();
+    private final EmailService emailService = new EmailService();
 
     /**
      * Checks email and password and starts the session. A Suspended account can still log in (6.3).
@@ -84,7 +85,34 @@ public class AuthenticationService {
         account.passwordChangedAt = now;
     }
 
-    /** A random temporary password for an approved registration (R1.5). The caller hashes and emails it. */
+    /**
+     * Forgot password: emails a new temporary password and sets must_change_password (R1.7).
+     * Returns nothing and acts the same whether or not the email has an account, so the screen
+     * does not reveal which emails have accounts. The password is replaced only after the email
+     * is sent, so a failed send never locks the user out of their current password.
+     */
+    public void requestPasswordReset(String email) {
+        if (isBlank(email)) {
+            throw new RuleViolationException("Enter your email address.");
+        }
+        Account account;
+        try (Connection c = Database.getConnection()) {
+            account = accountDao.findByEmail(c, email.trim());
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load the account", e);
+        }
+        if (account == null) return;
+
+        String temporaryPassword = generateTemporaryPassword();
+        if (!emailService.sendPasswordReset(account.email, temporaryPassword)) return;   // logged in email_log
+        try (Connection c = Database.getConnection()) {
+            accountDao.setTemporaryPassword(c, account.id, PasswordHasher.hash(temporaryPassword));
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not reset the password", e);
+        }
+    }
+
+    /** A random temporary password for an approved registration (R1.5) or a password reset. The caller hashes and emails it. */
     public String generateTemporaryPassword() {
         StringBuilder sb = new StringBuilder(TEMP_PASSWORD_LENGTH);
         for (int i = 0; i < TEMP_PASSWORD_LENGTH; i++) {
