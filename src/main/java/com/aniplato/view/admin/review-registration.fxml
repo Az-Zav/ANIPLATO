@@ -132,7 +132,7 @@
                                         </VBox>
 
                                         <!-- CITY -->
-                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                        <VBox fx:id="cityBox" spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                             <children>
                                                 <Label styleClass="stat-card-title" text="CITY" />
                                                 <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="text-field">
@@ -151,7 +151,7 @@
                                 <VBox spacing="12.0">
                                     <children>
                                         <Label fx:id="documentsCountHeaderLabel" styleClass="form-label" text="DOCUMENTS (2)" />
-                                        <Label styleClass="text-muted" text="Open each file, tick the three checks, then verify it or flag a problem. Expiry dates were typed by the applicant; confirm they match the file. Flagged problems go into the rejection email. Approve unlocks once every required document is verified." wrapText="true" />
+                                        <Label styleClass="text-muted" text="Open each file, tick the three checks, then verify it. Expiry dates were typed by the applicant; confirm they match the file. Approve unlocks once every required document is verified." wrapText="true" />
 
                                         <!-- DOCUMENT CARD 1 -->
                                         <VBox spacing="12.0" styleClass="notice-box">
@@ -168,7 +168,7 @@
                                                                 <Label fx:id="doc1MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · Expires Jun 30, 2027 (entered by applicant)" />
                                                                 <HBox alignment="CENTER_LEFT" spacing="6.0">
                                                                     <children>
-                                                                        <Hyperlink styleClass="terms-link" text="View file ↗" />
+                                                                        <Hyperlink onAction="#handleViewDoc1" styleClass="terms-link" text="View file ↗" />
                                                                         <!-- PATTERN:DYNAMIC doc1File : filename -->
                                                                         <Label fx:id="doc1FileLabel" styleClass="table-cell-text" text="dswd-registration.pdf" />
                                                                     </children>
@@ -177,7 +177,7 @@
                                                         </VBox>
 
                                                         <!-- CHECKLIST -->
-                                                        <VBox spacing="6.0">
+                                                        <VBox fx:id="doc1Checks" spacing="6.0">
                                                             <children>
                                                                 <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
                                                                 <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
@@ -188,8 +188,9 @@
                                                         <!-- STATUS / ACTION BUTTONS -->
                                                         <HBox alignment="CENTER_RIGHT" spacing="10.0">
                                                             <children>
-                                                                <Button onAction="#handleFlagDoc1" styleClass="secondary-button" text="Flag problem" />
-                                                                <Button onAction="#handleVerifyDoc1" styleClass="table-review-btn" text="Verify" />
+                                                                <Label fx:id="doc1VerifiedBadge" managed="false" styleClass="pill-food-donor" text="✓ Verified" visible="false" />
+                                                                <Hyperlink fx:id="doc1UndoLink" managed="false" onAction="#handleUndoDoc1" styleClass="text-muted" text="Undo" visible="false" />
+                                                                <Button fx:id="doc1VerifyBtn" onAction="#handleVerifyDoc1" styleClass="table-review-btn" text="Verify" />
                                                             </children>
                                                         </HBox>
                                                     </children>
@@ -212,7 +213,7 @@
                                                                 <Label fx:id="doc2MetaLabel" styleClass="doc-subtitle" text="Uploaded Oct 1, 2026 · No expiry (marked by applicant) · Must name Elena R. Santos" />
                                                                 <HBox alignment="CENTER_LEFT" spacing="6.0">
                                                                     <children>
-                                                                        <Hyperlink styleClass="terms-link" text="View file ↗" />
+                                                                        <Hyperlink onAction="#handleViewDoc2" styleClass="terms-link" text="View file ↗" />
                                                                         <!-- PATTERN:DYNAMIC doc2File : filename -->
                                                                         <Label fx:id="doc2FileLabel" styleClass="table-cell-text" text="authorization-letter.pdf" />
                                                                     </children>
@@ -221,7 +222,7 @@
                                                         </VBox>
 
                                                         <!-- CHECKLIST -->
-                                                        <VBox spacing="6.0">
+                                                        <VBox fx:id="doc2Checks" spacing="6.0">
                                                             <children>
                                                                 <CheckBox selected="true" styleClass="small-check" text="Current, not expired" />
                                                                 <CheckBox selected="true" styleClass="small-check" text="Name matches registration" />
@@ -232,10 +233,9 @@
                                                         <!-- ACTION BUTTONS -->
                                                         <HBox alignment="CENTER_RIGHT" spacing="10.0">
                                                             <children>
-                                                                <!-- PATTERN:ACTION handleFlagDoc2 -->
-                                                                <Button onAction="#handleFlagDoc2" styleClass="secondary-button" text="Flag problem" />
-                                                                <!-- PATTERN:ACTION handleVerifyDoc2 -->
-                                                                <Button onAction="#handleVerifyDoc2" styleClass="table-review-btn" text="Verify" />
+                                                                <Label fx:id="doc2VerifiedBadge" managed="false" styleClass="pill-food-donor" text="✓ Verified" visible="false" />
+                                                                <Hyperlink fx:id="doc2UndoLink" managed="false" onAction="#handleUndoDoc2" styleClass="text-muted" text="Undo" visible="false" />
+                                                                <Button fx:id="doc2VerifyBtn" onAction="#handleVerifyDoc2" styleClass="table-review-btn" text="Verify" />
                                                             </children>
                                                         </HBox>
                                                     </children>
@@ -252,6 +252,9 @@
                             </children>
                         </VBox>
 
+                        <!-- Shown when Approve is pressed before every document is verified (A8) -->
+                        <Label fx:id="errorLabel" managed="false" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" wrapText="true" />
+
                         <!-- BOTTOM ACTION BAR -->
                         <HBox alignment="CENTER_LEFT" spacing="16.0">
                             <children>
@@ -259,9 +262,9 @@
                                 <Button onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <!-- PATTERN:ACTION handleReject -->
-                                <Button onAction="#handleReject" styleClass="secondary-button" text="🚫 Reject" />
+                                <Button fx:id="rejectBtn" onAction="#handleReject" styleClass="btn-suspend-outline" text="Reject" />
                                 <!-- PATTERN:ACTION handleApprove -->
-                                <Button onAction="#handleApprove" styleClass="primary-button" text="✓ Approve Organization" />
+                                <Button fx:id="approveBtn" onAction="#handleApprove" styleClass="primary-button" text="Approve" />
                             </children>
                         </HBox>
 

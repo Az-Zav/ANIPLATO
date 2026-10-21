@@ -12,6 +12,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /** SQL only. One DAO per table. */
 public class AccountDao {
@@ -31,48 +34,130 @@ public class AccountDao {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
-
-                Account.Role role = Account.Role.valueOf(rs.getString("role"));
-                Account account = switch (role) {
-                    case ADMIN -> new Admin();
-                    case BUSINESS_DONOR, CASUAL_DONOR -> new Donor();
-                    case FOOD_GROUP -> new FoodGroup();
-                };
-                account.id = rs.getInt("account_id");
-                account.email = rs.getString("email");
-                account.role = role;
-                account.status = Account.Status.valueOf(rs.getString("status"));
-                account.suspendReason = rs.getString("suspend_reason");
-                account.mustChangePassword = rs.getBoolean("must_change_password");
-                account.passwordChangedAt = rs.getTimestamp("password_changed_at").toLocalDateTime();
-                account.createdAt = rs.getTimestamp("created_at").toLocalDateTime();
-
-                if (account instanceof Admin admin) {
-                    admin.adminName = rs.getString("admin_name");
-                } else {
-                    Registration registration = new Registration();
-                    registration.id = rs.getInt("registration_id");
-                    registration.role = role;
-                    registration.name = rs.getString("registration_name");
-                    registration.contactPerson = rs.getString("contact_person");
-                    registration.email = rs.getString("registration_email");
-                    registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
-                    registration.rejectionReason = rs.getString("rejection_reason");
-                    int reviewedBy = rs.getInt("reviewed_by");
-                    registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
-                    LocalDateTime reviewedAt = localDateTime(rs, "reviewed_at");
-                    registration.reviewedAt = reviewedAt;
-                    registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
-
-                    City city = new City();
-                    city.id = rs.getInt("city_id");
-                    city.name = rs.getString("city_name");
-                    registration.city = city;
-                    account.registration = registration;
-                }
-                return account;
+                return rs.next() ? map(rs) : null;
             }
+        }
+    }
+
+    private static final String SELECT_ACCOUNT = """
+            SELECT a.account_id, a.email, a.role, a.status, a.suspend_reason,
+                   a.must_change_password, a.password_changed_at, a.created_at, a.admin_name,
+                   r.registration_id, r.name AS registration_name, r.contact_person, r.email AS registration_email,
+                   r.status AS registration_status, r.rejection_reason, r.reviewed_by, r.reviewed_at,
+                   r.submitted_at, city.city_id, city.name AS city_name
+            FROM account a
+            LEFT JOIN registration r ON r.registration_id = a.registration_id
+            LEFT JOIN city ON city.city_id = r.city_id
+            """;
+
+    /** Every organization (donors and food groups) for the admin's All Accounts screen, by name. */
+    public List<Account> findAllOrganizations(Connection c) throws SQLException {
+        String sql = SELECT_ACCOUNT + " WHERE a.role <> 'ADMIN' ORDER BY r.name";
+        try (PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            List<Account> accounts = new ArrayList<>();
+            while (rs.next()) accounts.add(map(rs));
+            return accounts;
+        }
+    }
+
+    private Account map(ResultSet rs) throws SQLException {
+        Account.Role role = Account.Role.valueOf(rs.getString("role"));
+        Account account = switch (role) {
+            case ADMIN -> new Admin();
+            case BUSINESS_DONOR, CASUAL_DONOR -> new Donor();
+            case FOOD_GROUP -> new FoodGroup();
+        };
+        account.id = rs.getInt("account_id");
+        account.email = rs.getString("email");
+        account.role = role;
+        account.status = Account.Status.valueOf(rs.getString("status"));
+        account.suspendReason = rs.getString("suspend_reason");
+        account.mustChangePassword = rs.getBoolean("must_change_password");
+        account.passwordChangedAt = rs.getTimestamp("password_changed_at").toLocalDateTime();
+        account.createdAt = rs.getTimestamp("created_at").toLocalDateTime();
+
+        if (account instanceof Admin admin) {
+            admin.adminName = rs.getString("admin_name");
+        } else {
+            Registration registration = new Registration();
+            registration.id = rs.getInt("registration_id");
+            registration.role = role;
+            registration.name = rs.getString("registration_name");
+            registration.contactPerson = rs.getString("contact_person");
+            registration.email = rs.getString("registration_email");
+            registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
+            registration.rejectionReason = rs.getString("rejection_reason");
+            int reviewedBy = rs.getInt("reviewed_by");
+            registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
+            LocalDateTime reviewedAt = localDateTime(rs, "reviewed_at");
+            registration.reviewedAt = reviewedAt;
+            registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
+
+            City city = new City();
+            city.id = rs.getInt("city_id");
+            city.name = rs.getString("city_name");
+            registration.city = city;
+            account.registration = registration;
+        }
+        return account;
+    }
+
+    /** The account id for an email, or null when no account uses it (an approval for an existing login is an upgrade). */
+    public Integer findIdByEmail(Connection c, String email) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT account_id FROM account WHERE email = ?")) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : null;
+            }
+        }
+    }
+
+    /** Creates the login of an approved registration; it must change its temporary password first (R1.7). */
+    public int insert(Connection c, String email, String passwordHash, Account.Role role, int registrationId,
+                      LocalDateTime now) throws SQLException {
+        String sql = "INSERT INTO account (email, password_hash, role, status, must_change_password, " +
+                "password_changed_at, registration_id, created_at) VALUES (?, ?, ?, 'ACTIVE', TRUE, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, email);
+            ps.setString(2, passwordHash);
+            ps.setString(3, role.name());
+            ps.setObject(4, now);
+            ps.setInt(5, registrationId);
+            ps.setObject(6, now);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                return keys.getInt(1);
+            }
+        }
+    }
+
+    /** An approved upgrade: the existing account takes the new role and points to the new registration. */
+    public int moveToRegistration(Connection c, int accountId, Account.Role role, int registrationId)
+            throws SQLException {
+        String sql = "UPDATE account SET role = ?, registration_id = ? WHERE account_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, role.name());
+            ps.setInt(2, registrationId);
+            ps.setInt(3, accountId);
+            return ps.executeUpdate();
+        }
+    }
+
+    public int reinstateIfSuspended(Connection c, int accountId) throws SQLException {
+        String sql = "UPDATE account SET status = 'ACTIVE', suspend_reason = NULL " +
+                "WHERE account_id = ? AND status = 'SUSPENDED'";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            return ps.executeUpdate();
+        }
+    }
+
+    public int countSuspended(Connection c) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM account WHERE status = 'SUSPENDED'");
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getInt(1);
         }
     }
 

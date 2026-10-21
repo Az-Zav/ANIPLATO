@@ -21,9 +21,7 @@ public class LoginController {
     // FXML: errorLabel (style class "error-text", in the Forgot password row so the form never shifts) shows a failed login in place, instead of a dialog (A8)
     @FXML private Label errorLabel;
 
-    // FXML: login.fxml needs <fx:include source="shared/dialog.fxml" fx:id="dialog"/>, which injects both
-    // fields below ("dialog" = the include's root VBox, "dialogController" = its controller).
-    // Without it a login with a temporary password cannot show the Set New Password dialog (R1.7).
+    //FXML: shows the dialog for setting a new password when the user logs in with a temporary password
     @FXML private VBox dialog;
     @FXML private DialogController dialogController;
 
@@ -52,7 +50,7 @@ public class LoginController {
                 Navigator.show(Screen.SHELL);
             }
         } catch (RuleViolationException e) {
-            showError(e.getMessage());   // A8
+            showError(e.getMessage());
         }
     }
 

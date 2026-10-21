@@ -71,6 +71,16 @@ public class SafetyService {
         }
     }
 
+    /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
+    public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
+        requireAdmin();
+        try (Connection c = Database.getConnection()) {
+            return noticeDao.findRows(c);
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load safety notices", e);
+        }
+    }
+
     /** Admin closes an Open notice without action. The note is required. */
     public void dismiss(int noticeId, String adminNote) {
         Account admin = requireAdmin();
@@ -102,9 +112,9 @@ public class SafetyService {
 
     /** The account a notice is about: whichever side of the offer did not raise it. */
     private int flaggedAccountId(Connection c, SafetyNotice notice) throws SQLException {
-        Offer offer = offerDao.findById(c, notice.offerId);
-        Listing listing = listingDao.findById(c, offer.listingId);
-        return notice.raisedBy == offer.groupId ? listing.postedBy : offer.groupId;
+        OfferDao.Parties parties = offerDao.findParties(c, notice.offerId);
+        // an overdue-report notice has no raiser (raisedBy reads as 0): the food group that owes the report is flagged
+        return notice.raisedBy == parties.offererId() ? parties.posterId() : parties.offererId();
     }
 
     private void resolve(Connection c, SafetyNotice notice, SafetyNotice.Status to, String note, int adminId) throws SQLException {

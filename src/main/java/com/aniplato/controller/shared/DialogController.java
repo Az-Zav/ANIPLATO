@@ -1,5 +1,6 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
@@ -14,6 +15,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+
+import java.util.function.Consumer;
 
 public class DialogController {
 
@@ -78,6 +81,15 @@ public class DialogController {
     private final AuthenticationService authenticationService = new AuthenticationService();
     private Runnable afterPasswordSet;  // what to do once the new password is saved
 
+    // What the admin dialogs do on confirm. A callback may throw RuleViolationException: the message is shown
+    // and the dialog stays open (A8). A dialog opened without a callback keeps its old behaviour.
+    private Runnable onApprove;
+    private Consumer<String> onReject;           // gets the reason typed in the dialog
+    private Consumer<String> onSuspend;          // gets the reason typed in the dialog
+    private Runnable onReinstate;
+    private Consumer<String> onDismissNotice;    // gets the admin note
+    private Consumer<String> onSuspendFromNotice;
+
     // 12. WITHDRAW OFFER CONTAINER & FIELDS
     @FXML private VBox withdrawOfferDialogBox;
     @FXML private Label withdrawOfferDescriptionLabel;
@@ -125,8 +137,41 @@ public class DialogController {
         }
     }
 
+    /** Reject with a real action: {@code onConfirm} gets the reason. */
+    public void showRejectMode(String orgName, Consumer<String> onConfirm) {
+        showRejectMode(orgName);
+        onReject = onConfirm;
+    }
+
+    /** Approve with a real action. */
+    public void showApproveMode(String orgName, String orgEmail, Runnable onConfirm) {
+        showApproveMode(orgName, orgEmail);
+        onApprove = onConfirm;
+    }
+
+    /** Suspend with a real action: {@code onConfirm} gets the reason. */
+    public void showSuspendAccountMode(String orgName, Consumer<String> onConfirm) {
+        showSuspendAccountMode(orgName);
+        onSuspend = onConfirm;
+    }
+
+    /** Reinstate with a real action. */
+    public void showReinstateAccountMode(String orgName, String details, Runnable onConfirm) {
+        showReinstateAccountMode(orgName, details);
+        onReinstate = onConfirm;
+    }
+
+    /** Resolve a safety notice: each button's callback gets the admin note. */
+    public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg,
+                                            Consumer<String> onDismiss, Consumer<String> onSuspendAccount) {
+        showResolveSafetyNoticeMode(raisedBy, date, concern, flaggedOrg);
+        onDismissNotice = onDismiss;
+        onSuspendFromNotice = onSuspendAccount;
+    }
+
     /** 1. Prepares dialog for Reject Org mode */
     public void showRejectMode(String orgName) {
+        onReject = null;
         showDialog(rejectDialogBox);
         rejectDescriptionLabel.setText("We’ll email " + orgName + " your reason so they can fix their documents and register again. No account is created.");
         rejectReasonTextArea.clear();
@@ -134,12 +179,15 @@ public class DialogController {
 
     /** 2. Prepares dialog for Approve Org mode */
     public void showApproveMode(String orgName, String orgEmail) {
+        onApprove = null;
         showDialog(approveDialogBox);
         approveDescriptionLabel.setText("We’ll create " + orgName + "’s account and email temporary login details to " + orgEmail + ".");
     }
 
     /** 3. Prepares dialog for Resolve Safety Notice mode */
     public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg) {
+        onDismissNotice = null;
+        onSuspendFromNotice = null;
         showDialog(resolveSafetyDialogBox);
         safetyNoticeDescriptionLabel.setText("Flagged by " + raisedBy + " on " + date + ": \"" + concern + "\" Close it as dismissed, or suspend " + flaggedOrg + ".");
         safetyAdminNoteTextArea.clear();
@@ -147,6 +195,7 @@ public class DialogController {
 
     /** 4. Prepares dialog for Suspend Acct mode */
     public void showSuspendAccountMode(String orgName) {
+        onSuspend = null;
         showDialog(suspendAccountDialogBox);
         suspendDescriptionLabel.setText(orgName + " can still log in, upload renewals and finish handoffs it already accepted. It can’t post, re-post, offer or accept, and its listings are hidden from food groups, until you reinstate it.");
         suspendReasonTextArea.clear();
@@ -154,6 +203,7 @@ public class DialogController {
 
     /** 5. Prepares dialog for Reinstate Acct mode */
     public void showReinstateAccountMode(String orgName, String details) {
+        onReinstate = null;
         showDialog(reinstateAccountDialogBox);
         if (details != null && !details.isEmpty()) {
             reinstateDescriptionLabel.setText(orgName + " gets full access again. " + details);
@@ -299,6 +349,10 @@ public class DialogController {
     // PATTERN:ACTION confirms rejection
     @FXML
     private void handleConfirmReject() {
+        if (onReject != null) {
+            confirm(() -> onReject.accept(rejectReasonTextArea.getText()));
+            return;
+        }
         closeOverlay();
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
@@ -306,6 +360,10 @@ public class DialogController {
     // PATTERN:ACTION confirms approval
     @FXML
     private void handleConfirmApprove() {
+        if (onApprove != null) {
+            confirm(onApprove);
+            return;
+        }
         closeOverlay();
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
@@ -313,24 +371,40 @@ public class DialogController {
     // PATTERN:ACTION dismisses safety notice
     @FXML
     private void handleDismissSafetyNotice() {
+        if (onDismissNotice != null) {
+            confirm(() -> onDismissNotice.accept(safetyAdminNoteTextArea.getText()));
+            return;
+        }
         closeOverlay();
     }
 
     // PATTERN:ACTION suspends account from safety notice
     @FXML
     private void handleSuspendFromSafetyNotice() {
+        if (onSuspendFromNotice != null) {
+            confirm(() -> onSuspendFromNotice.accept(safetyAdminNoteTextArea.getText()));
+            return;
+        }
         closeOverlay();
     }
 
     // PATTERN:ACTION confirms account suspension
     @FXML
     private void handleConfirmSuspend() {
+        if (onSuspend != null) {
+            confirm(() -> onSuspend.accept(suspendReasonTextArea.getText()));
+            return;
+        }
         closeOverlay();
     }
 
     // PATTERN:ACTION confirms account reinstatement
     @FXML
     private void handleConfirmReinstate() {
+        if (onReinstate != null) {
+            confirm(onReinstate);
+            return;
+        }
         closeOverlay();
     }
 
@@ -442,6 +516,20 @@ public class DialogController {
         if (confirmReceiptDialogBox != null) { confirmReceiptDialogBox.setVisible(false); confirmReceiptDialogBox.setManaged(false); }
         if (forgotPasswordDialogBox != null) { forgotPasswordDialogBox.setVisible(false); forgotPasswordDialogBox.setManaged(false); }
         if (upgradeBusinessDonorDialogBox != null) { upgradeBusinessDonorDialogBox.setVisible(false); upgradeBusinessDonorDialogBox.setManaged(false); }
+    }
+
+    /** Runs a confirm action. A broken rule is shown and the dialog stays open; success closes it (A8). */
+    private void confirm(Runnable action) {
+        try {
+            action.run();
+        } catch (RuleViolationException e) {
+            showError(e.getMessage());
+            return;
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            showError("Could not save this. Check the database connection and try again.");
+            return;
+        }
+        closeOverlay();
     }
 
     private void closeOverlay() {

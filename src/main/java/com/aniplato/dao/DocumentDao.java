@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 /** SQL only. One DAO per table. */
 public class DocumentDao {
@@ -109,5 +110,69 @@ public class DocumentDao {
             document.reviewedAt = rs.getTimestamp("reviewed_at").toLocalDateTime();
         }
         return document;
+    }
+
+    /** A document in force that has expired or expires soon, for the All Accounts note. */
+    public record ExpiringDocument(int registrationId, Document.Type type, LocalDate expiresOn) { }
+
+    public List<Document> findByRegistration(Connection c, int registrationId) throws SQLException {
+        String sql = "SELECT * FROM document WHERE registration_id = ? ORDER BY uploaded_at, document_id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Document> documents = new ArrayList<>();
+                while (rs.next()) documents.add(map(rs));
+                return documents;
+            }
+        }
+    }
+
+    public Document findById(Connection c, int documentId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT * FROM document WHERE document_id = ?")) {
+            ps.setInt(1, documentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /** The admin's verdict on one file: OK, or FLAGGED with a reason. */
+    public int markReviewed(Connection c, int documentId, Document.Review review, String flagReason, int adminId,
+                            LocalDateTime reviewedAt) throws SQLException {
+        String sql = "UPDATE document SET review = ?, flag_reason = ?, reviewed_by = ?, reviewed_at = ? " +
+                "WHERE document_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, review == null ? null : review.name());   // null = back to awaiting review (Undo)
+            ps.setString(2, flagReason);
+            ps.setInt(3, adminId);
+            ps.setObject(4, reviewedAt);
+            ps.setInt(5, documentId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Verified documents in force (not replaced by a newer verified one) that end on or before the given date. */
+    public List<ExpiringDocument> findEndingBy(Connection c, LocalDate lastDay) throws SQLException {
+        String sql = """
+                SELECT d.registration_id, d.doc_type, d.expires_on
+                FROM document d
+                WHERE d.review = 'OK' AND d.expires_on IS NOT NULL AND d.expires_on <= ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM document newer
+                      WHERE newer.registration_id = d.registration_id AND newer.doc_type = d.doc_type
+                        AND newer.review = 'OK' AND newer.uploaded_at > d.uploaded_at)
+                ORDER BY d.expires_on
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, lastDay);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<ExpiringDocument> found = new ArrayList<>();
+                while (rs.next()) {
+                    found.add(new ExpiringDocument(rs.getInt("registration_id"),
+                            Document.Type.fromDb(rs.getString("doc_type")), rs.getDate("expires_on").toLocalDate()));
+                }
+                return found;
+            }
+        }
     }
 }

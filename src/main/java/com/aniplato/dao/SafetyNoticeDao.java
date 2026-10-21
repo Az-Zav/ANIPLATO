@@ -81,4 +81,49 @@ public class SafetyNoticeDao {
         notice.raisedAt = rs.getTimestamp("raised_at").toLocalDateTime();
         return notice;
     }
+
+    /** A notice with the names the admin's screen shows. The flagged account is the other side of the offer. */
+    public record NoticeRow(int id, SafetyNotice.Kind kind, SafetyNotice.Status status, String flaggedName,
+                            String raisedByName, String listingText, String concern, String adminNote,
+                            LocalDateTime raisedAt) { }
+
+    /** Every notice, newest first, with organization names and the post's description. */
+    public List<NoticeRow> findRows(Connection c) throws SQLException {
+        String sql = """
+                SELECT n.notice_id, n.kind, n.status, n.concern, n.admin_note, n.raised_at,
+                       CASE WHEN n.raised_by = o.offerer_id THEN poster_reg.name ELSE offerer_reg.name END AS flagged_name,
+                       CASE WHEN n.raised_by IS NULL THEN 'System'
+                            WHEN n.raised_by = o.offerer_id THEN offerer_reg.name
+                            ELSE poster_reg.name END AS raised_by_name,
+                       COALESCE(fd.description, ud.use_description) AS listing_text
+                FROM safety_notice n
+                JOIN offer o ON o.offer_id = n.offer_id
+                JOIN post p ON p.post_id = o.post_id
+                JOIN account offerer ON offerer.account_id = o.offerer_id
+                JOIN registration offerer_reg ON offerer_reg.registration_id = offerer.registration_id
+                JOIN account poster ON poster.account_id = p.posted_by
+                JOIN registration poster_reg ON poster_reg.registration_id = poster.registration_id
+                LEFT JOIN food_detail fd ON fd.food_detail_id = p.food_detail_id
+                LEFT JOIN use_detail ud ON ud.use_detail_id = p.use_detail_id
+                ORDER BY n.raised_at DESC, n.notice_id DESC
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            List<NoticeRow> rows = new ArrayList<>();
+            while (rs.next()) {
+                rows.add(new NoticeRow(rs.getInt("notice_id"), SafetyNotice.Kind.valueOf(rs.getString("kind")),
+                        SafetyNotice.Status.valueOf(rs.getString("status")), rs.getString("flagged_name"),
+                        rs.getString("raised_by_name"), rs.getString("listing_text"), rs.getString("concern"),
+                        rs.getString("admin_note"), rs.getTimestamp("raised_at").toLocalDateTime()));
+            }
+            return rows;
+        }
+    }
+
+    public int countOpen(Connection c) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM safety_notice WHERE status = 'OPEN'");
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getInt(1);
+        }
+    }
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 /** A concern raised on an accepted or completed offer. The flagged account is the other side of the offer. */
 public class SafetyNotice {
+    public enum Kind { CONCERN, OVERDUE_REPORT }   // an overdue report is raised by the system, not by an account
     public enum Status { OPEN, DISMISSED, ACCOUNT_SUSPENDED }
 
     public int id;                          // shown as "Notice #12"

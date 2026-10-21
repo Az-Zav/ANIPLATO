@@ -14,6 +14,7 @@ import com.aniplato.model.Registration;
 import com.aniplato.util.Database;
 import com.aniplato.util.Settings;
 import com.aniplato.util.Session;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
 import java.sql.Connection;
@@ -21,7 +22,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /** Submit, review, approve and reject registrations; document review. */
@@ -179,6 +182,213 @@ public class RegistrationService {
             logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.ACTIVE.name(),
                     Account.Status.SUSPENDED.name(), reason, changedBy);
         }
+    }
+
+    //---ADMIN: REVIEW QUEUE (Stage 1 review)---
+
+    /** One line of the Pending Accounts list. */
+    public record PendingRow(int registrationId, String name, Account.Role role, String city,
+                             LocalDateTime submittedAt, boolean registeredAgain) { }
+
+    /** A registration with its documents, for the Review screen. */
+    public record ReviewDetail(Registration registration, boolean registeredAgain) { }
+
+    /** Pending registrations, oldest first. */
+    public List<PendingRow> getPending() {
+        requireAdmin();
+        try (Connection c = Database.getConnection()) {
+            List<PendingRow> rows = new ArrayList<>();
+            for (Registration r : registrationDao.findByStatus(c, Registration.Status.PENDING)) {
+                boolean again = registrationDao.countEarlierRejected(c, r.email, r.submittedAt) > 0;
+                rows.add(new PendingRow(r.id, r.name, r.role, r.city.name, r.submittedAt, again));
+            }
+            return rows;
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load pending registrations", e);
+        }
+    }
+
+    /** One registration with all its documents. */
+    public ReviewDetail getForReview(int registrationId) {
+        requireAdmin();
+        try (Connection c = Database.getConnection()) {
+            Registration r = registrationDao.findById(c, registrationId);
+            if (r == null) throw new RuleViolationException("This registration no longer exists.");
+            r.documents = documentDao.findByRegistration(c, registrationId);
+            return new ReviewDetail(r, registrationDao.countEarlierRejected(c, r.email, r.submittedAt) > 0);
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load the registration", e);
+        }
+    }
+
+    /** Admin confirms a document matches the applicant's name and city (R1.4). */
+    public void verifyDocument(int documentId) {
+        reviewDocument(documentId, Document.Review.OK, null);
+    }
+
+    /** Admin takes a verification back, so the document awaits review again. */
+    public void undoVerification(int documentId) {
+        reviewDocument(documentId, null, null);
+    }
+
+    private void reviewDocument(int documentId, Document.Review review, String reason) {
+        Account admin = requireAdmin();
+        inTransaction("Could not save the document review", c -> {
+            Document d = documentDao.findById(c, documentId);
+            if (d == null) throw new RuleViolationException("This document no longer exists.");
+            if (review == null && d.review != Document.Review.OK) throw new RuleViolationException("This document is not verified.");
+            String from = d.review == null ? "AWAITING_REVIEW" : d.review.name();
+            documentDao.markReviewed(c, documentId, review, reason, admin.id, LocalDateTime.now());
+            logDao.logStatusChange(c, "DOCUMENT", documentId, from, review == null ? "AWAITING_REVIEW" : review.name(), reason, admin.id);   // A3
+            return null;
+        });
+    }
+
+    /**
+     * Approve is one transaction (A2): the registration becomes Approved and the account is created
+     * (or, for an upgrade, the existing account moves to the new registration). The temporary
+     * password is only emailed, after the commit (R1.5).
+     */
+    public void approve(int registrationId) {
+        Account admin = requireAdmin();
+        String[] toEmail = new String[3];   // email, organization name, temporary password (null for an upgrade)
+        inTransaction("Could not approve the registration", c -> {
+            Registration r = requirePending(c, registrationId);
+            checkApprovable(documentDao.findByRegistration(c, registrationId), LocalDate.now());
+            LocalDateTime now = LocalDateTime.now();
+            registrationDao.markReviewed(c, registrationId, Registration.Status.APPROVED, null, admin.id, now);
+            logDao.logStatusChange(c, REGISTRATION_ENTITY, registrationId, Registration.Status.PENDING.name(),
+                    Registration.Status.APPROVED.name(), null, admin.id);   // A3
+            Integer existing = accountDao.findIdByEmail(c, r.email);
+            if (existing == null) {
+                String temporary = new AuthenticationService().generateTemporaryPassword();
+                int accountId = accountDao.insert(c, r.email, BCrypt.hashpw(temporary, BCrypt.gensalt()), r.role,
+                        registrationId, now);
+                logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, null, Account.Status.ACTIVE.name(), null, admin.id);
+                toEmail[0] = r.email;
+                toEmail[1] = r.name;
+                toEmail[2] = temporary;
+            } else {
+                accountDao.moveToRegistration(c, existing, r.role, registrationId);   // upgrade: same login, new role
+            }
+            return null;
+        });
+        if (toEmail[2] != null) emailService.sendApproved(toEmail[0], toEmail[1], toEmail[2]);   // after the commit
+    }
+
+    /** Reject saves the reason and emails it (R1.6). The applicant may register again. */
+    public void reject(int registrationId, String reason) {
+        Account admin = requireAdmin();
+        if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the rejection.");
+        String why = reason.trim();
+        if (why.length() > 500) throw new RuleViolationException("Keep the reason to 500 characters or fewer.");
+        Registration[] rejected = new Registration[1];
+        inTransaction("Could not reject the registration", c -> {
+            rejected[0] = requirePending(c, registrationId);
+            registrationDao.markReviewed(c, registrationId, Registration.Status.REJECTED, why, admin.id,
+                    LocalDateTime.now());
+            logDao.logStatusChange(c, REGISTRATION_ENTITY, registrationId, Registration.Status.PENDING.name(),
+                    Registration.Status.REJECTED.name(), why, admin.id);   // A3
+            return null;
+        });
+        emailService.sendNotApproved(rejected[0].email, rejected[0].name, why);   // after the commit
+    }
+
+    private Registration requirePending(Connection c, int registrationId) throws SQLException {
+        Registration r = registrationDao.findById(c, registrationId);
+        if (r == null || r.status != Registration.Status.PENDING) {
+            throw new RuleViolationException("This registration has already been reviewed.");
+        }
+        return r;
+    }
+
+    /** Approve only if every document is verified and unexpired (R1.4). */
+    private void checkApprovable(List<Document> documents, LocalDate today) {
+        for (Document d : documents) {
+            if (d.review == Document.Review.FLAGGED) {
+                throw new RuleViolationException("The " + d.type.label() + " is flagged. Reject the registration instead.");
+            }
+            if (d.isAwaitingReview()) {
+                throw new RuleViolationException("Verify the " + d.type.label() + " before approving.");
+            }
+            if (d.isExpired(today)) {
+                throw new RuleViolationException("The " + d.type.label() + " has expired.");
+            }
+        }
+    }
+
+    //---ADMIN: ALL ACCOUNTS---
+
+    /** One line of the All Accounts list. */
+    public record AccountRow(int accountId, String name, Account.Role role, String city, Account.Status status,
+                             String statusNote, String documentNote, boolean documentEnding) { }
+
+    /** The list with the numbers above it. Counts are worked out from the rows (A9). */
+    public record AccountsOverview(List<AccountRow> rows, int approved, int suspended, int documentsEnding) { }
+
+    /** Every organization account, with the next document that ends within the warning period. */
+    public AccountsOverview getAccounts(LocalDate today) {
+        requireAdmin();
+        try (Connection c = Database.getConnection()) {
+            Map<Integer, DocumentDao.ExpiringDocument> next = new HashMap<>();
+            for (DocumentDao.ExpiringDocument d : documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS))) {
+                next.putIfAbsent(d.registrationId(), d);   // the list is soonest first
+            }
+            List<AccountRow> rows = new ArrayList<>();
+            int suspended = 0;
+            int ending = 0;
+            for (Account a : accountDao.findAllOrganizations(c)) {
+                DocumentDao.ExpiringDocument doc = next.get(a.registration.id);
+                if (doc != null) ending++;
+                boolean isSuspended = a.status == Account.Status.SUSPENDED;
+                if (isSuspended) suspended++;
+                rows.add(new AccountRow(a.id, a.registration.name, a.role, a.registration.city.name, a.status,
+                        a.suspendReason, documentNote(doc, today), doc != null));
+            }
+            return new AccountsOverview(rows, rows.size(), suspended, ending);
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not load accounts", e);
+        }
+    }
+
+    private static String documentNote(DocumentDao.ExpiringDocument doc, LocalDate today) {
+        if (doc == null) return "Documents current";
+        String date = doc.expiresOn().format(java.time.format.DateTimeFormatter.ofPattern("MMM d"));
+        return doc.type().label() + (doc.expiresOn().isBefore(today) ? " ended " : " ends ") + date;
+    }
+
+    /** Admin suspends an Active account; the reason is shown to the organization (6.3). */
+    public void suspendAccount(int accountId, String reason) {
+        Account admin = requireAdmin();
+        if (reason == null || reason.isBlank()) throw new RuleViolationException("Write the reason for the suspension.");
+        String why = reason.trim();
+        inTransaction("Could not suspend the account", c -> {
+            if (accountDao.suspendIfActive(c, accountId, why) == 0) {
+                throw new RuleViolationException("This account is not Active.");
+            }
+            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.ACTIVE.name(),
+                    Account.Status.SUSPENDED.name(), why, admin.id);   // A3
+            return null;
+        });
+    }
+
+    /** Admin gives a Suspended account its full access back. */
+    public void reinstateAccount(int accountId) {
+        Account admin = requireAdmin();
+        inTransaction("Could not reinstate the account", c -> {
+            if (accountDao.reinstateIfSuspended(c, accountId) == 0) {
+                throw new RuleViolationException("This account is not Suspended.");
+            }
+            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.SUSPENDED.name(),
+                    Account.Status.ACTIVE.name(), null, admin.id);   // A3
+            return null;
+        });
+    }
+
+    private static Account requireAdmin() {
+        Account me = Session.require();
+        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
+        return me;
     }
 
     private <T> T inTransaction(String message, Work<T> work) {

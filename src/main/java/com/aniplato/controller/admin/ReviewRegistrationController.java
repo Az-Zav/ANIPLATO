@@ -1,12 +1,30 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.exception.DataAccessException;
+import com.aniplato.exception.RuleViolationException;
+import com.aniplato.model.Account;
+import com.aniplato.model.Document;
+import com.aniplato.model.Registration;
+import com.aniplato.service.RegistrationService;
+import com.aniplato.service.RegistrationService.ReviewDetail;
+import com.aniplato.util.AdminSelection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class ReviewRegistrationController {
 
@@ -25,189 +43,188 @@ public class ReviewRegistrationController {
     @FXML private Label contactPersonLabel;
     @FXML private Label emailLabel;
 
-    // Organization Type Container (Hidden for Casual Donors)
+    // Organization Type Container (no organization type is collected, so it stays hidden)
     @FXML private VBox orgTypeBox;
     @FXML private Label orgTypeLabel;
 
-    // City Container (Shifted to Left Column when orgTypeBox is hidden)
+    // City Container (sits in the left column because the organization type is hidden)
     @FXML private VBox cityBox;
     @FXML private Label cityLabel;
 
     // Document Section Labels
-    @FXML private Label documentsCountHeaderLabel; // "DOCUMENTS (2)" or "DOCUMENTS (1)"
+    @FXML private Label documentsCountHeaderLabel;
 
-    // Document 1 Labels
+    // Document 1
     @FXML private Label doc1TitleLabel;
     @FXML private Label doc1MetaLabel;
     @FXML private Label doc1FileLabel;
+    @FXML private VBox doc1Checks;
+    @FXML private Button doc1VerifyBtn;
+    @FXML private Label doc1VerifiedBadge;
+    @FXML private Hyperlink doc1UndoLink;
 
-    // Document 2 Container & Labels (Hidden for Casual Donors)
+    // Document 2 (only registrations with two documents)
     @FXML private VBox doc2Box;
     @FXML private Label doc2TitleLabel;
     @FXML private Label doc2MetaLabel;
     @FXML private Label doc2FileLabel;
+    @FXML private VBox doc2Checks;
+    @FXML private Button doc2VerifyBtn;
+    @FXML private Label doc2VerifiedBadge;
+    @FXML private Hyperlink doc2UndoLink;
 
     @FXML private Label registeredDateLabel;
 
+    // FXML: errorLabel (style class "error-text") shows why Approve is not possible yet (A8)
+    @FXML private Label errorLabel;
+    @FXML private Button rejectBtn;
+    @FXML private Button approveBtn;
+
+    private final RegistrationService registrationService = new RegistrationService();
+    private int registrationId;
+    private List<Document> documents = List.of();
+
     @FXML
     private void initialize() {
-        // You can read the selected account mode/type from your Navigator or session state
-        // Defaulting to "CASUAL_DONOR" to match the exact Santos Household view
-        loadReviewDetails("CASUAL_DONOR");
+        registrationId = AdminSelection.registrationId();
+        orgTypeBox.setVisible(false);
+        orgTypeBox.setManaged(false);
+        GridPane.setRowIndex(cityBox, 2);
+        GridPane.setColumnIndex(cityBox, 0);
+        approveBtn.setGraphic(SvgIcon.load("/assets/CIrcle_Check_Button.svg", 15));
+        rejectBtn.setGraphic(SvgIcon.load("/assets/Circle_Reject_Button.svg", 15));
+        load();
     }
 
-    /**
-     * Updates all labels, document cards, and grid positions according to the account type being reviewed
-     */
-    public void loadReviewDetails(String accountType) {
-        switch (accountType) {
-            case "CASUAL_DONOR": // Santos Household
-                if (pageTitleLabel != null) pageTitleLabel.setText("Review Registration");
-                if (orgTitleLabel != null) orgTitleLabel.setText("Santos Household");
-                if (nameHeaderLabel != null) nameHeaderLabel.setText("NAME OR HOUSEHOLD NAME");
-                if (orgNameLabel != null) orgNameLabel.setText("Santos Household");
+    /** Reads the registration and its documents from the service and fills the screen. */
+    private void load() {
+        hideError();
+        ReviewDetail detail;
+        try {
+            detail = registrationService.getForReview(registrationId);
+        } catch (RuleViolationException e) {
+            orgTitleLabel.setText(e.getMessage());
+            return;
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            orgTitleLabel.setText("Could not load the registration. Check the database connection.");
+            return;
+        }
+        Registration r = detail.registration();
+        documents = r.documents;
 
-                if (rolePillLabel != null) {
-                    rolePillLabel.setText("Casual donor");
-                    rolePillLabel.getStyleClass().setAll("pill-food-donor");
-                }
+        pageTitleLabel.setText("Review Registration");
+        orgTitleLabel.setText(r.name);
+        orgNameLabel.setText(r.name);
+        nameHeaderLabel.setText(switch (r.role) {
+            case BUSINESS_DONOR -> "BUSINESS NAME";
+            case CASUAL_DONOR -> "NAME OR HOUSEHOLD NAME";
+            default -> "ORGANIZATION NAME";
+        });
+        rolePillLabel.setText(AdminTable.roleName(r.role));
+        rolePillLabel.getStyleClass().setAll(AdminTable.roleStyle(r.role));
+        contactPersonLabel.setText(r.contactPerson + " · " + r.contactPhone);   // the admin may see the number (spec 6.2)
+        emailLabel.setText(r.email);
+        cityLabel.setText(r.city.name);
+        statusPillLabel.setText(r.status == Registration.Status.PENDING
+                ? (detail.registeredAgain() ? "🟠 PENDING · REGISTERED AGAIN" : "🟠 PENDING") : r.status.name());
+        registeredDateLabel.setText("📅 Registered " + AdminTable.date(r.submittedAt));
 
-                if (contactPersonLabel != null) contactPersonLabel.setText("Maria Santos · 0917 123 4567");
-                if (emailLabel != null) emailLabel.setText("maria.santos@email.com");
-                if (cityLabel != null) cityLabel.setText("Pasig City");
+        documentsCountHeaderLabel.setText("DOCUMENTS (" + documents.size() + ")");
+        showDocument(0, doc1TitleLabel, doc1MetaLabel, doc1FileLabel, doc1Checks, doc1VerifyBtn, doc1VerifiedBadge, doc1UndoLink);
+        boolean second = documents.size() > 1;
+        doc2Box.setVisible(second);
+        doc2Box.setManaged(second);
+        if (second) showDocument(1, doc2TitleLabel, doc2MetaLabel, doc2FileLabel, doc2Checks, doc2VerifyBtn, doc2VerifiedBadge, doc2UndoLink);
+    }
 
-                // Casual Donor has NO Organization Type row -> Hide Box
-                if (orgTypeBox != null) {
-                    orgTypeBox.setVisible(false);
-                    orgTypeBox.setManaged(false);
-                }
+    private void showDocument(int index, Label title, Label meta, Label file, VBox checks, Button verify,
+                              Label verifiedBadge, Hyperlink undo) {
+        if (index >= documents.size()) return;
+        Document d = documents.get(index);
+        title.setText(d.type.label());
+        String expiry = d.expiresOn == null ? "No expiry (marked by applicant)"
+                : "Expires " + d.expiresOn.format(java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy")) + " (entered by applicant)";
+        meta.setText("Uploaded " + AdminTable.date(d.uploadedAt) + " · " + expiry
+                + (d.review == Document.Review.FLAGGED ? " · Flagged: " + d.flagReason : ""));
+        file.setText(new File(d.filePath).getName());
 
-                // Shift CITY to Row 2, Column 0 (Left Side)
-                if (cityBox != null) {
-                    GridPane.setRowIndex(cityBox, 2);
-                    GridPane.setColumnIndex(cityBox, 0);
-                }
+        boolean verified = d.review == Document.Review.OK;
+        if (checks.getChildren().size() > 2 && checks.getChildren().get(2) instanceof CheckBox cityCheck) {
+            cityCheck.setText("Issued for " + cityLabel.getText());   // the third check names the applicant's city
+        }
+        for (Node node : checks.getChildren()) {
+            if (node instanceof CheckBox box) {
+                box.setSelected(verified);
+                box.setDisable(verified);   // a verified document's checks stay grey until Undo
+            }
+        }
+        // Verify until the document is verified; then a "Verified" tag with an Undo link (as in the design)
+        show(verify, !verified);
+        show(verifiedBadge, verified);
+        show(undo, verified);
+    }
 
-                // Documents (1) - Barangay Certificate
-                if (documentsCountHeaderLabel != null) documentsCountHeaderLabel.setText("DOCUMENTS (1)");
-                if (doc1TitleLabel != null) doc1TitleLabel.setText("Barangay Certificate");
-                if (doc1MetaLabel != null) doc1MetaLabel.setText("Uploaded Oct 1, 2026 · Expires Apr 19, 2027 (entered by applicant)");
-                if (doc1FileLabel != null) doc1FileLabel.setText("barangay-certificate.pdf");
+    private static void show(Node node, boolean shown) {
+        node.setVisible(shown);
+        node.setManaged(shown);
+    }
 
-                // Hide second document card
-                if (doc2Box != null) {
-                    doc2Box.setVisible(false);
-                    doc2Box.setManaged(false);
-                }
-                break;
+    @FXML private void handleVerifyDoc1() { verify(0, doc1Checks); }
+    @FXML private void handleVerifyDoc2() { verify(1, doc2Checks); }
+    @FXML private void handleUndoDoc1() { run(() -> registrationService.undoVerification(documents.get(0).id)); }
+    @FXML private void handleUndoDoc2() { run(() -> registrationService.undoVerification(documents.get(1).id)); }
+    @FXML private void handleViewDoc1() { open(0); }
+    @FXML private void handleViewDoc2() { open(1); }
 
-            case "BUSINESS_DONOR": // Manila Artisanal Bakeshop
-                if (pageTitleLabel != null) pageTitleLabel.setText("Review Registration");
-                if (orgTitleLabel != null) orgTitleLabel.setText("Manila Artisanal Bakeshop");
-                if (nameHeaderLabel != null) nameHeaderLabel.setText("BUSINESS NAME");
-                if (orgNameLabel != null) orgNameLabel.setText("Manila Artisanal Bakeshop");
+    /** R1.4: the admin ticks the three checks, then verifies. */
+    private void verify(int index, VBox checks) {
+        boolean allTicked = checks.getChildren().stream()
+                .allMatch(node -> !(node instanceof CheckBox box) || box.isSelected());
+        if (!allTicked) {
+            DialogController.showError("Tick all three checks before verifying the document.");
+            return;
+        }
+        run(() -> registrationService.verifyDocument(documents.get(index).id));
+    }
 
-                if (rolePillLabel != null) {
-                    rolePillLabel.setText("Business donor");
-                    rolePillLabel.getStyleClass().setAll("pill-food-donor");
-                }
+    /** Runs a service action, shows a broken rule (A8), then re-reads the registration so the screen matches the database. */
+    private void run(Runnable action) {
+        try {
+            action.run();
+        } catch (RuleViolationException e) {
+            DialogController.showError(e.getMessage());
+            return;
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            DialogController.showError("Could not save this. Check the database connection and try again.");
+            return;
+        }
+        load();
+    }
 
-                if (contactPersonLabel != null) contactPersonLabel.setText("Ramon A. Dizon · 0917 555 0142");
-                if (emailLabel != null) emailLabel.setText("hello@manilaartisanal.ph");
-                if (cityLabel != null) cityLabel.setText("Mandaluyong City");
-
-                if (orgTypeBox != null) {
-                    orgTypeBox.setVisible(true);
-                    orgTypeBox.setManaged(true);
-                    if (orgTypeLabel != null) orgTypeLabel.setText("Bakery");
-                }
-
-                // Restore CITY to Row 2, Column 1 (Right Side)
-                if (cityBox != null) {
-                    GridPane.setRowIndex(cityBox, 2);
-                    GridPane.setColumnIndex(cityBox, 1);
-                }
-
-                if (documentsCountHeaderLabel != null) documentsCountHeaderLabel.setText("DOCUMENTS (2)");
-                if (doc1TitleLabel != null) doc1TitleLabel.setText("Mayor's / Business Permit");
-                if (doc1MetaLabel != null) doc1MetaLabel.setText("Uploaded Oct 1, 2026 · Expires Dec 31, 2026 (entered by applicant)");
-                if (doc1FileLabel != null) doc1FileLabel.setText("mayors-permit-2026.pdf");
-
-                if (doc2Box != null) {
-                    doc2Box.setVisible(true);
-                    doc2Box.setManaged(true);
-                }
-                if (doc2TitleLabel != null) doc2TitleLabel.setText("Sanitary Permit");
-                if (doc2MetaLabel != null) doc2MetaLabel.setText("Uploaded Oct 1, 2026 · Expires Dec 31, 2026 (entered by applicant)");
-                if (doc2FileLabel != null) doc2FileLabel.setText("sanitary-permit-2026.pdf");
-                break;
-
-            case "FOOD_GROUP": // San Antonio Community Pantry
-            default:
-                if (pageTitleLabel != null) pageTitleLabel.setText("Review Registration");
-                if (orgTitleLabel != null) orgTitleLabel.setText("San Antonio Community Pantry");
-                if (nameHeaderLabel != null) nameHeaderLabel.setText("ORGANIZATION NAME");
-                if (orgNameLabel != null) orgNameLabel.setText("San Antonio Community Pantry");
-
-                if (rolePillLabel != null) {
-                    rolePillLabel.setText("Food group");
-                    rolePillLabel.getStyleClass().setAll("pill-food-org");
-                }
-
-                if (contactPersonLabel != null) contactPersonLabel.setText("Elena R. Santos · 0918 234 5671");
-                if (emailLabel != null) emailLabel.setText("contact@sanantoniopantry.ph");
-                if (cityLabel != null) cityLabel.setText("Pasig City");
-
-                if (orgTypeBox != null) {
-                    orgTypeBox.setVisible(true);
-                    orgTypeBox.setManaged(true);
-                    if (orgTypeLabel != null) orgTypeLabel.setText("Charity");
-                }
-
-                // Restore CITY to Row 2, Column 1 (Right Side)
-                if (cityBox != null) {
-                    GridPane.setRowIndex(cityBox, 2);
-                    GridPane.setColumnIndex(cityBox, 1);
-                }
-
-                if (documentsCountHeaderLabel != null) documentsCountHeaderLabel.setText("DOCUMENTS (2)");
-                if (doc1TitleLabel != null) doc1TitleLabel.setText("DSWD Certificate of Registration");
-                if (doc1MetaLabel != null) doc1MetaLabel.setText("Uploaded Oct 1, 2026 · Expires Jun 30, 2027 (entered by applicant)");
-                if (doc1FileLabel != null) doc1FileLabel.setText("dswd-registration.pdf");
-
-                if (doc2Box != null) {
-                    doc2Box.setVisible(true);
-                    doc2Box.setManaged(true);
-                }
-                if (doc2TitleLabel != null) doc2TitleLabel.setText("Authorization letter");
-                if (doc2MetaLabel != null) doc2MetaLabel.setText("Uploaded Oct 1, 2026 · No expiry (marked by applicant) · Must name Elena R. Santos");
-                if (doc2FileLabel != null) doc2FileLabel.setText("authorization-letter.pdf");
-                break;
+    /** Opens the uploaded file in the system's viewer. */
+    private void open(int index) {
+        if (index >= documents.size()) return;
+        File file = new File("uploads", documents.get(index).filePath);
+        try {
+            if (!file.isFile() || !Desktop.isDesktopSupported()) {
+                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                return;
+            }
+            Desktop.getDesktop().open(file);
+        } catch (IOException e) {
+            DialogController.showError("Could not open " + file.getName() + ".");
         }
     }
 
-    @FXML
-    private void handleVerifyDoc1() {
-        // TODO(service): mark document 1 as verified in service
+    private void showError(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
     }
 
-    @FXML
-    private void handleFlagDoc1() {
-        if (dialogController != null) {
-            dialogController.showFlagSafetyConcernMode();
-        }
-    }
-
-    @FXML
-    private void handleVerifyDoc2() {
-        // TODO(service): mark document 2 as verified in service
-    }
-
-    @FXML
-    private void handleFlagDoc2() {
-        if (dialogController != null) {
-            dialogController.showFlagSafetyConcernMode();
-        }
+    private void hideError() {
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
     }
 
     @FXML
@@ -217,25 +234,22 @@ public class ReviewRegistrationController {
 
     @FXML
     private void handleReject() {
-        if (dialogController != null) {
-            String name = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
-                    ? orgNameLabel.getText()
-                    : "Santos Household";
-            dialogController.showRejectMode(name);
-        }
+        dialogController.showRejectMode(orgNameLabel.getText(), reason -> {
+            registrationService.reject(registrationId, reason);   // saves the reason and emails it
+            Navigator.show(Screen.PENDING_REGISTRATIONS);
+        });
     }
 
     @FXML
     private void handleApprove() {
-        if (dialogController != null) {
-            String name = (orgNameLabel != null && !orgNameLabel.getText().isEmpty())
-                    ? orgNameLabel.getText()
-                    : "Santos Household";
-            String email = (emailLabel != null && !emailLabel.getText().isEmpty())
-                    ? emailLabel.getText()
-                    : "maria.santos@email.com";
-
-            dialogController.showApproveMode(name, email);
+        if (documents.stream().anyMatch(d -> d.review != Document.Review.OK)) {
+            showError("Verify every document before approving.");   // A8; the service checks this too
+            return;
         }
+        hideError();
+        dialogController.showApproveMode(orgNameLabel.getText(), emailLabel.getText(), () -> {
+            registrationService.approve(registrationId);          // creates the account and emails the temporary password
+            Navigator.show(Screen.PENDING_REGISTRATIONS);
+        });
     }
 }
