@@ -127,7 +127,7 @@ public final class Navigator {
             case MAKE_OFFER -> Screen.BROWSE_LISTINGS;
             case LISTING_OFFERS -> Screen.MY_LISTINGS;
             case HANDOFF_RECORD -> Screen.HISTORY;
-            case NEW_REQUEST, FOODGROUP_OFFERS_RECEIVED, FOODGROUP_SUBMIT_REPORT -> Screen.MY_REQUESTS;
+            case FOODGROUP_OFFERS_RECEIVED, FOODGROUP_SUBMIT_REPORT -> Screen.MY_REQUESTS;
             default -> screen;
         };
     }

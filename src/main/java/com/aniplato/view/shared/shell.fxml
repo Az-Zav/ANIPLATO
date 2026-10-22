@@ -67,7 +67,9 @@
                 <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-browse-listings, icon-my-listings, role-foodgroup" text="Browse Listings" />
                 <!-- PATTERN:NAV -> MY_OFFERS -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-my-offers, role-foodgroup" text="My Offers" />
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-offers, icon-my-offers, badge-handoffs, role-foodgroup" text="My Offers" />
+                <!-- PATTERN:NAV -> NEW_REQUEST -->
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-new-request, icon-new-listing, role-foodgroup" text="New Request" />
                 <!-- PATTERN:NAV -> MY_REQUESTS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-requests, icon-browse-requests, role-foodgroup" text="My Requests" />
                 <!-- PATTERN:NAV -> DONOR_DASHBOARD -->
@@ -75,7 +77,7 @@
                 <!-- PATTERN:NAV -> LISTING_FORM -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-listing-form, icon-new-listing, role-donor" text="New Listing" />
                 <!-- PATTERN:NAV -> MY_LISTINGS -->
-                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-listings, icon-my-listings, role-donor" text="My Listings" />
+                <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-my-listings, icon-my-listings, badge-decisions, role-donor" text="My Listings" />
                 <!-- PATTERN:NAV -> DONOR_BROWSE_REQUESTS -->
                 <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-button, nav-donor-browse-requests, icon-browse-requests, role-donor" text="Browse Requests" />
                 <!-- PATTERN:NAV -> DONOR_MY_OFFERS -->

@@ -23,7 +23,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **LISTING** | Post a listing (Route 1) | post surplus food, see and cancel your own listings | ✅ | 6.2 Stage 2A | 5 |
 | **REQUEST** | Post a request (Route 2) | a food group asks for food, sees and cancels its requests | ✅ | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | browse the other side's board, send, withdraw and list offers (both routes) | ✅ | 6.2 Stage 3 | 6 |
-| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *sidebar badges: not wired* | ✅ | 6.2 Stage 4 | 7 |
+| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; the sidebar shows the counts | ✅ | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ✅ | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; the record shows it; overdue flag | ✅ | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
@@ -180,6 +180,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/RegisterSubmittedController.java` | the "we received it" screen; clears the draft | REGISTER |
 | `controller/ProfileController.java` | own details, documents, expiry banner, password buttons | PROFILE, AUTH |
 | `controller/ShellController.java` | header, sidebar, badges, assistant panel, logout, runs the 6.6 checks | SHELL, MAINT |
+| `controller/SidebarBadges.java` | the sidebar count badges: which count each shows, hides a zero | SHELL |
 | `controller/admin/AdminDashboardController.java` | admin cards and the pending list | STATS, REVIEW |
 | `controller/admin/PendingRegistrationsController.java` | the review queue | REVIEW |
 | `controller/admin/ReviewRegistrationController.java` | one application: documents, verify, approve, reject | REVIEW |
@@ -331,6 +332,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
 | `controller/ScreensTest.java` | the round 3 screens load, show service data, and their buttons call the services | LISTING, OFFER, ACCEPT, HANDOFF, REPORT |
+| `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |
@@ -836,7 +838,7 @@ Files: `service/AcceptanceService.java`, `service/PostService.java` (the status 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `AcceptanceService.getIncomingOffers` | offers on the logged-in poster's posts, without Withdrawn ones or Offered ones from a Suspended offerer | both incoming-offers controllers | AcceptanceServiceTest |
-| `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | **no screen yet**: the sidebar badge is not wired | AcceptanceServiceTest |
+| `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | ShellController | AcceptanceServiceTest, ShellBadgeTest |
 | `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | IncomingOfferRows | AcceptanceServiceTest |
 | `AcceptanceService.decline` | the poster declines one Offered offer | IncomingOfferRows | AcceptanceServiceTest |
 | `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | MyPostRows, MyOfferRows, IncomingOfferRows | AcceptanceServiceTest |
@@ -875,7 +877,7 @@ Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/
 | `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | MyPostRows, MyOfferRows | HandoffServiceTest |
 | `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | MyPostRows, MyOfferRows | HandoffServiceTest |
 | `HandoffService.getHandoffRecord` | the record of a Completed offer for its two sides or an admin: number, names, food, kg, times, use, report due date | HandoffRecordController | HandoffServiceTest |
-| `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | **no screen yet**: the sidebar badge is not wired | HandoffServiceTest |
+| `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | ShellController | HandoffServiceTest, ShellBadgeTest |
 | `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | MyPostRows | CancelPostTest |
 | `OfferDao.markReleasedIf` | sets the release time on an Accepted offer, once | HandoffService | HandoffServiceTest |
 | `OfferDao.completeIfReleased` | Accepted to Completed with the receipt time, only after release | HandoffService | HandoffServiceTest |
@@ -944,7 +946,7 @@ flowchart LR
   classDef ctrl fill:#f1f5f9,stroke:#64748b,color:#111827
   classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
   M[Main]:::ctrl --> NI[Navigator.init]:::ctrl --> NL([login.fxml]):::screen
-  NL --> NS[Navigator.show SHELL]:::ctrl --> SH([shell.fxml]):::screen --> SC[ShellController<br/>sidebar, badges, assistant]:::ctrl
+  NL --> NS[Navigator.show SHELL]:::ctrl --> SH([shell.fxml]):::screen --> SC[ShellController<br/>sidebar, badges, assistant]:::ctrl --> BC{{AcceptanceService<br/>countOffersAwaitingDecision<br/>HandoffService<br/>countAwaitingHandoff<br/>StatsService<br/>getAdminSummary}}:::svc
   SC --> NC[Navigator.setContent<br/>setScreenListener<br/>setBeforeScreenListener]:::ctrl
   NC --> IN([in-shell screens fill the content area]):::screen
   SC --> LO[handleLogout]:::ctrl --> AL{{AuthenticationService<br/>logout}}:::svc --> NL
@@ -1055,7 +1057,6 @@ flowchart LR
 |---|---|---|
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
 | `SafetyService.raise` | built and tested; the Flag Concern dialog is not wired | keep: FLOWS.md module 10 |
-| `AcceptanceService.countOffersAwaitingDecision`, `HandoffService.countAwaitingHandoff` | built and tested; the sidebar badges that would show them are not wired | keep: module 12 |
 | `DialogController.showFlagSafetyConcernMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4 and 10 |
 | the placeholder dialogs (Flag Safety Concern, Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
 | placeholder controllers `DonorDashboardController`, `FoodGroupDashboardController`, `HistoryController` | dashboards and History still show sample data | each becomes real with HISTORY |
