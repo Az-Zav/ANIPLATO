@@ -80,7 +80,7 @@ Each module wires screens that already exist in FXML to the call chains below (t
 Dashed boxes are **planned**; a solid green outline is something that **already exists** and is reused. Colours: blue = screen, grey = controller, green = service, orange = DAO, purple = table. A dotted arrow back to the controller is a broken rule shown as a message. Method names are proposals (C7). The built features have their diagrams in [MAP.md](MAP.md) section 5 (AUTH, REGISTER, REVIEW, ACCOUNTS, PROFILE, SAFETY, STATS, MAINT, SHELL, POPUPS, PLATFORM).
 
 ## 1. Login: built
-See MAP.md, AUTH. Nothing to build.
+See MAP.md, AUTH. Nothing to build. A temporary password (R1.7): `LoginController` asks `AuthenticationService.mustChangePassword()` and opens the Set a new password dialog; `Navigator.show` keeps the shell closed while the password is temporary, and Back on that dialog logs out.
 
 ## 2. Register and approve: built
 See MAP.md, REGISTER and REVIEW. Nothing to build.

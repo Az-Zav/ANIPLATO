@@ -1,8 +1,41 @@
 # Cleanup report
 
-Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**; round 4 (the last features) is 6 more after **`cleanup-round-3`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
+Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**; round 4 (the last features) is 6 more after **`cleanup-round-3`**; round 5 (the audit cleanup) is 18 more after **`cleanup-round-4`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
 
 **To undo everything:** `git checkout pre-cleanup`. **To undo one step:** `git revert <commit>` using the table below.
+
+## Round 5: the audit cleanup
+
+Behavior-preserving, like rounds 1 and 2, with **one flagged exception** (step 8b). One commit per step, the full suite green before each, no attribution lines. Tags: **`cleanup-round-4`** is the code before this round, **`cleanup-round-5`** the code after it. **To undo the round:** `git checkout cleanup-round-4`.
+
+| # | Commit | Step | Behavior |
+|---|---|---|---|
+| 1 | 3b1b19d | Inline `java.io.IOException`, `javafx.scene.Node` and `java.sql.Connection` became imports; the unused `PostCards.offerCard` and four unused imports were removed | same |
+| 2 | cb30182 | `FormSupport.failure` is the one place that turns a failed service call into text. `attempt`, `load`, `DialogCard.confirm` and `ReviewRegistrationController` (two places) used to carry a copy each. New `FormSupportFailureTest` pins the messages | same |
+| 3 | 948bedc, ab81900, 14211a2, 391b3c5, 5233743, c5f5ae3 | `Database.read` (a read on its own connection; a database error becomes a `DataAccessException`) and the older read paths moved onto it, one service per commit: SafetyService and DocumentReviewService, StatsService, RegistrationService, AuthenticationService, AccountStatusService | same |
+| 4 | f9a7687 | `Post.noun()` replaces the private `noun(post)` in AcceptanceService and OfferService | same |
+| 5 | 40d624a, ccaabde, 69589cc | No method is over 40 lines now: `documentRow` (54), `approve` (45), `SvgIcon.load` (45), `configureIcon` (44), `MyOfferRows.buttons` (43), `AccountDao.map` (41), `createRequest` (41) were each split along a natural seam. **No accepted exception was needed.** | same |
+| 6 | 57adbeb, eed57ae | `SafetyService` returns its own `NoticeRow`, so `SafetyNoticesController` no longer imports a DAO type (the allow-list in `ArchitectureTest` is empty now). `OfferSweepDao` takes the two check lookups out of `OfferDao` (280 to 242 lines). The eleven `DialogController` overloads that only tests called were deleted, with the `if (action != null) ... else close()` branch in each dialog; `DialogController` went from 268 to 213 lines | same for every screen a user can reach |
+| 7 | 23c483d | `ScreensTest` (347 lines) became `ScreenTestBase` plus `BoardScreensTest`, `OfferScreensTest`, `DashboardScreensTest`, `ProfileScreensTest` | same |
+| 8a | ed19fa2 | `LoginController` asks `AuthenticationService.mustChangePassword()`, so the method has a caller (it was the only Reference C item). New `FirstLoginTest`. The unused `Post.deadline()` was removed | same |
+| 8b | a20715a | **Changes behavior (R1.7).** `Navigator.show` refuses the shell and in-shell screens while the account must change its password and returns to Login; going Back on the first-login dialog logs the account out. Before, the shell was unreachable only because the dialog was the single way forward. `FirstLoginTest` covers both | **changed** |
+| 9 | this commit | This report, `FLOWS.md`, `AGENTS.md`, `MAP.md` | docs only |
+
+**Tests:** 285 run, 0 failed, 0 skipped (276 before the round). The count moved because new tests were added (`FormSupportFailureTest` 4, `DatabaseReadTest` 3, `PostTest` 1, `FirstLoginTest` 4), four tests of the deleted no-action overloads were removed and one test that every confirm button runs its action once was added.
+
+**Answers to the questions asked before the round**
+- *Is `mustChangePassword` still needed?* Yes. The rule (R1.7) was only enforced in the login controller. The method is now used, and the rule is enforced in `Navigator` as well (step 8b).
+- *Why delete the no-action dialog overloads?* Only tests called them; each dialog carried a branch no user could reach, and a new button wired to the plain overload would have shown a Confirm that does nothing.
+
+**Things found, and what was done**
+- `blankToNull` (blank to null) and `RegistrationService.trim` (null to empty text) look like duplicates but return different things, so they were left apart.
+- `EmailService` and two single-statement writes in `AuthenticationService` still open the connection with `Database.getConnection`: `Database.read` is for reads, and a write belongs in `inTransaction`. Left as they are.
+- The first-login hardening (8b) was taken as the default proposed in the plan, because the answer to that one question was "proceed". It is its own commit: `git revert a20715a` undoes it alone.
+
+**Not done**
+- The AI assistant panel is still the stub (a stretch in the spec).
+- Still unknown, so nothing depends on them: the finals date and person-days, module owners, and who hosts the shared database, uploads and SMTP.
+- Nobody has hand-run a whole flow yet; see "Check by hand after pulling" under round 4.
 
 ## Round 4: sidebar counts, flag a concern, dashboards, History, profile and the demo
 
@@ -34,7 +67,7 @@ New work again. One commit per step, the full suite green before each, no attrib
 **Not done**
 - The AI assistant panel is still the stub (a stretch in the spec).
 - Offers Received has no sidebar item, as in the design: it opens from My Requests.
-- The audit cleanup items from before round 3 are still deferred, and `AuthenticationService.mustChangePassword` is still the open deletion question.
+- The audit cleanup items from before round 3 were done in round 5, and `AuthenticationService.mustChangePassword` was kept and is now used.
 - Still unknown, so nothing depends on them: the finals date and person-days, module owners, and who hosts the shared database, uploads and SMTP.
 
 **Check by hand after pulling** (the tests load the screens and fire a few buttons; nothing drives a whole flow, and nothing opens the file explorer): on a **scratch** database run `setup-db.bat -Demo` (it drops and recreates `aniplato`), then follow the demo script in the README for each role. Also upload a real renewal and an upgrade through the dialogs.
