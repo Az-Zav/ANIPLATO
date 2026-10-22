@@ -138,6 +138,32 @@ class ScreensTest extends DbTest {
         button(open("foodgroup/my-requests.fxml"), "Confirm receipt");
     }
 
+    //---FLAG A CONCERN---
+
+    @Test
+    void flagAConcernOnAnAcceptedOfferRaisesANoticeForTheAdmin() {
+        int offer = Fixtures.offerOnSeedListing("ACCEPTED", 12.5);
+        TestDb.exec("UPDATE post SET status = 'ACCEPTED' WHERE kind = 'LISTING'");
+        loginAs(BUSINESS);
+        Parent screen = open("donor/my-listings.fxml");
+
+        Fx.run(() -> button(screen, "Flag a concern").fire());
+        all(screen, javafx.scene.control.TextArea.class).stream()
+                .filter(t -> t.getPromptText() != null && t.getPromptText().startsWith("What happened"))
+                .forEach(t -> Fx.run(() -> t.setText("They never came.")));
+        Fx.run(() -> button(screen, "Send to admin").fire());
+
+        assertEquals(1L, TestDb.count("SELECT COUNT(*) FROM safety_notice WHERE offer_id = ? AND kind = 'CONCERN' AND raised_by = ? "
+                + "AND concern = 'They never came.' AND status = 'OPEN'", offer, accountId(BUSINESS)));
+    }
+
+    @Test
+    void theFoodGroupCanFlagFromMyOffersToo() {
+        Fixtures.offerOnSeedListing("ACCEPTED", 12.5);
+        loginAs(GROUP);
+        button(open("foodgroup/my-offers.fxml"), "Flag a concern");
+    }
+
     //---OFFERS---
 
     @Test

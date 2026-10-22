@@ -46,6 +46,7 @@ public class DialogController implements DialogHost {
     @FXML private CancelListingDialogController cancelListingController;
     @FXML private ConfirmReleaseDialogController confirmReleaseController;
     @FXML private FlagSafetyDialogController flagSafetyController;
+    private int flagOfferId;   // the offer the Release and Receipt dialogs' "Flag a concern" link is about
     @FXML private AcceptOfferDialogController acceptOfferController;
     @FXML private UploadRenewalDialogController uploadRenewalController;
     @FXML private SetNewPasswordDialogController setNewPasswordController;
@@ -101,7 +102,7 @@ public class DialogController implements DialogHost {
 
     @Override
     public void showFlagSafetyConcern() {
-        flagSafetyController.show();
+        flagSafetyController.show(flagOfferId);
     }
 
     private void hideAll() {
@@ -170,7 +171,8 @@ public class DialogController implements DialogHost {
     }
 
     /** 7. Confirm Release (Donor), with a real action. */
-    public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact, Runnable onConfirm) {
+    public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact, int offerId, Runnable onConfirm) {
+        flagOfferId = offerId;
         confirmReleaseController.show(food, qty, group, pickup, contact, onConfirm);
     }
 
@@ -182,6 +184,12 @@ public class DialogController implements DialogHost {
     /** 8. Flag Safety Concern */
     public void showFlagSafetyConcernMode() {
         flagSafetyController.show();
+    }
+
+    /** 8. Flag Safety Concern about one offer: Send raises the concern. */
+    public void showFlagSafetyConcernMode(int offerId) {
+        flagOfferId = offerId;
+        flagSafetyController.show(offerId);
     }
 
     /** 9. Accept Offer (Donor) */
@@ -215,7 +223,8 @@ public class DialogController implements DialogHost {
     }
 
     /** 13. Confirm Receipt (Food Group), with a real action. */
-    public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime, Runnable onConfirm) {
+    public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime, int offerId, Runnable onConfirm) {
+        flagOfferId = offerId;
         confirmReceiptController.show(food, qty, donor, pickup, contact, releaseTime, onConfirm);
     }
 

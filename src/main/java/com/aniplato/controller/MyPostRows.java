@@ -61,6 +61,9 @@ public final class MyPostRows {
         if ((post.status == Post.Status.OPEN || post.status == Post.Status.ACCEPTED) && !released) {
             buttons.add(Cards.secondary("Cancel", () -> cancel(post)));
         }
+        if (accepted != null) {
+            buttons.add(Cards.secondary("Flag a concern", () -> dialog.showFlagSafetyConcernMode(accepted.id)));
+        }
         if (post.status == Post.Status.RESCUED && accepted != null) {
             buttons.add(Cards.primary("View record", () -> openRecord(accepted.id)));
         }
@@ -83,7 +86,7 @@ public final class MyPostRows {
     private void confirmRelease(Post post, Offer offer) {
         String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "");
         dialog.showConfirmReleaseMode(post.food.description, FormSupport.kg(offer.kg), offer.offererName,
-                FormSupport.when(offer.pickupDeadline()), phone, () -> {
+                FormSupport.when(offer.pickupDeadline()), phone, offer.id, () -> {
                     handoffService.confirmRelease(offer.id);
                     refresh.run();
                 });
@@ -92,7 +95,7 @@ public final class MyPostRows {
     private void confirmReceipt(Post post, Offer offer) {
         String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "");
         dialog.showConfirmReceiptMode(offer.food.description, FormSupport.kg(offer.kg), offer.offererName,
-                FormSupport.when(offer.food.pickupEnd), phone, FormSupport.when(offer.releasedAt), () -> {
+                FormSupport.when(offer.food.pickupEnd), phone, FormSupport.when(offer.releasedAt), offer.id, () -> {
                     handoffService.confirmReceipt(offer.id);
                     refresh.run();
                 });

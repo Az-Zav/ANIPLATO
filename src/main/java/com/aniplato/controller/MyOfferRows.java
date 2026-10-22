@@ -78,7 +78,7 @@ public final class MyOfferRows {
         if (offer.status == Offer.Status.ACCEPTED && supplier && offer.releasedAt == null) {
             buttons.add(Cards.primary("Confirm release", () -> dialog.showConfirmReleaseMode(offer.food.description,
                     FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.food.pickupEnd),
-                    FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""), () -> {
+                    FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""), offer.id, () -> {
                         handoffService.confirmRelease(offer.id);
                         refresh.run();
                     })));
@@ -87,10 +87,13 @@ public final class MyOfferRows {
             buttons.add(Cards.primary("Confirm receipt", () -> dialog.showConfirmReceiptMode(offer.post.food.description,
                     FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.use.dueAt),
                     FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""),
-                    FormSupport.when(offer.releasedAt), () -> {
+                    FormSupport.when(offer.releasedAt), offer.id, () -> {
                         handoffService.confirmReceipt(offer.id);
                         refresh.run();
                     })));
+        }
+        if (offer.status == Offer.Status.ACCEPTED || offer.status == Offer.Status.COMPLETED) {
+            buttons.add(Cards.secondary("Flag a concern", () -> dialog.showFlagSafetyConcernMode(offer.id)));
         }
         if (offer.status == Offer.Status.COMPLETED) {
             buttons.add(Cards.primary("View record", () -> {

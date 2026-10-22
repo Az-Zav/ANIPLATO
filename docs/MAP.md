@@ -17,7 +17,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **REVIEW** | Admin reviews applications | see the queue, verify each document, approve or reject | ✅ | 6.2 Stage 1, R1.4-R1.6 | 3 |
 | **ACCOUNTS** | Admin manages accounts | list accounts, suspend, reinstate | ✅ | 6.3 | 4 |
 | **PROFILE** | Organization profile | see own details and documents, get expiry warnings; *edit, renew, upgrade: not built* | 🟡 | 6.3 | 4 |
-| **SAFETY** | Safety notices | admin resolves notices, a concern can be raised in the service; *raising from a screen: not built* | 🟡 | 6.3, R7.1, R7.2 | 10 |
+| **SAFETY** | Safety notices | either side of an accepted or completed offer flags a concern; the admin resolves notices | ✅ | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
 | **MAINT** | Automatic checks | all six 6.6 checks run before every in-shell screen | ✅ | 6.6 | 12 |
 | **LISTING** | Post a listing (Route 1) | post surplus food, see and cancel your own listings | ✅ | 6.2 Stage 2A | 5 |
@@ -229,7 +229,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/dialog/ReinstateAccountDialogController.java` | reinstate | ACCOUNTS |
 | `controller/shared/dialog/ResolveSafetyDialogController.java` | dismiss or suspend from a safety notice | SAFETY |
 | `controller/shared/dialog/NoticeResolvedDialogController.java` | shows how a closed notice was resolved | SAFETY |
-| `controller/shared/dialog/FlagSafetyDialogController.java` | flag a concern (opens and closes only) | SAFETY |
+| `controller/shared/dialog/FlagSafetyDialogController.java` | flag a concern: Send raises it through `SafetyService.raise` | SAFETY |
 | `controller/shared/dialog/SetNewPasswordDialogController.java` | replace a temporary password or change a password | AUTH |
 | `controller/shared/dialog/ForgotPasswordDialogController.java` | email a temporary password | AUTH |
 | `controller/shared/dialog/UploadRenewalDialogController.java` | upload a renewal (opens and closes only) | PROFILE |
@@ -600,7 +600,7 @@ Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNo
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | **no screen yet** | SafetyServiceTest |
+| `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | FlagSafetyDialogController | SafetyServiceTest, ScreensTest |
 | `SafetyService.raiseOverdueReport` | the system flags a food group that owes a report (a notice with no raiser), once per handoff | ReportService | ReportServiceTest |
 | `OfferDao.isOnListing` | is the offer on a listing or a request (tells who the food group is) | SafetyService | ReportServiceTest |
 | `SafetyService.getNoticeRows` | every notice with both organization names, newest first | SafetyNoticesController | SafetyServiceTest |
@@ -646,7 +646,7 @@ flowchart LR
   SU --> TA[(account)]:::tbl
   LG --> TL[(status_change)]:::tbl
   NC --> NR[NoticeResolvedDialogController<br/>shows the result]:::ctrl
-  FD([Flag concern dialog<br/>not wired yet]):::planned -.-> RA{{SafetyService<br/>raise}}:::svc
+  FD([Flag concern dialog<br/>from My Listings, My Requests, My Offers]):::screen --> RA{{SafetyService<br/>raise}}:::svc
   RA --> OS[OfferDao<br/>findStatus<br/>findParties]:::dao --> TO
   RA --> IN[SafetyNoticeDao<br/>insert]:::dao --> TN
 ```
@@ -1056,9 +1056,8 @@ flowchart LR
 | Item | Why it exists | Decision |
 |---|---|---|
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
-| `SafetyService.raise` | built and tested; the Flag Concern dialog is not wired | keep: FLOWS.md module 10 |
-| `DialogController.showFlagSafetyConcernMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4 and 10 |
-| the placeholder dialogs (Flag Safety Concern, Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
+| `DialogController.showUpgradeBusinessDonorMode` | its screen is not built, so no caller | keep: module 4 |
+| the placeholder dialogs (Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
 | placeholder controllers `DonorDashboardController`, `FoodGroupDashboardController`, `HistoryController` | dashboards and History still show sample data | each becomes real with HISTORY |
 
 ## 7. Reference D: screens
