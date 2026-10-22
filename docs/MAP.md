@@ -347,7 +347,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
 | `model/PostTest.java` | the words a message uses for a listing and a request | LISTING, REQUEST |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
-| `controller/FirstLoginTest.java` | a temporary password opens the Set a new password dialog, and going back does not open the app (R1.7) | AUTH |
+| `controller/FirstLoginTest.java` | a temporary password opens the Set a new password dialog; going back logs out; the shell will not open until it is replaced (R1.7) | AUTH |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
 | `controller/ScreenTestBase.java` | what the screen tests share: load a real screen, read its labels and buttons | TESTS |
 | `controller/BoardScreensTest.java` | the boards, My Listings and My Requests, and photos on the cards load, show service data and call the services | LISTING, REQUEST, ACCEPT, HANDOFF |
@@ -1021,7 +1021,7 @@ flowchart LR
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `Navigator.init` | gives Navigator the window's scene and wires every `nav-*` button | Main | ShellMaintenanceTest |
-| `Navigator.show` | shows a screen: a window screen replaces the scene, an in-shell one fills the content area | most controllers | ShellMaintenanceTest |
+| `Navigator.show` | shows a screen: a window screen replaces the scene, an in-shell one fills the content area; refuses the app and returns to Login while the password is still temporary (R1.7) | most controllers | ShellMaintenanceTest, FirstLoginTest |
 | `Navigator.setContent` | tells Navigator where in-shell screens go | ShellController | ShellMaintenanceTest |
 | `Navigator.setScreenListener` | lets the sidebar refresh its highlight after each navigation | ShellController | none |
 | `Navigator.sidebarScreenFor` | which sidebar button a detail screen highlights | ShellController | none |

@@ -31,6 +31,14 @@ public class SetNewPasswordDialogController extends DialogCard {
         confirmPasswordField.clear();
     }
 
+    /** R1.7: going back from the first-login dialog ends the half-started session, so the app stays closed. */
+    @Override
+    @FXML
+    protected void handleCancel() {
+        if (authenticationService.mustChangePassword()) authenticationService.logout();
+        close();
+    }
+
     // PATTERN:ACTION confirms setting new password
     @FXML
     private void handleConfirmSetNewPassword() {

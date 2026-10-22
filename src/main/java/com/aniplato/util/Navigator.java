@@ -142,6 +142,11 @@ public final class Navigator {
     }
 
     public static void show(Screen screen) {
+        if (Session.isLoggedIn() && Session.current().mustChangePassword && (screen == Screen.SHELL || screen.kind == Kind.IN_SHELL)) {
+            Session.clear();                      // R1.7: until the temporary password is replaced, the app stays closed
+            show(Screen.LOGIN);
+            return;
+        }
         if (screen == Screen.SHELL) {             // "open the app": the logged-in role's dashboard inside the shell
             show(dashboardFor(currentRole()));
             return;

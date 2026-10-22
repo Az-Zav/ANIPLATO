@@ -1,11 +1,11 @@
 package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.service.AuthenticationService;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.Fx;
 import com.aniplato.support.TestDb;
 import com.aniplato.util.Navigator;
+import com.aniplato.util.Session;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -14,12 +14,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,13 +87,39 @@ class FirstLoginTest extends DbTest {
     }
 
     @Test
-    void goingBackFromTheDialogDoesNotOpenTheApp() {
+    void goingBackFromTheDialogDoesNotOpenTheAppAndEndsTheSession() {
         Parent login = loginScreenFilledIn();
         click(login, "Log In");
+        assertTrue(Session.isLoggedIn(), "the login itself succeeded");
 
         click(login, "← Back");
 
         assertSame(login, Fx.call(() -> login.getScene().getRoot()), "still on the login screen");
-        assertTrue(new AuthenticationService().mustChangePassword(), "the account is still on its temporary password");
+        assertFalse(Session.isLoggedIn(), "nobody is half logged in");
+    }
+
+    @Test
+    void theShellRefusesToOpenWhileThePasswordIsStillTemporary() {
+        TestDb.exec("UPDATE account SET must_change_password = TRUE WHERE email = ?", GROUP);
+        loginAs(GROUP);
+        Fx.run(() -> Navigator.init(new Scene(new StackPane(), 1280, 720)));
+
+        Fx.run(() -> Navigator.show(Navigator.Screen.SHELL));
+        assertFalse(Session.isLoggedIn());
+        assertEquals(Navigator.Screen.LOGIN, Navigator.currentScreen());
+
+        loginAs(GROUP);
+        Fx.run(() -> Navigator.show(Navigator.Screen.PROFILE));
+        assertFalse(Session.isLoggedIn(), "a screen inside the shell is refused too");
+        assertEquals(Navigator.Screen.LOGIN, Navigator.currentScreen());
+    }
+
+    @Test
+    void anAccountWithItsOwnPasswordOpensTheAppNormally() {
+        loginAs(GROUP);
+        Fx.run(() -> Navigator.init(new Scene(new StackPane(), 1280, 720)));
+        Fx.run(() -> Navigator.show(Navigator.Screen.PROFILE));
+        assertTrue(Session.isLoggedIn());
+        assertEquals(Navigator.Screen.PROFILE, Navigator.currentScreen());
     }
 }
