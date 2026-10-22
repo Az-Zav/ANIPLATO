@@ -1,8 +1,43 @@
 # Cleanup report
 
-Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
+Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**; round 4 (the last features) is 6 more after **`cleanup-round-3`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
 
 **To undo everything:** `git checkout pre-cleanup`. **To undo one step:** `git revert <commit>` using the table below.
+
+## Round 4: sidebar counts, flag a concern, dashboards, History, profile and the demo
+
+New work again. One commit per step, the full suite green before each, no attribution lines. Tags: **`cleanup-round-3`** is the code before this round, **`cleanup-round-4`** the code after it. **To undo the round:** `git checkout cleanup-round-3`.
+
+| # | Commit | Step | Behavior |
+|---|---|---|---|
+| A | 07c6de7 | Sidebar counts (donor: offers waiting on My Listings; food group: accepted handoffs on My Offers); the food group sidebar has Figma V2's seven items, with New Request | new |
+| B | 72bf316 | "Flag a concern" on accepted and completed offers; the Release and Receipt dialogs' link opens the same dialog; it calls `SafetyService.raise` | new |
+| C | e75ef36 | Donor and food group dashboards (cards, banners, tables) and History (all-time cards, period, tabs, search, report column, record link) | new; sample rows gone |
+| D | 4151bb2 | Edit contact, upload a renewal, Casual-to-Business upgrade; a verified renewal ends a "Document expired" suspension (spec 6.3); "Review renewal" on All Accounts | new |
+| E | bc51068 | `sql/seed-demo.sql` and sample photos (`setup-db -Demo`), photo thumbnails on the cards, the README demo script | new |
+| F | this commit | This report, `FLOWS.md` and `AGENTS.md` status | docs only |
+
+**Tests:** 276 run, 0 failed, 0 skipped (226 before the round). New: `ShellBadgeTest`, `DashboardServiceTest`, `HistoryServiceTest`, `RenewalTest`, `ProfileServiceTest`, `DemoSeedTest`, and more cases in `ScreensTest`. `DialogControllerTest` now expects 17 dialogs, and its old test that clicked the placeholder upgrade buttons was replaced (the buttons open the system file explorer now).
+
+**Spec deviations to know about** (each exists to keep a file under 300 lines)
+- Dashboards are `DashboardService` and History is `HistoryService` with `HistoryDao`; spec 7.3 puts History in `StatsService`.
+- Contact edit and the upgrade are `ProfileService`; spec 7.3 puts them in `RegistrationService`, which is at 298 lines. The offers' sidebar counting moved into `SidebarBadges`.
+- A 17th dialog, "Edit contact" (the profile had a link but no dialog).
+
+**Things found while building, and what was done**
+- The logged-in account never holds the phone number (A7), so the upgrade reads the owner's own number through `AccountDao.findContactPhone`; the edit form prefills the same way.
+- The review screen shows the first two files of a registration. For an approved registration it now shows the newest file of each type, so the admin verifies the renewal, not the old file.
+- `Navigator.sidebarScreenFor` no longer maps New Request to My Requests, because New Request has its own sidebar item now.
+- The `Alert` record was renamed `Banner`: `ArchitectureTest` refuses the word outside the dialogs, which is the right rule.
+- `DocumentDao.insert` now returns the new id (callers that ignored it are unchanged); `AccountRow` gained `registrationId` and `renewalToReview`.
+
+**Not done**
+- The AI assistant panel is still the stub (a stretch in the spec).
+- Offers Received has no sidebar item, as in the design: it opens from My Requests.
+- The audit cleanup items from before round 3 are still deferred, and `AuthenticationService.mustChangePassword` is still the open deletion question.
+- Still unknown, so nothing depends on them: the finals date and person-days, module owners, and who hosts the shared database, uploads and SMTP.
+
+**Check by hand after pulling** (the tests load the screens and fire a few buttons; nothing drives a whole flow, and nothing opens the file explorer): on a **scratch** database run `setup-db.bat -Demo` (it drops and recreates `aniplato`), then follow the demo script in the README for each role. Also upload a real renewal and an upgrade through the dialogs.
 
 ## Round 3: posting, offers, handoff, report and the checks
 

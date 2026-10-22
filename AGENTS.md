@@ -53,7 +53,7 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 - The uploads folder is `uploads.dir` in `db.properties` (default `uploads/`); open stored files with `FileStorageService.resolve`, never `new File("uploads", …)`.
 
 ## Status
-Modules 1 to 3 and 5 to 10 and 12 are built (see `docs/MAP.md`). Left: module 4 (profile edit, renewals, upgrade), module 11 (dashboards, History) and module 13 (polish), plus the sidebar badges and the Flag Concern dialog.
+Every module of `docs/FLOWS.md` is built (see `docs/MAP.md`) except the AI assistant, which is a stretch in the spec. `setup-db -Demo` loads the demo story; the README has the demo script. What remains is review, polish and the open questions in `docs/CLEANUP-REPORT.md`.
 
 ## Ownership (write the names; one owner per slice)
 | Slice (FLOWS.md modules) | Owner |

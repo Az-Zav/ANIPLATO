@@ -50,16 +50,16 @@ Each module wires screens that already exist in FXML to the call chains below (t
 | 1 | **Login** (in progress) | login, Set New Password dialog, shell, logout | done; fix issues found in click-through | 1, 11 | none |
 | 2 | **Registration** | register, register-step2, register-submitted | wire `checkDetails`, `submit`, `cities`; real city list, file picker, expiry dates, consent, Received email | 2 | 1 |
 | 3 | **Admin review** | pending-registrations, review-registration, approve/reject dialogs | `RegistrationService`: `listPending`, `getForReview`, `verifyDocument`, `approve`, `reject`; new DAO methods; document preview | 2 | 2 |
-| 4 | **Profile, accounts** | profile, accounts, suspend/reinstate/renewal/upgrade dialogs | `updateProfile`, `uploadRenewal`, `submitUpgrade`, `suspend`, `reinstate`, `listAccounts` | 8 | 3 |
+| 4 | **Profile, accounts** (built in round 4; the upgrade and edit are in `ProfileService`) | profile, accounts, suspend/reinstate/renewal/upgrade dialogs | `updateProfile`, `uploadRenewal`, `submitUpgrade`, `suspend`, `reinstate`, `listAccounts` | 8 | 3 |
 | 5 | **Post a listing** (built in round 3) | new-listing, my-listings, cancel dialog | `Post`/`FoodDetail`/`Photo` models, `PostService`, `PostDao`, `DetailDao`, `PhotoDao` | 3a | 4 |
 | 6 | **Browse and offer** (built in round 3) | browse-listings (food group), make-offer, my-offers (shared) | `OfferService.sendListingOffer`, `withdraw`, `listMine`; rewrite `OfferDao` | 4 | 5 |
 | 7 | **Accept offer** (built in round 3) | incoming-offers, accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
 | 8 | **Handoff** (built in round 3) | confirm release/receipt dialogs, handoff-record, history | `confirmRelease`, `confirmReceipt`, `buildHandoffRecord`, `cancelPost` | 6 | 7 |
 | 9 | **Requests (Route 2)** (built in round 3) | new-listing as request, browse-request (donor), donor make-offer, `[FE]` my-requests, `[FE]` offers-received | `createRequest`, `sendRequestOffer`, `UseDetail`; reuses modules 5 to 8 | 3b, 4 | 8 |
 | 10 | **Report and safety** (built in round 3 (the Flag Concern dialog is not wired)) | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; let `SafetyNoticeDao.insert` take a notice with no raiser (the overdue kind) | 7 | 8 |
-| 11 | **Dashboards, history, reports** | three dashboards, history, admin reports | `StatsService`; all values derived (A9) | 9 | 8, 10 |
+| 11 | **Dashboards, history, reports** (built in round 4; `DashboardService`, `HistoryService`) | three dashboards, history, admin reports | `StatsService`; all values derived (A9) | 9 | 8, 10 |
 | 12 | **Maintenance** (built in round 3) | all screens (runs on screen load) | rewrite `MaintenanceService`, re-attach to the shell | 10 | 5 to 10 |
-| 13 | **Seed and polish** | whole app | demo seed, README, AI chat (stretch) | 12 | all |
+| 13 | **Seed and polish** (built in round 4 except the AI chat stretch) | whole app | demo seed, README, AI chat (stretch) | 12 | all |
 
 **Per-module loop**
 1. Read the Figma frame text and the FXML `fx:id`s.
@@ -357,7 +357,7 @@ Built and attached (MAP.md, MAINT). Each module below adds exactly one line to `
 | 6 | `accountStatusService.suspendAccountsWithExpiredDocuments` | built |
 
 ## 11. Shell, navigation, logout: A5
-Built (MAP.md, SHELL). Add sidebar entries (Browse requests, New request, My offers) as modules 5 and 6 land.
+Built (MAP.md, SHELL). The sidebar matches Figma V2 for both roles and shows the donor's and food group's counts.
 
 ## 12. Demo data and finish
 `sql/seed.sql` (one full loop per route, one expired post, one suspended account, per Spec section 5 Demo); README. The AI assistant (spec stretch) has Figma frames but stays out of this plan until everything above works. The donor Suspended restricted view is part of module 11.
