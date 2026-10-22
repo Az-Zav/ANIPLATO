@@ -49,9 +49,4 @@ public class Post {
     public String noun() {
         return isListing() ? "listing" : "request";
     }
-
-    /** The time this post stops being useful: the listing's use-by or the request's needed-by (6.6). */
-    public LocalDateTime deadline() {
-        return isListing() ? food.useBy : use.dueAt;
-    }
 }

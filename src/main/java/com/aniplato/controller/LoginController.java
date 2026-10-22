@@ -2,7 +2,6 @@ package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
@@ -40,8 +39,8 @@ public class LoginController {
     private void handleLogin() {
         hideError();
         try {
-            Account account = authenticationService.login(emailField.getText(), passwordField.getText());
-            if (account.mustChangePassword) {
+            authenticationService.login(emailField.getText(), passwordField.getText());
+            if (authenticationService.mustChangePassword()) {
                 // R1.7: nothing else is reachable until the temporary password is replaced
                 dialog.setVisible(true);
                 dialog.setManaged(true);

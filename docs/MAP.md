@@ -347,6 +347,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
 | `model/PostTest.java` | the words a message uses for a listing and a request | LISTING, REQUEST |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
+| `controller/FirstLoginTest.java` | a temporary password opens the Set a new password dialog, and going back does not open the app (R1.7) | AUTH |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
 | `controller/ScreenTestBase.java` | what the screen tests share: load a real screen, read its labels and buttons | TESTS |
 | `controller/BoardScreensTest.java` | the boards, My Listings and My Requests, and photos on the cards load, show service data and call the services | LISTING, REQUEST, ACCEPT, HANDOFF |
@@ -396,7 +397,7 @@ Files: `service/AuthenticationService.java`, `controller/LoginController.java`, 
 |---|---|---|---|
 | `AuthenticationService.login` | checks email and password, starts the session; a Suspended account can log in | LoginController | AuthenticationServiceTest |
 | `AuthenticationService.logout` | clears the session | ShellController | AuthenticationServiceTest |
-| `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
+| `AuthenticationService.mustChangePassword` | is the signed-in account still on its temporary password (R1.7) | LoginController | AuthenticationServiceTest, FirstLoginTest |
 | `AuthenticationService.changePassword` | new password: 8+ characters, different, confirmed | SetNewPasswordDialogController | AuthenticationServiceTest |
 | `AuthenticationService.requestPasswordReset` | emails a temporary password, replaces the password only after the email is sent | ForgotPasswordDialogController | AuthenticationServiceTest |
 | `AuthenticationService.generateTemporaryPassword` | 12 random characters without look-alikes | RegistrationService (approve) | AuthenticationServiceTest |
@@ -1109,9 +1110,8 @@ flowchart LR
 | `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | BoardScreensTest |
 | `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, IncomingOfferRows, MyPostRows | AcceptanceServiceTest |
 | `Post.label` | the post status's name on screen (on the status enum) | PostCards | BoardScreensTest |
-| `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest, PostTest |
+| `Post.isListing` | is this a listing (not a request) | PostCards, Post.noun | PostServiceTest, PostTest |
 | `Post.noun` | "listing" or "request" for a message | AcceptanceService, OfferService | PostTest |
-| `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
 | `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | BoardScreensTest |
 | `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |
 | `FoodDetail.column` | the value stored in the allergens SET column | DetailDao | PostServiceTest |
@@ -1122,7 +1122,7 @@ flowchart LR
 
 | Item | Why it exists | Decision |
 |---|---|---|
-| `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
+| _none at the end of round 5_ | | |
 
 ## 7. Reference D: screens
 
