@@ -10,8 +10,9 @@ public class ReinstateAccountDialogController extends DialogCard {
 
     private Runnable onReinstate;
 
-    public void show(String orgName, String details) {
-        onReinstate = null;
+    /** Reinstate: {@code onConfirm} runs the service call. */
+    public void show(String orgName, String details, Runnable onConfirm) {
+        onReinstate = onConfirm;
         open();
         if (details != null && !details.isEmpty()) {
             reinstateDescriptionLabel.setText(orgName + " gets full access again. " + details);
@@ -20,19 +21,9 @@ public class ReinstateAccountDialogController extends DialogCard {
         }
     }
 
-    /** Reinstate with a real action. */
-    public void show(String orgName, String details, Runnable onConfirm) {
-        show(orgName, details);
-        onReinstate = onConfirm;
-    }
-
     // PATTERN:ACTION confirms account reinstatement
     @FXML
     private void handleConfirmReinstate() {
-        if (onReinstate != null) {
-            confirm(onReinstate);
-            return;
-        }
-        close();
+        confirm(onReinstate);
     }
 }

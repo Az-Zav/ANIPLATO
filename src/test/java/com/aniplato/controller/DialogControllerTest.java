@@ -1,6 +1,7 @@
 package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Document;
 import com.aniplato.support.Fx;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,7 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DialogControllerTest {
 
     private static final String FXML = "/com/aniplato/view/shared/dialog.fxml";
+
+    private static final Runnable NOOP = () -> { };
+    private static final Consumer<String> IGNORE = text -> { };
 
     private Parent root;
     private DialogController dialogs;
@@ -159,7 +165,7 @@ class DialogControllerTest {
 
     @Test
     void suspendShowsTheOrganizationAndAnEmptyReason() {
-        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery"));
+        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery", IGNORE));
         Node card = onlyShownCard();
         assertTrue(textIn(card).contains("Sunrise Bakery can still log in"));
         assertEquals("", all(card, TextArea.class).get(0).getText());
@@ -167,29 +173,29 @@ class DialogControllerTest {
 
     @Test
     void reinstateMentionsTheDetailsOnlyWhenThereAreSome() {
-        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "Documents are current."));
+        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "Documents are current.", NOOP));
         assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery gets full access again. Documents are current."));
-        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", ""));
+        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "", NOOP));
         assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery gets full access again.\n"));
     }
 
     @Test
     void resolveSafetyNoticeShowsWhoFlaggedWhat() {
-        fx(() -> dialogs.showResolveSafetyNoticeMode("Kapwa Kitchen", "Oct 21", "Moldy bread", "Sunrise Bakery"));
+        fx(() -> dialogs.showResolveSafetyNoticeMode("Kapwa Kitchen", "Oct 21", "Moldy bread", "Sunrise Bakery", IGNORE, IGNORE));
         assertTrue(textIn(onlyShownCard()).contains("Flagged by Kapwa Kitchen on Oct 21: \"Moldy bread\" Close it as dismissed, or suspend Sunrise Bakery."));
     }
 
     @Test
     void cancelListingNamesTheRecipientOnlyWhenThereIsOne() {
-        fx(() -> dialogs.showCancelListingMode("Day-old bread", "Kapwa Kitchen"));
+        fx(() -> dialogs.showCancelListingMode("Day-old bread", "Kapwa Kitchen", IGNORE));
         assertTrue(textIn(onlyShownCard()).contains("Day-old bread leaves the board. Kapwa Kitchen’s accepted offer is cancelled with it"));
-        fx(() -> dialogs.showCancelListingMode("Day-old bread", null));
+        fx(() -> dialogs.showCancelListingMode("Day-old bread", null, IGNORE));
         assertTrue(textIn(onlyShownCard()).contains("Day-old bread leaves the board and its listing is cancelled."));
     }
 
     @Test
     void confirmReleaseFillsTheHandoffAndTicksTheChecks() {
-        fx(() -> dialogs.showConfirmReleaseMode("Bread", "12.5 kg", "Kapwa Kitchen", "Oct 22, 9 AM", "0917 123 4567"));
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "12.5 kg", "Kapwa Kitchen", "Oct 22, 9 AM", "0917 123 4567", 1, NOOP));
         Node card = onlyShownCard();
         String text = textIn(card);
         for (String expected : List.of("Bread", "12.5 kg", "Kapwa Kitchen", "Oct 22, 9 AM", "0917 123 4567",
@@ -201,29 +207,29 @@ class DialogControllerTest {
 
     @Test
     void confirmReceiptMentionsTheReleaseTimeOnlyWhenKnown() {
-        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", "9:05 AM"));
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", "9:05 AM", 1, NOOP));
         Node card = onlyShownCard();
         assertTrue(textIn(card).contains("Sunrise Bakery confirmed release at 9:05 AM. Confirming receipt marks this listing Rescued."));
         assertTrue(all(card, CheckBox.class).stream().allMatch(CheckBox::isSelected));
-        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", null));
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", null, 1, NOOP));
         assertTrue(textIn(onlyShownCard()).contains("Confirming receipt marks this listing Rescued."));
     }
 
     @Test
     void acceptOfferCountsTheOtherOffers() {
-        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 1));
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 1, NOOP));
         assertTrue(textIn(onlyShownCard()).contains("Kapwa Kitchen picks up the full 12.5 kg Oct 22 at 9 AM. The other 1 offer is declined automatically."));
-        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 3));
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 3, NOOP));
         assertTrue(textIn(onlyShownCard()).contains("The other 3 offers are declined automatically."));
-        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 0));
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 0, NOOP));
         assertFalse(textIn(onlyShownCard()).contains("declined automatically"));
     }
 
     @Test
     void uploadRenewalNamesTheDocumentAndStartsEmpty() {
-        fx(() -> dialogs.showUploadRenewalMode("Mayor's Permit"));
+        fx(() -> dialogs.showUploadRenewalMode(Document.Type.MAYORS_PERMIT, NOOP));
         Node card = onlyShownCard();
-        assertTrue(textIn(card).contains("Upload renewal: Mayor's Permit"));
+        assertTrue(textIn(card).contains("Upload renewal: " + Document.Type.MAYORS_PERMIT.label()));
         assertTrue(textIn(card).contains("No file chosen"));
     }
 
@@ -248,7 +254,7 @@ class DialogControllerTest {
 
     @Test
     void withdrawOfferNamesTheDonor() {
-        fx(() -> dialogs.showWithdrawOfferMode("Sunrise Bakery"));
+        fx(() -> dialogs.showWithdrawOfferMode("Sunrise Bakery", NOOP));
         assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery won’t see this offer anymore."));
     }
 
@@ -262,7 +268,7 @@ class DialogControllerTest {
 
     @Test
     void upgradeToBusinessDonorStartsWithNoFilesChosen() {
-        fx(() -> dialogs.showUpgradeBusinessDonorMode());
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
         String text = textIn(onlyShownCard());
         assertEquals(2, text.split("No file chosen", -1).length - 1, "one per permit");
     }
@@ -288,7 +294,7 @@ class DialogControllerTest {
     @Test
     void theUpgradeDialogOpensWithNoFilesChosenAndNoConsent() {
         // the upload buttons open the system file explorer, which a test cannot answer, so they are not fired here
-        fx(() -> dialogs.showUpgradeBusinessDonorMode(() -> { }));
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
         Node card = onlyShownCard();
         assertEquals(2, textIn(card).split("No file chosen", -1).length - 1, "both permits show no file");
         assertTrue(all(card, CheckBox.class).stream().noneMatch(CheckBox::isSelected), "the consent starts unticked");
@@ -297,7 +303,7 @@ class DialogControllerTest {
 
     @Test
     void flagSafetyConcernStartsEmpty() {
-        fx(() -> dialogs.showFlagSafetyConcernMode());
+        fx(() -> dialogs.showFlagSafetyConcernMode(1));
         assertEquals("", all(onlyShownCard(), TextArea.class).get(0).getText());
     }
 
@@ -318,62 +324,56 @@ class DialogControllerTest {
         click(onlyShownCard(), "← Back");
         assertAllClosed();
 
-        fx(() -> dialogs.showSuspendAccountMode("A"));
+        fx(() -> dialogs.showSuspendAccountMode("A", IGNORE));
         click(onlyShownCard(), "← Back");
         assertAllClosed();
 
-        fx(() -> dialogs.showUpgradeBusinessDonorMode());
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
         click(onlyShownCard(), "← Back");
         assertAllClosed();
     }
 
     @Test
     void theSafetyLinkOnReleaseAndReceiptOpensTheFlagConcernDialog() {
-        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C"));
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C", 1, NOOP));
         Node release = onlyShownCard();
         fx(() -> all(release, Hyperlink.class).get(0).fire());
         assertEquals(1, all(onlyShownCard(), TextArea.class).size());
         assertTrue(textIn(onlyShownCard()).contains("Send to admin"));
 
-        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null));
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null, 1, NOOP));
         Node receipt = onlyShownCard();
         fx(() -> all(receipt, Hyperlink.class).get(0).fire());
         assertTrue(textIn(onlyShownCard()).contains("Send to admin"));
     }
 
     @Test
-    void dialogsWithoutAnActionJustClose() {
-        fx(() -> dialogs.showCancelListingMode("Bread", null));
+    void eachConfirmButtonRunsItsActionOnceAndCloses() {
+        AtomicInteger runs = new AtomicInteger();
+        Runnable count = runs::incrementAndGet;
+        Consumer<String> countReason = reason -> runs.incrementAndGet();
+
+        fx(() -> dialogs.showCancelListingMode("Bread", null, countReason));
         click(onlyShownCard(), "✕ Cancel listing");
         assertAllClosed();
 
-        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C"));
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C", 1, count));
         click(onlyShownCard(), "Confirm Release");
         assertAllClosed();
 
-        fx(() -> dialogs.showFlagSafetyConcernMode());
-        click(onlyShownCard(), "Send to admin");
-        assertAllClosed();
-
-        fx(() -> dialogs.showAcceptOfferMode("G", "1 kg", "now", 0));
+        fx(() -> dialogs.showAcceptOfferMode("G", "1 kg", "now", 0, count));
         click(onlyShownCard(), "Accept offer");
         assertAllClosed();
 
-        fx(() -> dialogs.showWithdrawOfferMode("D"));
+        fx(() -> dialogs.showWithdrawOfferMode("D", count));
         click(onlyShownCard(), "✕ Withdraw");
         assertAllClosed();
 
-        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null));
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null, 1, count));
         click(onlyShownCard(), "Confirm Receipt");
         assertAllClosed();
 
-        fx(() -> dialogs.showUploadRenewalMode("Permit"));
-        click(onlyShownCard(), "Submit for review");
-        assertAllClosed();
-
-        fx(() -> dialogs.showUpgradeBusinessDonorMode());
-        click(onlyShownCard(), "Submit for review");
-        assertAllClosed();
+        assertEquals(5, runs.get(), "each action ran exactly once");
     }
 
     //---ADMIN CALLBACKS---
@@ -390,28 +390,12 @@ class DialogControllerTest {
     }
 
     @Test
-    void suspendWithoutACallbackJustCloses() {
-        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery"));
-        click(onlyShownCard(), "✕ Suspend");
-        assertAllClosed();
-    }
-
-    @Test
     void reinstateRunsTheCallbackAndCloses() {
         AtomicReference<Boolean> ran = new AtomicReference<>(false);
         fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "", () -> ran.set(true)));
         click(onlyShownCard(), "Reinstate");
         assertTrue(ran.get());
         assertAllClosed();
-    }
-
-    @Test
-    void aCallbackIsForgottenWhenTheDialogIsOpenedAgainWithoutOne() {
-        AtomicReference<String> reason = new AtomicReference<>();
-        fx(() -> dialogs.showSuspendAccountMode("A", reason::set));
-        fx(() -> dialogs.showSuspendAccountMode("B"));
-        click(onlyShownCard(), "✕ Suspend");
-        assertNull(reason.get());
     }
 
     @Test
@@ -431,13 +415,6 @@ class DialogControllerTest {
         fx(() -> all(again, TextArea.class).get(0).setText("Unsafe"));
         click(again, "Suspend account");
         assertEquals("Unsafe", suspended.get());
-        assertAllClosed();
-    }
-
-    @Test
-    void resolveSafetyNoticeWithoutCallbacksJustCloses() {
-        fx(() -> dialogs.showResolveSafetyNoticeMode("G", "Oct 21", "Moldy", "Sunrise"));
-        click(onlyShownCard(), "Dismiss");
         assertAllClosed();
     }
 }

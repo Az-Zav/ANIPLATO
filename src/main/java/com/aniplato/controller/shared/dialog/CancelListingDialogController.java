@@ -14,8 +14,9 @@ public class CancelListingDialogController extends DialogCard {
 
     private Consumer<String> onCancel;   // gets the reason typed in the dialog
 
-    public void show(String listingTitle, String recipientName) {
-        onCancel = null;
+    /** Cancel: {@code onConfirm} gets the reason. */
+    public void show(String listingTitle, String recipientName, Consumer<String> onConfirm) {
+        onCancel = onConfirm;
         open();
         if (recipientName != null && !recipientName.isEmpty()) {
             cancelListingDescriptionLabel.setText(listingTitle + " leaves the board. " + recipientName + "’s accepted offer is cancelled with it, and they see your reason.");
@@ -25,19 +26,9 @@ public class CancelListingDialogController extends DialogCard {
         cancelListingReasonTextArea.clear();
     }
 
-    /** Cancel with a real action: {@code onConfirm} gets the reason. */
-    public void show(String listingTitle, String recipientName, Consumer<String> onConfirm) {
-        show(listingTitle, recipientName);
-        onCancel = onConfirm;
-    }
-
     // PATTERN:ACTION confirms listing cancellation
     @FXML
     private void handleConfirmCancelListing() {
-        if (onCancel != null) {
-            confirm(() -> onCancel.accept(cancelListingReasonTextArea.getText()));
-            return;
-        }
-        close();
+        confirm(() -> onCancel.accept(cancelListingReasonTextArea.getText()));
     }
 }

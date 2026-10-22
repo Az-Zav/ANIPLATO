@@ -27,22 +27,10 @@ public class UpgradeBusinessDonorDialogController extends DialogCard {
     private File mayorPermit;
     private File sanitaryPermit;
     private Runnable onDone;
-    private boolean live;   // opened with a real action
-
-    public void show() {
-        live = false;
-        onDone = null;
-        reset();
-    }
 
     /** Opens the dialog; Submit sends the upgrade and then runs {@code onDone}. */
     public void show(Runnable onDone) {
-        live = true;
         this.onDone = onDone;
-        reset();
-    }
-
-    private void reset() {
         mayorPermit = null;
         sanitaryPermit = null;
         open();
@@ -79,16 +67,12 @@ public class UpgradeBusinessDonorDialogController extends DialogCard {
     // PATTERN:ACTION confirms upgrading to business donor
     @FXML
     private void handleConfirmUpgradeBusinessDonor() {
-        if (!live) {
-            close();
-            return;
-        }
         confirm(() -> {
             List<DocumentUpload> uploads = new ArrayList<>();
             if (mayorPermit != null) uploads.add(new DocumentUpload(Document.Type.MAYORS_PERMIT, mayorPermit, mayorPermitExpiryDatePicker.getValue(), false));
             if (sanitaryPermit != null) uploads.add(new DocumentUpload(Document.Type.SANITARY_PERMIT, sanitaryPermit, sanitaryPermitExpiryDatePicker.getValue(), false));
             profileService.submitUpgrade(uploads, consentCheck.isSelected());
-            if (onDone != null) onDone.run();
+            onDone.run();
         });
     }
 }

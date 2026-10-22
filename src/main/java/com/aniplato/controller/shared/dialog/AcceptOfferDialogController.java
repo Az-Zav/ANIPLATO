@@ -10,8 +10,9 @@ public class AcceptOfferDialogController extends DialogCard {
 
     private Runnable onAccept;
 
-    public void show(String groupName, String quantity, String pickupTime, int otherOffersCount) {
-        onAccept = null;
+    /** Accept: {@code onConfirm} runs the service call. */
+    public void show(String groupName, String quantity, String pickupTime, int otherOffersCount, Runnable onConfirm) {
+        onAccept = onConfirm;
         open();
 
         String otherOffersText = (otherOffersCount > 0)
@@ -24,19 +25,9 @@ public class AcceptOfferDialogController extends DialogCard {
         );
     }
 
-    /** Accept with a real action. */
-    public void show(String groupName, String quantity, String pickupTime, int otherOffersCount, Runnable onConfirm) {
-        show(groupName, quantity, pickupTime, otherOffersCount);
-        onAccept = onConfirm;
-    }
-
     // PATTERN:ACTION confirms accepting offer
     @FXML
     private void handleConfirmAcceptOffer() {
-        if (onAccept != null) {
-            confirm(onAccept);
-            return;
-        }
-        close();
+        confirm(onAccept);
     }
 }

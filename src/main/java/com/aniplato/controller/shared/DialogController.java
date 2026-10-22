@@ -132,61 +132,31 @@ public class DialogController implements DialogHost {
         approveController.show(registrationId, orgName, orgEmail);
     }
 
-    /** 3. Resolve Safety Notice */
-    public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg) {
-        resolveSafetyController.show(raisedBy, date, concern, flaggedOrg);
-    }
-
-    /** 3. Resolve Safety Notice, with real actions: each button's callback gets the admin note. */
+    /** 3. Resolve Safety Notice: each button's callback gets the admin note. */
     public void showResolveSafetyNoticeMode(String raisedBy, String date, String concern, String flaggedOrg,
                                             Consumer<String> onDismiss, Consumer<String> onSuspendAccount) {
         resolveSafetyController.show(raisedBy, date, concern, flaggedOrg, onDismiss, onSuspendAccount);
     }
 
-    /** 4. Suspend Acct */
-    public void showSuspendAccountMode(String orgName) {
-        suspendController.show(orgName);
-    }
-
-    /** 4. Suspend Acct, with a real action: {@code onConfirm} gets the reason. */
+    /** 4. Suspend Acct: {@code onConfirm} gets the reason. */
     public void showSuspendAccountMode(String orgName, Consumer<String> onConfirm) {
         suspendController.show(orgName, onConfirm);
     }
 
     /** 5. Reinstate Acct */
-    public void showReinstateAccountMode(String orgName, String details) {
-        reinstateController.show(orgName, details);
-    }
-
-    /** 5. Reinstate Acct, with a real action. */
     public void showReinstateAccountMode(String orgName, String details, Runnable onConfirm) {
         reinstateController.show(orgName, details, onConfirm);
     }
 
-    /** 6. Cancel Listing (Donor) */
-    public void showCancelListingMode(String listingTitle, String recipientName) {
-        cancelListingController.show(listingTitle, recipientName);
-    }
-
-    /** 6. Cancel Listing or Request, with a real action: {@code onConfirm} gets the reason. */
+    /** 6. Cancel Listing or Request: {@code onConfirm} gets the reason. */
     public void showCancelListingMode(String listingTitle, String recipientName, Consumer<String> onConfirm) {
         cancelListingController.show(listingTitle, recipientName, onConfirm);
     }
 
-    /** 7. Confirm Release (Donor), with a real action. */
+    /** 7. Confirm Release (Donor) */
     public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact, int offerId, Runnable onConfirm) {
         flagOfferId = offerId;
         confirmReleaseController.show(food, qty, group, pickup, contact, onConfirm);
-    }
-
-    /** 7. Confirm Release (Donor) */
-    public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact) {
-        confirmReleaseController.show(food, qty, group, pickup, contact);
-    }
-
-    /** 8. Flag Safety Concern */
-    public void showFlagSafetyConcernMode() {
-        flagSafetyController.show();
     }
 
     /** 8. Flag Safety Concern about one offer: Send raises the concern. */
@@ -195,17 +165,12 @@ public class DialogController implements DialogHost {
         flagSafetyController.show(offerId);
     }
 
-    /** 9. Accept Offer (Donor) */
-    public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount) {
-        acceptOfferController.show(groupName, quantity, pickupTime, otherOffersCount);
-    }
-
-    /** 9. Accept Offer, with a real action. */
+    /** 9. Accept Offer */
     public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount, Runnable onConfirm) {
         acceptOfferController.show(groupName, quantity, pickupTime, otherOffersCount, onConfirm);
     }
 
-    /** 10. Upload Renewal, with a real action: the file and date go to DocumentReviewService; {@code onDone} runs after it saved. */
+    /** 10. Upload Renewal: the file and date go to DocumentReviewService; {@code onDone} runs after it saved. */
     public void showUploadRenewalMode(Document.Type type, Runnable onDone) {
         uploadRenewalController.show(type, onDone);
     }
@@ -215,14 +180,9 @@ public class DialogController implements DialogHost {
         editContactController.show(contactPerson, contactPhone, onSaved);
     }
 
-    /** 15. Upgrade to Business Donor, with a real action; {@code onDone} runs after the upgrade was submitted. */
+    /** 15. Upgrade to Business Donor; {@code onDone} runs after the upgrade was submitted. */
     public void showUpgradeBusinessDonorMode(Runnable onDone) {
         upgradeBusinessDonorController.show(onDone);
-    }
-
-    /** 10. Upload Renewal */
-    public void showUploadRenewalMode(String documentName) {
-        uploadRenewalController.show(documentName);
     }
 
     /** 11. Set New Password; {@code currentPassword} is null when the user has to type it. */
@@ -231,34 +191,19 @@ public class DialogController implements DialogHost {
     }
 
     /** 12. Withdraw Offer (Food Group) */
-    public void showWithdrawOfferMode(String donorName) {
-        withdrawOfferController.show(donorName);
-    }
-
-    /** 12. Withdraw Offer, with a real action. */
     public void showWithdrawOfferMode(String posterName, Runnable onConfirm) {
         withdrawOfferController.show(posterName, onConfirm);
     }
 
-    /** 13. Confirm Receipt (Food Group), with a real action. */
+    /** 13. Confirm Receipt (Food Group) */
     public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime, int offerId, Runnable onConfirm) {
         flagOfferId = offerId;
         confirmReceiptController.show(food, qty, donor, pickup, contact, releaseTime, onConfirm);
     }
 
-    /** 13. Confirm Receipt (Food Group) */
-    public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime) {
-        confirmReceiptController.show(food, qty, donor, pickup, contact, releaseTime);
-    }
-
     /** 14. Forgot Password */
     public void showForgotPasswordMode(String email) {
         forgotPasswordController.show(email);
-    }
-
-    /** 15. Upgrade to Business Donor */
-    public void showUpgradeBusinessDonorMode() {
-        upgradeBusinessDonorController.show();
     }
 
     /** 16. A closed safety notice: how it was resolved ("Dismissed", "Account suspended") and the admin's note. */

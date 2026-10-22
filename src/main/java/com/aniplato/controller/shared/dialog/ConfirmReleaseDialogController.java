@@ -18,8 +18,9 @@ public class ConfirmReleaseDialogController extends DialogCard {
 
     private Runnable onRelease;
 
-    public void show(String food, String qty, String group, String pickup, String contact) {
-        onRelease = null;
+    /** Release: {@code onConfirm} runs the service call. */
+    public void show(String food, String qty, String group, String pickup, String contact, Runnable onConfirm) {
+        onRelease = onConfirm;
         open();
         releaseFoodLabel.setText(food);
         releaseQuantityLabel.setText(qty);
@@ -31,12 +32,6 @@ public class ConfirmReleaseDialogController extends DialogCard {
         releaseNoticeLabel.setText(group + " hasn’t confirmed receipt yet. The listing becomes Rescued once they do.");
     }
 
-    /** Release with a real action. */
-    public void show(String food, String qty, String group, String pickup, String contact, Runnable onConfirm) {
-        show(food, qty, group, pickup, contact);
-        onRelease = onConfirm;
-    }
-
     @FXML
     private void handleSwitchToFlagSafety() {
         openFlagSafetyConcern();
@@ -45,10 +40,6 @@ public class ConfirmReleaseDialogController extends DialogCard {
     // PATTERN:ACTION confirms food release
     @FXML
     private void handleConfirmRelease() {
-        if (onRelease != null) {
-            confirm(onRelease);
-            return;
-        }
-        close();
+        confirm(onRelease);
     }
 }

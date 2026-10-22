@@ -14,26 +14,17 @@ public class SuspendAccountDialogController extends DialogCard {
 
     private Consumer<String> onSuspend;   // gets the reason typed in the dialog
 
-    public void show(String orgName) {
-        onSuspend = null;
+    /** Suspend: {@code onConfirm} gets the reason. */
+    public void show(String orgName, Consumer<String> onConfirm) {
+        onSuspend = onConfirm;
         open();
         suspendDescriptionLabel.setText(orgName + " can still log in, upload renewals and finish handoffs it already accepted. It can’t post, re-post, offer or accept, and its listings are hidden from food groups, until you reinstate it.");
         suspendReasonTextArea.clear();
     }
 
-    /** Suspend with a real action: {@code onConfirm} gets the reason. */
-    public void show(String orgName, Consumer<String> onConfirm) {
-        show(orgName);
-        onSuspend = onConfirm;
-    }
-
     // PATTERN:ACTION confirms account suspension
     @FXML
     private void handleConfirmSuspend() {
-        if (onSuspend != null) {
-            confirm(() -> onSuspend.accept(suspendReasonTextArea.getText()));
-            return;
-        }
-        close();
+        confirm(() -> onSuspend.accept(suspendReasonTextArea.getText()));
     }
 }

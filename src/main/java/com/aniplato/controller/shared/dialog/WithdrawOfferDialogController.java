@@ -10,25 +10,16 @@ public class WithdrawOfferDialogController extends DialogCard {
 
     private Runnable onWithdraw;
 
-    public void show(String donorName) {
-        onWithdraw = null;
-        open();
-        withdrawOfferDescriptionLabel.setText(donorName + " won’t see this offer anymore. You can send a new one while the listing is still open.");
-    }
-
-    /** Withdraw with a real action. */
+    /** Withdraw: {@code onConfirm} runs the service call. */
     public void show(String posterName, Runnable onConfirm) {
-        show(posterName);
         onWithdraw = onConfirm;
+        open();
+        withdrawOfferDescriptionLabel.setText(posterName + " won’t see this offer anymore. You can send a new one while the listing is still open.");
     }
 
     // PATTERN:ACTION confirms withdrawing offer
     @FXML
     private void handleConfirmWithdrawOffer() {
-        if (onWithdraw != null) {
-            confirm(onWithdraw);
-            return;
-        }
-        close();
+        confirm(onWithdraw);
     }
 }

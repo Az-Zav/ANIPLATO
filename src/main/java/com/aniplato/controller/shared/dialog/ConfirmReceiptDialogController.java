@@ -18,8 +18,9 @@ public class ConfirmReceiptDialogController extends DialogCard {
 
     private Runnable onReceipt;
 
-    public void show(String food, String qty, String donor, String pickup, String contact, String releaseTime) {
-        onReceipt = null;
+    /** Receipt: {@code onConfirm} runs the service call. */
+    public void show(String food, String qty, String donor, String pickup, String contact, String releaseTime, Runnable onConfirm) {
+        onReceipt = onConfirm;
         open();
         receiptFoodLabel.setText(food);
         receiptQuantityLabel.setText(qty);
@@ -36,12 +37,6 @@ public class ConfirmReceiptDialogController extends DialogCard {
         }
     }
 
-    /** Receipt with a real action. */
-    public void show(String food, String qty, String donor, String pickup, String contact, String releaseTime, Runnable onConfirm) {
-        show(food, qty, donor, pickup, contact, releaseTime);
-        onReceipt = onConfirm;
-    }
-
     @FXML
     private void handleSwitchToFlagSafety() {
         openFlagSafetyConcern();
@@ -50,10 +45,6 @@ public class ConfirmReceiptDialogController extends DialogCard {
     // PATTERN:ACTION confirms receiving food
     @FXML
     private void handleConfirmReceipt() {
-        if (onReceipt != null) {
-            confirm(onReceipt);
-            return;
-        }
-        close();
+        confirm(onReceipt);
     }
 }

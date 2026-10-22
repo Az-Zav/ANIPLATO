@@ -11,11 +11,7 @@ public class FlagSafetyDialogController extends DialogCard {
 
     @FXML private TextArea flagSafetyConcernTextArea;
 
-    private int offerId;   // 0 when the dialog is opened with no offer to flag
-
-    public void show() {
-        show(0);
-    }
+    private int offerId;
 
     /** Opens the dialog for one offer; Send raises the concern about its other side. */
     public void show(int offerId) {
@@ -27,10 +23,6 @@ public class FlagSafetyDialogController extends DialogCard {
     // PATTERN:ACTION confirms flagging safety concern
     @FXML
     private void handleConfirmFlagSafety() {
-        if (offerId == 0) {
-            close();
-            return;
-        }
         confirm(() -> safetyService.raise(offerId, flagSafetyConcernTextArea.getText()));
     }
 }

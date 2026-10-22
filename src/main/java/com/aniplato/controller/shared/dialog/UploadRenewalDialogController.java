@@ -24,11 +24,6 @@ public class UploadRenewalDialogController extends DialogCard {
     private File file;
     private Runnable onDone;
 
-    public void show(String documentName) {
-        type = null;
-        show(documentName, null);
-    }
-
     /** Opens the dialog for one document type; Submit saves the renewal and then runs {@code onDone}. */
     public void show(Document.Type type, Runnable onDone) {
         this.type = type;
@@ -64,13 +59,9 @@ public class UploadRenewalDialogController extends DialogCard {
     // PATTERN:ACTION confirms uploading renewal document
     @FXML
     private void handleConfirmUploadRenewal() {
-        if (type == null) {
-            close();
-            return;
-        }
         confirm(() -> {
             documentReviewService.uploadRenewal(type, file, newExpiryDatePicker.getValue(), noExpiryCheck.isSelected());
-            if (onDone != null) onDone.run();
+            onDone.run();
         });
     }
 }
