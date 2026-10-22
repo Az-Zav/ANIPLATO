@@ -33,20 +33,16 @@ public class AuthenticationService {
         if (isBlank(email) || isBlank(password)) {
             throw new RuleViolationException("Enter your email and password.");
         }
-        Account account;
-        String hash = null;
-        try (Connection c = Database.getConnection()) {
-            account = accountDao.findByEmail(c, email.trim());
-            if (account != null) hash = accountDao.findPasswordHash(c, account.id);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the account", e);
-        }
+        Credentials found = Database.read("Could not load the account", c -> {
+            Account account = accountDao.findByEmail(c, email.trim());
+            return new Credentials(account, account == null ? null : accountDao.findPasswordHash(c, account.id));
+        });
         // same message for both cases, so the screen does not reveal which emails have accounts
-        if (account == null || !PasswordHasher.matches(password, hash)) {
+        if (found.account() == null || !PasswordHasher.matches(password, found.hash())) {
             throw new RuleViolationException("Wrong email or password.");
         }
-        Session.start(account);
-        return account;
+        Session.start(found.account());
+        return found.account();
     }
 
     public void logout() {
@@ -95,12 +91,7 @@ public class AuthenticationService {
         if (isBlank(email)) {
             throw new RuleViolationException("Enter your email address.");
         }
-        Account account;
-        try (Connection c = Database.getConnection()) {
-            account = accountDao.findByEmail(c, email.trim());
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the account", e);
-        }
+        Account account = Database.read("Could not load the account", c -> accountDao.findByEmail(c, email.trim()));
         if (account == null) return;
 
         String temporaryPassword = generateTemporaryPassword();
@@ -123,12 +114,11 @@ public class AuthenticationService {
 
     /** The hash is read only when needed and never kept on the Account (see Account). */
     private String loadPasswordHash(int accountId) {
-        try (Connection c = Database.getConnection()) {
-            return accountDao.findPasswordHash(c, accountId);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the account", e);
-        }
+        return Database.read("Could not load the account", c -> accountDao.findPasswordHash(c, accountId));
     }
+
+    /** An account and its password hash, read together at login. */
+    private record Credentials(Account account, String hash) { }
 
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
