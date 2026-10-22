@@ -137,6 +137,24 @@ public class PostDao {
         return found.isEmpty() ? null : found.get(0);
     }
 
+    /** A post in any status, locked until the transaction ends, so two accepts or an accept and a cancel cannot overlap. */
+    public Post findForUpdate(Connection c, int postId) throws SQLException {
+        List<Post> found = query(c, POST_SELECT + "WHERE p.post_id = ? FOR UPDATE", postId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /** Changes the status only if the post is still in the expected one. Returns rows changed. */
+    public int updateStatusIf(Connection c, int postId, Post.Status from, Post.Status to, String cancelReason) throws SQLException {
+        String sql = "UPDATE post SET status = ?, cancel_reason = COALESCE(?, cancel_reason) WHERE post_id = ? AND status = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, to.name());
+            ps.setString(2, cancelReason);
+            ps.setInt(3, postId);
+            ps.setString(4, from.name());
+            return ps.executeUpdate();
+        }
+    }
+
     /** An Open post from an Active poster, locked until the transaction ends so an accept cannot slip in between a check and a write. */
     public Post findOpenForUpdate(Connection c, int postId) throws SQLException {
         List<Post> found = query(c, POST_SELECT + "WHERE p.post_id = ? AND p.status = 'OPEN' AND a.status = 'ACTIVE' FOR UPDATE", postId);

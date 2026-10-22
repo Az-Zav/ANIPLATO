@@ -167,6 +167,18 @@ public class PostService {
         });
     }
 
+    //---STATUS---
+
+    /**
+     * Moves a post from one status to the next, only if it is still in the first, and writes the log (A3). This is the
+     * one door for post status changes; OfferService calls it inside its own transaction. Returns false if the post had moved on.
+     */
+    public boolean changeStatus(Connection c, int postId, Post.Status from, Post.Status to, String reason, Integer changedBy) throws SQLException {
+        if (postDao.updateStatusIf(c, postId, from, to, to == Post.Status.CANCELLED ? reason : null) == 0) return false;
+        logDao.logStatusChange(c, POST_ENTITY, postId, from.name(), to.name(), reason, changedBy);
+        return true;
+    }
+
     //---HELPERS---
 
     private List<Post> readBoard(Post.Kind kind, Account me) {

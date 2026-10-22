@@ -23,7 +23,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **LISTING** | Post a listing (Route 1) | post surplus food, see own listings; *screens not wired yet* | 🟡 | 6.2 Stage 2A | 5 |
 | **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | send and withdraw offers (both routes) and list your own; *screens not wired yet* | 🟡 | 6.2 Stage 3 | 6 |
-| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed | ⬜ | 6.2 Stage 4 | 7 |
+| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *screens not wired yet* | 🟡 | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ⬜ | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; overdue flag | ⬜ | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
@@ -158,6 +158,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/MaintenanceService.java` | runs the 6.6 checks in order, calling other services only | MAINT |
 | `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
 | `service/OfferService.java` | send an offer on either route, withdraw it, the offerer's own list | OFFER |
+| `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | empty stub from the scaffold: the REPORT feature fills it (save the report, work out its deadline) | REPORT |
 | `service/EmailService.java` | fills the HTML emails, sends, logs every attempt | AUTH, REGISTER, REVIEW |
@@ -306,6 +307,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
+| `service/AcceptanceServiceTest.java` | accept and decline, who sees the offers, who sees a phone number | ACCEPT |
 | `service/MaintenanceServiceTest.java` | the expiry check runs once and is quiet when nothing expired | MAINT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
@@ -797,6 +799,43 @@ flowchart LR
   WO --> LG
 ```
 
+### ACCEPT: the poster decides 🟡
+
+Files: `service/AcceptanceService.java`, `service/PostService.java` (the status door), `dao/OfferDao.java`, `dao/PostDao.java`, `dao/AccountDao.java`. The screens (`IncomingOffersController` for donors, `FoodGroupIncomingOffersController`, the Accept dialog) are wired in the last step of round 3.
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `AcceptanceService.getIncomingOffers` | offers on the logged-in poster's posts, without Withdrawn ones or Offered ones from a Suspended offerer | **no screen yet** | AcceptanceServiceTest |
+| `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | **no screen yet** | AcceptanceServiceTest |
+| `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | **no screen yet** | AcceptanceServiceTest |
+| `AcceptanceService.decline` | the poster declines one Offered offer | **no screen yet** | AcceptanceServiceTest |
+| `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | **no screen yet** | AcceptanceServiceTest |
+| `PostService.changeStatus` | the one door for a post's status change, with the log (A3) | AcceptanceService | AcceptanceServiceTest |
+| `PostDao.findForUpdate` | a post in any status, locked until the transaction ends | AcceptanceService | AcceptanceServiceTest |
+| `PostDao.updateStatusIf` | changes a post's status only if it is still the expected one | PostService | AcceptanceServiceTest |
+| `OfferDao.findIncoming` | the offers on one poster's posts | AcceptanceService | AcceptanceServiceTest |
+| `OfferDao.findOfferedIdsExcept` | the other Offered offers on a post, which an accept declines | AcceptanceService | AcceptanceServiceTest |
+| `OfferDao.countAwaitingDecision` | Offered offers from Active offerers on a poster's Open posts | AcceptanceService | AcceptanceServiceTest |
+| `AccountDao.findContactPhone` | an account's number; only AcceptanceService.getContactPhone calls it | AcceptanceService | AcceptanceServiceTest |
+
+```mermaid
+flowchart LR
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
+  IO([Incoming Offers screens<br/>Accept dialog<br/>not wired yet]):::planned -.-> AS{{AcceptanceService<br/>accept<br/>decline}}:::svc
+  AS --> PF[PostDao<br/>findForUpdate]:::dao --> TP[(post)]:::tbl
+  AS --> OD[OfferDao<br/>findById<br/>updateStatusIf<br/>findOfferedIdsExcept]:::dao --> TO[(offer)]:::tbl
+  AS --> PS{{PostService<br/>changeStatus}}:::svc --> PU[PostDao<br/>updateStatusIf]:::dao --> TP
+  AS --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
+  PS --> LG
+  IL([Incoming list, sidebar badge<br/>not wired yet]):::planned -.-> AI{{AcceptanceService<br/>getIncomingOffers<br/>countOffersAwaitingDecision}}:::svc
+  AI --> OI[OfferDao<br/>findIncoming<br/>countAwaitingDecision]:::dao --> TO
+  CP([Contact number on the offer<br/>not wired yet]):::planned -.-> GC{{AcceptanceService<br/>getContactPhone}}:::svc
+  GC --> AP[AccountDao<br/>findContactPhone]:::dao --> TA[(registration)]:::tbl
+```
+
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
@@ -923,6 +962,7 @@ flowchart LR
 | `Account.canPostOrOffer` | the 6.3 rule for posting, offering and accepting; PostService uses it, OFFER and ACCEPT will | keep: modules 6 and 7 |
 | `Offer.label` | status text for the offer screens | keep: module 6 |
 | `OfferService.sendListingOffer`, `sendRequestOffer`, `withdraw`, `getMyOffers` | built and tested; the screens are wired in the last step of round 3 | keep: module 6 |
+| `AcceptanceService.getIncomingOffers`, `countOffersAwaitingDecision`, `accept`, `decline`, `getContactPhone` | built and tested; the screens are wired in the last step of round 3 | keep: module 7 |
 | `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
 | `ReportService` | empty class from the scaffold; spec 7.3 gives it the documentation report | keep: FLOWS.md module 10 |
 | the eight placeholder dialogs | open and close only | each becomes real with its feature |

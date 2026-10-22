@@ -17,7 +17,7 @@ public class OfferDao {
 
     private static final String OFFER_SELECT = """
             SELECT o.offer_id, o.post_id, o.offerer_id, o.kg, o.status, o.released_at, o.received_at, o.created_at,
-                   r.name AS offerer_name,
+                   r.name AS offerer_name, a.status AS offerer_status,
             """ + DetailDao.FOOD_COLUMNS + ",\n" + DetailDao.USE_COLUMNS + """
 
             FROM offer o
@@ -93,6 +93,42 @@ public class OfferDao {
         return query(c, OFFER_SELECT + "WHERE o.offerer_id = ? ORDER BY o.created_at DESC, o.offer_id DESC", offererId);
     }
 
+    /**
+     * Every offer on one poster's posts, newest first, except Withdrawn ones (the poster never sees those) and
+     * Offered ones from a Suspended offerer (hidden until reinstated, 6.3).
+     */
+    public List<Offer> findIncoming(Connection c, int posterId) throws SQLException {
+        return query(c, OFFER_SELECT + "JOIN post p ON p.post_id = o.post_id WHERE p.posted_by = ? AND o.status <> 'WITHDRAWN' "
+                + "AND (a.status = 'ACTIVE' OR o.status <> 'OFFERED') ORDER BY o.created_at DESC, o.offer_id DESC", posterId);
+    }
+
+    /** The ids of a post's Offered offers other than one, which an accept declines. */
+    public List<Integer> findOfferedIdsExcept(Connection c, int postId, int exceptOfferId) throws SQLException {
+        String sql = "SELECT offer_id FROM offer WHERE post_id = ? AND status = 'OFFERED' AND offer_id <> ? ORDER BY offer_id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, postId);
+            ps.setInt(2, exceptOfferId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Integer> ids = new ArrayList<>();
+                while (rs.next()) ids.add(rs.getInt(1));
+                return ids;
+            }
+        }
+    }
+
+    /** Offered offers from Active offerers on one poster's Open posts: the donor's sidebar badge. */
+    public int countAwaitingDecision(Connection c, int posterId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM offer o JOIN post p ON p.post_id = o.post_id JOIN account a ON a.account_id = o.offerer_id "
+                + "WHERE p.posted_by = ? AND p.status = 'OPEN' AND o.status = 'OFFERED' AND a.status = 'ACTIVE'";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, posterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
     private List<Offer> query(Connection c, String sql, Object... args) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) ps.setObject(i + 1, args[i]);
@@ -110,6 +146,7 @@ public class OfferDao {
         o.postId = rs.getInt("post_id");
         o.offererId = rs.getInt("offerer_id");
         o.offererName = rs.getString("offerer_name");
+        o.offererSuspended = "SUSPENDED".equals(rs.getString("offerer_status"));
         o.kg = rs.getDouble("kg");
         o.status = Offer.Status.valueOf(rs.getString("status"));
         o.releasedAt = rs.getObject("released_at", LocalDateTime.class);

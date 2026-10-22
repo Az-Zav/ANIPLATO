@@ -47,6 +47,18 @@ public final class Fixtures {
         return ((Number) TestDb.scalar("SELECT MAX(offer_id) FROM offer")).intValue();
     }
 
+    /** An offer from a donor on the seed request (Route 2), with a pickup window that ends in two days. Returns its id. */
+    public static int offerOnSeedRequest(String donorEmail, String status, double kg) {
+        TestDb.exec("INSERT INTO food_detail (description, category, storage, use_by, pickup_start, pickup_end, attested_at) "
+                + "VALUES ('Rice', 'RAW', 'AMBIENT_DRY', DATE_ADD(NOW(), INTERVAL 4 DAY), DATE_ADD(NOW(), INTERVAL 1 DAY), "
+                + "DATE_ADD(NOW(), INTERVAL 2 DAY), NOW())");
+        int foodDetail = ((Number) TestDb.scalar("SELECT MAX(food_detail_id) FROM food_detail")).intValue();
+        TestDb.exec("INSERT INTO offer (post_id, offerer_id, kg, status, food_detail_id, created_at) "
+                        + "SELECT ?, account_id, ?, ?, ?, NOW() FROM account WHERE email = ?",
+                seedRequestId(), kg, status, foodDetail, donorEmail);
+        return ((Number) TestDb.scalar("SELECT MAX(offer_id) FROM offer")).intValue();
+    }
+
     /** An Open safety concern about an offer, raised by the given account. Returns its id. */
     public static int concern(int offerId, String raisedByEmail, String text) {
         TestDb.exec("INSERT INTO safety_notice (offer_id, kind, raised_by, concern, status, raised_at) "

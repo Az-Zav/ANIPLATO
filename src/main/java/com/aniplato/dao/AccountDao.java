@@ -112,6 +112,18 @@ public class AccountDao {
         }
     }
 
+    /** An account's contact number. Only OfferService.getContactPhone calls this, after it checks who may see it (A7). */
+    public String findContactPhone(Connection c, int accountId) throws SQLException {
+        String sql = "SELECT r.contact_phone FROM account a JOIN registration r ON r.registration_id = a.registration_id "
+                + "WHERE a.account_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        }
+    }
+
     public int countSuspended(Connection c) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM account WHERE status = 'SUSPENDED'");
              ResultSet rs = ps.executeQuery()) {

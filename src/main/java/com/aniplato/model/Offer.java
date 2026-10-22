@@ -30,6 +30,7 @@ public class Offer {
     public int postId;
     public int offererId;
     public String offererName;
+    public boolean offererSuspended;                 // a Suspended offerer's Offered offers are hidden from the poster (6.3)
     public double kg;
     public Status status;
     public FoodDetail food;                          // offers on a request only
