@@ -120,6 +120,8 @@ class PostServiceTest extends DbTest {
     @Test
     void aRefusedListingLeavesNoUploadedFileBehind() {
         loginAs(BUSINESS);
+        File uploads = new File(System.getProperty("aniplato.uploads.dir"));
+        int before = uploads.list().length;   // other tests in this run leave files here
         File bad = tmp.resolve("notes.txt").toFile();
         List<File> photos = Fixtures.photos(tmp, 1);
         photos = List.of(photos.get(0), bad);   // the second is not an image and does not exist
@@ -128,9 +130,7 @@ class PostServiceTest extends DbTest {
         List<File> mixed = photos;
         assertRefused(() -> posts.createListing(with(f, 5, f.useBy(), f.pickupStart(), f.pickupEnd(), true, mixed)));
 
-        File uploads = new File(System.getProperty("aniplato.uploads.dir"));
-        String[] left = uploads.list();
-        assertTrue(left == null || left.length == 0, "no file may be saved when the form is refused");
+        assertEquals(before, uploads.list().length, "no file may be saved when the form is refused");
     }
 
     //---POSTING A REQUEST---

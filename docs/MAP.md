@@ -22,7 +22,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **MAINT** | Automatic checks | expired documents suspend the account on any screen load; *five other checks: not built* | 🟡 | 6.6 | 12 |
 | **LISTING** | Post a listing (Route 1) | post surplus food, see own listings; *screens not wired yet* | 🟡 | 6.2 Stage 2A | 5 |
 | **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
-| **OFFER** | Browse and send offers | browse, send, withdraw offers (both routes) | ⬜ | 6.2 Stage 3 | 6 |
+| **OFFER** | Browse and send offers | send and withdraw offers (both routes) and list your own; *screens not wired yet* | 🟡 | 6.2 Stage 3 | 6 |
 | **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed | ⬜ | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ⬜ | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; overdue flag | ⬜ | 6.2 Stage 5 | 10 |
@@ -127,7 +127,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/Post.java` | a listing or a request with its statuses, deadline and photos | LISTING, REQUEST |
 | `model/FoodDetail.java` | what a donor gives: category, storage, allergens, times; the enums for them | LISTING, REQUEST |
 | `model/UseDetail.java` | what a food group needs or will do: event, people, place, needed-by | LISTING, REQUEST |
-| `model/Offer.java` | the offer status enum only; the full model comes with OFFER | SAFETY, STATS |
+| `model/Offer.java` | an offer on a post: status, kg, its food or use detail, release and receipt times, photos | OFFER, SAFETY, STATS |
 
 ### DAOs (SQL only, one per table)
 
@@ -138,7 +138,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/DocumentDao.java` | the `document` table: insert, review, expiry queries | REGISTER, REVIEW, PROFILE, ACCOUNTS, MAINT |
 | `dao/CityDao.java` | the `city` table: the registration city list | REGISTER |
 | `dao/SafetyNoticeDao.java` | the `safety_notice` table: insert, resolve, admin rows | SAFETY |
-| `dao/OfferDao.java` | the `offer` table: the two parties, status, report counts (rest comes with OFFER) | SAFETY, STATS |
+| `dao/OfferDao.java` | the `offer` table: send, re-open a withdrawn one, change status only if still in the expected one, an offerer's list, the two parties, report counts | OFFER, SAFETY, STATS |
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
@@ -157,6 +157,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/StatsService.java` | the dashboard cards and the monthly report | STATS |
 | `service/MaintenanceService.java` | runs the 6.6 checks in order, calling other services only | MAINT |
 | `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
+| `service/OfferService.java` | send an offer on either route, withdraw it, the offerer's own list | OFFER |
+| `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | empty stub from the scaffold: the REPORT feature fills it (save the report, work out its deadline) | REPORT |
 | `service/EmailService.java` | fills the HTML emails, sends, logs every attempt | AUTH, REGISTER, REVIEW |
 | `service/FileStorageService.java` | validates and stores uploads; saves 1 to 5 photos at once; removes files; finds a stored file | REGISTER, PROFILE, REVIEW, LISTING |
@@ -303,6 +305,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/SafetyServiceTest.java` | raise, dismiss, suspend the flagged side | SAFETY |
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
+| `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/MaintenanceServiceTest.java` | the expiry check runs once and is quiet when nothing expired | MAINT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
@@ -725,7 +728,8 @@ Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `da
 | `PostService.getOpenRequests` | Open requests for a donor; a Casual donor sees only raw or packaged | **no screen yet** | PostServiceTest |
 | `PostService.getMyPosts` | the logged-in account's own posts with offer counts | **no screen yet** | PostServiceTest |
 | `PostDao.insert` | saves the post row for an inserted detail | PostService | PostServiceTest |
-| `PostDao.findById` | one post with its detail | none yet: OFFER will use it | none |
+| `PostDao.findById` | one post with its detail | OfferService | OfferServiceTest |
+| `PostDao.findOpenForUpdate` | an Open post from an Active poster, locked until the transaction ends | OfferService | OfferServiceTest |
 | `PostDao.findOpenBoard` | Open posts of one kind from Active posters, viewer's city first | PostService | PostServiceTest |
 | `PostDao.findByPoster` | one account's posts with their offer counts | PostService | PostServiceTest |
 | `DetailDao.insertFood` | saves a food detail | PostService | PostServiceTest |
@@ -752,6 +756,45 @@ flowchart LR
   BR([Browse, My Listings, My Requests<br/>not wired yet]):::planned -.-> GB{{PostService<br/>getOpenListings<br/>getOpenRequests<br/>getMyPosts}}:::svc
   GB --> PQ[PostDao<br/>findOpenBoard<br/>findByPoster]:::dao --> TP
   GB --> PP[PhotoDao<br/>findPaths]:::dao --> TF
+```
+
+### OFFER: send and withdraw offers 🟡
+
+Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Offer.java`. The screens (`MakeOfferController` for donors and for food groups, `BrowseListingsController`, `BrowseRequestsController`, the shared `MyOffersController`, the food group's `MyOffersController`) are wired in the last step of round 3.
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `OfferService.sendListingOffer` | a food group offers for a listing's whole quantity; re-opens its Withdrawn offer on the same row | **no screen yet** | OfferServiceTest |
+| `OfferService.sendRequestOffer` | a donor offers on a request: kg up to the requested amount, a category the request accepts | **no screen yet** | OfferServiceTest |
+| `OfferService.withdraw` | the offerer takes back an Offered offer, logged | **no screen yet** | OfferServiceTest |
+| `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | **no screen yet** | OfferServiceTest |
+| `OfferDao.insert` | saves a new offer | OfferService | OfferServiceTest |
+| `OfferDao.reopenIfWithdrawn` | puts a Withdrawn offer back to Offered with new details | OfferService | OfferServiceTest |
+| `OfferDao.updateStatusIf` | changes the status only if it is still the expected one | OfferService | OfferServiceTest |
+| `OfferDao.findById` | one offer with its detail | OfferService | OfferServiceTest |
+| `OfferDao.findByPostAndOfferer` | the offer one account made on a post, in any status | OfferService | OfferServiceTest |
+| `OfferDao.findByOfferer` | every offer one account made | OfferService | OfferServiceTest |
+| `DetailDao.deleteFood` | removes the food detail an offer no longer uses | OfferService | OfferServiceTest |
+| `DetailDao.deleteUse` | removes the use detail an offer no longer uses | OfferService | OfferServiceTest |
+| `PhotoDao.deleteFor` | removes the photo rows of an offer being re-opened | OfferService | OfferServiceTest |
+
+```mermaid
+flowchart LR
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
+  MO([Make Offer screens<br/>not wired yet]):::planned -.-> SO{{OfferService<br/>sendListingOffer<br/>sendRequestOffer}}:::svc
+  SO --> DR[DetailRules<br/>checks]:::svc
+  SO --> FS[FileStorageService<br/>saveAllPhotos]:::svc
+  SO --> PL[PostDao<br/>findById<br/>findOpenForUpdate]:::dao --> TP[(post)]:::tbl
+  SO --> DD[DetailDao<br/>insertFood<br/>insertUse<br/>deleteFood<br/>deleteUse]:::dao --> TD[(food_detail<br/>use_detail)]:::tbl
+  SO --> OD[OfferDao<br/>findByPostAndOfferer<br/>insert<br/>reopenIfWithdrawn]:::dao --> TO[(offer)]:::tbl
+  SO --> PH[PhotoDao<br/>insert<br/>deleteFor]:::dao --> TF[(photo)]:::tbl
+  SO --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
+  WD([My Offers screens<br/>not wired yet]):::planned -.-> WO{{OfferService<br/>withdraw<br/>getMyOffers}}:::svc
+  WO --> OS[OfferDao<br/>findById<br/>updateStatusIf<br/>findByOfferer]:::dao --> TO
+  WO --> LG
 ```
 
 ### SHELL: the app frame 🔧
@@ -860,6 +903,7 @@ flowchart LR
 | `Document.isExpired` | the expiry date is before today | RegistrationService, ProfileController | RegistrationDecisionTest |
 | `Document.expiresWithin` | still valid but ending within N days | ProfileController | DocumentReviewTest |
 | `Offer.label` | the offer status's name on screen | none yet | none |
+| `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | none yet: the lapse check uses SQL | none |
 | `Post.label` | the post status's name on screen (on the status enum) | none yet | none |
 | `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest |
 | `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
@@ -878,6 +922,7 @@ flowchart LR
 | `PostService.createListing`, `createRequest`, `getOpenListings`, `getOpenRequests`, `getMyPosts` | built and tested; the screens are wired in the last step of round 3 | keep: modules 5 and 9 |
 | `Account.canPostOrOffer` | the 6.3 rule for posting, offering and accepting; PostService uses it, OFFER and ACCEPT will | keep: modules 6 and 7 |
 | `Offer.label` | status text for the offer screens | keep: module 6 |
+| `OfferService.sendListingOffer`, `sendRequestOffer`, `withdraw`, `getMyOffers` | built and tested; the screens are wired in the last step of round 3 | keep: module 6 |
 | `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
 | `ReportService` | empty class from the scaffold; spec 7.3 gives it the documentation report | keep: FLOWS.md module 10 |
 | the eight placeholder dialogs | open and close only | each becomes real with its feature |

@@ -81,6 +81,22 @@ public class DetailDao {
         }
     }
 
+    /** Removes a food detail nothing points at any more (an offer re-opened with new details). */
+    public void deleteFood(Connection c, int foodDetailId) throws SQLException {
+        delete(c, "DELETE FROM food_detail WHERE food_detail_id = ?", foodDetailId);
+    }
+
+    public void deleteUse(Connection c, int useDetailId) throws SQLException {
+        delete(c, "DELETE FROM use_detail WHERE use_detail_id = ?", useDetailId);
+    }
+
+    private static void delete(Connection c, String sql, int id) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
     /** Reads the fd_* columns of the current row; null when the row has no food detail (the LEFT JOIN found none). */
     public FoodDetail readFood(ResultSet rs) throws SQLException {
         int id = rs.getInt("fd_id");

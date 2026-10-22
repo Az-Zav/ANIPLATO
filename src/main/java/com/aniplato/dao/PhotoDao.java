@@ -42,4 +42,12 @@ public class PhotoDao {
             }
         }
     }
+
+    /** Removes every photo row of one owner (an offer re-opened with new photos). */
+    public void deleteFor(Connection c, Owner owner, int ownerId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("DELETE FROM photo WHERE " + owner.column + " = ?")) {
+            ps.setInt(1, ownerId);
+            ps.executeUpdate();
+        }
+    }
 }

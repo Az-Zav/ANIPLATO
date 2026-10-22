@@ -137,6 +137,12 @@ public class PostDao {
         return found.isEmpty() ? null : found.get(0);
     }
 
+    /** An Open post from an Active poster, locked until the transaction ends so an accept cannot slip in between a check and a write. */
+    public Post findOpenForUpdate(Connection c, int postId) throws SQLException {
+        List<Post> found = query(c, POST_SELECT + "WHERE p.post_id = ? AND p.status = 'OPEN' AND a.status = 'ACTIVE' FOR UPDATE", postId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
     /**
      * Open posts of one kind from Active posters (a Suspended poster's posts stay hidden, 6.3), the viewer's city
      * first and then newest first. Offers are not counted here: this is the other side's board.
