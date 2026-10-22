@@ -24,7 +24,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | send and withdraw offers (both routes) and list your own; *screens not wired yet* | 🟡 | 6.2 Stage 3 | 6 |
 | **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *screens not wired yet* | 🟡 | 6.2 Stage 4 | 7 |
-| **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ⬜ | 6.2 Stages 5-6 | 8 |
+| **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post; *screens not wired yet* | 🟡 | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; overdue flag | ⬜ | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
 | **DEMO** | Demo data and polish | a full demo story | ⬜ | Section 5 | 13 |
@@ -127,6 +127,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/Post.java` | a listing or a request with its statuses, deadline and photos | LISTING, REQUEST |
 | `model/FoodDetail.java` | what a donor gives: category, storage, allergens, times; the enums for them | LISTING, REQUEST |
 | `model/UseDetail.java` | what a food group needs or will do: event, people, place, needed-by | LISTING, REQUEST |
+| `model/HandoffRecord.java` | the record a completed handoff leaves, worked out when asked and never stored | HANDOFF |
 | `model/Offer.java` | an offer on a post: status, kg, its food or use detail, release and receipt times, photos | OFFER, SAFETY, STATS |
 
 ### DAOs (SQL only, one per table)
@@ -158,6 +159,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/MaintenanceService.java` | runs the 6.6 checks in order, calling other services only | MAINT |
 | `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
 | `service/OfferService.java` | send an offer on either route, withdraw it, the offerer's own list | OFFER |
+| `service/HandoffService.java` | confirm release, confirm receipt (completes the offer, rescues the post), build the handoff record | HANDOFF |
 | `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | empty stub from the scaffold: the REPORT feature fills it (save the report, work out its deadline) | REPORT |
@@ -307,6 +309,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
+| `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
+| `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
 | `service/AcceptanceServiceTest.java` | accept and decline, who sees the offers, who sees a phone number | ACCEPT |
 | `service/MaintenanceServiceTest.java` | the expiry check runs once and is quiet when nothing expired | MAINT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
@@ -836,6 +840,40 @@ flowchart LR
   GC --> AP[AccountDao<br/>findContactPhone]:::dao --> TA[(registration)]:::tbl
 ```
 
+### HANDOFF: release, receipt, record, cancel 🟡
+
+Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/OfferDao.java`, `model/HandoffRecord.java`. The screens (`ConfirmReleaseDialogController`, `ConfirmReceiptDialogController`, `CancelListingDialogController`, `HandoffRecordController`, the shared `MyListingsController`) are wired in the last step of round 3.
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | **no screen yet** | HandoffServiceTest |
+| `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | **no screen yet** | HandoffServiceTest |
+| `HandoffService.getHandoffRecord` | the record of a Completed offer for its two sides or an admin: number, names, food, kg, times, use, report due date | **no screen yet** | HandoffServiceTest |
+| `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | **no screen yet** | HandoffServiceTest |
+| `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | **no screen yet** | CancelPostTest |
+| `OfferDao.markReleasedIf` | sets the release time on an Accepted offer, once | HandoffService | HandoffServiceTest |
+| `OfferDao.completeIfReleased` | Accepted to Completed with the receipt time, only after release | HandoffService | HandoffServiceTest |
+| `OfferDao.findIdsByStatus` | a post's offers in one status | PostService | CancelPostTest |
+| `OfferDao.countAcceptedFor` | Accepted offers an account is a side of | HandoffService | HandoffServiceTest |
+
+```mermaid
+flowchart LR
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
+  CR([Confirm Release dialog<br/>Confirm Receipt dialog<br/>not wired yet]):::planned -.-> HS{{HandoffService<br/>confirmRelease<br/>confirmReceipt}}:::svc
+  HS --> OD[OfferDao<br/>markReleasedIf<br/>completeIfReleased]:::dao --> TO[(offer)]:::tbl
+  HS --> PS{{PostService<br/>changeStatus}}:::svc --> PD[PostDao<br/>updateStatusIf]:::dao --> TP[(post)]:::tbl
+  HS --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
+  PS --> LG
+  HR([Handoff Record screen<br/>not wired yet]):::planned -.-> GR{{HandoffService<br/>getHandoffRecord}}:::svc --> OD
+  CD([Cancel dialog<br/>not wired yet]):::planned -.-> CP{{PostService<br/>cancelPost}}:::svc
+  CP --> PF[PostDao<br/>findForUpdate]:::dao --> TP
+  CP --> OS[OfferDao<br/>findIdsByStatus<br/>updateStatusIf]:::dao --> TO
+  CP --> LG
+```
+
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
@@ -963,6 +1001,7 @@ flowchart LR
 | `Offer.label` | status text for the offer screens | keep: module 6 |
 | `OfferService.sendListingOffer`, `sendRequestOffer`, `withdraw`, `getMyOffers` | built and tested; the screens are wired in the last step of round 3 | keep: module 6 |
 | `AcceptanceService.getIncomingOffers`, `countOffersAwaitingDecision`, `accept`, `decline`, `getContactPhone` | built and tested; the screens are wired in the last step of round 3 | keep: module 7 |
+| `HandoffService.confirmRelease`, `confirmReceipt`, `getHandoffRecord`, `countAwaitingHandoff`, `PostService.cancelPost` | built and tested; the screens are wired in the last step of round 3 | keep: module 8 |
 | `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
 | `ReportService` | empty class from the scaffold; spec 7.3 gives it the documentation report | keep: FLOWS.md module 10 |
 | the eight placeholder dialogs | open and close only | each becomes real with its feature |

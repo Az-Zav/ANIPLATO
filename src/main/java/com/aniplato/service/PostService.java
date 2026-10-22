@@ -2,11 +2,13 @@ package com.aniplato.service;
 
 import com.aniplato.dao.DetailDao;
 import com.aniplato.dao.LogDao;
+import com.aniplato.dao.OfferDao;
 import com.aniplato.dao.PhotoDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.FoodDetail;
+import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
 import com.aniplato.model.UseDetail;
 import com.aniplato.util.Database;
@@ -36,6 +38,7 @@ public class PostService {
     private final PostDao postDao = new PostDao();
     private final DetailDao detailDao = new DetailDao();
     private final PhotoDao photoDao = new PhotoDao();
+    private final OfferDao offerDao = new OfferDao();
     private final LogDao logDao = new LogDao();
     private final FileStorageService fileStorageService = new FileStorageService();
 
@@ -177,6 +180,44 @@ public class PostService {
         if (postDao.updateStatusIf(c, postId, from, to, to == Post.Status.CANCELLED ? reason : null) == 0) return false;
         logDao.logStatusChange(c, POST_ENTITY, postId, from.name(), to.name(), reason, changedBy);
         return true;
+    }
+
+    //---CANCEL---
+
+    /**
+     * The poster cancels an Open or Accepted post with a reason (R6.1). One transaction: waiting offers are Declined,
+     * an Accepted offer is Cancelled, the post is Cancelled, all logged. The reason stays on the post for the offerers
+     * to read. Not allowed once the donor has confirmed release (M3), and never after the handoff completes.
+     */
+    public void cancelPost(int postId, String reason) {
+        Account me = Session.require();
+        requireText(reason, "Write a reason for cancelling.", 500);
+        String why = reason.trim();
+        Database.inTransaction("Could not cancel the post", c -> {
+            Post post = postDao.findForUpdate(c, postId);
+            if (post == null) throw new RuleViolationException("That post no longer exists.");
+            if (post.posterId != me.id) throw new RuleViolationException("Only the poster can cancel this post.");
+            if (post.status != Post.Status.OPEN && post.status != Post.Status.ACCEPTED) {
+                throw new RuleViolationException("Only an Open or Accepted post can be cancelled.");
+            }
+            for (int offerId : offerDao.findIdsByStatus(c, postId, Offer.Status.ACCEPTED)) {
+                if (offerDao.findById(c, offerId).releasedAt != null) {
+                    throw new RuleViolationException("The food has already been released, so this post can no longer be cancelled.");
+                }
+                settleOffer(c, offerId, Offer.Status.ACCEPTED, Offer.Status.CANCELLED, why, me.id);
+            }
+            for (int offerId : offerDao.findIdsByStatus(c, postId, Offer.Status.OFFERED)) {
+                settleOffer(c, offerId, Offer.Status.OFFERED, Offer.Status.DECLINED, why, me.id);
+            }
+            changeStatus(c, postId, post.status, Post.Status.CANCELLED, why, me.id);
+            return null;
+        });
+    }
+
+    private void settleOffer(Connection c, int offerId, Offer.Status from, Offer.Status to, String reason, int changedBy) throws SQLException {
+        if (offerDao.updateStatusIf(c, offerId, from, to) > 0) {
+            logDao.logStatusChange(c, "OFFER", offerId, from.name(), to.name(), reason, changedBy);   // A3
+        }
     }
 
     //---HELPERS---

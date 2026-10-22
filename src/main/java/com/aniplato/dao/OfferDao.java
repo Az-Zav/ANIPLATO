@@ -102,6 +102,54 @@ public class OfferDao {
                 + "AND (a.status = 'ACTIVE' OR o.status <> 'OFFERED') ORDER BY o.created_at DESC, o.offer_id DESC", posterId);
     }
 
+    /** Records that the donor handed the food over. Only an Accepted offer, once. Returns rows changed. */
+    public int markReleasedIf(Connection c, int offerId, LocalDateTime at) throws SQLException {
+        String sql = "UPDATE offer SET released_at = ? WHERE offer_id = ? AND status = 'ACCEPTED' AND released_at IS NULL";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, at);
+            ps.setInt(2, offerId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Completes an Accepted offer whose release was confirmed, and records the receipt time. Returns rows changed. */
+    public int completeIfReleased(Connection c, int offerId, LocalDateTime at) throws SQLException {
+        String sql = "UPDATE offer SET status = 'COMPLETED', received_at = ? "
+                + "WHERE offer_id = ? AND status = 'ACCEPTED' AND released_at IS NOT NULL";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, at);
+            ps.setInt(2, offerId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** The ids of a post's offers in one status. */
+    public List<Integer> findIdsByStatus(Connection c, int postId, Offer.Status status) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT offer_id FROM offer WHERE post_id = ? AND status = ? ORDER BY offer_id")) {
+            ps.setInt(1, postId);
+            ps.setString(2, status.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Integer> ids = new ArrayList<>();
+                while (rs.next()) ids.add(rs.getInt(1));
+                return ids;
+            }
+        }
+    }
+
+    /** Accepted offers an account is a side of (as offerer or as poster): the food group's sidebar badge. */
+    public int countAcceptedFor(Connection c, int accountId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM offer o JOIN post p ON p.post_id = o.post_id "
+                + "WHERE o.status = 'ACCEPTED' AND (o.offerer_id = ? OR p.posted_by = ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ps.setInt(2, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
     /** The ids of a post's Offered offers other than one, which an accept declines. */
     public List<Integer> findOfferedIdsExcept(Connection c, int postId, int exceptOfferId) throws SQLException {
         String sql = "SELECT offer_id FROM offer WHERE post_id = ? AND status = 'OFFERED' AND offer_id <> ? ORDER BY offer_id";
