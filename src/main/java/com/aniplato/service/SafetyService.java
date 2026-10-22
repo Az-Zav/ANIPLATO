@@ -3,7 +3,6 @@ package com.aniplato.service;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
 import com.aniplato.dao.SafetyNoticeDao;
-import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.Offer;
@@ -62,11 +61,7 @@ public class SafetyService {
     /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
     public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
         Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
-            return noticeDao.findRows(c);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load safety notices", e);
-        }
+        return Database.read("Could not load safety notices", noticeDao::findRows);
     }
 
     /** Admin closes an Open notice without action. The note is required. */

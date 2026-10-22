@@ -2,7 +2,6 @@ package com.aniplato.service;
 
 import com.aniplato.dao.DocumentDao;
 import com.aniplato.dao.LogDao;
-import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.Document;
@@ -11,8 +10,6 @@ import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,23 +29,16 @@ public class DocumentReviewService {
     public List<Document> getCurrentDocumentAlerts(LocalDate today) {
         Account current = Session.current();
         if (current == null || current.registration == null) return List.of();
-        try (Connection c = Database.getConnection()) {
-            return documentDao.findCurrentAlerts(c, current.registration.id, today,
-                    Settings.DOCUMENT_WARNING_DAYS);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load document expiry warnings", e);
-        }
+        return Database.read("Could not load document expiry warnings", c ->
+                documentDao.findCurrentAlerts(c, current.registration.id, today, Settings.DOCUMENT_WARNING_DAYS));
     }
 
     /** The signed-in organization's documents for the Profile screen: the latest upload of each type. */
     public List<Document> getMyDocuments() {
         Account current = Session.require();
         if (current.registration == null) return List.of();
-        try (Connection c = Database.getConnection()) {
-            return latestPerType(documentDao.findByRegistration(c, current.registration.id));
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load your documents", e);
-        }
+        return Database.read("Could not load your documents", c ->
+                latestPerType(documentDao.findByRegistration(c, current.registration.id)));
     }
 
     /** The newest upload of each type, from a list oldest first: a renewal takes the place of the file it renews. */
