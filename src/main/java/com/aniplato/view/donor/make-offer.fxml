@@ -1,137 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import com.aniplato.controller.DateTimeField?>
+<?import com.aniplato.controller.PhotoPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.MakeOfferController">
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
-        <VBox maxWidth="976.0" spacing="16.0" styleClass="dashboard-bg">
-            <padding><Insets bottom="24.0" left="32.0" right="32.0" top="24.0" /></padding>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
-                <!-- PATTERN:NAV -> DONOR_BROWSE_REQUESTS -->
-                <Button onAction="#handleBackToRequests" styleClass="link-button" text="← Browse Requests" />
                 <Label styleClass="page-title" text="Make an Offer" />
-
-                <VBox spacing="16.0" styleClass="claim-card">
-                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                <!-- PATTERN:DYNAMIC summaryBox : the request being offered on -->
+                <VBox fx:id="summaryBox" />
+                <VBox spacing="18.0" styleClass="table-card">
+                    <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
                     <children>
-                        <HBox alignment="CENTER_LEFT">
+                        <Label styleClass="text-muted" text="You can offer less than the amount requested. Only the food group can see your offer." wrapText="true" />
+                        <Label styleClass="form-label" text="Describe the food *" />
+                        <TextField fx:id="descriptionField" promptText="e.g. Sacks of rice" />
+                        <Label styleClass="form-label" text="Category *" />
+                        <ComboBox fx:id="categoryCombo" maxWidth="1.7976931348623157E308" promptText="Pick one" />
+                        <Label styleClass="form-label" text="Storage condition *" />
+                        <ComboBox fx:id="storageCombo" maxWidth="1.7976931348623157E308" promptText="Pick one" />
+                        <Label styleClass="form-label" text="Allergen labels (for information only)" />
+                        <!-- PATTERN:DYNAMIC allergenBox : one check box per allergen -->
+                        <FlowPane fx:id="allergenBox" hgap="16.0" vgap="8.0" />
+                        <Label styleClass="form-label" text="Weight you offer (kg) *" />
+                        <TextField fx:id="kgField" promptText="10" />
+                        <Label styleClass="form-label" text="Safe use-by *" />
+                        <DateTimeField fx:id="useByField" />
+                        <Label styleClass="form-label" text="Pickup window starts *" />
+                        <DateTimeField fx:id="pickupStartField" />
+                        <Label styleClass="form-label" text="Pickup window ends *" />
+                        <DateTimeField fx:id="pickupEndField" />
+                        <Label styleClass="text-muted" text="The window must end before the use-by and before the request's needed-by time." wrapText="true" />
+                        <Label styleClass="form-label" text="Photos of the food *" />
+                        <PhotoPicker fx:id="photoPicker" />
+                        <Label styleClass="form-label" text="Handover instructions (optional)" />
+                        <TextArea fx:id="handoverArea" prefRowCount="3" wrapText="true" />
+                        <Label styleClass="text-muted" text="Shown to the food group only after it accepts your offer." wrapText="true" />
+                        <VBox spacing="6.0" styleClass="table-card">
+                            <padding><Insets bottom="12.0" left="16.0" right="16.0" top="12.0" /></padding>
                             <children>
-                                <VBox spacing="4.0">
-                                    <children>
-                                        <Label styleClass="offer-title" text="Vegetables for pantry" />
-                                        <Label styleClass="text-muted" text="Mandaluyong Community Center · Mandaluyong City · Accepts raw · Needed by tomorrow, 9:00 AM" />
-                                    </children>
-                                </VBox>
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Label styleClass="listing-status-open" text="Open" />
-                            </children>
-                        </HBox>
-                        <HBox spacing="12.0">
-                            <children>
-                                <VBox spacing="4.0" styleClass="fact-card" HBox.hgrow="ALWAYS"><children><Label styleClass="fact-label" text="QUANTITY" /><Label styleClass="fact-value" text="30 kg" /><Label styleClass="fact-note" text="Up to 30 kg" /></children></VBox>
-                                <VBox spacing="4.0" styleClass="fact-card" HBox.hgrow="ALWAYS"><children><Label styleClass="fact-label" text="NEEDED-BY" /><Label styleClass="fact-value" text="Tomorrow, 9:00 AM" /><Label styleClass="fact-warning" text="In 17h 30m" /></children></VBox>
-                                <VBox spacing="4.0" styleClass="fact-card" HBox.hgrow="ALWAYS"><children><Label styleClass="fact-label" text="EVENT" /><Label styleClass="fact-value" text="School feeding" /><Label styleClass="fact-note" text="120 pupils · Oct 5" /></children></VBox>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <VBox spacing="16.0" styleClass="claim-card">
-                    <padding><Insets bottom="24.0" left="20.0" right="20.0" top="20.0" /></padding>
-                    <children>
-                        <Label styleClass="offer-section-title" text="Surplus item" />
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Item title / batch description *" />
-                                <TextField fx:id="itemDescriptionField" text="Fresh pechay and ampalaya" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Category *" />
-                                <Label styleClass="tag-green" text="✓  Raw" />
-                                <Label styleClass="helper-note" text="Pick one. This request accepts raw food only. Not allowed: milk products or food already served." wrapText="true" />
+                                <CheckBox fx:id="attestationCheck" text="Donor attestation *" />
+                                <Label styleClass="text-muted" text="This food is apparently wholesome, properly labeled and donated in good faith. It contains no milk products, no tomato- or milk-based cooked food, and no food already served to diners." wrapText="true" />
                             </children>
                         </VBox>
-                        <VBox spacing="6.0">
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
                             <children>
-                                <Label styleClass="form-label" text="Allergen label (for information only)" />
-                                <HBox spacing="8.0">
-                                    <children>
-                                        <Label styleClass="tag-green" text="Gluten / Wheat" />
-                                        <Label styleClass="tag-green" text="Dairy / Butter" />
-                                        <Label styleClass="tag-green" text="Nuts / Peanuts" />
-                                        <Label styleClass="tag-green" text="Eggs" />
-                                        <Label styleClass="tag-green" text="Halal ingredients" />
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                        <Region minHeight="1.0" styleClass="divider" />
-                        <Label styleClass="offer-section-title" text="Quantity &amp; timing" />
-                        <HBox spacing="12.0">
-                            <children>
-                                <VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="Surplus net weight *" /><TextField fx:id="quantityField" text="25.0" /><Label styleClass="helper-note" text="Up to 30 kg" /></children></VBox>
-                                <VBox spacing="6.0" HBox.hgrow="ALWAYS"><children><Label styleClass="form-label" text="Safe use-by deadline *" /><TextField fx:id="safeUseByField" text="Oct 6, 2026, 9:00 PM" /><Label styleClass="helper-note" text="Must be later than now" /></children></VBox>
-                            </children>
-                        </HBox>
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Pickup window *" />
-                                <TextField fx:id="pickupWindowField" text="Tomorrow, 7:00 – 9:00 AM" />
-                                <Label styleClass="helper-note" text="Must end before the use-by and the needed-by." />
-                            </children>
-                        </VBox>
-                        <Region minHeight="1.0" styleClass="divider" />
-                        <Label styleClass="offer-section-title" text="Photos" />
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                            <children>
-                                <!-- PATTERN:ACTION handleAddPhotos -->
-                                <Button onAction="#handleAddPhotos" styleClass="upload-button" text="+ Add photo" />
-                                <Label fx:id="photoStatusLabel" styleClass="helper-note" text="0 of 5 photos selected." />
-                            </children>
-                        </HBox>
-                        <Label styleClass="helper-note" text="1 to 5 photos. Show the food as it will be handed over." wrapText="true" />
-                        <Region minHeight="1.0" styleClass="divider" />
-                        <Label styleClass="offer-section-title" text="Storage &amp; safety" />
-                        <HBox spacing="8.0">
-                            <children>
-                                <RadioButton fx:id="ambientDryRadio" styleClass="choice-card" text="Ambient Dry&#10;Room temperature (22–28°C), sealed containers." wrapText="true" HBox.hgrow="ALWAYS" />
-                                <RadioButton fx:id="chilledRadio" styleClass="choice-card" text="Chilled Cold-Chain&#10;Kept at 4°C or below. Bring an insulated cooler." wrapText="true" HBox.hgrow="ALWAYS" />
-                                <RadioButton fx:id="hotHoldRadio" styleClass="choice-card" text="Hot Hold&#10;Kept above 60°C. Pick up within 90 minutes." wrapText="true" HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="TOP_LEFT" spacing="8.0" styleClass="attestation-row">
-                            <children>
-                                <CheckBox fx:id="donorAttestationCheck" selected="true" />
-                                <Label styleClass="table-cell-text" text="Donor attestation: This food is apparently wholesome, properly labeled and donated in good faith. It contains no milk products, no tomato- or milk-based food, and no food already served to diners." wrapText="true" />
-                            </children>
-                        </HBox>
-                        <VBox spacing="6.0">
-                            <children>
-                                <Label styleClass="form-label" text="Handover instructions (optional)" />
-                                <TextField fx:id="handoverInstructionsField" text="Enter via rear delivery bay. Loading dock pass not required." />
-                                <Label styleClass="helper-note" text="Shown to the food group only after you accept its offer." wrapText="true" />
-                            </children>
-                        </VBox>
-                        <Label fx:id="formStatusLabel" styleClass="text-success-bold" text="" wrapText="true" />
-                        <HBox alignment="CENTER_RIGHT" spacing="8.0">
-                            <children>
-                                <!-- PATTERN:ACTION handleCancel -->
-                                <Button onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
-                                <!-- PATTERN:ACTION handleSendOffer -->
-                                <Button onAction="#handleSendOffer" styleClass="primary-button" text="Send offer" />
+                                <!-- PATTERN:NAV -> DONOR_BROWSE_REQUESTS -->
+                                <Button styleClass="secondary-button, nav-donor-browse-requests" text="Cancel" />
+                                <!-- PATTERN:ACTION handleSend -->
+                                <Button onAction="#handleSend" styleClass="primary-button" text="Send offer" />
                             </children>
                         </HBox>
                     </children>

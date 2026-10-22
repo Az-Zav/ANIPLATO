@@ -164,6 +164,16 @@ public class DialogController implements DialogHost {
         cancelListingController.show(listingTitle, recipientName);
     }
 
+    /** 6. Cancel Listing or Request, with a real action: {@code onConfirm} gets the reason. */
+    public void showCancelListingMode(String listingTitle, String recipientName, Consumer<String> onConfirm) {
+        cancelListingController.show(listingTitle, recipientName, onConfirm);
+    }
+
+    /** 7. Confirm Release (Donor), with a real action. */
+    public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact, Runnable onConfirm) {
+        confirmReleaseController.show(food, qty, group, pickup, contact, onConfirm);
+    }
+
     /** 7. Confirm Release (Donor) */
     public void showConfirmReleaseMode(String food, String qty, String group, String pickup, String contact) {
         confirmReleaseController.show(food, qty, group, pickup, contact);
@@ -179,6 +189,11 @@ public class DialogController implements DialogHost {
         acceptOfferController.show(groupName, quantity, pickupTime, otherOffersCount);
     }
 
+    /** 9. Accept Offer, with a real action. */
+    public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount, Runnable onConfirm) {
+        acceptOfferController.show(groupName, quantity, pickupTime, otherOffersCount, onConfirm);
+    }
+
     /** 10. Upload Renewal */
     public void showUploadRenewalMode(String documentName) {
         uploadRenewalController.show(documentName);
@@ -192,6 +207,16 @@ public class DialogController implements DialogHost {
     /** 12. Withdraw Offer (Food Group) */
     public void showWithdrawOfferMode(String donorName) {
         withdrawOfferController.show(donorName);
+    }
+
+    /** 12. Withdraw Offer, with a real action. */
+    public void showWithdrawOfferMode(String posterName, Runnable onConfirm) {
+        withdrawOfferController.show(posterName, onConfirm);
+    }
+
+    /** 13. Confirm Receipt (Food Group), with a real action. */
+    public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime, Runnable onConfirm) {
+        confirmReceiptController.show(food, qty, donor, pickup, contact, releaseTime, onConfirm);
     }
 
     /** 13. Confirm Receipt (Food Group) */

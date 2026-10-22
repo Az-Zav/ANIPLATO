@@ -1,58 +1,73 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.controller.Cards;
+import com.aniplato.controller.FormSupport;
+import com.aniplato.model.HandoffRecord;
+import com.aniplato.model.Report;
+import com.aniplato.service.HandoffService;
+import com.aniplato.service.ReportService;
 import com.aniplato.util.Navigator;
-import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.Selection;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import com.aniplato.model.Account;
 
+/** The handoff record and, once submitted, its report, read-only. Shared screen: it never checks the role (A5). */
 public class HandoffRecordController {
 
-    // Embedded Dialog Controller & Overlay Container
-    @FXML private DialogController dialogController;
-    @FXML private VBox dialog;
+    private final HandoffService handoffService = new HandoffService();
+    private final ReportService reportService = new ReportService();
+    private int offerId;
 
-    // Dynamic Header Labels
-    @FXML private Label itemTitleLabel;
-    @FXML private Label recordMetaLabel;
-    @FXML private Label statusPillLabel;
-
-    // Dynamic Details Labels
-    @FXML private Label donorDetailsLabel;
-    @FXML private Label foodGroupDetailsLabel;
-    @FXML private Label foodTypeQuantityLabel;
-    @FXML private Label statedUseLabel;
-    @FXML private Label beneficiariesLabel;
-    @FXML private Label pickupTimeLabel;
-    @FXML private Label releaseTimestampLabel;
-    @FXML private Label receiptTimestampLabel;
-    @FXML private Label donorAttestationLabel;
-    @FXML private Label groupAttestationLabel;
-    @FXML private VBox reportBox;
-    @FXML private Label reportStatusLabel;
-    @FXML private Label reportMetaLabel;
-    @FXML private Label reportSummaryLabel;
-    @FXML private Label reportDetailsLabel;
+    @FXML private Button submitReportButton;
+    @FXML private VBox recordBox;
+    @FXML private Label disclaimerLabel;
 
     @FXML
     private void initialize() {
-        // TODO(service): Load handoff record details from HandoffService
-        boolean donorView = Navigator.currentRole() == Account.Role.BUSINESS_DONOR
-                || Navigator.currentRole() == Account.Role.CASUAL_DONOR;
-        reportBox.setVisible(donorView);
-        reportBox.setManaged(donorView);
-        if (donorView) {
-            reportStatusLabel.setText("SUBMITTED");
-            reportMetaLabel.setText("Submitted Oct 9, 2026, 10:20 AM");
-            reportSummaryLabel.setText("School feeding program · Oct 8, 2026 · 82 people served");
-            reportDetailsLabel.setText("Evening meal served at the parish hall to 82 pupils, seniors and families. Everything was distributed free.");
-        }
+        offerId = Selection.offerId();
+        HandoffRecord record = FormSupport.load(() -> handoffService.getHandoffRecord(offerId), null);
+        boolean canSubmit = record != null && FormSupport.load(() -> reportService.canSubmit(offerId), false);
+        submitReportButton.setVisible(canSubmit);
+        submitReportButton.setManaged(canSubmit);
+        if (record == null) return;
+        recordBox.getChildren().add(recordCard(record));
+        Report report = FormSupport.load(() -> reportService.getReport(offerId), null);
+        recordBox.getChildren().add(report == null ? reportDueCard(record) : reportCard(report, record));
+        disclaimerLabel.setText(HandoffRecord.DISCLAIMER);
     }
 
-    // PATTERN:NAV -> routes back to History list
+    private static VBox recordCard(HandoffRecord r) {
+        return Cards.card(Cards.title(r.number()),
+                Cards.line("Donor: " + r.donorName() + "  |  Food group: " + r.groupName()),
+                Cards.line(r.foodDescription() + " (" + r.category().label() + ")  |  " + FormSupport.kg(r.agreedKg())),
+                Cards.muted("Released " + FormSupport.when(r.releasedAt()) + "  |  Received " + FormSupport.when(r.receivedAt())),
+                Cards.muted("Stated use: " + r.useDescription() + "  |  " + r.headcount() + " people: " + r.beneficiaries() + "  |  " + r.place()));
+    }
+
+    private static VBox reportDueCard(HandoffRecord r) {
+        return Cards.card(Cards.title("Report"), Cards.muted("Not submitted yet. Due " + FormSupport.when(r.reportDueAt()) + "."));
+    }
+
+    private static VBox reportCard(Report report, HandoffRecord r) {
+        VBox card = Cards.card(Cards.title("Report" + (report.isLate(r.reportDueAt()) ? " (submitted late)" : "")),
+                Cards.line(report.eventName + "  |  " + report.eventDate + "  |  " + report.peopleServed + " people served"),
+                Cards.line(report.description),
+                Cards.muted(report.photos.size() + " photos  |  submitted " + FormSupport.when(report.submittedAt)));
+        return card;
+    }
+
+    // PATTERN:ACTION opens the Submit Report form for this handoff
     @FXML
-    private void handleBackToHistory() {
-        Navigator.show(Screen.HISTORY);
+    private void handleSubmitReport() {
+        Selection.selectOffer(offerId);
+        Navigator.show(Navigator.Screen.FOODGROUP_SUBMIT_REPORT);
+    }
+
+    // PATTERN:ACTION back to History
+    @FXML
+    private void handleBack() {
+        Navigator.show(Navigator.Screen.HISTORY);
     }
 }

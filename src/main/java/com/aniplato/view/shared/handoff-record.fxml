@@ -4,216 +4,31 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.ScrollPane?>
 
-<!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
-<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.HandoffRecordController">
-    <children>
-
-        <!-- MAIN VIEW CONTAINER -->
-        <ScrollPane fitToWidth="true" styleClass="table-scroll">
-            <stylesheets>
-                <URL value="@../aniplato.css" />
-            </stylesheets>
-            <content>
-                <VBox spacing="20.0" styleClass="dashboard-bg">
-                    <stylesheets>
-                        <URL value="@../aniplato.css" />
-                    </stylesheets>
-                    <padding>
-                        <Insets bottom="32.0" left="32.0" right="32.0" top="24.0" />
-                    </padding>
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.HandoffRecordController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
+    <content>
+        <VBox spacing="16.0" styleClass="dashboard-bg">
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT">
                     <children>
-
-                        <!-- PAGE HEADER BAR -->
-                        <HBox alignment="CENTER_LEFT" spacing="16.0">
-                            <children>
-                                <Label styleClass="page-title" text="Handoff Record" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <!-- PATTERN:NAV -> HISTORY -->
-                                <Button onAction="#handleBackToHistory" styleClass="primary-button" text="← Back to History" />
-                            </children>
-                        </HBox>
-
-                        <!-- DISCLAIMER BANNER -->
-                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="notice-box">
-                            <padding>
-                                <Insets bottom="14.0" left="16.0" right="16.0" top="14.0" />
-                            </padding>
-                            <children>
-                                <Label styleClass="required-star" text="ⓘ" />
-                                <Label styleClass="text-muted" text="This is an ANIPLATO platform record of a food handoff between two organizations. It is not a certificate of acceptance or fitness issued by DSWD, the Philippine Red Cross or any government agency." wrapText="true" HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-
-                        <!-- MAIN HANDOFF RECORD CARD -->
-                        <VBox spacing="24.0" styleClass="table-card" VBox.vgrow="ALWAYS">
-                            <padding>
-                                <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
-                            </padding>
-                            <children>
-
-                                <!-- RECORD HEADER ROW -->
-                                <HBox alignment="CENTER_LEFT" spacing="16.0">
-                                    <children>
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <!-- PATTERN:DYNAMIC itemTitle -->
-                                                <Label fx:id="itemTitleLabel" styleClass="card-title" text="Artisan Sourdough &amp; Baguettes" />
-                                                <!-- PATTERN:DYNAMIC recordMeta -->
-                                                <Label fx:id="recordMetaLabel" styleClass="doc-subtitle" text="Record HR-2026-0412 · closed Oct 8, 2026, 4:12 PM" />
-                                            </children>
-                                        </VBox>
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <!-- PATTERN:DYNAMIC statusPill -->
-                                        <Label fx:id="statusPillLabel" styleClass="pill-rescued" text="RESCUED" />
-                                    </children>
-                                </HBox>
-
-                                <!-- RECORD DETAILS GRID -->
-                                <GridPane hgap="32.0" vgap="20.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="50.0" />
-                                        <ColumnConstraints percentWidth="50.0" />
-                                    </columnConstraints>
-                                    <children>
-
-                                        <!-- DONOR -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="DONOR" />
-                                                <!-- PATTERN:DYNAMIC donorDetails -->
-                                                <Label fx:id="donorDetailsLabel" styleClass="form-label" text="Manila Artisanal Bakeshop · Mandaluyong City" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- FOOD GROUP -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="FOOD GROUP" />
-                                                <!-- PATTERN:DYNAMIC foodGroupDetails -->
-                                                <Label fx:id="foodGroupDetailsLabel" styleClass="form-label" text="San Roque Parish Feeding Mission · Mandaluyong City" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- FOOD -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="FOOD" />
-                                                <!-- PATTERN:DYNAMIC foodTypeQuantity -->
-                                                <Label fx:id="foodTypeQuantityLabel" styleClass="form-label" text="Baked · 45 kg (as listed)" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- STATED USE -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="STATED USE" />
-                                                <!-- PATTERN:DYNAMIC statedUse -->
-                                                <Label fx:id="statedUseLabel" styleClass="form-label" text="Evening soup kitchen after the 6 PM mass" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- WHO IT FED -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="WHO IT FED" />
-                                                <!-- PATTERN:DYNAMIC beneficiaries -->
-                                                <Label fx:id="beneficiariesLabel" styleClass="form-label" text="About 80 seniors and families" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- PICKUP TIME -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="PICKUP TIME" />
-                                                <!-- PATTERN:DYNAMIC pickupTime -->
-                                                <Label fx:id="pickupTimeLabel" styleClass="form-label" text="Oct 8, 2026, 4:00 PM" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- RELEASED BY DONOR -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="RELEASED BY DONOR" />
-                                                <!-- PATTERN:DYNAMIC releaseTimestamp -->
-                                                <Label fx:id="releaseTimestampLabel" styleClass="form-label" text="Oct 8, 4:05 PM" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- RECEIVED BY FOOD GROUP -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="RECEIVED BY FOOD GROUP" />
-                                                <!-- PATTERN:DYNAMIC receiptTimestamp -->
-                                                <Label fx:id="receiptTimestampLabel" styleClass="form-label" text="Oct 8, 4:12 PM" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- DONOR ATTESTATION -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="DONOR ATTESTATION" />
-                                                <!-- PATTERN:DYNAMIC donorAttestation -->
-                                                <Label fx:id="donorAttestationLabel" styleClass="form-label" text="Signed Oct 8, 1:02 PM" />
-                                            </children>
-                                        </VBox>
-
-                                        <!-- GROUP ATTESTATION -->
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                            <children>
-                                                <Label styleClass="stat-card-title" text="GROUP ATTESTATION" />
-                                                <!-- PATTERN:DYNAMIC groupAttestation -->
-                                                <Label fx:id="groupAttestationLabel" styleClass="form-label" text="Signed Oct 8, 2:10 PM" />
-                                            </children>
-                                        </VBox>
-
-                                    </children>
-                                </GridPane>
-
-                                <!-- PATTERN:DYNAMIC visibility: reportBox shown for the donor handoff record -->
-                                <VBox fx:id="reportBox" managed="false" spacing="10.0" styleClass="report-section" visible="false">
-                                    <children>
-                                        <Region minHeight="1.0" styleClass="divider" />
-                                        <Label styleClass="stat-card-title" text="REPORT" />
-                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                            <children>
-                                                <!-- PATTERN:DYNAMIC reportStatus -->
-                                                <Label fx:id="reportStatusLabel" styleClass="pill-rescued" text="SUBMITTED" />
-                                                <!-- PATTERN:DYNAMIC reportMeta -->
-                                                <Label fx:id="reportMetaLabel" styleClass="table-cell-text" text="Submitted Oct 9, 2026, 10:20 AM" />
-                                            </children>
-                                        </HBox>
-                                        <!-- PATTERN:DYNAMIC reportSummary -->
-                                        <Label fx:id="reportSummaryLabel" styleClass="form-label" text="School feeding program · Oct 8, 2026 · 82 people served" />
-                                        <!-- PATTERN:DYNAMIC reportDetails -->
-                                        <Label fx:id="reportDetailsLabel" styleClass="table-cell-text" text="Evening meal served at the parish hall to 82 pupils, seniors and families. Everything was distributed free." wrapText="true" />
-                                        <HBox spacing="8.0">
-                                            <children>
-                                                <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
-                                                <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
-                                                <Region minHeight="58.0" minWidth="78.0" styleClass="upload-preview" />
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                            </children>
-                        </VBox>
-
+                        <Label styleClass="page-title" text="Handoff Record" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <!-- PATTERN:DYNAMIC submitReportButton : shown only to the food group that still owes the report -->
+                        <Button fx:id="submitReportButton" onAction="#handleSubmitReport" styleClass="primary-button" text="Submit report" />
                     </children>
-                </VBox>
-            </content>
-        </ScrollPane>
-
-        <!-- PATTERN:DYNAMIC visibility: Modal Dialog Overlay embedded via fx:include -->
-        <fx:include fx:id="dialog" managed="false" source="dialog.fxml" visible="false" />
-
-    </children>
-</StackPane>
+                </HBox>
+                <!-- PATTERN:DYNAMIC recordBox : the record and, once submitted, the report -->
+                <VBox fx:id="recordBox" spacing="12.0" />
+                <Label fx:id="disclaimerLabel" styleClass="text-muted" wrapText="true" />
+                <!-- PATTERN:ACTION handleBack -->
+                <Button onAction="#handleBack" styleClass="secondary-button" text="Back" />
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

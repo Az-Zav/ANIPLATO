@@ -93,6 +93,18 @@ public class ReportService {
         });
     }
 
+    /** True if the logged-in account is the receiving food group of a Completed handoff and no report exists yet: it decides whether the screen offers "Submit report". */
+    public boolean canSubmit(int offerId) {
+        Account me = Session.require();
+        return Database.inTransaction("Could not load the handoff", c -> {
+            Offer offer = offerDao.findById(c, offerId);
+            if (offer == null || offer.status != Offer.Status.COMPLETED) return false;
+            Post post = postDao.findById(c, offer.postId);
+            int receiver = post.isListing() ? offer.offererId : post.posterId;
+            return me.id == receiver && reportDao.findByOffer(c, offerId) == null;
+        });
+    }
+
     /** When the report of a Completed handoff is due: receipt plus the report period. Worked out, not stored (A9). */
     public LocalDateTime getDueAt(int offerId) {
         return Database.inTransaction("Could not load the handoff", c -> {

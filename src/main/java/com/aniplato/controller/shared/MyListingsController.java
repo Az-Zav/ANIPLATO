@@ -1,38 +1,36 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.controller.Cards;
+import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.MyPostRows;
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Post;
+import com.aniplato.service.PostService;
+import com.aniplato.util.Navigator;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
-/** Shared screen. Never checks the role. */
+import java.util.List;
+
+/** My Listings. Shared screen: it asks for "my" posts and never checks the role (A5). */
 public class MyListingsController {
 
-    @FXML private Label activeListingsCountLabel;
-    @FXML private Label awaitingPickupCountLabel;
-    @FXML private Label openOnBoardCountLabel;
-    @FXML private TextField listingSearchField;
-    @FXML private VBox listingRowsBox;
-    @FXML private Label emptyListingsLabel;
+    private final PostService postService = new PostService();
+    private MyPostRows rows;
+
+    @FXML private VBox rowsBox;
+    @FXML private Label emptyLabel;
     @FXML private DialogController dialogController;
 
-    // PATTERN:DYNAMIC fills the three stat cards and the empty state
     @FXML
     private void initialize() {
-        // TODO(service): fill activeListingsCountLabel, awaitingPickupCountLabel and openOnBoardCountLabel (and their kg lines)
-        // TODO(service): add one row to listingRowsBox per donor listing
-        // TODO(service): show emptyListingsLabel when the donor has no listings
+        rows = new MyPostRows(dialogController, Navigator.Screen.LISTING_OFFERS, this::refresh);
+        refresh();
     }
 
-    // PATTERN:ACTION placeholders: filter/search/release behavior is service-backed later
-    @FXML private void handleFilterAll() { }
-    @FXML private void handleFilterAccepted() { }
-    @FXML private void handleFilterOpen() { }
-    @FXML private void handleConfirmRelease() { }
-
-    // PATTERN:ACTION opens the existing cancel-listing confirmation dialog
-    @FXML
-    private void handleCancelListing() {
-        dialogController.showCancelListingMode("Artisan Sourdough & Baguettes", "San Roque Parish Feeding Mission");
+    private void refresh() {
+        List<Post> posts = FormSupport.load(postService::getMyPosts, List.of());
+        Cards.fill(rowsBox, emptyLabel, rows.build(posts));
     }
 }

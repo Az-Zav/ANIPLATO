@@ -86,7 +86,7 @@ public class OfferService {
         Post post = requirePost(f.postId(), Post.Kind.REQUEST);
         requireText(f.description(), "Describe the food.", 200);
         if (f.category() == null) throw new RuleViolationException("Pick a category.");
-        if (me.role == Account.Role.CASUAL_DONOR && !f.category().allowedForCasual()) {
+        if (!me.mayGive(f.category())) {
             throw new RuleViolationException("Casual donors can give raw or sealed-packaged food only.");
         }
         if (!post.use.acceptedCategories.contains(f.category())) {

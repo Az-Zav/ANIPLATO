@@ -39,6 +39,7 @@ public class Post {
     public UseDetail use;                            // requests only
     public List<String> photos = new ArrayList<>();  // stored paths, filled by the service
     public int offerCount;                           // worked out for the poster's own lists, 0 elsewhere
+    public Offer acceptedOffer;                      // the Accepted or Completed offer, on the poster's own lists only
 
     public boolean isListing() {
         return kind == Kind.LISTING;

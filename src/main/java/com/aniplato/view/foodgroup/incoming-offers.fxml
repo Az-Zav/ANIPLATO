@@ -13,56 +13,20 @@
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
         <VBox spacing="16.0" styleClass="dashboard-bg">
-            <padding><Insets bottom="32.0" left="24.0" right="24.0" top="24.0" /></padding>
+            <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
-                <!-- PATTERN:NAV -> MY_REQUESTS -->
-                <Button onAction="#handleBack" styleClass="link-button" text="← My Requests" />
-                <HBox alignment="CENTER_LEFT"><children><Label styleClass="page-title" text="Offers for this request" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="text-muted" text="Accepting one offer declines the others. Contact numbers are shared once you accept." /></children></HBox>
-                <HBox spacing="26.0" styleClass="table-card">
-                    <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
+                <HBox alignment="CENTER_LEFT">
                     <children>
-                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="REQUEST" /><Label styleClass="table-cell-primary" text="Vegetables for pantry" /></children></VBox>
-                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="ACCEPTS" /><Label styleClass="table-cell-primary" text="Raw" /></children></VBox>
-                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="KG NEEDED" /><Label styleClass="table-cell-primary" text="30 kg" /></children></VBox>
-                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="NEEDED-BY" /><Label styleClass="table-cell-primary" text="Tomorrow, 9:00 AM" /></children></VBox>
-                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="EVENT" /><Label styleClass="table-cell-primary" text="School feeding program" /></children></VBox>
+                        <Label styleClass="page-title" text="Offers Received" />
+                        <Region HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
-                <HBox alignment="CENTER_LEFT"><children><Label styleClass="section-title" text="3 offers" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="text-muted" text="Choose the offer that best fits your request." /></children></HBox>
-                <VBox spacing="12.0">
-                    <children>
-                        <VBox spacing="12.0" styleClass="table-card">
-                            <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
-                            <children>
-                                <HBox alignment="CENTER_LEFT"><children><VBox HBox.hgrow="ALWAYS"><children><Label styleClass="card-title" text="Manila Artisanal Bakeshop" /><Label styleClass="text-muted" text="Business donor · Mandaluyong City · offered 3:05 PM" /></children></VBox><Button styleClass="secondary-button" text="Decline" /><Button onAction="#handleAcceptOffer" styleClass="primary-button" text="Accept offer"><HBox.margin><Insets left="8.0" /></HBox.margin></Button></children></HBox>
-                                <HBox spacing="24.0">
-                                    <children>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="FOOD" /><Label styleClass="table-cell-text" text="Fresh vegetables in sealed crates" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="CATEGORY AND STORAGE" /><Label styleClass="table-cell-text" text="Raw · Ambient Dry" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="QUANTITY" /><Label styleClass="table-cell-text" text="30 kg" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="PICKUP WINDOW" /><Label styleClass="table-cell-text" text="Tomorrow, 7:00–9:00 AM" /></children></VBox>
-                                    </children>
-                                </HBox>
-                                <Label styleClass="text-success-bold" text="✓ Donor attestation signed: wholesome, labeled, donated in good faith" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="12.0" styleClass="table-card">
-                            <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
-                            <children>
-                                <HBox alignment="CENTER_LEFT"><children><VBox HBox.hgrow="ALWAYS"><children><Label styleClass="card-title" text="Boni Fresh Grocery" /><Label styleClass="text-muted" text="Business donor · Mandaluyong City · offered 3:20 PM" /></children></VBox><Button styleClass="secondary-button" text="Decline" /><Button onAction="#handleAcceptOffer" styleClass="primary-button" text="Accept offer"><HBox.margin><Insets left="8.0" /></HBox.margin></Button></children></HBox>
-                                <HBox spacing="24.0">
-                                    <children>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="FOOD" /><Label styleClass="table-cell-text" text="Pechay and ampalaya" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="CATEGORY AND STORAGE" /><Label styleClass="table-cell-text" text="Raw · Ambient Dry" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="QUANTITY" /><Label styleClass="table-cell-text" text="25 kg" /></children></VBox>
-                                        <VBox HBox.hgrow="ALWAYS"><children><Label styleClass="text-muted" text="PICKUP WINDOW" /><Label styleClass="table-cell-text" text="Tomorrow, 8:00–9:00 AM" /></children></VBox>
-                                    </children>
-                                </HBox>
-                                <Label styleClass="text-success-bold" text="✓ Donor attestation signed: wholesome, labeled, donated in good faith" />
-                            </children>
-                        </VBox>
-                    </children>
-                </VBox>
+                <Label styleClass="text-muted" text="Offers on your requests. Accept one and the others are declined; both sides then see each other's contact number." wrapText="true" />
+                <!-- PATTERN:LIST rowsBox : one card per row, built in the controller -->
+                <VBox fx:id="rowsBox" spacing="12.0" />
+                <!-- PATTERN:DYNAMIC emptyLabel : shown when there are no rows -->
+                <Label fx:id="emptyLabel" styleClass="text-muted" text="No offers have come in yet." wrapText="true" />
+                <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
             </children>
         </VBox>
     </content>

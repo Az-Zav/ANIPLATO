@@ -1,96 +1,89 @@
 package com.aniplato.controller.donor;
 
+import com.aniplato.controller.DateTimeField;
+import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.LabelConverter;
+import com.aniplato.controller.PhotoPicker;
+import com.aniplato.controller.PostCards;
+import com.aniplato.model.Account;
+import com.aniplato.model.FoodDetail;
+import com.aniplato.model.Post;
+import com.aniplato.service.OfferService;
+import com.aniplato.service.PostService;
 import com.aniplato.util.Navigator;
-import javafx.collections.FXCollections;
+import com.aniplato.util.Selection;
+import com.aniplato.util.Session;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
-import java.io.File;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/** The donor's Make Offer form for a request (R3.2). Reads the fields and hands them to OfferService. */
 public class MakeOfferController {
 
-    @FXML private TextField itemDescriptionField;
-    @FXML private TextField quantityField;
-    @FXML private TextField safeUseByField;
-    @FXML private TextField pickupWindowField;
-    @FXML private TextField handoverInstructionsField;
-    @FXML private CheckBox donorAttestationCheck;
-    @FXML private Label photoStatusLabel;
-    @FXML private Label formStatusLabel;
-    @FXML private RadioButton ambientDryRadio;
-    @FXML private RadioButton chilledRadio;
-    @FXML private RadioButton hotHoldRadio;
+    private final OfferService offerService = new OfferService();
+    private final PostService postService = new PostService();
+    private final Map<FoodDetail.Allergen, CheckBox> allergenChecks = new EnumMap<>(FoodDetail.Allergen.class);
+    private int postId;
 
-    private List<File> selectedPhotos = List.of();
+    @FXML private VBox summaryBox;
+    @FXML private TextField descriptionField;
+    @FXML private ComboBox<FoodDetail.Category> categoryCombo;
+    @FXML private ComboBox<FoodDetail.Storage> storageCombo;
+    @FXML private FlowPane allergenBox;
+    @FXML private TextField kgField;
+    @FXML private DateTimeField useByField;
+    @FXML private DateTimeField pickupStartField;
+    @FXML private DateTimeField pickupEndField;
+    @FXML private PhotoPicker photoPicker;
+    @FXML private TextArea handoverArea;
+    @FXML private CheckBox attestationCheck;
 
     @FXML
     private void initialize() {
-        ToggleGroup storageGroup = new ToggleGroup();
-        ambientDryRadio.setToggleGroup(storageGroup);
-        chilledRadio.setToggleGroup(storageGroup);
-        hotHoldRadio.setToggleGroup(storageGroup);
-        ambientDryRadio.setSelected(true);
-        photoStatusLabel.setText("0 of 5 photos selected.");
-        formStatusLabel.setText("");
-    }
-
-    // PATTERN:NAV -> DONOR_BROWSE_REQUESTS
-    @FXML
-    private void handleBackToRequests() {
-        Navigator.show(Navigator.Screen.DONOR_BROWSE_REQUESTS);
-    }
-
-    // PATTERN:ACTION handleAddPhotos
-    @FXML
-    private void handleAddPhotos() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Add food photos");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                "Image files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
-
-        Window window = photoStatusLabel.getScene() == null ? null : photoStatusLabel.getScene().getWindow();
-        List<File> files = chooser.showOpenMultipleDialog(window);
-        if (files == null || files.isEmpty()) {
-            return;
+        postId = Selection.postId();
+        Account me = Session.require();
+        List<Post> board = FormSupport.load(postService::getOpenRequests, List.of());
+        Post request = board.stream().filter(p -> p.id == postId).findFirst().orElse(null);
+        if (request != null) {
+            summaryBox.getChildren().add(PostCards.postCard(request, new VBox()));
+            for (FoodDetail.Category category : request.use.acceptedCategories) {
+                if (me.mayGive(category)) categoryCombo.getItems().add(category);   // only what the request accepts and the donor may give
+            }
         }
-
-        if (selectedPhotos.size() + files.size() > 5) {
-            formStatusLabel.setText("You can add up to five photos.");
-            return;
+        storageCombo.getItems().addAll(FoodDetail.Storage.values());
+        for (FoodDetail.Allergen allergen : FoodDetail.Allergen.values()) {
+            CheckBox box = new CheckBox(allergen.label());
+            allergenChecks.put(allergen, box);
+            allergenBox.getChildren().add(box);
         }
-
-        selectedPhotos = FXCollections.observableArrayList(selectedPhotos);
-        selectedPhotos.addAll(files);
-        photoStatusLabel.setText(selectedPhotos.size() + " of 5 photos selected.");
-        formStatusLabel.setText("");
+        categoryCombo.setConverter(new LabelConverter<>(FoodDetail.Category::label));
+        storageCombo.setConverter(new LabelConverter<>(FoodDetail.Storage::label));
     }
 
-    // PATTERN:ACTION handleSendOffer
+    // PATTERN:ACTION sends the offer, then opens My Offers
     @FXML
-    private void handleSendOffer() {
-        if (itemDescriptionField.getText().isBlank()
-                || quantityField.getText().isBlank()
-                || safeUseByField.getText().isBlank()
-                || pickupWindowField.getText().isBlank()
-                || !donorAttestationCheck.isSelected()) {
-            formStatusLabel.setText("Complete the required fields and donor attestation before sending.");
-            return;
-        }
-
-        // TODO(service): submit the offer through the offer service (FLOWS.md module 6)
-        formStatusLabel.setText("Offer sent successfully.");
-    }
-
-    // PATTERN:ACTION handleCancel
-    @FXML
-    private void handleCancel() {
-        Navigator.show(Navigator.Screen.DONOR_BROWSE_REQUESTS);
+    private void handleSend() {
+        boolean sent = FormSupport.attempt(() -> {
+            Set<FoodDetail.Allergen> allergens = EnumSet.noneOf(FoodDetail.Allergen.class);
+            allergenChecks.forEach((allergen, box) -> {
+                if (box.isSelected()) allergens.add(allergen);
+            });
+            offerService.sendRequestOffer(new OfferService.RequestOfferForm(postId, descriptionField.getText(),
+                    categoryCombo.getValue(), storageCombo.getValue(), allergens,
+                    FormSupport.number(kgField.getText(), "the weight"), useByField.value("the use-by"),
+                    pickupStartField.value("the pickup window start"), pickupEndField.value("the pickup window end"),
+                    handoverArea.getText(), attestationCheck.isSelected(), photoPicker.files()));
+        });
+        if (sent) Navigator.show(Navigator.Screen.DONOR_MY_OFFERS);
     }
 }

@@ -1,26 +1,35 @@
 package com.aniplato.controller.donor;
 
+import com.aniplato.controller.Cards;
+import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.IncomingOfferRows;
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Offer;
+import com.aniplato.service.AcceptanceService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import java.util.List;
+
+/** Incoming Offers: the offers on the donor's listings, accept or decline. */
 public class IncomingOffersController {
 
-    @FXML private Label offerCountLabel;
-    @FXML private VBox offerRowsBox;
-    @FXML private Label emptyOffersLabel;
+    private final AcceptanceService acceptanceService = new AcceptanceService();
+    private IncomingOfferRows rows;
 
-    // PATTERN:DYNAMIC fills offer count and empty state
+    @FXML private VBox rowsBox;
+    @FXML private Label emptyLabel;
+    @FXML private DialogController dialogController;
+
     @FXML
     private void initialize() {
-        // TODO(service): offerCountLabel.setText(offerService.countIncomingForDonor(...) + " offers")
-        // TODO(service): add one row to offerRowsBox per incoming offer
-        // TODO(service): show emptyOffersLabel when there are no incoming offers
+        rows = new IncomingOfferRows(dialogController, this::refresh);
+        refresh();
     }
 
-    // PATTERN:ACTION placeholder: does nothing yet
-    @FXML
-    private void handleReviewOffer() {
-        // TODO(service): load the selected offer review state
+    private void refresh() {
+        List<Offer> offers = FormSupport.load(acceptanceService::getIncomingOffers, List.of());
+        Cards.fill(rowsBox, emptyLabel, rows.build(offers));
     }
 }

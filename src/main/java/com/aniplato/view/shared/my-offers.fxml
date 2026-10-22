@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -18,101 +17,16 @@
             <children>
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <Label fx:id="pageTitle" styleClass="page-title" text="My Offers" />
+                        <Label styleClass="page-title" text="My Offers" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <!-- PATTERN:NAV -> DONOR_BROWSE_REQUESTS -->
-                        <Button onAction="#handleBrowseRequests" styleClass="primary-button" text="Browse Requests" />
                     </children>
                 </HBox>
-                <Label fx:id="pageSubtitle" styleClass="text-muted" text="Track offers associated with your donor account." />
-                <HBox spacing="16.0">
-                    <children>
-                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-card-title" text="ACCEPTED OFFERS" />
-                                <Label styleClass="metric-value" text="2" />
-                                <Label styleClass="metric-caption" text="65 kg · confirm at release" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-card-title" text="YOU RELEASED" />
-                                <Label styleClass="metric-value" text="1" />
-                                <Label styleClass="metric-caption" text="25 kg · waiting for receipt" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="8.0" styleClass="metric-card" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-card-title" text="KG RESCUED" />
-                                <HBox alignment="BASELINE_LEFT" spacing="5.0">
-                                    <children>
-                                        <Label styleClass="metric-value" text="1,690" />
-                                        <Label styleClass="stat-unit" text="kg" />
-                                    </children>
-                                </HBox>
-                                <Label styleClass="metric-caption" text="Total rescued to date" />
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-                <VBox spacing="14.0" styleClass="table-card" VBox.vgrow="ALWAYS">
-                    <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
-                    <children>
-                        <HBox alignment="CENTER_LEFT">
-                            <children>
-                                <HBox spacing="0.0" styleClass="tab-strip">
-                                    <children>
-                                        <Button styleClass="tab-button, tab-button-active" text="All (4)" />
-                                        <Button styleClass="tab-button" text="Waiting for food group (1)" />
-                                        <Button styleClass="tab-button" text="Accepted (2)" />
-                                        <Button styleClass="tab-button" text="Closed (1)" />
-                                    </children>
-                                </HBox>
-                                <Region HBox.hgrow="ALWAYS" />
-                                <TextField prefWidth="268.0" promptText="Search request or food group..." />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
-                            <children>
-                                <Label prefWidth="190.0" styleClass="table-header-text" text="REQUEST" />
-                                <Label prefWidth="190.0" styleClass="table-header-text" text="FOOD GROUP" />
-                                <Label prefWidth="65.0" styleClass="table-header-text" text="KG" />
-                                <Label prefWidth="125.0" styleClass="table-header-text" text="PICKUP" />
-                                <Label prefWidth="115.0" styleClass="table-header-text" text="STATUS" />
-                                <Region HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:LIST myOffers : representative donor offer rows -->
-                        <VBox spacing="0.0">
-                            <children>
-                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
-                                    <children>
-                                        <Label prefWidth="190.0" styleClass="table-cell-primary" text="Bread for school meals" wrapText="true" />
-                                        <Label prefWidth="190.0" styleClass="table-cell-text" text="San Roque Parish Feeding Mission" wrapText="true" />
-                                        <Label prefWidth="65.0" styleClass="table-cell-text" text="40 kg" />
-                                        <Label prefWidth="125.0" styleClass="table-cell-muted" text="Today, 5:00 PM" />
-                                        <Label prefWidth="115.0" styleClass="status-pill status-accepted" text="Accepted" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <!-- PATTERN:ACTION handleConfirmReceipt -->
-                                        <Button onAction="#handleConfirmReceipt" styleClass="table-review-btn small-button" text="Confirm receipt" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
-                                    <children>
-                                        <Label prefWidth="190.0" styleClass="table-cell-primary" text="Breakfast packs for tomorrow" wrapText="true" />
-                                        <Label prefWidth="190.0" styleClass="table-cell-text" text="Hulo Community Kitchen" wrapText="true" />
-                                        <Label prefWidth="65.0" styleClass="table-cell-text" text="25 kg" />
-                                        <Label prefWidth="125.0" styleClass="table-cell-muted" text="Tomorrow, 7:30 AM" />
-                                        <Label prefWidth="115.0" styleClass="status-pill status-offered" text="Offered" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button styleClass="secondary-button small-button" text="Withdraw" />
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                        <Label styleClass="table-footer-note" text="Accepted offers remain here until the handoff is completed and confirmed." wrapText="true" />
-                    </children>
-                </VBox>
+                <Label styleClass="text-muted" text="Offers you sent on requests. You can withdraw one until the food group decides." wrapText="true" />
+                <!-- PATTERN:LIST rowsBox : one card per row, built in the controller -->
+                <VBox fx:id="rowsBox" spacing="12.0" />
+                <!-- PATTERN:DYNAMIC emptyLabel : shown when there are no rows -->
+                <Label fx:id="emptyLabel" styleClass="text-muted" text="You have not sent an offer yet." wrapText="true" />
+                <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
             </children>
         </VBox>
     </content>

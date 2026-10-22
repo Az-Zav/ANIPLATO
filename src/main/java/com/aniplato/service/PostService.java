@@ -61,7 +61,7 @@ public class PostService {
         LocalDateTime now = LocalDateTime.now();
         requireText(f.description(), "Describe the food.", 200);
         if (f.category() == null) throw new RuleViolationException("Pick a category.");
-        if (me.role == Account.Role.CASUAL_DONOR && !f.category().allowedForCasual()) {
+        if (!me.mayGive(f.category())) {
             throw new RuleViolationException("Casual donors can give raw or sealed-packaged food only.");
         }
         if (f.storage() == null) throw new RuleViolationException("Pick a storage condition.");
@@ -165,7 +165,12 @@ public class PostService {
         Account me = Session.require();
         return Database.inTransaction("Could not load your posts", c -> {
             List<Post> posts = postDao.findByPoster(c, me.id);
-            for (Post post : posts) post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, post.id);
+            for (Post post : posts) {
+                post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, post.id);
+                List<Integer> settled = offerDao.findIdsByStatus(c, post.id, Offer.Status.ACCEPTED);
+                if (settled.isEmpty()) settled = offerDao.findIdsByStatus(c, post.id, Offer.Status.COMPLETED);
+                if (!settled.isEmpty()) post.acceptedOffer = offerDao.findById(c, settled.get(0));
+            }
             return posts;
         });
     }

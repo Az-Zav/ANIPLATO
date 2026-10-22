@@ -3,120 +3,30 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.IncomingOffersController">
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.donor.IncomingOffersController">
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
         <VBox spacing="16.0" styleClass="dashboard-bg">
             <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
-                <!-- PATTERN:NAV -> MY_LISTINGS -->
-                <Button styleClass="table-review-btn" text="← My Listings" />
-                <VBox spacing="4.0">
-                    <children>
-                        <Label styleClass="page-title" text="Offers for this listing" />
-                        <Label styleClass="text-muted" text="Review the food groups requesting this surplus item." />
-                    </children>
-                </VBox>
-                <VBox spacing="12.0" styleClass="table-card">
-                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                    <children>
-                        <Label styleClass="section-title" text="Listing summary" />
-                        <HBox spacing="32.0">
-                            <children>
-                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <children><Label styleClass="text-muted" text="FOOD" /><Label styleClass="dashboard-row-primary" text="Artisan Sourdough &amp; Baguettes" /></children>
-                                </VBox>
-                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <children><Label styleClass="text-muted" text="CATEGORY" /><Label styleClass="dashboard-row-text" text="Baked" /></children>
-                                </VBox>
-                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <children><Label styleClass="text-muted" text="QUANTITY" /><Label styleClass="dashboard-row-text" text="45 kg" /></children>
-                                </VBox>
-                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <children><Label styleClass="text-muted" text="USE-BY" /><Label styleClass="dashboard-row-text" text="Today, 5:10 PM" /></children>
-                                </VBox>
-                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <children><Label styleClass="text-muted" text="PICKUP WINDOW" /><Label styleClass="dashboard-row-text" text="Today, 4:00–5:00 PM" /></children>
-                                </VBox>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-                <Label styleClass="notice-banner" text="Accepting one offer declines the others. Contact numbers are shared once you accept." wrapText="true" />
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <Label styleClass="section-title" text="Incoming offers" />
+                        <Label styleClass="page-title" text="Incoming Offers" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <!-- PATTERN:DYNAMIC offerCountLabel : whole number of incoming offers -->
-                        <Label fx:id="offerCountLabel" styleClass="text-muted" text="3 offers" />
                     </children>
                 </HBox>
-                <!-- PATTERN:LIST offerRowsBox : one offer card per incoming offer -->
-                <VBox fx:id="offerRowsBox" spacing="12.0">
-                    <children>
-                        <VBox spacing="12.0" styleClass="table-card">
-                            <padding><Insets bottom="18.0" left="20.0" right="20.0" top="18.0" /></padding>
-                            <children>
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label styleClass="dashboard-row-primary" text="San Roque Parish Feeding Mission" />
-                                                <Label styleClass="text-muted" text="Community feeding program · Quezon City · requested today, 2:15 PM" />
-                                            </children>
-                                        </VBox>
-                                        <Button onAction="#handleReviewOffer" styleClass="secondary-button" text="Decline" />
-                                        <Button onAction="#handleReviewOffer" styleClass="primary-button" text="Accept offer">
-                                 <HBox.margin>
-                                    <Insets left="5.0" />
-                                 </HBox.margin></Button>
-                                    </children>
-                                </HBox>
-                                <HBox spacing="32.0">
-                                    <children>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children><Label styleClass="text-muted" text="WHAT IT'S FOR" /><Label styleClass="dashboard-row-text" text="Hot meal packs" /></children>
-                                        </VBox>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children><Label styleClass="text-muted" text="WHO IT FEEDS" /><Label styleClass="dashboard-row-text" text="120 families" /></children>
-                                        </VBox>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children><Label styleClass="text-muted" text="WHERE" /><Label styleClass="dashboard-row-text" text="San Roque Parish Hall" /></children>
-                                        </VBox>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children><Label styleClass="text-muted" text="PICKUP" /><Label styleClass="dashboard-row-text" text="Today, 4:30 PM" /></children>
-                                        </VBox>
-                                    </children>
-                                </HBox>
-                        <HBox prefHeight="42.0" prefWidth="614.0">
-                           <children>
-                              <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@/assets/login_hero.png" />
-                                 </image>
-                              </ImageView>
-                              <CheckBox mnemonicParsing="false" prefHeight="16.0" prefWidth="528.0" text="Group attestation: We will give this food away free, will not sell it, and will handle it safely after pickup. Photos show no identifiable children, and identifiable adults have consented." textOverrun="CLIP" wrapText="true">
-                                 <HBox.margin>
-                                    <Insets left="10.0" top="25.0" />
-                                 </HBox.margin>
-                              </CheckBox>
-                           </children>
-                        </HBox>
-                            </children>
-                        </VBox>
-                    </children>
-                </VBox>
-                <!-- PATTERN:DYNAMIC emptyOffersLabel : shown when no offers need review -->
-                <Label fx:id="emptyOffersLabel" managed="false" styleClass="text-muted" text="There are no incoming offers to review." visible="false" />
+                <Label styleClass="text-muted" text="Offers on your listings. Accept one and the others are declined; both sides then see each other's contact number." wrapText="true" />
+                <!-- PATTERN:LIST rowsBox : one card per row, built in the controller -->
+                <VBox fx:id="rowsBox" spacing="12.0" />
+                <!-- PATTERN:DYNAMIC emptyLabel : shown when there are no rows -->
+                <Label fx:id="emptyLabel" styleClass="text-muted" text="No offers have come in yet." wrapText="true" />
+                <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
             </children>
         </VBox>
     </content>

@@ -1,40 +1,35 @@
 package com.aniplato.controller.shared;
 
-import com.aniplato.model.Account;
-import com.aniplato.util.Navigator;
+import com.aniplato.controller.Cards;
+import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.MyOfferRows;
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Offer;
+import com.aniplato.service.OfferService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
-/** Shared offers destination whose copy can adapt to the signed-in role. */
+import java.util.List;
+
+/** My Offers. Shared screen: it asks for "my" offers and never checks the role (A5). */
 public class MyOffersController {
 
-    @FXML private Label pageTitle;
-    @FXML private Label pageSubtitle;
+    private final OfferService offerService = new OfferService();
+    private MyOfferRows rows;
+
+    @FXML private VBox rowsBox;
+    @FXML private Label emptyLabel;
+    @FXML private DialogController dialogController;
 
     @FXML
     private void initialize() {
-        Account.Role role = Navigator.currentRole();
-        if (role == Account.Role.BUSINESS_DONOR || role == Account.Role.CASUAL_DONOR) {
-            pageTitle.setText("My Offers");
-            pageSubtitle.setText("Track offers you have made on available requests.");
-        } else if (role == Account.Role.FOOD_GROUP) {
-            pageTitle.setText("My Offers");
-            pageSubtitle.setText("Track your offers and accepted food pickups.");
-        } else {
-            pageTitle.setText("My Offers");
-            pageSubtitle.setText("Review offers associated with your account.");
-        }
+        rows = new MyOfferRows(dialogController, this::refresh);
+        refresh();
     }
 
-    // PATTERN:NAV -> DONOR_BROWSE_REQUESTS
-    @FXML
-    private void handleBrowseRequests() {
-        Navigator.show(Navigator.Screen.DONOR_BROWSE_REQUESTS);
-    }
-
-    // PATTERN:ACTION placeholder: opens the shared handoff confirmation flow
-    @FXML
-    private void handleConfirmReceipt() {
-        Navigator.show(Navigator.Screen.HANDOFF_RECORD);
+    private void refresh() {
+        List<Offer> offers = FormSupport.load(offerService::getMyOffers, List.of());
+        Cards.fill(rowsBox, emptyLabel, rows.build(offers));
     }
 }

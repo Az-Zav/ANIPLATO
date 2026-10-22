@@ -68,6 +68,11 @@ public abstract class Account {
         return status == Status.ACTIVE;
     }
 
+    /** A Business donor may give any category; a Casual donor raw or sealed-packaged only (6.5). */
+    public boolean mayGive(FoodDetail.Category category) {
+        return role != Role.CASUAL_DONOR || category.allowedForCasual();
+    }
+
     //---SUBCLASS HOOKS---
 
     /** Name shown in headers and lists: the organization name, or the admin's name. */

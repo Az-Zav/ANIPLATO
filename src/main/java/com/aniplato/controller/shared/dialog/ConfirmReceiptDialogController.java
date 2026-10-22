@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 
-/** Confirm Receipt (Food Group). Does nothing but close until the handoff feature is built (FLOWS.md module 8). */
+/** Confirm Receipt (Food Group): the group says the food arrived. */
 public class ConfirmReceiptDialogController extends DialogCard {
 
     @FXML private Label receiptFoodLabel;
@@ -16,7 +16,10 @@ public class ConfirmReceiptDialogController extends DialogCard {
     @FXML private CheckBox receiptConditionCheck;
     @FXML private Label receiptNoticeLabel;
 
+    private Runnable onReceipt;
+
     public void show(String food, String qty, String donor, String pickup, String contact, String releaseTime) {
+        onReceipt = null;
         open();
         receiptFoodLabel.setText(food);
         receiptQuantityLabel.setText(qty);
@@ -33,6 +36,12 @@ public class ConfirmReceiptDialogController extends DialogCard {
         }
     }
 
+    /** Receipt with a real action. */
+    public void show(String food, String qty, String donor, String pickup, String contact, String releaseTime, Runnable onConfirm) {
+        show(food, qty, donor, pickup, contact, releaseTime);
+        onReceipt = onConfirm;
+    }
+
     @FXML
     private void handleSwitchToFlagSafety() {
         openFlagSafetyConcern();
@@ -41,6 +50,10 @@ public class ConfirmReceiptDialogController extends DialogCard {
     // PATTERN:ACTION confirms receiving food
     @FXML
     private void handleConfirmReceipt() {
+        if (onReceipt != null) {
+            confirm(onReceipt);
+            return;
+        }
         close();
     }
 }

@@ -20,12 +20,12 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **SAFETY** | Safety notices | admin resolves notices, a concern can be raised in the service; *raising from a screen: not built* | 🟡 | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
 | **MAINT** | Automatic checks | all six 6.6 checks run before every in-shell screen | ✅ | 6.6 | 12 |
-| **LISTING** | Post a listing (Route 1) | post surplus food, see own listings; *screens not wired yet* | 🟡 | 6.2 Stage 2A | 5 |
-| **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
-| **OFFER** | Browse and send offers | send and withdraw offers (both routes) and list your own; *screens not wired yet* | 🟡 | 6.2 Stage 3 | 6 |
-| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *screens not wired yet* | 🟡 | 6.2 Stage 4 | 7 |
-| **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post; *screens not wired yet* | 🟡 | 6.2 Stages 5-6 | 8 |
-| **REPORT** | Documentation report | the food group reports after receipt; overdue flag; *screens not wired yet* | 🟡 | 6.2 Stage 5 | 10 |
+| **LISTING** | Post a listing (Route 1) | post surplus food, see and cancel your own listings | ✅ | 6.2 Stage 2A | 5 |
+| **REQUEST** | Post a request (Route 2) | a food group asks for food, sees and cancels its requests | ✅ | 6.2 Stage 2B | 9 |
+| **OFFER** | Browse and send offers | browse the other side's board, send, withdraw and list offers (both routes) | ✅ | 6.2 Stage 3 | 6 |
+| **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *sidebar badges: not wired* | ✅ | 6.2 Stage 4 | 7 |
+| **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ✅ | 6.2 Stages 5-6 | 8 |
+| **REPORT** | Documentation report | the food group reports after receipt; the record shows it; overdue flag | ✅ | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
 | **DEMO** | Demo data and polish | a full demo story | ⬜ | Section 5 | 13 |
 | **SHELL** | The app frame | sidebar, header, navigation, logout, assistant panel | 🔧 | A5 | none |
@@ -101,6 +101,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `aniplato/Main.java` | JavaFX entry point: builds the window, starts `Navigator` at the login screen | SHELL |
 | `util/AppConfig.java` | reads `db.properties`; a `-Daniplato.<key>` system property overrides it (tests use this) | PLATFORM |
 | `util/Database.java` | the only class that opens connections; runs transactions (`inTransaction`) | PLATFORM |
+| `util/Selection.java` | the post or offer opened from a list, carried to the next screen | OFFER, HANDOFF, REPORT |
 | `util/Session.java` | who is logged in; `requireAdmin` for admin-only services | PLATFORM, AUTH |
 | `util/Navigator.java` | the only class that knows view paths: switches screens, sidebar and before-load hooks | SHELL |
 | `util/Settings.java` | every setting value (spec 6.7): grace hours, report days, warning days, photos, upload MB, password length, phone digits | PLATFORM |
@@ -188,21 +189,30 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/admin/AdminTable.java` | shared building blocks for the admin tables (cells, pills, dates) | REVIEW, ACCOUNTS, SAFETY |
 | `controller/admin/Pager.java` | page arithmetic for the admin lists | REVIEW, ACCOUNTS |
 | `controller/donor/DonorDashboardController.java` | donor dashboard (placeholder) | HISTORY |
-| `controller/donor/NewListingController.java` | new listing form (placeholder, photo picker works) | LISTING |
-| `controller/donor/BrowseRequestsController.java` | donor browses requests (placeholder) | OFFER |
-| `controller/donor/MakeOfferController.java` | donor's offer form (placeholder, photo picker works) | OFFER |
-| `controller/donor/IncomingOffersController.java` | offers on a donor's listing (placeholder) | ACCEPT |
+| `controller/donor/NewListingController.java` | the New Listing form: reads the fields, calls `PostService.createListing` | LISTING |
+| `controller/donor/BrowseRequestsController.java` | the donor's board of Open requests | OFFER |
+| `controller/donor/MakeOfferController.java` | the donor's offer form for a request | OFFER |
+| `controller/donor/IncomingOffersController.java` | offers on a donor's listings: accept, decline | ACCEPT |
 | `controller/foodgroup/FoodGroupDashboardController.java` | food group dashboard (placeholder) | HISTORY |
-| `controller/foodgroup/BrowseListingsController.java` | food group browses listings (placeholder) | OFFER |
-| `controller/foodgroup/MakeOfferController.java` | food group's offer form (placeholder) | OFFER |
-| `controller/foodgroup/MyOffersController.java` | food group's offers (placeholder) | OFFER |
-| `controller/foodgroup/FoodGroupIncomingOffersController.java` | offers on a food group's request (placeholder) | ACCEPT |
-| `controller/foodgroup/NewRequestController.java` | new request form (placeholder) | REQUEST |
-| `controller/foodgroup/MyRequestsController.java` | food group's requests (placeholder) | REQUEST |
-| `controller/foodgroup/SubmitReportController.java` | the report form (placeholder) | REPORT |
-| `controller/shared/MyListingsController.java` | donor's listings and the cancel dialog (placeholder) | LISTING, HANDOFF |
-| `controller/shared/MyOffersController.java` | offers screen whose copy follows the signed-in role (placeholder) | OFFER |
-| `controller/shared/HandoffRecordController.java` | one handoff record with its dialogs (placeholder) | HANDOFF |
+| `controller/foodgroup/BrowseListingsController.java` | the food group's board of Open listings | OFFER |
+| `controller/foodgroup/MakeOfferController.java` | the food group's offer form for a listing | OFFER |
+| `controller/foodgroup/MyOffersController.java` | the food group's offers, via `MyOfferRows` | OFFER |
+| `controller/foodgroup/FoodGroupIncomingOffersController.java` | offers on a food group's requests: accept, decline | ACCEPT |
+| `controller/foodgroup/NewRequestController.java` | the New Request form: reads the fields, calls `PostService.createRequest` | REQUEST |
+| `controller/foodgroup/MyRequestsController.java` | the food group's requests, via `MyPostRows` | REQUEST, HANDOFF |
+| `controller/foodgroup/SubmitReportController.java` | the report form, prefilled | REPORT |
+| `controller/shared/MyListingsController.java` | the donor's listings, via `MyPostRows` (asks for "my" posts, no role check) | LISTING, HANDOFF |
+| `controller/shared/MyOffersController.java` | the donor's offers, via `MyOfferRows` (asks for "my" offers, no role check) | OFFER |
+| `controller/shared/HandoffRecordController.java` | one handoff record with its report; the Submit report button for the receiving group | HANDOFF, REPORT |
+| `controller/Cards.java` | small builders for the card rows list screens fill in code | LISTING, OFFER, HANDOFF |
+| `controller/PostCards.java` | how a listing, a request and an offer read as cards | LISTING, OFFER |
+| `controller/MyPostRows.java` | the rows of My Listings and My Requests: view offers, release, receipt, cancel, record | LISTING, HANDOFF |
+| `controller/MyOfferRows.java` | the rows of My Offers: withdraw, offer again, release, receipt, record | OFFER, HANDOFF |
+| `controller/IncomingOfferRows.java` | the rows of Incoming Offers: accept, decline, contact | ACCEPT |
+| `controller/FormSupport.java` | runs a service call and shows a broken rule; reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
+| `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
+| `controller/PhotoPicker.java` | the Add photos button, previews and count | LISTING, OFFER, REPORT |
+| `controller/LabelConverter.java` | shows an enum's label in a combo box | LISTING, OFFER |
 | `controller/shared/HistoryController.java` | History with sample rows (placeholder) | HISTORY |
 
 ### Controllers: popups
@@ -320,6 +330,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
+| `controller/ScreensTest.java` | the round 3 screens load, show service data, and their buttons call the services | LISTING, OFFER, ACCEPT, HANDOFF, REPORT |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |
@@ -735,15 +746,15 @@ flowchart LR
 
 ### LISTING and REQUEST: post food, browse the other side's board 🟡
 
-Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Post.java`, `model/FoodDetail.java`, `model/UseDetail.java`, `service/FileStorageService.java`. The screens (`NewListingController`, `NewRequestController`, `MyListingsController`, `MyRequestsController`, `BrowseListingsController`, `BrowseRequestsController`) are still placeholders; they are wired in the last step of round 3.
+Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Post.java`, `model/FoodDetail.java`, `model/UseDetail.java`, `service/FileStorageService.java`. The screens wire them through `Cards`, `PostCards` and `FormSupport`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `PostService.createListing` | a donor posts a listing: checks the rules, saves photos, then food detail, post and log in one transaction | **no screen yet** | PostServiceTest |
-| `PostService.createRequest` | a food group posts a request, the same way | **no screen yet** | PostServiceTest |
-| `PostService.getOpenListings` | Open listings for a food group, its city first, suspended donors hidden, no handover text | **no screen yet** | PostServiceTest |
-| `PostService.getOpenRequests` | Open requests for a donor; a Casual donor sees only raw or packaged | **no screen yet** | PostServiceTest |
-| `PostService.getMyPosts` | the logged-in account's own posts with offer counts | **no screen yet** | PostServiceTest |
+| `PostService.createListing` | a donor posts a listing: checks the rules, saves photos, then food detail, post and log in one transaction | NewListingController | PostServiceTest |
+| `PostService.createRequest` | a food group posts a request, the same way | NewRequestController | PostServiceTest |
+| `PostService.getOpenListings` | Open listings for a food group, its city first, suspended donors hidden, no handover text | BrowseListingsController, foodgroup MakeOfferController | PostServiceTest |
+| `PostService.getOpenRequests` | Open requests for a donor; a Casual donor sees only raw or packaged | BrowseRequestsController, donor MakeOfferController | PostServiceTest |
+| `PostService.getMyPosts` | the logged-in account's own posts with offer counts | MyPostRows | PostServiceTest |
 | `PostDao.insert` | saves the post row for an inserted detail | PostService | PostServiceTest |
 | `PostDao.findById` | one post with its detail | OfferService | OfferServiceTest |
 | `PostDao.findOpenForUpdate` | an Open post from an Active poster, locked until the transaction ends | OfferService | OfferServiceTest |
@@ -763,34 +774,38 @@ flowchart LR
   classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
   classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
   classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
-  NL([New Listing, New Request<br/>not wired yet]):::planned -.-> CP{{PostService<br/>createListing<br/>createRequest}}:::svc
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  NL([New Listing, New Request]):::screen --> CP{{PostService<br/>createListing<br/>createRequest}}:::svc
   CP --> FS[FileStorageService<br/>saveAllPhotos]:::svc
   CP --> DD[DetailDao<br/>insertFood<br/>insertUse]:::dao --> TD[(food_detail<br/>use_detail)]:::tbl
   CP --> PD[PostDao<br/>insert]:::dao --> TP[(post)]:::tbl
   CP --> PH[PhotoDao<br/>insert]:::dao --> TF[(photo)]:::tbl
   CP --> LG[LogDao<br/>logStatusChange]:::dao --> TL[(status_change)]:::tbl
-  BR([Browse, My Listings, My Requests<br/>not wired yet]):::planned -.-> GB{{PostService<br/>getOpenListings<br/>getOpenRequests<br/>getMyPosts}}:::svc
+  BR([Browse, My Listings, My Requests]):::screen --> GB{{PostService<br/>getOpenListings<br/>getOpenRequests<br/>getMyPosts}}:::svc
   GB --> PQ[PostDao<br/>findOpenBoard<br/>findByPoster]:::dao --> TP
   GB --> PP[PhotoDao<br/>findPaths]:::dao --> TF
 ```
 
 ### OFFER: send and withdraw offers 🟡
 
-Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Offer.java`. The screens (`MakeOfferController` for donors and for food groups, `BrowseListingsController`, `BrowseRequestsController`, the shared `MyOffersController`, the food group's `MyOffersController`) are wired in the last step of round 3.
+Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Offer.java`. Screens: the two Make Offer forms, the browse boards and the My Offers lists (`MyOfferRows`).
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `OfferService.sendListingOffer` | a food group offers for a listing's whole quantity; re-opens its Withdrawn offer on the same row | **no screen yet** | OfferServiceTest |
-| `OfferService.sendRequestOffer` | a donor offers on a request: kg up to the requested amount, a category the request accepts | **no screen yet** | OfferServiceTest |
-| `OfferService.withdraw` | the offerer takes back an Offered offer, logged | **no screen yet** | OfferServiceTest |
-| `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | **no screen yet** | OfferServiceTest |
+| `OfferService.sendListingOffer` | a food group offers for a listing's whole quantity; re-opens its Withdrawn offer on the same row | foodgroup MakeOfferController | OfferServiceTest |
+| `OfferService.sendRequestOffer` | a donor offers on a request: kg up to the requested amount, a category the request accepts | donor MakeOfferController | OfferServiceTest |
+| `OfferService.withdraw` | the offerer takes back an Offered offer, logged | MyOfferRows | OfferServiceTest |
+| `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | MyOfferRows screens, the browse boards | OfferServiceTest |
 | `OfferDao.insert` | saves a new offer | OfferService | OfferServiceTest |
 | `OfferDao.reopenIfWithdrawn` | puts a Withdrawn offer back to Offered with new details | OfferService | OfferServiceTest |
 | `OfferDao.updateStatusIf` | changes the status only if it is still the expected one | OfferService | OfferServiceTest |
 | `OfferDao.findById` | one offer with its detail | OfferService | OfferServiceTest |
 | `OfferDao.findByPostAndOfferer` | the offer one account made on a post, in any status | OfferService | OfferServiceTest |
 | `OfferDao.findByOfferer` | every offer one account made | OfferService | OfferServiceTest |
+| `Selection.selectPost` | remembers the post opened from a board or list | BrowseListingsController, BrowseRequestsController, MyOfferRows | ScreensTest |
+| `Selection.postId` | the post the Make Offer form is for | both MakeOfferControllers | ScreensTest |
+| `Selection.selectOffer` | remembers the offer opened from a list | MyPostRows, MyOfferRows, HandoffRecordController | ScreensTest |
+| `Selection.offerId` | the offer the record and report screens are for | HandoffRecordController, SubmitReportController | ScreensTest |
 | `DetailDao.deleteFood` | removes the food detail an offer no longer uses | OfferService | OfferServiceTest |
 | `DetailDao.deleteUse` | removes the use detail an offer no longer uses | OfferService | OfferServiceTest |
 | `PhotoDao.deleteFor` | removes the photo rows of an offer being re-opened | OfferService | OfferServiceTest |
@@ -800,8 +815,8 @@ flowchart LR
   classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
   classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
   classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
-  MO([Make Offer screens<br/>not wired yet]):::planned -.-> SO{{OfferService<br/>sendListingOffer<br/>sendRequestOffer}}:::svc
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  MO([Make Offer screens]):::screen --> SO{{OfferService<br/>sendListingOffer<br/>sendRequestOffer}}:::svc
   SO --> DR[DetailRules<br/>checks]:::svc
   SO --> FS[FileStorageService<br/>saveAllPhotos]:::svc
   SO --> PL[PostDao<br/>findById<br/>findOpenForUpdate]:::dao --> TP[(post)]:::tbl
@@ -809,22 +824,22 @@ flowchart LR
   SO --> OD[OfferDao<br/>findByPostAndOfferer<br/>insert<br/>reopenIfWithdrawn]:::dao --> TO[(offer)]:::tbl
   SO --> PH[PhotoDao<br/>insert<br/>deleteFor]:::dao --> TF[(photo)]:::tbl
   SO --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
-  WD([My Offers screens<br/>not wired yet]):::planned -.-> WO{{OfferService<br/>withdraw<br/>getMyOffers}}:::svc
+  WD([My Offers screens]):::screen --> WO{{OfferService<br/>withdraw<br/>getMyOffers}}:::svc
   WO --> OS[OfferDao<br/>findById<br/>updateStatusIf<br/>findByOfferer]:::dao --> TO
   WO --> LG
 ```
 
 ### ACCEPT: the poster decides 🟡
 
-Files: `service/AcceptanceService.java`, `service/PostService.java` (the status door), `dao/OfferDao.java`, `dao/PostDao.java`, `dao/AccountDao.java`. The screens (`IncomingOffersController` for donors, `FoodGroupIncomingOffersController`, the Accept dialog) are wired in the last step of round 3.
+Files: `service/AcceptanceService.java`, `service/PostService.java` (the status door), `dao/OfferDao.java`, `dao/PostDao.java`, `dao/AccountDao.java`. Screens: the two incoming-offers lists (`IncomingOfferRows`).
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `AcceptanceService.getIncomingOffers` | offers on the logged-in poster's posts, without Withdrawn ones or Offered ones from a Suspended offerer | **no screen yet** | AcceptanceServiceTest |
-| `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | **no screen yet** | AcceptanceServiceTest |
-| `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | **no screen yet** | AcceptanceServiceTest |
-| `AcceptanceService.decline` | the poster declines one Offered offer | **no screen yet** | AcceptanceServiceTest |
-| `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | **no screen yet** | AcceptanceServiceTest |
+| `AcceptanceService.getIncomingOffers` | offers on the logged-in poster's posts, without Withdrawn ones or Offered ones from a Suspended offerer | both incoming-offers controllers | AcceptanceServiceTest |
+| `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | **no screen yet**: the sidebar badge is not wired | AcceptanceServiceTest |
+| `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | IncomingOfferRows | AcceptanceServiceTest |
+| `AcceptanceService.decline` | the poster declines one Offered offer | IncomingOfferRows | AcceptanceServiceTest |
+| `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | MyPostRows, MyOfferRows, IncomingOfferRows | AcceptanceServiceTest |
 | `PostService.changeStatus` | the one door for a post's status change, with the log (A3) | AcceptanceService | AcceptanceServiceTest |
 | `PostDao.findForUpdate` | a post in any status, locked until the transaction ends | AcceptanceService | AcceptanceServiceTest |
 | `PostDao.updateStatusIf` | changes a post's status only if it is still the expected one | PostService | AcceptanceServiceTest |
@@ -838,30 +853,30 @@ flowchart LR
   classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
   classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
   classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
-  IO([Incoming Offers screens<br/>Accept dialog<br/>not wired yet]):::planned -.-> AS{{AcceptanceService<br/>accept<br/>decline}}:::svc
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  IO([Incoming Offers screens<br/>Accept dialog]):::screen --> AS{{AcceptanceService<br/>accept<br/>decline}}:::svc
   AS --> PF[PostDao<br/>findForUpdate]:::dao --> TP[(post)]:::tbl
   AS --> OD[OfferDao<br/>findById<br/>updateStatusIf<br/>findOfferedIdsExcept]:::dao --> TO[(offer)]:::tbl
   AS --> PS{{PostService<br/>changeStatus}}:::svc --> PU[PostDao<br/>updateStatusIf]:::dao --> TP
   AS --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
   PS --> LG
-  IL([Incoming list, sidebar badge<br/>not wired yet]):::planned -.-> AI{{AcceptanceService<br/>getIncomingOffers<br/>countOffersAwaitingDecision}}:::svc
+  IL([Incoming Offers lists]):::screen --> AI{{AcceptanceService<br/>getIncomingOffers<br/>countOffersAwaitingDecision}}:::svc
   AI --> OI[OfferDao<br/>findIncoming<br/>countAwaitingDecision]:::dao --> TO
-  CP([Contact number on the offer<br/>not wired yet]):::planned -.-> GC{{AcceptanceService<br/>getContactPhone}}:::svc
+  CP([Contact number on the offer]):::screen --> GC{{AcceptanceService<br/>getContactPhone}}:::svc
   GC --> AP[AccountDao<br/>findContactPhone]:::dao --> TA[(registration)]:::tbl
 ```
 
 ### HANDOFF: release, receipt, record, cancel 🟡
 
-Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/OfferDao.java`, `model/HandoffRecord.java`. The screens (`ConfirmReleaseDialogController`, `ConfirmReceiptDialogController`, `CancelListingDialogController`, `HandoffRecordController`, the shared `MyListingsController`) are wired in the last step of round 3.
+Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/OfferDao.java`, `model/HandoffRecord.java`. Screens: the dialogs open from `MyPostRows` and `MyOfferRows`; the record screen is `HandoffRecordController`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | **no screen yet** | HandoffServiceTest |
-| `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | **no screen yet** | HandoffServiceTest |
-| `HandoffService.getHandoffRecord` | the record of a Completed offer for its two sides or an admin: number, names, food, kg, times, use, report due date | **no screen yet** | HandoffServiceTest |
-| `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | **no screen yet** | HandoffServiceTest |
-| `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | **no screen yet** | CancelPostTest |
+| `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | MyPostRows, MyOfferRows | HandoffServiceTest |
+| `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | MyPostRows, MyOfferRows | HandoffServiceTest |
+| `HandoffService.getHandoffRecord` | the record of a Completed offer for its two sides or an admin: number, names, food, kg, times, use, report due date | HandoffRecordController | HandoffServiceTest |
+| `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | **no screen yet**: the sidebar badge is not wired | HandoffServiceTest |
+| `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | MyPostRows | CancelPostTest |
 | `OfferDao.markReleasedIf` | sets the release time on an Accepted offer, once | HandoffService | HandoffServiceTest |
 | `OfferDao.completeIfReleased` | Accepted to Completed with the receipt time, only after release | HandoffService | HandoffServiceTest |
 | `OfferDao.findIdsByStatus` | a post's offers in one status | PostService | CancelPostTest |
@@ -872,14 +887,14 @@ flowchart LR
   classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
   classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
   classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
-  CR([Confirm Release dialog<br/>Confirm Receipt dialog<br/>not wired yet]):::planned -.-> HS{{HandoffService<br/>confirmRelease<br/>confirmReceipt}}:::svc
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  CR([Confirm Release dialog<br/>Confirm Receipt dialog]):::screen --> HS{{HandoffService<br/>confirmRelease<br/>confirmReceipt}}:::svc
   HS --> OD[OfferDao<br/>markReleasedIf<br/>completeIfReleased]:::dao --> TO[(offer)]:::tbl
   HS --> PS{{PostService<br/>changeStatus}}:::svc --> PD[PostDao<br/>updateStatusIf]:::dao --> TP[(post)]:::tbl
   HS --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
   PS --> LG
-  HR([Handoff Record screen<br/>not wired yet]):::planned -.-> GR{{HandoffService<br/>getHandoffRecord}}:::svc --> OD
-  CD([Cancel dialog<br/>not wired yet]):::planned -.-> CP{{PostService<br/>cancelPost}}:::svc
+  HR([Handoff Record screen]):::screen --> GR{{HandoffService<br/>getHandoffRecord}}:::svc --> OD
+  CD([Cancel dialog]):::screen --> CP{{PostService<br/>cancelPost}}:::svc
   CP --> PF[PostDao<br/>findForUpdate]:::dao --> TP
   CP --> OS[OfferDao<br/>findIdsByStatus<br/>updateStatusIf]:::dao --> TO
   CP --> LG
@@ -887,30 +902,31 @@ flowchart LR
 
 ### REPORT: the food group's documentation report 🟡
 
-Files: `service/ReportService.java`, `dao/ReportDao.java`, `model/Report.java`, `service/SafetyService.java` (the overdue flag). The Submit Report screen and the report on the handoff record are wired in the last step of round 3.
+Files: `service/ReportService.java`, `dao/ReportDao.java`, `model/Report.java`, `service/SafetyService.java` (the overdue flag). Screens: `SubmitReportController` and the report block of `HandoffRecordController`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `ReportService.submitReport` | the receiving food group submits the report once for a Completed handoff, with 1 to 5 photos and the consent; late is accepted | **no screen yet** | ReportServiceTest |
-| `ReportService.getReport` | the report for the two sides or an admin, read-only, or nothing yet | **no screen yet** | ReportServiceTest |
-| `ReportService.getDueAt` | receipt plus 7 days, worked out | **no screen yet** | ReportServiceTest |
-| `ReportService.getDefaults` | the event name and date the form starts with | **no screen yet** | ReportServiceTest |
+| `ReportService.submitReport` | the receiving food group submits the report once for a Completed handoff, with 1 to 5 photos and the consent; late is accepted | SubmitReportController | ReportServiceTest |
+| `ReportService.getReport` | the report for the two sides or an admin, read-only, or nothing yet | HandoffRecordController | ReportServiceTest |
+| `ReportService.getDueAt` | receipt plus 7 days, worked out | SubmitReportController | ReportServiceTest |
+| `ReportService.getDefaults` | the event name and date the form starts with | SubmitReportController | ReportServiceTest |
 | `ReportDao.insert` | saves a report | ReportService | ReportServiceTest |
 | `ReportDao.findByOffer` | the report of one handoff | ReportService | ReportServiceTest |
-| `Report.isLate` | submitted after the deadline | none yet: the record screen will show "submitted late" | ReportServiceTest |
+| `Report.isLate` | submitted after the deadline | HandoffRecordController | ReportServiceTest |
+| `ReportService.canSubmit` | is this account the receiving group with no report yet: shows the Submit report button | HandoffRecordController | ScreensTest |
 
 ```mermaid
 flowchart LR
   classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
   classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
   classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
-  SR([Submit Report screen<br/>not wired yet]):::planned -.-> RS{{ReportService<br/>submitReport}}:::svc
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  SR([Submit Report screen]):::screen --> RS{{ReportService<br/>submitReport}}:::svc
   RS --> FS[FileStorageService<br/>saveAllPhotos]:::svc
   RS --> RD[ReportDao<br/>insert<br/>findByOffer]:::dao --> TR[(report)]:::tbl
   RS --> PH[PhotoDao<br/>insert]:::dao --> TF[(photo)]:::tbl
   RS --> OD[OfferDao<br/>findById]:::dao --> TO[(offer)]:::tbl
-  HR([Handoff record<br/>not wired yet]):::planned -.-> GR{{ReportService<br/>getReport<br/>getDueAt<br/>getDefaults}}:::svc --> RD
+  HR([Handoff record]):::screen --> GR{{ReportService<br/>getReport<br/>getDueAt<br/>getDefaults}}:::svc --> RD
   MT[MaintenanceService]:::svc --> FO{{ReportService<br/>flagOverdueReports}}:::svc
   FO --> OV[ReportDao<br/>findOverdueWithoutFlag]:::dao --> TO
   FO --> SS{{SafetyService<br/>raiseOverdueReport}}:::svc --> SN[SafetyNoticeDao<br/>insert]:::dao --> TN[(safety_notice)]:::tbl
@@ -1008,6 +1024,7 @@ flowchart LR
 | `Account.key` | the role's `role-<key>` style class for the sidebar | ShellController | none |
 | `Account.profileRows` | the rows the Profile screen lists (each subclass supplies its own) | ProfileController | none |
 | `Account.isSuspended` | is this account Suspended | ProfileController | AccountTest |
+| `Account.mayGive` | a Casual donor may give raw or sealed-packaged only; a Business donor any category (6.5) | NewListingController, donor MakeOfferController, PostService, OfferService | ScreensTest, PostServiceTest |
 | `Account.canPostOrOffer` | only an Active account may post, offer or accept (6.3) | PostService | AccountTest, PostServiceTest |
 | `Admin.displayName` | the admin's name | ShellController | none |
 | `Admin.profileRows` | the admin's profile rows | ProfileController | none |
@@ -1021,12 +1038,12 @@ flowchart LR
 | `Document.fromDb` | reads a stored value back into the enum | DocumentDao | RegistrationApplyTest |
 | `Document.isExpired` | the expiry date is before today | RegistrationService, ProfileController | RegistrationDecisionTest |
 | `Document.expiresWithin` | still valid but ending within N days | ProfileController | DocumentReviewTest |
-| `Offer.label` | the offer status's name on screen | none yet | none |
-| `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | none yet: the lapse check uses SQL | none |
-| `Post.label` | the post status's name on screen (on the status enum) | none yet | none |
+| `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | ScreensTest |
+| `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, IncomingOfferRows, MyPostRows | AcceptanceServiceTest |
+| `Post.label` | the post status's name on screen (on the status enum) | PostCards | ScreensTest |
 | `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest |
 | `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
-| `FoodDetail.label` | a category, storage or allergen name on screen | none yet | none |
+| `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | ScreensTest |
 | `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |
 | `FoodDetail.column` | the value stored in the allergens SET column | DetailDao | PostServiceTest |
 | `FoodDetail.fromColumn` | reads a stored allergen back | DetailDao | PostServiceTest |
@@ -1038,16 +1055,10 @@ flowchart LR
 |---|---|---|
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
 | `SafetyService.raise` | built and tested; the Flag Concern dialog is not wired | keep: FLOWS.md module 10 |
-| `PostService.createListing`, `createRequest`, `getOpenListings`, `getOpenRequests`, `getMyPosts` | built and tested; the screens are wired in the last step of round 3 | keep: modules 5 and 9 |
-| `Account.canPostOrOffer` | the 6.3 rule for posting, offering and accepting; PostService uses it, OFFER and ACCEPT will | keep: modules 6 and 7 |
-| `Offer.label` | status text for the offer screens | keep: module 6 |
-| `OfferService.sendListingOffer`, `sendRequestOffer`, `withdraw`, `getMyOffers` | built and tested; the screens are wired in the last step of round 3 | keep: module 6 |
-| `AcceptanceService.getIncomingOffers`, `countOffersAwaitingDecision`, `accept`, `decline`, `getContactPhone` | built and tested; the screens are wired in the last step of round 3 | keep: module 7 |
-| `HandoffService.confirmRelease`, `confirmReceipt`, `getHandoffRecord`, `countAwaitingHandoff`, `PostService.cancelPost` | built and tested; the screens are wired in the last step of round 3 | keep: module 8 |
-| `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
-| `ReportService.submitReport`, `getReport`, `getDueAt`, `getDefaults` | built and tested; the Submit Report screen and the handoff record are wired in the last step of round 3 | keep: module 10 |
-| the eight placeholder dialogs | open and close only | each becomes real with its feature |
-| placeholder controllers under `controller/donor`, `controller/foodgroup`, `controller/shared` | screens that exist in FXML with sample data | each becomes real with its feature |
+| `AcceptanceService.countOffersAwaitingDecision`, `HandoffService.countAwaitingHandoff` | built and tested; the sidebar badges that would show them are not wired | keep: module 12 |
+| `DialogController.showFlagSafetyConcernMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4 and 10 |
+| the placeholder dialogs (Flag Safety Concern, Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
+| placeholder controllers `DonorDashboardController`, `FoodGroupDashboardController`, `HistoryController` | dashboards and History still show sample data | each becomes real with HISTORY |
 
 ## 7. Reference D: screens
 
