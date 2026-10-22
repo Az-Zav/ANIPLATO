@@ -5,7 +5,6 @@ import com.aniplato.dao.CityDao;
 import com.aniplato.dao.DocumentDao;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.RegistrationDao;
-import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.City;
@@ -48,11 +47,7 @@ public class RegistrationService {
 
     /** Cities for the registration form. */
     public List<City> cities() {
-        try (Connection c = Database.getConnection()) {
-            return cityDao.findAll(c);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load cities", e);
-        }
+        return Database.read("Could not load cities", cityDao::findAll);
     }
 
     /** The contact number rule (Stage 1, and the profile edit): present and exactly the right number of digits. */
@@ -77,12 +72,8 @@ public class RegistrationService {
         if (f.contactPerson.isEmpty()) throw new RuleViolationException("Enter the contact person.");
         requireContactNumber(f.contactPhone);
         if (!EMAIL.matcher(f.email).matches()) throw new RuleViolationException("Enter a valid email address.");
-        try (Connection c = Database.getConnection()) {
-            if (accountDao.existsByEmail(c, f.email)) {
-                throw new RuleViolationException("This email already has an account. Log in, or use a different email.");
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not check the email", e);
+        if (Database.read("Could not check the email", c -> accountDao.existsByEmail(c, f.email))) {
+            throw new RuleViolationException("This email already has an account. Log in, or use a different email.");
         }
     }
 
@@ -269,30 +260,26 @@ public class RegistrationService {
     /** Pending registrations, oldest first. */
     public List<PendingRow> getPending() {
         Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
+        return Database.read("Could not load pending registrations", c -> {
             List<PendingRow> rows = new ArrayList<>();
             for (Registration r : registrationDao.findByStatus(c, Registration.Status.PENDING)) {
                 boolean again = registrationDao.countEarlierRejected(c, r.email, r.submittedAt) > 0;
                 rows.add(new PendingRow(r.id, r.name, r.role, r.city.name, r.submittedAt, again));
             }
             return rows;
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load pending registrations", e);
-        }
+        });
     }
 
     /** One registration with all its documents. */
     public ReviewDetail getForReview(int registrationId) {
         Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
+        return Database.read("Could not load the registration", c -> {
             Registration r = registrationDao.findById(c, registrationId);
             if (r == null) throw new RuleViolationException("This registration no longer exists.");
             r.documents = documentDao.findByRegistration(c, registrationId);
             // an approved registration may have renewals: show the newest file of each type, so the admin verifies the renewal
             if (r.status == Registration.Status.APPROVED) r.documents = DocumentReviewService.latestPerType(r.documents);
             return new ReviewDetail(r, registrationDao.countEarlierRejected(c, r.email, r.submittedAt) > 0);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the registration", e);
-        }
+        });
     }
 }
