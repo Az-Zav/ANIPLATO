@@ -59,10 +59,18 @@ public class SafetyService {
     }
 
     /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
-    public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
+    public List<NoticeRow> getNoticeRows() {
         Session.requireAdmin();
-        return Database.read("Could not load safety notices", noticeDao::findRows);
+        return Database.read("Could not load safety notices", c -> noticeDao.findRows(c).stream()
+                .map(r -> new NoticeRow(r.id(), r.kind(), r.status(), r.flaggedName(), r.raisedByName(), r.listingText(),
+                        r.concern(), r.adminNote(), r.raisedAt()))
+                .toList());
     }
+
+    /** A notice with the names the admin's screen shows. The flagged account is the other side of the offer. */
+    public record NoticeRow(int id, SafetyNotice.Kind kind, SafetyNotice.Status status, String flaggedName,
+                            String raisedByName, String listingText, String concern, String adminNote,
+                            LocalDateTime raisedAt) { }
 
     /** Admin closes an Open notice without action. The note is required. */
     public void dismiss(int noticeId, String adminNote) {

@@ -2,6 +2,7 @@ package com.aniplato.service;
 
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
+import com.aniplato.dao.OfferSweepDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
@@ -25,6 +26,7 @@ public class HandoffService {
     private static final String OFFER_ENTITY = "OFFER";
 
     private final OfferDao offerDao = new OfferDao();
+    private final OfferSweepDao offerSweepDao = new OfferSweepDao();
     private final PostDao postDao = new PostDao();
     private final LogDao logDao = new LogDao();
     private final PostService postService = new PostService();
@@ -105,7 +107,7 @@ public class HandoffService {
     public void lapseMissedPickups(LocalDateTime now) {
         LocalDateTime cutoff = now.minusHours(Settings.PICKUP_GRACE_HOURS);
         Database.inTransaction("Could not lapse missed pickups", c -> {
-            for (OfferDao.MissedPickup missed : offerDao.findMissedPickups(c, cutoff)) {
+            for (OfferSweepDao.MissedPickup missed : offerSweepDao.findMissedPickups(c, cutoff)) {
                 if (offerDao.updateStatusIf(c, missed.offerId(), Offer.Status.ACCEPTED, Offer.Status.LAPSED) > 0) {
                     logDao.logStatusChange(c, OFFER_ENTITY, missed.offerId(), Offer.Status.ACCEPTED.name(),
                             Offer.Status.LAPSED.name(), "Pickup missed", null);

@@ -142,7 +142,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/CityDao.java` | the `city` table: the registration city list | REGISTER |
 | `dao/SafetyNoticeDao.java` | the `safety_notice` table: insert, resolve, admin rows | SAFETY |
 | `dao/OfferStatsDao.java` | the `offer` table's counts for the dashboard and report (split from OfferDao to keep both short) | STATS |
-| `dao/OfferDao.java` | the `offer` table: send, re-open a withdrawn one, change status only if still in the expected one, an offerer's list, the two parties, the lapse and expiry lookups | OFFER, SAFETY, MAINT |
+| `dao/OfferDao.java` | the `offer` table: send, re-open a withdrawn one, change status only if still in the expected one, an offerer's list, the two parties | OFFER, SAFETY |
+| `dao/OfferSweepDao.java` | the `offer` table's lookups for the lapse and expiry checks (split from OfferDao to keep both short) | MAINT |
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
@@ -631,7 +632,7 @@ Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNo
 | `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | FlagSafetyDialogController | SafetyServiceTest, ScreensTest |
 | `SafetyService.raiseOverdueReport` | the system flags a food group that owes a report (a notice with no raiser), once per handoff | ReportService | ReportServiceTest |
 | `OfferDao.isOnListing` | is the offer on a listing or a request (tells who the food group is) | SafetyService | ReportServiceTest |
-| `SafetyService.getNoticeRows` | every notice with both organization names, newest first | SafetyNoticesController | SafetyServiceTest |
+| `SafetyService.getNoticeRows` | every notice with both organization names, newest first (as the service's own `NoticeRow`) | SafetyNoticesController | SafetyServiceTest |
 | `SafetyService.dismiss` | admin closes a notice with a note | SafetyNoticesController | SafetyServiceTest |
 | `SafetyService.suspendFlaggedAccount` | admin suspends the other side and closes the notice; one transaction | SafetyNoticesController | SafetyServiceTest |
 | `SafetyNoticeDao.insert` | saves a notice with its kind | SafetyService | SafetyNoticeDaoTest |
@@ -736,8 +737,8 @@ Files: `service/MaintenanceService.java`, `controller/ShellController.java`, `ut
 | `PostService.expireOpenPosts` | 2 and 3: an Open listing past its use-by, or an Open request past its needed-by, expires with its Offered offers | MaintenanceService | MaintenanceServiceTest |
 | `OfferService.expireUnansweredOffers` | 4: an Offered offer past its pickup time or window end expires | MaintenanceService | MaintenanceServiceTest |
 | `ReportService.flagOverdueReports` | 5: a Completed handoff with no report 7 days after receipt is flagged to the admin once | MaintenanceService | MaintenanceServiceTest, ReportServiceTest |
-| `OfferDao.findMissedPickups` | Accepted, unreleased offers past the lapse cutoff | HandoffService | MaintenanceServiceTest |
-| `OfferDao.findUnansweredPastPickup` | Offered offers past their pickup | OfferService | MaintenanceServiceTest |
+| `OfferSweepDao.findMissedPickups` | Accepted, unreleased offers past the lapse cutoff | HandoffService | MaintenanceServiceTest |
+| `OfferSweepDao.findUnansweredPastPickup` | Offered offers past their pickup | OfferService | MaintenanceServiceTest |
 | `PostDao.findOpenPastDeadline` | Open posts of one kind past their deadline | PostService | MaintenanceServiceTest |
 | `ReportDao.findOverdueWithoutFlag` | Completed handoffs past the report deadline with no report and no flag yet | ReportService | ReportServiceTest |
 | `AccountStatusService.suspendAccountsWithExpiredDocuments` | an Active account with a current verified expired document becomes Suspended ("Document expired") | MaintenanceService | AccountStatusTest, MaintenanceServiceTest |

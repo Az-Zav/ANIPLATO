@@ -24,8 +24,7 @@ class ArchitectureTest {
     private static final Path MAIN = Path.of("src", "main", "java", "com", "aniplato");
     private static final int MAX_LINES = 300;
 
-    private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of(
-            "controller/admin/SafetyNoticesController.java");   // only the NoticeRow record type
+    private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of();
 
     //---HELPERS---
 

@@ -1,10 +1,10 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.dao.SafetyNoticeDao.NoticeRow;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.service.SafetyService;
+import com.aniplato.service.SafetyService.NoticeRow;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
