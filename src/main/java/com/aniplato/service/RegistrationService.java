@@ -162,17 +162,7 @@ public class RegistrationService {
         Approval approval = Database.inTransaction("Could not approve the registration", c -> {
             Registration r = requirePending(c, registrationId);
             List<Document> documents = documentDao.findByRegistration(c, r.id);
-            for (Document d : documents) {
-                if (d.review == Document.Review.FLAGGED) {
-                    throw new RuleViolationException("The " + d.type.label() + " is flagged. Reject the registration instead.");
-                }
-                if (d.isExpired(today)) {
-                    throw new RuleViolationException("The " + d.type.label() + " has expired. Reject the registration instead.");
-                }
-                if (d.review != Document.Review.OK) {
-                    throw new RuleViolationException("Verify the " + d.type.label() + " before approving.");   // R1.4: the admin verifies each file first
-                }
-            }
+            requireApprovable(documents, today);
             for (Document d : documents) {
                 if (documentDao.markOk(c, d.id, admin.id, now) > 0) {
                     logDao.logStatusChange(c, DOCUMENT_ENTITY, d.id, null, Document.Review.OK.name(), null, admin.id);
@@ -181,19 +171,7 @@ public class RegistrationService {
             registrationDao.approve(c, r.id, admin.id, now);
             logDao.logStatusChange(c, REGISTRATION_ENTITY, r.id, Registration.Status.PENDING.name(),
                     Registration.Status.APPROVED.name(), null, admin.id);
-
-            // the email is unique to accounts, and checkDetails blocks it on a new registration, so a match is an upgrade
-            Account existing = accountDao.findByEmail(c, r.email);
-            if (existing == null) {
-                int accountId = accountDao.insert(c, r.email, PasswordHasher.hash(temporaryPassword), r.role, r.id, now);
-                logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, null, Account.Status.ACTIVE.name(), null, admin.id);
-            } else if (existing.role == Account.Role.CASUAL_DONOR && r.role == Account.Role.BUSINESS_DONOR) {
-                accountDao.moveToRegistration(c, existing.id, r.id, r.role);
-            } else {
-                // e.g. a second registration sent while the first was pending, then the first approved
-                throw new RuleViolationException("This email already has an account. Reject this registration.");
-            }
-            return new Approval(r, existing == null);
+            return new Approval(r, createOrUpgradeAccount(c, r, PasswordHasher.hash(temporaryPassword), admin.id, now));
         });
         if (!approval.newAccount()) return true;   // an upgrade keeps its password, so there is nothing to send
         // after the commit: a failed send is logged in email_log and the user can use Forgot password
@@ -242,6 +220,38 @@ public class RegistrationService {
             throw new RuleViolationException("This registration was already reviewed.");
         }
         return r;
+    }
+
+    /** Every file must be verified (R1.4), not flagged and not ended before the registration can be approved. */
+    private static void requireApprovable(List<Document> documents, LocalDate today) {
+        for (Document d : documents) {
+            if (d.review == Document.Review.FLAGGED) {
+                throw new RuleViolationException("The " + d.type.label() + " is flagged. Reject the registration instead.");
+            }
+            if (d.isExpired(today)) {
+                throw new RuleViolationException("The " + d.type.label() + " has expired. Reject the registration instead.");
+            }
+            if (d.review != Document.Review.OK) {
+                throw new RuleViolationException("Verify the " + d.type.label() + " before approving.");   // R1.4: the admin verifies each file first
+            }
+        }
+    }
+
+    /** Opens the account for an approved registration, or moves a Casual Donor's account to a Business registration. True if the account is new. */
+    private boolean createOrUpgradeAccount(Connection c, Registration r, String passwordHash, int adminId, LocalDateTime now)
+            throws SQLException {
+        // the email is unique to accounts, and checkDetails blocks it on a new registration, so a match is an upgrade
+        Account existing = accountDao.findByEmail(c, r.email);
+        if (existing == null) {
+            int accountId = accountDao.insert(c, r.email, passwordHash, r.role, r.id, now);
+            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, null, Account.Status.ACTIVE.name(), null, adminId);
+        } else if (existing.role == Account.Role.CASUAL_DONOR && r.role == Account.Role.BUSINESS_DONOR) {
+            accountDao.moveToRegistration(c, existing.id, r.id, r.role);
+        } else {
+            // e.g. a second registration sent while the first was pending, then the first approved
+            throw new RuleViolationException("This email already has an account. Reject this registration.");
+        }
+        return existing == null;
     }
 
     private static String trim(String value) {

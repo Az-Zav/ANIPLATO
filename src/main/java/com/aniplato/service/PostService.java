@@ -83,9 +83,8 @@ public class PostService {
     }
 
     /** A food group posts a request (R2.2). One transaction: use detail, post, photos, status log. Returns the new post id. */
-    public int createRequest(RequestForm f) {
-        Account me = requirePoster("Only a food group can post a request.", Account.Role.FOOD_GROUP);
-        LocalDateTime now = LocalDateTime.now();
+    /** The rules a request form must meet before anything is saved. */
+    private static void requireRequestForm(RequestForm f, LocalDateTime now) {
         requireText(f.eventName(), "Name the event or program.", 300);
         requireText(f.beneficiaries(), "Say who the food is for.", 200);
         requireText(f.place(), "Say where the food should go.", 200);
@@ -101,6 +100,12 @@ public class PostService {
             throw new RuleViolationException("The event date must be on or after the needed-by date.");
         }
         requireAttestation(f.attested());
+    }
+
+    public int createRequest(RequestForm f) {
+        Account me = requirePoster("Only a food group can post a request.", Account.Role.FOOD_GROUP);
+        LocalDateTime now = LocalDateTime.now();
+        requireRequestForm(f, now);
         UseDetail use = new UseDetail();
         use.useDescription = f.eventName().trim();
         use.eventDate = f.eventDate();
