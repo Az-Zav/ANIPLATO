@@ -3,7 +3,6 @@ package com.aniplato.service;
 import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DocumentDao;
 import com.aniplato.dao.LogDao;
-import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.util.Database;
@@ -84,7 +83,7 @@ public class AccountStatusService {
     /** Every organization account, with the next document that ends within the warning period. */
     public AccountsOverview getAccounts(LocalDate today) {
         Session.requireAdmin();
-        try (Connection c = Database.getConnection()) {
+        return Database.read("Could not load accounts", c -> {
             Set<Integer> awaiting = documentDao.findRegistrationIdsAwaitingReview(c);
             Map<Integer, DocumentDao.ExpiringDocument> next = new HashMap<>();
             for (DocumentDao.ExpiringDocument d : documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS))) {
@@ -103,9 +102,7 @@ public class AccountStatusService {
                         awaiting.contains(a.registration.id)));
             }
             return new AccountsOverview(rows, rows.size(), suspended, ending);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load accounts", e);
-        }
+        });
     }
 
     private static String documentNote(DocumentDao.ExpiringDocument doc, LocalDate today) {
