@@ -112,7 +112,7 @@ public class AccountDao {
         }
     }
 
-    /** An account's contact number. Only OfferService.getContactPhone calls this, after it checks who may see it (A7). */
+    /** An account's contact number. Only AcceptanceService.getContactPhone (after it checks who may see it) and the owner's own upgrade read it (A7). */
     public String findContactPhone(Connection c, int accountId) throws SQLException {
         String sql = "SELECT r.contact_phone FROM account a JOIN registration r ON r.registration_id = a.registration_id "
                 + "WHERE a.account_id = ?";
@@ -202,6 +202,18 @@ public class AccountDao {
             ps.setString(2, role.name());
             ps.setInt(3, accountId);
             return ps.executeUpdate();
+        }
+    }
+
+    /** The id of the account of a registration if it is Suspended for exactly this reason, else null. */
+    public Integer findSuspendedBy(Connection c, int registrationId, String reason) throws SQLException {
+        String sql = "SELECT account_id FROM account WHERE registration_id = ? AND status = 'SUSPENDED' AND suspend_reason = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            ps.setString(2, reason);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : null;
+            }
         }
     }
 

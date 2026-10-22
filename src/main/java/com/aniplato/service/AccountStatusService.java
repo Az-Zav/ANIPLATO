@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Suspend and reinstate accounts (6.3), the document-expiry suspension (6.6), and the admin's All Accounts list. */
 public class AccountStatusService {
@@ -57,11 +58,25 @@ public class AccountStatusService {
         });
     }
 
+    /**
+     * Spec 6.3: a verified renewal brings back an account suspended for an expired document, once no verified
+     * document of that registration is still expired. Runs inside the verifier's transaction; logged by the system (A3).
+     */
+    public void reinstateIfRenewed(Connection c, int registrationId, LocalDate today) throws SQLException {
+        if (documentDao.countCurrentExpired(c, registrationId, today) > 0) return;
+        Integer accountId = accountDao.findSuspendedBy(c, registrationId, DOCUMENT_EXPIRED_REASON);
+        if (accountId != null && accountDao.reinstateIfSuspended(c, accountId) > 0) {
+            logDao.logStatusChange(c, ACCOUNT_ENTITY, accountId, Account.Status.SUSPENDED.name(),
+                    Account.Status.ACTIVE.name(), "Renewal verified", null);
+        }
+    }
+
     //---ADMIN: ALL ACCOUNTS---
 
     /** One line of the All Accounts list. */
     public record AccountRow(int accountId, String name, Account.Role role, String city, Account.Status status,
-                             String statusNote, String documentNote, boolean documentEnding) { }
+                             String statusNote, String documentNote, boolean documentEnding, int registrationId,
+                             boolean renewalToReview) { }
 
     /** The list with the numbers above it. Counts are worked out from the rows (A9). */
     public record AccountsOverview(List<AccountRow> rows, int approved, int suspended, int documentsEnding) { }
@@ -70,6 +85,7 @@ public class AccountStatusService {
     public AccountsOverview getAccounts(LocalDate today) {
         Session.requireAdmin();
         try (Connection c = Database.getConnection()) {
+            Set<Integer> awaiting = documentDao.findRegistrationIdsAwaitingReview(c);
             Map<Integer, DocumentDao.ExpiringDocument> next = new HashMap<>();
             for (DocumentDao.ExpiringDocument d : documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS))) {
                 next.putIfAbsent(d.registrationId(), d);   // the list is soonest first
@@ -83,7 +99,8 @@ public class AccountStatusService {
                 boolean isSuspended = a.status == Account.Status.SUSPENDED;
                 if (isSuspended) suspended++;
                 rows.add(new AccountRow(a.id, a.registration.name, a.role, a.registration.city.name, a.status,
-                        a.suspendReason, documentNote(doc, today), doc != null));
+                        a.suspendReason, documentNote(doc, today), doc != null, a.registration.id,
+                        awaiting.contains(a.registration.id)));
             }
             return new AccountsOverview(rows, rows.size(), suspended, ending);
         } catch (SQLException e) {

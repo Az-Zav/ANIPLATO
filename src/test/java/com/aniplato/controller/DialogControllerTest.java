@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
- * without anyone clicking through 16 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
+ * without anyone clicking through 17 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
  * Error paths are not covered here: they open a modal Alert, which would block the test.
  */
 class DialogControllerTest {
@@ -130,7 +130,7 @@ class DialogControllerTest {
                     throw new IllegalStateException(screen, e);
                 }
             });
-            assertEquals(16, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all sixteen dialogs");
+            assertEquals(17, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all seventeen dialogs");
         }
     }
 
@@ -139,7 +139,7 @@ class DialogControllerTest {
     @Test
     void everyDialogStartsHidden() {
         assertEquals(0, shownCards().size());
-        assertEquals(16, fx(() -> root.lookupAll(".modal-card").size()), "all sixteen dialogs are on the screen");
+        assertEquals(17, fx(() -> root.lookupAll(".modal-card").size()), "all seventeen dialogs are on the screen");
     }
 
     @Test
@@ -286,13 +286,13 @@ class DialogControllerTest {
     }
 
     @Test
-    void theUpgradeUploadButtonsDoNotInventAFileName() {
-        fx(() -> dialogs.showUpgradeBusinessDonorMode());
+    void theUpgradeDialogOpensWithNoFilesChosenAndNoConsent() {
+        // the upload buttons open the system file explorer, which a test cannot answer, so they are not fired here
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(() -> { }));
         Node card = onlyShownCard();
-        fx(() -> all(card, Button.class).stream().filter(b -> b.getText() != null && b.getText().contains("Upload PDF"))
-                .forEach(Button::fire));
-        assertEquals(2, textIn(card).split("No file chosen", -1).length - 1, "both permits still show no file");
-        assertFalse(textIn(card).contains(".pdf\n"), "no made-up file name");
+        assertEquals(2, textIn(card).split("No file chosen", -1).length - 1, "both permits show no file");
+        assertTrue(all(card, CheckBox.class).stream().noneMatch(CheckBox::isSelected), "the consent starts unticked");
+        assertTrue(all(card, javafx.scene.control.DatePicker.class).stream().allMatch(d -> d.getValue() == null));
     }
 
     @Test

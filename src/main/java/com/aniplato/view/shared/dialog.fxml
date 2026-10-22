@@ -30,5 +30,6 @@
         <fx:include fx:id="forgotPassword" source="dialog/forgot-password.fxml" />
         <fx:include fx:id="upgradeBusinessDonor" source="dialog/upgrade-business-donor.fxml" />
         <fx:include fx:id="noticeResolved" source="dialog/notice-resolved.fxml" />
+        <fx:include fx:id="editContact" source="dialog/edit-contact.fxml" />
     </children>
 </VBox>

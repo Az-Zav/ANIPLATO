@@ -7,6 +7,7 @@ import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.service.DocumentReviewService;
 import com.aniplato.service.FileStorageService;
+import com.aniplato.service.ProfileService;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
@@ -55,6 +56,8 @@ public class ProfileController {
     @FXML private Label orgTypeLabel;       // shows the organization's contact email: the schema has no "type"
     @FXML private Label orgCityLabel;
     @FXML private Label orgContactLabel;
+    @FXML private Button upgradeButton;
+    @FXML private Label upgradeStatusLabel;
     @FXML private Label orgApprovedDateLabel;
 
     // Document Table Container
@@ -65,6 +68,7 @@ public class ProfileController {
     @FXML private Label passwordStatusLabel;
 
     private final DocumentReviewService documentReviewService = new DocumentReviewService();
+    private final ProfileService profileService = new ProfileService();
 
     @FXML
     private void initialize() {
@@ -94,6 +98,7 @@ public class ProfileController {
         orgContactLabel.setText(registration.contactPerson);   // the phone number is not shown here (A7)
         orgApprovedDateLabel.setText(registration.reviewedAt == null ? "—" : date(registration.reviewedAt));
 
+        setShown(upgradeButton, account.canUpgradeToBusiness());
         loadDocuments();
         loadDocumentAlert();
     }
@@ -224,11 +229,26 @@ public class ProfileController {
     // PATTERN:ACTION handleEditContact - triggered by Hyperlink in Organization card
     @FXML
     private void handleEditContact() {
-        // TODO(service): open dialog or form to update organization contact info
+        Registration registration = Session.require().registration;
+        String phone = FormSupport.load(profileService::getMyPhone, "");   // the owner may read its own number (A7)
+        dialogController.showEditContactMode(registration.contactPerson, phone, () -> orgContactLabel.setText(registration.contactPerson));
+    }
+
+    // PATTERN:ACTION handleUpgrade - opens the Upgrade to Business donor dialog
+    @FXML
+    private void handleUpgrade() {
+        dialogController.showUpgradeBusinessDonorMode(() -> {
+            upgradeStatusLabel.setText("Your upgrade was sent. An admin will review your permits; you stay a Casual donor until it is approved.");
+            setShown(upgradeStatusLabel, true);
+            setShown(upgradeButton, false);
+        });
     }
 
     private void handleUploadRenewal(Document.Type type) {
-        dialogController.showUploadRenewalMode(type.label());
+        dialogController.showUploadRenewalMode(type, () -> {
+            loadDocuments();
+            loadDocumentAlert();
+        });
     }
 
     // PATTERN:ACTION handleForgotPassword - triggered by 'Forgot password' button in Account card

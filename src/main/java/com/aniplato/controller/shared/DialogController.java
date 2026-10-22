@@ -6,6 +6,8 @@ import com.aniplato.controller.shared.dialog.CancelListingDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReceiptDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReleaseDialogController;
 import com.aniplato.controller.shared.dialog.DialogCard;
+import com.aniplato.controller.shared.dialog.EditContactDialogController;
+import com.aniplato.model.Document;
 import com.aniplato.controller.shared.dialog.DialogHost;
 import com.aniplato.controller.shared.dialog.FlagSafetyDialogController;
 import com.aniplato.controller.shared.dialog.ForgotPasswordDialogController;
@@ -55,6 +57,7 @@ public class DialogController implements DialogHost {
     @FXML private ForgotPasswordDialogController forgotPasswordController;
     @FXML private UpgradeBusinessDonorDialogController upgradeBusinessDonorController;
     @FXML private NoticeResolvedDialogController noticeResolvedController;
+    @FXML private EditContactDialogController editContactController;
 
     private List<DialogCard> cards;
 
@@ -63,7 +66,7 @@ public class DialogController implements DialogHost {
         cards = List.of(rejectController, approveController, resolveSafetyController, suspendController,
                 reinstateController, cancelListingController, confirmReleaseController, flagSafetyController,
                 acceptOfferController, uploadRenewalController, setNewPasswordController, withdrawOfferController,
-                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController, noticeResolvedController);
+                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController, noticeResolvedController, editContactController);
         cards.forEach(card -> card.attach(this));
         hideAll();
 
@@ -200,6 +203,21 @@ public class DialogController implements DialogHost {
     /** 9. Accept Offer, with a real action. */
     public void showAcceptOfferMode(String groupName, String quantity, String pickupTime, int otherOffersCount, Runnable onConfirm) {
         acceptOfferController.show(groupName, quantity, pickupTime, otherOffersCount, onConfirm);
+    }
+
+    /** 10. Upload Renewal, with a real action: the file and date go to DocumentReviewService; {@code onDone} runs after it saved. */
+    public void showUploadRenewalMode(Document.Type type, Runnable onDone) {
+        uploadRenewalController.show(type, onDone);
+    }
+
+    /** 17. Edit contact details; {@code onSaved} runs after a successful save. */
+    public void showEditContactMode(String contactPerson, String contactPhone, Runnable onSaved) {
+        editContactController.show(contactPerson, contactPhone, onSaved);
+    }
+
+    /** 15. Upgrade to Business Donor, with a real action; {@code onDone} runs after the upgrade was submitted. */
+    public void showUpgradeBusinessDonorMode(Runnable onDone) {
+        upgradeBusinessDonorController.show(onDone);
     }
 
     /** 10. Upload Renewal */

@@ -16,7 +16,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **REGISTER** | Apply for an account | enter details, upload documents, submit | ✅ | 6.2 Stage 1 | 2 |
 | **REVIEW** | Admin reviews applications | see the queue, verify each document, approve or reject | ✅ | 6.2 Stage 1, R1.4-R1.6 | 3 |
 | **ACCOUNTS** | Admin manages accounts | list accounts, suspend, reinstate | ✅ | 6.3 | 4 |
-| **PROFILE** | Organization profile | see own details and documents, get expiry warnings; *edit, renew, upgrade: not built* | 🟡 | 6.3 | 4 |
+| **PROFILE** | Organization profile | see own details and documents, expiry warnings; edit contact, upload a renewal, upgrade Casual to Business | ✅ | 6.3 | 4 |
 | **SAFETY** | Safety notices | either side of an accepted or completed offer flags a concern; the admin resolves notices | ✅ | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
 | **MAINT** | Automatic checks | all six 6.6 checks run before every in-shell screen | ✅ | 6.6 | 12 |
@@ -164,6 +164,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
 | `service/OfferService.java` | send an offer on either route, withdraw it, the offerer's own list | OFFER |
 | `service/HandoffService.java` | confirm release, confirm receipt (completes the offer, rescues the post), build the handoff record | HANDOFF |
+| `service/ProfileService.java` | edit contact details, submit an upgrade (spec 7.3 puts these in RegistrationService; split to keep it under 300 lines) | PROFILE |
 | `service/DashboardService.java` | the donor's and the food group's dashboards and their banners (split from StatsService to keep each file short) | HISTORY |
 | `service/HistoryService.java` | History for the logged-in account: the cards, the period list and the table lines | HISTORY |
 | `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
@@ -237,8 +238,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/dialog/FlagSafetyDialogController.java` | flag a concern: Send raises it through `SafetyService.raise` | SAFETY |
 | `controller/shared/dialog/SetNewPasswordDialogController.java` | replace a temporary password or change a password | AUTH |
 | `controller/shared/dialog/ForgotPasswordDialogController.java` | email a temporary password | AUTH |
-| `controller/shared/dialog/UploadRenewalDialogController.java` | upload a renewal (opens and closes only) | PROFILE |
-| `controller/shared/dialog/UpgradeBusinessDonorDialogController.java` | upgrade to Business donor (opens and closes only) | PROFILE |
+| `controller/shared/dialog/UploadRenewalDialogController.java` | upload a renewal: file and new expiry go to DocumentReviewService | PROFILE |
+| `controller/shared/dialog/UpgradeBusinessDonorDialogController.java` | upgrade to Business donor: both permits and the consent go to ProfileService | PROFILE |
+| `controller/shared/dialog/EditContactDialogController.java` | edit contact person and number | PROFILE |
 | `controller/shared/dialog/CancelListingDialogController.java` | cancel a post (opens and closes only) | HANDOFF |
 | `controller/shared/dialog/ConfirmReleaseDialogController.java` | confirm release (opens and closes only) | HANDOFF |
 | `controller/shared/dialog/ConfirmReceiptDialogController.java` | confirm receipt (opens and closes only) | HANDOFF |
@@ -291,6 +293,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `view/shared/dialog/forgot-password.fxml` | Forgot password card | AUTH |
 | `view/shared/dialog/upload-renewal.fxml` | Upload renewal card | PROFILE |
 | `view/shared/dialog/upgrade-business-donor.fxml` | Upgrade card | PROFILE |
+| `view/shared/dialog/edit-contact.fxml` | Edit contact card | PROFILE |
 | `view/shared/dialog/cancel-listing.fxml` | Cancel post card | HANDOFF |
 | `view/shared/dialog/confirm-release.fxml` | Confirm release card | HANDOFF |
 | `view/shared/dialog/confirm-receipt.fxml` | Confirm receipt card | HANDOFF |
@@ -328,6 +331,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
 | `service/DashboardServiceTest.java` | every dashboard card and banner, for both roles | HISTORY |
 | `service/HistoryServiceTest.java` | the cards, outcomes, report column and period filter | HISTORY |
+| `service/RenewalTest.java` | upload a renewal, verify it, the expiry suspension ends, the admin's way to it | PROFILE, ACCOUNTS |
+| `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
@@ -380,7 +385,7 @@ Files: `service/AuthenticationService.java`, `controller/LoginController.java`, 
 |---|---|---|---|
 | `AuthenticationService.login` | checks email and password, starts the session; a Suspended account can log in | LoginController | AuthenticationServiceTest |
 | `AuthenticationService.logout` | clears the session | ShellController | AuthenticationServiceTest |
-| `AuthenticationService.mustChangePassword` | true while the user has a temporary password | **nobody**: LoginController reads `Account.mustChangePassword` | AuthenticationServiceTest |
+| `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
 | `AuthenticationService.changePassword` | new password: 8+ characters, different, confirmed | SetNewPasswordDialogController | AuthenticationServiceTest |
 | `AuthenticationService.requestPasswordReset` | emails a temporary password, replaces the password only after the email is sent | ForgotPasswordDialogController | AuthenticationServiceTest |
 | `AuthenticationService.generateTemporaryPassword` | 12 random characters without look-alikes | RegistrationService (approve) | AuthenticationServiceTest |
@@ -573,17 +578,27 @@ flowchart LR
   LG --> TL[(status_change)]:::tbl
 ```
 
-### PROFILE: the organization's own profile 🟡
+### PROFILE: the organization's own profile ✅
 
-Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/shared/dialog/UploadRenewalDialogController.java` and `controller/shared/dialog/UpgradeBusinessDonorDialogController.java` (placeholders), `model/Admin.java`, `model/Donor.java`, `model/FoodGroup.java`.
+Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/shared/dialog/UploadRenewalDialogController.java`, `controller/shared/dialog/UpgradeBusinessDonorDialogController.java`, `controller/shared/dialog/EditContactDialogController.java`, `service/ProfileService.java`, `model/Admin.java`, `model/Donor.java`, `model/FoodGroup.java`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `DocumentReviewService.getMyDocuments` | the latest upload of each document type | ProfileController | DocumentReviewTest |
 | `DocumentReviewService.getCurrentDocumentAlerts` | verified documents expired or ending within 30 days | ProfileController | DocumentReviewTest |
 | `DocumentDao.findCurrentAlerts` | the query behind the warning banner | DocumentReviewService | DocumentReviewTest |
+| `DocumentReviewService.uploadRenewal` | a new document row awaiting review for a type the registration has; same file and expiry checks as registering; the file is removed if the save fails | UploadRenewalDialogController | RenewalTest |
+| `AccountStatusService.reinstateIfRenewed` | after a renewal is verified, ends a "Document expired" suspension once no verified document is still expired (by the system, logged) | DocumentReviewService | RenewalTest |
+| `DocumentDao.countCurrentExpired` | verified, expired documents of a registration not replaced by a newer verified one | AccountStatusService | RenewalTest |
+| `DocumentDao.findRegistrationIdsAwaitingReview` | registrations with a file nobody reviewed: the "Review renewal" button | AccountStatusService | RenewalTest |
+| `AccountDao.findSuspendedBy` | the account of a registration if it is Suspended for exactly one reason | AccountStatusService | RenewalTest |
+| `ProfileService.getMyPhone` | the organization's own number, to prefill the edit form (A7: the owner) | ProfileController | ProfileServiceTest |
+| `ProfileService.updateContact` | saves the contact person and a number of exactly 11 digits | EditContactDialogController | ProfileServiceTest |
+| `ProfileService.submitUpgrade` | a Casual donor's new Pending Business registration with both permits; approval changes the role | UpgradeBusinessDonorDialogController | ProfileServiceTest |
+| `RegistrationDao.updateContact` | saves new contact details on a registration | ProfileService | ProfileServiceTest |
+| `Account.canUpgradeToBusiness` | only a Casual donor can upgrade | ProfileController, ProfileService | ScreensTest |
 
-**Flow** (dashed = not built yet)
+**Flow**
 
 ```mermaid
 flowchart LR
@@ -592,13 +607,13 @@ flowchart LR
   classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
   classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
   classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:5 3,color:#475569
   P([profile.fxml]):::screen --> PC[ProfileController]:::ctrl
   PC --> MD{{DocumentReviewService<br/>getMyDocuments<br/>getCurrentDocumentAlerts}}:::svc --> DF[DocumentDao<br/>findByRegistration<br/>findCurrentAlerts]:::dao --> TD[(document)]:::tbl
   PC --> FS[FileStorageService<br/>resolve]:::svc --> UP[(uploads folder)]:::tbl
   PC -. password buttons .-> AU[see AUTH]:::ctrl
-  PC -.-> ED[RegistrationService<br/>updateProfile<br/>submitUpgrade]:::planned
-  PC -.-> RN[DocumentReviewService<br/>uploadRenewal]:::planned
+  PC --> ED{{ProfileService<br/>getMyPhone<br/>updateContact<br/>submitUpgrade}}:::svc --> RG[RegistrationDao<br/>updateContact<br/>insert]:::dao --> TR[(registration)]:::tbl
+  PC --> RN{{DocumentReviewService<br/>uploadRenewal}}:::svc --> DI[DocumentDao<br/>insert]:::dao --> TD
+  VR{{DocumentReviewService<br/>verifyDocument}}:::svc --> RI{{AccountStatusService<br/>reinstateIfRenewed}}:::svc --> TA[(account)]:::tbl
 ```
 
 ### SAFETY: safety notices 🟡
@@ -1095,8 +1110,6 @@ flowchart LR
 | Item | Why it exists | Decision |
 |---|---|---|
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
-| `DialogController.showUpgradeBusinessDonorMode` | its screen is not built, so no caller | keep: module 4 |
-| the placeholder dialogs (Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
 
 ## 7. Reference D: screens
 

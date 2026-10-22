@@ -55,6 +55,14 @@ public class RegistrationService {
         }
     }
 
+    /** The contact number rule (Stage 1, and the profile edit): present and exactly the right number of digits. */
+    static void requireContactNumber(String phone) {
+        if (phone.isEmpty()) throw new RuleViolationException("Enter a contact number.");
+        if (!CONTACT_NUMBER.matcher(phone).matches()) {
+            throw new RuleViolationException("The contact number must be exactly " + Settings.CONTACT_NUMBER_DIGITS + " digits.");
+        }
+    }
+
     /** Step 1 rules: every detail present, the role chosen, and the email not already an account. */
     public void checkDetails(Registration f) {
         if (f.role == null) {
@@ -67,10 +75,7 @@ public class RegistrationService {
         if (f.name.isEmpty()) throw new RuleViolationException("Enter your name or organization name.");
         if (f.city == null) throw new RuleViolationException("Choose your city.");
         if (f.contactPerson.isEmpty()) throw new RuleViolationException("Enter the contact person.");
-        if (f.contactPhone.isEmpty()) throw new RuleViolationException("Enter a contact number.");
-        if (!CONTACT_NUMBER.matcher(f.contactPhone).matches()) {
-            throw new RuleViolationException("The contact number must be exactly " + Settings.CONTACT_NUMBER_DIGITS + " digits.");
-        }
+        requireContactNumber(f.contactPhone);
         if (!EMAIL.matcher(f.email).matches()) throw new RuleViolationException("Enter a valid email address.");
         try (Connection c = Database.getConnection()) {
             if (accountDao.existsByEmail(c, f.email)) {
@@ -89,6 +94,15 @@ public class RegistrationService {
         if (!consent) throw new RuleViolationException("Agree to the consent text to continue.");
         checkDetails(f);
         checkDocuments(f.role, uploads);
+        save(f, uploads, null);
+        emailService.sendReceived(f.email, f.name);   // after the commit: an email failure never undoes the registration
+    }
+
+    /**
+     * Saves a Pending registration with its documents and the status log in one transaction. {@code changedBy} is the
+     * account of an upgrade, null for a new applicant who has no account yet.
+     */
+    void save(Registration f, List<DocumentUpload> uploads, Integer changedBy) {
         LocalDateTime now = LocalDateTime.now();
         Database.inTransaction("Could not save the registration", c -> {
             f.id = registrationDao.insert(c, f, now);
@@ -101,14 +115,13 @@ public class RegistrationService {
                 d.uploadedAt = now;
                 documentDao.insert(c, d);
             }
-            logDao.logStatusChange(c, REGISTRATION_ENTITY, f.id, null, Registration.Status.PENDING.name(), null, null);
+            logDao.logStatusChange(c, REGISTRATION_ENTITY, f.id, null, Registration.Status.PENDING.name(), null, changedBy);
             return null;
         });
-        emailService.sendReceived(f.email, f.name);   // after the commit: an email failure never undoes the registration
     }
 
     /** The documents each role must upload, one file each, and the expiry rules (Stage 1). */
-    private void checkDocuments(Account.Role role, List<DocumentUpload> uploads) {
+    void checkDocuments(Account.Role role, List<DocumentUpload> uploads) {
         List<Document.Type> required = new ArrayList<>();
         switch (role) {
             case BUSINESS_DONOR -> required.addAll(List.of(Document.Type.MAYORS_PERMIT, Document.Type.SANITARY_PERMIT));
@@ -275,6 +288,8 @@ public class RegistrationService {
             Registration r = registrationDao.findById(c, registrationId);
             if (r == null) throw new RuleViolationException("This registration no longer exists.");
             r.documents = documentDao.findByRegistration(c, registrationId);
+            // an approved registration may have renewals: show the newest file of each type, so the admin verifies the renewal
+            if (r.status == Registration.Status.APPROVED) r.documents = DocumentReviewService.latestPerType(r.documents);
             return new ReviewDetail(r, registrationDao.countEarlierRejected(c, r.email, r.submittedAt) > 0);
         } catch (SQLException e) {
             throw new DataAccessException("Could not load the registration", e);

@@ -107,6 +107,17 @@ public class RegistrationDao {
         }
     }
 
+    /** Changes the contact person and phone of one registration. */
+    public int updateContact(Connection c, int registrationId, String contactPerson, String contactPhone) throws SQLException {
+        String sql = "UPDATE registration SET contact_person = ?, contact_phone = ? WHERE registration_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, contactPerson);
+            ps.setString(2, contactPhone);
+            ps.setInt(3, registrationId);
+            return ps.executeUpdate();
+        }
+    }
+
     public int countByStatus(Connection c, Registration.Status status) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM registration WHERE status = ?")) {
             ps.setString(1, status.name());

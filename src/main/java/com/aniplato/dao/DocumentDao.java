@@ -6,10 +6,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 /** SQL only. One DAO per table. */
@@ -106,16 +109,20 @@ public class DocumentDao {
     }
 
     /** Saves an uploaded file, awaiting the admin's review. */
-    public void insert(Connection c, Document d) throws SQLException {
+    public int insert(Connection c, Document d) throws SQLException {
         String sql = "INSERT INTO document (registration_id, doc_type, file_path, expires_on, uploaded_at) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, d.registrationId);
             ps.setString(2, d.type.dbValue());
             ps.setString(3, d.filePath);
             ps.setObject(4, d.expiresOn);
             ps.setObject(5, d.uploadedAt);
             ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                return keys.getInt(1);
+            }
         }
     }
 
@@ -136,6 +143,37 @@ public class DocumentDao {
             document.reviewedAt = rs.getTimestamp("reviewed_at").toLocalDateTime();
         }
         return document;
+    }
+
+    /** Documents of one registration that are verified, expired and not replaced by a newer verified one. */
+    public int countCurrentExpired(Connection c, int registrationId, LocalDate today) throws SQLException {
+        String sql = """
+                SELECT COUNT(*) FROM document d
+                WHERE d.registration_id = ? AND d.review = 'OK' AND d.expires_on < ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM document newer
+                      WHERE newer.registration_id = d.registration_id AND newer.doc_type = d.doc_type AND newer.review = 'OK'
+                        AND (newer.uploaded_at > d.uploaded_at
+                             OR (newer.uploaded_at = d.uploaded_at AND newer.document_id > d.document_id)))
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            ps.setObject(2, today);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    /** The registrations that have an uploaded file nobody has reviewed yet (a renewal waiting for the admin). */
+    public Set<Integer> findRegistrationIdsAwaitingReview(Connection c) throws SQLException {
+        Set<Integer> ids = new HashSet<>();
+        try (PreparedStatement ps = c.prepareStatement("SELECT DISTINCT registration_id FROM document WHERE review IS NULL");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ids.add(rs.getInt(1));
+        }
+        return ids;
     }
 
     /** A document in force that has expired or expires soon, for the All Accounts note. */

@@ -73,6 +73,11 @@ public abstract class Account {
         return role != Role.CASUAL_DONOR || category.allowedForCasual();
     }
 
+    /** Only a Casual donor can upgrade to Business (6.5). */
+    public boolean canUpgradeToBusiness() {
+        return role == Role.CASUAL_DONOR;
+    }
+
     //---SUBCLASS HOOKS---
 
     /** Name shown in headers and lists: the organization name, or the admin's name. */
