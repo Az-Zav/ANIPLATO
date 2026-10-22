@@ -80,27 +80,31 @@ public class AccountDao {
         if (account instanceof Admin admin) {
             admin.adminName = rs.getString("admin_name");
         } else {
-            Registration registration = new Registration();
-            registration.id = rs.getInt("registration_id");
-            registration.role = role;
-            registration.name = rs.getString("registration_name");
-            registration.contactPerson = rs.getString("contact_person");
-            registration.email = rs.getString("registration_email");
-            registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
-            registration.rejectionReason = rs.getString("rejection_reason");
-            int reviewedBy = rs.getInt("reviewed_by");
-            registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
-            LocalDateTime reviewedAt = localDateTime(rs, "reviewed_at");
-            registration.reviewedAt = reviewedAt;
-            registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
-
-            City city = new City();
-            city.id = rs.getInt("city_id");
-            city.name = rs.getString("city_name");
-            registration.city = city;
-            account.registration = registration;
+            account.registration = mapRegistration(rs, role);
         }
         return account;
+    }
+
+    /** The registration columns of the account query: the organization behind a donor or food group account. */
+    private Registration mapRegistration(ResultSet rs, Account.Role role) throws SQLException {
+        Registration registration = new Registration();
+        registration.id = rs.getInt("registration_id");
+        registration.role = role;
+        registration.name = rs.getString("registration_name");
+        registration.contactPerson = rs.getString("contact_person");
+        registration.email = rs.getString("registration_email");
+        registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
+        registration.rejectionReason = rs.getString("rejection_reason");
+        int reviewedBy = rs.getInt("reviewed_by");
+        registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
+        registration.reviewedAt = localDateTime(rs, "reviewed_at");
+        registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
+
+        City city = new City();
+        city.id = rs.getInt("city_id");
+        city.name = rs.getString("city_name");
+        registration.city = city;
+        return registration;
     }
 
     public int reinstateIfSuspended(Connection c, int accountId) throws SQLException {
