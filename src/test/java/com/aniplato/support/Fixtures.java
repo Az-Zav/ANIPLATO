@@ -1,9 +1,30 @@
 package com.aniplato.support;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 /** Rows the seed does not have, added through plain SQL so a test does not depend on the code under test. */
 public final class Fixtures {
 
     private Fixtures() { }
+
+    /** Small image files in the folder, to attach as photos. */
+    public static List<File> photos(Path folder, int count) {
+        try {
+            List<File> files = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                Path file = Files.write(folder.resolve("photo" + i + ".jpg"), new byte[]{1, 2, 3});
+                files.add(file.toFile());
+            }
+            return files;
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     /** The seed's Open listing, posted by the Business donor. */
     public static int seedListingId() {

@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -45,6 +47,36 @@ public class FileStorageService {
             throw new DataAccessException("Could not save the uploaded file", e);
         }
         return name;
+    }
+
+    /**
+     * Saves the photos of a post, offer or report: 1 to 5 files (6.7), each checked before any is copied. If one
+     * fails part-way, the ones already copied are removed. Call {@link #deleteAll} if the database work that follows fails.
+     */
+    public List<String> saveAllPhotos(List<File> files) {
+        if (files == null || files.size() < Settings.MIN_PHOTOS || files.size() > Settings.MAX_PHOTOS) {
+            throw new RuleViolationException("Add " + Settings.MIN_PHOTOS + " to " + Settings.MAX_PHOTOS + " photos.");
+        }
+        for (File file : files) validate(file);
+        List<String> saved = new ArrayList<>();
+        try {
+            for (File file : files) saved.add(save(file));
+        } catch (RuntimeException e) {
+            deleteAll(saved);
+            throw e;
+        }
+        return saved;
+    }
+
+    /** Removes saved files, ignoring any that are already gone. Used when a transaction fails after the files were saved. */
+    public void deleteAll(List<String> relativePaths) {
+        for (String path : relativePaths) {
+            try {
+                Files.deleteIfExists(root().resolve(path));
+            } catch (IOException ignored) {
+                // a leftover upload is harmless; the database never pointed at it
+            }
+        }
     }
 
     /** The stored file for a relative path returned by {@link #save}. */

@@ -20,8 +20,8 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **SAFETY** | Safety notices | admin resolves notices, a concern can be raised in the service; *raising from a screen: not built* | 🟡 | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
 | **MAINT** | Automatic checks | expired documents suspend the account on any screen load; *five other checks: not built* | 🟡 | 6.6 | 12 |
-| **LISTING** | Post a listing (Route 1) | post surplus food, see own listings | ⬜ | 6.2 Stage 2A | 5 |
-| **REQUEST** | Post a request (Route 2) | a food group asks for food | ⬜ | 6.2 Stage 2B | 9 |
+| **LISTING** | Post a listing (Route 1) | post surplus food, see own listings; *screens not wired yet* | 🟡 | 6.2 Stage 2A | 5 |
+| **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | browse, send, withdraw offers (both routes) | ⬜ | 6.2 Stage 3 | 6 |
 | **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed | ⬜ | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ⬜ | 6.2 Stages 5-6 | 8 |
@@ -124,6 +124,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/Document.java` | one uploaded file; a renewal is a new row; expiry helpers | REGISTER, REVIEW, PROFILE |
 | `model/City.java` | a Metro Manila city; prints as its name for combo boxes | REGISTER |
 | `model/SafetyNotice.java` | a safety concern on an offer, with its kind and status | SAFETY |
+| `model/Post.java` | a listing or a request with its statuses, deadline and photos | LISTING, REQUEST |
+| `model/FoodDetail.java` | what a donor gives: category, storage, allergens, times; the enums for them | LISTING, REQUEST |
+| `model/UseDetail.java` | what a food group needs or will do: event, people, place, needed-by | LISTING, REQUEST |
 | `model/Offer.java` | the offer status enum only; the full model comes with OFFER | SAFETY, STATS |
 
 ### DAOs (SQL only, one per table)
@@ -136,7 +139,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/CityDao.java` | the `city` table: the registration city list | REGISTER |
 | `dao/SafetyNoticeDao.java` | the `safety_notice` table: insert, resolve, admin rows | SAFETY |
 | `dao/OfferDao.java` | the `offer` table: the two parties, status, report counts (rest comes with OFFER) | SAFETY, STATS |
-| `dao/PostDao.java` | the `post` table: dashboard and report totals (rest comes with LISTING) | STATS |
+| `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
+| `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
+| `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
 | `dao/ReportDao.java` | the `report` table: people served, report deadlines | STATS |
 | `dao/LogDao.java` | `status_change` (every status change, A3) and `email_log` | PLATFORM |
 
@@ -151,9 +156,10 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/SafetyService.java` | raise a concern, list, dismiss, suspend the flagged account | SAFETY |
 | `service/StatsService.java` | the dashboard cards and the monthly report | STATS |
 | `service/MaintenanceService.java` | runs the 6.6 checks in order, calling other services only | MAINT |
+| `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
 | `service/ReportService.java` | empty stub from the scaffold: the REPORT feature fills it (save the report, work out its deadline) | REPORT |
 | `service/EmailService.java` | fills the HTML emails, sends, logs every attempt | AUTH, REGISTER, REVIEW |
-| `service/FileStorageService.java` | validates and stores uploads; finds a stored file | REGISTER, PROFILE, REVIEW |
+| `service/FileStorageService.java` | validates and stores uploads; saves 1 to 5 photos at once; removes files; finds a stored file | REGISTER, PROFILE, REVIEW, LISTING |
 
 ### Controllers: screens
 
@@ -296,6 +302,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/AccountStatusTest.java` | suspend, reinstate, account list, expiry suspension | ACCOUNTS |
 | `service/SafetyServiceTest.java` | raise, dismiss, suspend the flagged side | SAFETY |
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
+| `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
 | `service/MaintenanceServiceTest.java` | the expiry check runs once and is quiet when nothing expired | MAINT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
@@ -307,7 +314,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
 | `support/TestDb.java` | builds `aniplato_test` from the schema and seed; refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
-| `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) | TESTS |
+| `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
 | `support/Fx.java` | runs test code on the JavaFX thread | TESTS |
 | `resources/db.properties` | test config under src/test/resources: no SMTP keys, so tests never send email | TESTS |
 
@@ -706,6 +713,47 @@ flowchart LR
   NV --> SL([the screen loads]):::screen
 ```
 
+### LISTING and REQUEST: post food, browse the other side's board 🟡
+
+Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Post.java`, `model/FoodDetail.java`, `model/UseDetail.java`, `service/FileStorageService.java`. The screens (`NewListingController`, `NewRequestController`, `MyListingsController`, `MyRequestsController`, `BrowseListingsController`, `BrowseRequestsController`) are still placeholders; they are wired in the last step of round 3.
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `PostService.createListing` | a donor posts a listing: checks the rules, saves photos, then food detail, post and log in one transaction | **no screen yet** | PostServiceTest |
+| `PostService.createRequest` | a food group posts a request, the same way | **no screen yet** | PostServiceTest |
+| `PostService.getOpenListings` | Open listings for a food group, its city first, suspended donors hidden, no handover text | **no screen yet** | PostServiceTest |
+| `PostService.getOpenRequests` | Open requests for a donor; a Casual donor sees only raw or packaged | **no screen yet** | PostServiceTest |
+| `PostService.getMyPosts` | the logged-in account's own posts with offer counts | **no screen yet** | PostServiceTest |
+| `PostDao.insert` | saves the post row for an inserted detail | PostService | PostServiceTest |
+| `PostDao.findById` | one post with its detail | none yet: OFFER will use it | none |
+| `PostDao.findOpenBoard` | Open posts of one kind from Active posters, viewer's city first | PostService | PostServiceTest |
+| `PostDao.findByPoster` | one account's posts with their offer counts | PostService | PostServiceTest |
+| `DetailDao.insertFood` | saves a food detail | PostService | PostServiceTest |
+| `DetailDao.insertUse` | saves a use detail | PostService | PostServiceTest |
+| `DetailDao.readFood` | reads the food columns of a joined row | PostDao | PostServiceTest |
+| `DetailDao.readUse` | reads the use columns of a joined row | PostDao | PostServiceTest |
+| `PhotoDao.insert` | attaches a stored photo path to a post (offers and reports reuse it) | PostService | PostServiceTest |
+| `PhotoDao.findPaths` | the photo paths of one post | PostService | PostServiceTest |
+| `FileStorageService.saveAllPhotos` | checks 1 to 5 files, then saves them; removes any it already copied if one fails | PostService | PostServiceTest |
+| `FileStorageService.deleteAll` | removes saved files after a failed transaction | PostService | PostServiceTest |
+
+```mermaid
+flowchart LR
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
+  NL([New Listing, New Request<br/>not wired yet]):::planned -.-> CP{{PostService<br/>createListing<br/>createRequest}}:::svc
+  CP --> FS[FileStorageService<br/>saveAllPhotos]:::svc
+  CP --> DD[DetailDao<br/>insertFood<br/>insertUse]:::dao --> TD[(food_detail<br/>use_detail)]:::tbl
+  CP --> PD[PostDao<br/>insert]:::dao --> TP[(post)]:::tbl
+  CP --> PH[PhotoDao<br/>insert]:::dao --> TF[(photo)]:::tbl
+  CP --> LG[LogDao<br/>logStatusChange]:::dao --> TL[(status_change)]:::tbl
+  BR([Browse, My Listings, My Requests<br/>not wired yet]):::planned -.-> GB{{PostService<br/>getOpenListings<br/>getOpenRequests<br/>getMyPosts}}:::svc
+  GB --> PQ[PostDao<br/>findOpenBoard<br/>findByPoster]:::dao --> TP
+  GB --> PP[PhotoDao<br/>findPaths]:::dao --> TF
+```
+
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
@@ -798,7 +846,7 @@ flowchart LR
 | `Account.key` | the role's `role-<key>` style class for the sidebar | ShellController | none |
 | `Account.profileRows` | the rows the Profile screen lists (each subclass supplies its own) | ProfileController | none |
 | `Account.isSuspended` | is this account Suspended | ProfileController | AccountTest |
-| `Account.canPostOrOffer` | only an Active account may post, offer or accept (6.3) | **nobody yet**: planned for LISTING, OFFER, ACCEPT | AccountTest |
+| `Account.canPostOrOffer` | only an Active account may post, offer or accept (6.3) | PostService | AccountTest, PostServiceTest |
 | `Admin.displayName` | the admin's name | ShellController | none |
 | `Admin.profileRows` | the admin's profile rows | ProfileController | none |
 | `Donor.displayName` | the donor's organization name | ShellController | none |
@@ -812,6 +860,13 @@ flowchart LR
 | `Document.isExpired` | the expiry date is before today | RegistrationService, ProfileController | RegistrationDecisionTest |
 | `Document.expiresWithin` | still valid but ending within N days | ProfileController | DocumentReviewTest |
 | `Offer.label` | the offer status's name on screen | none yet | none |
+| `Post.label` | the post status's name on screen (on the status enum) | none yet | none |
+| `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest |
+| `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
+| `FoodDetail.label` | a category, storage or allergen name on screen | none yet | none |
+| `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |
+| `FoodDetail.column` | the value stored in the allergens SET column | DetailDao | PostServiceTest |
+| `FoodDetail.fromColumn` | reads a stored allergen back | DetailDao | PostServiceTest |
 | `SafetyNotice.label` | "Notice #12" | SafetyNoticesController | none |
 
 ## 6. Reference C: methods and classes nothing calls yet
@@ -820,7 +875,8 @@ flowchart LR
 |---|---|---|
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
 | `SafetyService.raise` | built and tested; the Flag Concern dialog is not wired | keep: FLOWS.md module 10 |
-| `Account.canPostOrOffer` | the 6.3 rule for posting, offering and accepting | keep: modules 5 to 7 |
+| `PostService.createListing`, `createRequest`, `getOpenListings`, `getOpenRequests`, `getMyPosts` | built and tested; the screens are wired in the last step of round 3 | keep: modules 5 and 9 |
+| `Account.canPostOrOffer` | the 6.3 rule for posting, offering and accepting; PostService uses it, OFFER and ACCEPT will | keep: modules 6 and 7 |
 | `Offer.label` | status text for the offer screens | keep: module 6 |
 | `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
 | `ReportService` | empty class from the scaffold; spec 7.3 gives it the documentation report | keep: FLOWS.md module 10 |

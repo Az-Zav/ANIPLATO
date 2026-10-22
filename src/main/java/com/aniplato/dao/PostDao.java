@@ -1,15 +1,19 @@
 package com.aniplato.dao;
 
+import com.aniplato.model.Post;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-/** SQL only. One DAO per table. Holds the post totals for dashboards and reports; listing and request queries join it later. */
+/** SQL only. One DAO per table. Listings and requests (one table, told apart by kind), plus the post totals for dashboards and reports. */
 public class PostDao {
 
     /** One city's kg for a month. "Closed" means Rescued or Expired; cancelled posts stay out of the rate. Nothing here is stored (A9). */
@@ -88,5 +92,101 @@ public class PostDao {
             while (rs.next()) months.add(YearMonth.parse(rs.getString("ym")));
             return months;
         }
+    }
+
+    //---LISTINGS AND REQUESTS---
+
+    private static final String POST_SELECT = """
+            SELECT p.post_id, p.kind, p.posted_by, p.kg, p.status, p.cancel_reason, p.created_at,
+                   city.name AS city_name, r.name AS poster_name,
+            """ + DetailDao.FOOD_COLUMNS + ",\n" + DetailDao.USE_COLUMNS + """
+
+            FROM post p
+            JOIN city ON city.city_id = p.city_id
+            JOIN account a ON a.account_id = p.posted_by
+            JOIN registration r ON r.registration_id = a.registration_id
+            LEFT JOIN food_detail fd ON fd.food_detail_id = p.food_detail_id
+            LEFT JOIN use_detail ud ON ud.use_detail_id = p.use_detail_id
+            """;
+
+    private final DetailDao detailDao = new DetailDao();
+
+    /** Saves the post row for a detail already inserted. Exactly one of the two detail ids is set (the CHECK needs it). */
+    public int insert(Connection c, Post.Kind kind, int postedBy, int cityId, double kg,
+                      Integer foodDetailId, Integer useDetailId, LocalDateTime createdAt) throws SQLException {
+        String sql = "INSERT INTO post (kind, posted_by, city_id, kg, food_detail_id, use_detail_id, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, kind.name());
+            ps.setInt(2, postedBy);
+            ps.setInt(3, cityId);
+            ps.setDouble(4, kg);
+            ps.setObject(5, foodDetailId, Types.INTEGER);
+            ps.setObject(6, useDetailId, Types.INTEGER);
+            ps.setObject(7, createdAt);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                return keys.getInt(1);
+            }
+        }
+    }
+
+    public Post findById(Connection c, int postId) throws SQLException {
+        List<Post> found = query(c, POST_SELECT + "WHERE p.post_id = ?", postId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /**
+     * Open posts of one kind from Active posters (a Suspended poster's posts stay hidden, 6.3), the viewer's city
+     * first and then newest first. Offers are not counted here: this is the other side's board.
+     */
+    public List<Post> findOpenBoard(Connection c, Post.Kind kind, int viewerCityId) throws SQLException {
+        return query(c, POST_SELECT + "WHERE p.kind = ? AND p.status = 'OPEN' AND a.status = 'ACTIVE' "
+                + "ORDER BY (p.city_id = ?) DESC, p.created_at DESC, p.post_id DESC", kind.name(), viewerCityId);
+    }
+
+    /** Every post one account made, newest first, with the number of offers each has received. */
+    public List<Post> findByPoster(Connection c, int posterId) throws SQLException {
+        List<Post> posts = query(c, POST_SELECT + "WHERE p.posted_by = ? ORDER BY p.created_at DESC, p.post_id DESC", posterId);
+        for (Post post : posts) post.offerCount = countOffers(c, post.id);
+        return posts;
+    }
+
+    private int countOffers(Connection c, int postId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM offer WHERE post_id = ?")) {
+            ps.setInt(1, postId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private List<Post> query(Connection c, String sql, Object... args) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) ps.setObject(i + 1, args[i]);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Post> posts = new ArrayList<>();
+                while (rs.next()) posts.add(read(rs));
+                return posts;
+            }
+        }
+    }
+
+    private Post read(ResultSet rs) throws SQLException {
+        Post p = new Post();
+        p.id = rs.getInt("post_id");
+        p.kind = Post.Kind.valueOf(rs.getString("kind"));
+        p.posterId = rs.getInt("posted_by");
+        p.posterName = rs.getString("poster_name");
+        p.city = rs.getString("city_name");
+        p.kg = rs.getDouble("kg");
+        p.status = Post.Status.valueOf(rs.getString("status"));
+        p.cancelReason = rs.getString("cancel_reason");
+        p.createdAt = rs.getObject("created_at", LocalDateTime.class);
+        p.food = detailDao.readFood(rs);
+        p.use = detailDao.readUse(rs);
+        return p;
     }
 }
