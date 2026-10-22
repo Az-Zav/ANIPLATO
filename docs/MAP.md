@@ -26,7 +26,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; the sidebar shows the counts | ✅ | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ✅ | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; the record shows it; overdue flag | ✅ | 6.2 Stage 5 | 10 |
-| **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
+| **HISTORY** | Dashboards and History | donor and food group dashboards with banners; History with period, tabs and search | ✅ | Section 3 | 11 |
 | **DEMO** | Demo data and polish | a full demo story | ⬜ | Section 5 | 13 |
 | **SHELL** | The app frame | sidebar, header, navigation, logout, assistant panel | 🔧 | A5 | none |
 | **POPUPS** | Dialogs | every popup, through one door | 🔧 | 7.4 | none |
@@ -146,6 +146,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
+| `dao/HistoryDao.java` | the figures behind the dashboards and History for one account: totals, awaiting release, closed posts and offers | HISTORY |
 | `dao/ReportDao.java` | the `report` table: save and read a report, handoffs with an overdue report, people served, report deadlines | REPORT, STATS |
 | `dao/LogDao.java` | `status_change` (every status change, A3) and `email_log` | PLATFORM |
 
@@ -163,6 +164,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/PostService.java` | create listings and requests, the two boards, a user's own posts | LISTING, REQUEST |
 | `service/OfferService.java` | send an offer on either route, withdraw it, the offerer's own list | OFFER |
 | `service/HandoffService.java` | confirm release, confirm receipt (completes the offer, rescues the post), build the handoff record | HANDOFF |
+| `service/DashboardService.java` | the donor's and the food group's dashboards and their banners (split from StatsService to keep each file short) | HISTORY |
+| `service/HistoryService.java` | History for the logged-in account: the cards, the period list and the table lines | HISTORY |
 | `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | save a report (once, with photos), read it, work out its due date, prefill the form, flag overdue reports | REPORT |
@@ -189,12 +192,12 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/admin/ReportsController.java` | the monthly report | STATS |
 | `controller/admin/AdminTable.java` | shared building blocks for the admin tables (cells, pills, dates) | REVIEW, ACCOUNTS, SAFETY |
 | `controller/admin/Pager.java` | page arithmetic for the admin lists | REVIEW, ACCOUNTS |
-| `controller/donor/DonorDashboardController.java` | donor dashboard (placeholder) | HISTORY |
+| `controller/donor/DonorDashboardController.java` | donor dashboard: banners, four cards, active listings | HISTORY |
 | `controller/donor/NewListingController.java` | the New Listing form: reads the fields, calls `PostService.createListing` | LISTING |
 | `controller/donor/BrowseRequestsController.java` | the donor's board of Open requests | OFFER |
 | `controller/donor/MakeOfferController.java` | the donor's offer form for a request | OFFER |
 | `controller/donor/IncomingOffersController.java` | offers on a donor's listings: accept, decline | ACCEPT |
-| `controller/foodgroup/FoodGroupDashboardController.java` | food group dashboard (placeholder) | HISTORY |
+| `controller/foodgroup/FoodGroupDashboardController.java` | food group dashboard: banners, three cards, nearest open listings | HISTORY |
 | `controller/foodgroup/BrowseListingsController.java` | the food group's board of Open listings | OFFER |
 | `controller/foodgroup/MakeOfferController.java` | the food group's offer form for a listing | OFFER |
 | `controller/foodgroup/MyOffersController.java` | the food group's offers, via `MyOfferRows` | OFFER |
@@ -214,7 +217,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
 | `controller/PhotoPicker.java` | the Add photos button, previews and count | LISTING, OFFER, REPORT |
 | `controller/LabelConverter.java` | shows an enum's label in a combo box | LISTING, OFFER |
-| `controller/shared/HistoryController.java` | History with sample rows (placeholder) | HISTORY |
+| `controller/shared/HistoryController.java` | History: cards, period, tabs, search, table (asks for "my" history, no role check) | HISTORY |
+| `controller/TableRows.java` | header and data rows (percent columns) for the dashboard and History tables | HISTORY |
+| `controller/Banners.java` | the warning banners above a dashboard, each with its link | HISTORY |
 
 ### Controllers: popups
 
@@ -321,6 +326,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/SafetyServiceTest.java` | raise, dismiss, suspend the flagged side | SAFETY |
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
+| `service/DashboardServiceTest.java` | every dashboard card and banner, for both roles | HISTORY |
+| `service/HistoryServiceTest.java` | the cards, outcomes, report column and period filter | HISTORY |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
@@ -934,6 +941,38 @@ flowchart LR
   FO --> SS{{SafetyService<br/>raiseOverdueReport}}:::svc --> SN[SafetyNoticeDao<br/>insert]:::dao --> TN[(safety_notice)]:::tbl
 ```
 
+### HISTORY: dashboards and History ✅
+
+Files: `service/DashboardService.java`, `service/HistoryService.java`, `dao/HistoryDao.java`, `dao/ReportDao.java` (reports due), `controller/donor/DonorDashboardController.java`, `controller/foodgroup/FoodGroupDashboardController.java`, `controller/shared/HistoryController.java`, `controller/Banners.java`, `controller/TableRows.java`, `view/donor/dashboard.fxml`, `view/foodgroup/dashboard.fxml`, `view/shared/history.fxml`. Spec 7.3 gives History to StatsService; it is its own class here so no file passes 300 lines. Nothing is stored: every figure is worked out from offers, posts and the status log (A9).
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `DashboardService.getDonorDashboard` | open listings, offers to review, awaiting release, kg rescued, kg needed (as the donor's board shows it), active listings, banners | DonorDashboardController | DashboardServiceTest, ScreensTest |
+| `DashboardService.getFoodGroupDashboard` | open listings and their kg, in my city, accepted offers, kg rescued, nearest listings, banners incl. a report due | FoodGroupDashboardController | DashboardServiceTest, ScreensTest |
+| `HistoryService.getHistory` | all-time cards, the months that have lines, and the table lines of one period with outcome text and report status | HistoryController | HistoryServiceTest, ScreensTest |
+| `HistoryService.count` | how many table lines have one outcome, for the tab labels | HistoryController | HistoryServiceTest |
+| `HistoryDao.totals` | kg, handoffs and partners of completed handoffs the account was a side of | DashboardService, HistoryService | HistoryServiceTest |
+| `HistoryDao.countAwaitingRelease` | accepted offers a donor still has to release, on either route | DashboardService | DashboardServiceTest |
+| `HistoryDao.findClosed` | the account's closed posts and closed offers, time read from the status log | HistoryService | HistoryServiceTest |
+| `ReportDao.findPending` | a food group's completed handoffs with no report yet | DashboardService | DashboardServiceTest |
+
+```mermaid
+flowchart LR
+  classDef screen fill:#e8f7ee,stroke:#2f9e5a,color:#111827
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  DD([Donor and food group dashboards]):::screen --> DS{{DashboardService<br/>getDonorDashboard<br/>getFoodGroupDashboard}}:::svc
+  DS --> PS{{PostService<br/>getMyPosts<br/>getOpenRequests<br/>getOpenListings}}:::svc
+  DS --> DR{{DocumentReviewService<br/>getCurrentDocumentAlerts}}:::svc
+  DS --> HD[HistoryDao<br/>totals<br/>countAwaitingRelease]:::dao --> TO[(offer, post)]:::tbl
+  DS --> RP[ReportDao<br/>findPending]:::dao --> TR[(report)]:::tbl
+  HS([History screen]):::screen --> HV{{HistoryService<br/>getHistory}}:::svc
+  HV --> HC[HistoryDao<br/>totals<br/>findClosed]:::dao --> TO
+  HC --> TL[(status_change)]:::tbl
+  HV --> RF[ReportDao<br/>findByOffer]:::dao --> TR
+```
+
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
@@ -959,7 +998,7 @@ flowchart LR
 | `Navigator.setContent` | tells Navigator where in-shell screens go | ShellController | ShellMaintenanceTest |
 | `Navigator.setScreenListener` | lets the sidebar refresh its highlight after each navigation | ShellController | none |
 | `Navigator.sidebarScreenFor` | which sidebar button a detail screen highlights | ShellController | none |
-| `Navigator.currentRole` | the logged-in role | MyOffersController, HistoryController, HandoffRecordController | none |
+| `Navigator.currentRole` | the logged-in role | Navigator | none |
 | `Navigator.currentScreen` | the screen being shown | ShellController | none |
 | `Navigator.key` | the `nav-<key>` name of a screen | Navigator | none |
 | `SvgIcon.load` | loads an SVG icon as a node | DialogController, ShellController, ReviewRegistrationController | DialogControllerTest |
@@ -1058,7 +1097,6 @@ flowchart LR
 | `AuthenticationService.mustChangePassword` | the login screen reads `Account.mustChangePassword` directly | **candidate for deletion**: say so in a pull request |
 | `DialogController.showUpgradeBusinessDonorMode` | its screen is not built, so no caller | keep: module 4 |
 | the placeholder dialogs (Upload Renewal, Upgrade to Business) | open and close only | each becomes real with its feature |
-| placeholder controllers `DonorDashboardController`, `FoodGroupDashboardController`, `HistoryController` | dashboards and History still show sample data | each becomes real with HISTORY |
 
 ## 7. Reference D: screens
 

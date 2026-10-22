@@ -1145,3 +1145,21 @@
     -fx-max-height: 44px;
     -fx-alignment: center;
 }
+/* Dashboard banners (suspended, documents ending, report due) */
+.banner {
+    -fx-background-color: #FEF6E7;
+    -fx-background-radius: 8px;
+    -fx-border-color: #F6E3B4;
+    -fx-border-radius: 8px;
+    -fx-padding: 12px 16px;
+}
+
+.banner-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7A4B00;
+}
+
+.banner-link {
+    -fx-font-weight: bold;
+    -fx-text-fill: #9A5B00;
+}

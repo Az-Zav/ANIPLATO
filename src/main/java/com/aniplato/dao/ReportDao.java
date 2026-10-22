@@ -54,6 +54,32 @@ public class ReportDao {
         }
     }
 
+    /** A completed handoff whose report the food group has not submitted yet. */
+    public record Pending(int offerId, String title, LocalDateTime receivedAt) { }
+
+    /** The account's own unreported handoffs, oldest receipt first: a food group's "reports due" list. */
+    public List<Pending> findPending(Connection c, int receiverId) throws SQLException {
+        String sql = """
+                SELECT o.offer_id, COALESCE(pfd.description, pud.use_description) AS title, o.received_at
+                FROM offer o JOIN post p ON p.post_id = o.post_id
+                LEFT JOIN food_detail pfd ON pfd.food_detail_id = p.food_detail_id
+                LEFT JOIN use_detail pud ON pud.use_detail_id = p.use_detail_id
+                WHERE o.status = 'COMPLETED'
+                  AND ((p.kind = 'LISTING' AND o.offerer_id = ?) OR (p.kind = 'REQUEST' AND p.posted_by = ?))
+                  AND NOT EXISTS (SELECT 1 FROM report r WHERE r.offer_id = o.offer_id)
+                ORDER BY o.received_at, o.offer_id
+                """;
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, receiverId);
+            ps.setInt(2, receiverId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Pending> pending = new ArrayList<>();
+                while (rs.next()) pending.add(new Pending(rs.getInt(1), rs.getString(2), rs.getObject(3, LocalDateTime.class)));
+                return pending;
+            }
+        }
+    }
+
     /** Completed handoffs past their report deadline with no report and no overdue flag yet (the flag is raised once per handoff). */
     public List<Integer> findOverdueWithoutFlag(Connection c, int deadlineDays, LocalDateTime now) throws SQLException {
         String sql = """
