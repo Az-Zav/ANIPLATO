@@ -25,6 +25,18 @@ public class Database {
     }
 
     /**
+     * Runs read-only work on its own connection, with no transaction. A RuntimeException reaches the caller unchanged;
+     * an SQLException becomes a DataAccessException with the given message.
+     */
+    public static <T> T read(String errorMessage, SqlWork<T> work) {
+        try (Connection c = getConnection()) {
+            return work.run(c);
+        } catch (SQLException e) {
+            throw new DataAccessException(errorMessage, e);
+        }
+    }
+
+    /**
      * Runs the work as one transaction: commits when it finishes, rolls back when anything throws (A2).
      * A RuleViolationException or other RuntimeException reaches the caller unchanged; an SQLException
      * becomes a DataAccessException with the given message.

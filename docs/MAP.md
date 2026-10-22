@@ -100,7 +100,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 |---|---|---|
 | `aniplato/Main.java` | JavaFX entry point: builds the window, starts `Navigator` at the login screen | SHELL |
 | `util/AppConfig.java` | reads `db.properties`; a `-Daniplato.<key>` system property overrides it (tests use this) | PLATFORM |
-| `util/Database.java` | the only class that opens connections; runs transactions (`inTransaction`) | PLATFORM |
+| `util/Database.java` | the only class that opens connections; runs transactions (`inTransaction`) and reads (`read`) | PLATFORM |
 | `util/Selection.java` | the post or offer opened from a list, carried to the next screen | OFFER, HANDOFF, REPORT |
 | `util/Session.java` | who is logged in; `requireAdmin` for admin-only services | PLATFORM, AUTH |
 | `util/Navigator.java` | the only class that knows view paths: switches screens, sidebar and before-load hooks | SHELL |
@@ -355,6 +355,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
 | `support/TestDb.java` | builds `aniplato_test` from the schema and seed (and one more script on request); refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
+| `support/DatabaseReadTest.java` | `Database.read` returns the value, wraps a database error, lets a rule error through | PLATFORM |
 | `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
 | `support/Fx.java` | runs test code on the JavaFX thread | TESTS |
 | `resources/db.properties` | test config under src/test/resources: no SMTP keys, so tests never send email | TESTS |
@@ -1066,6 +1067,7 @@ flowchart LR
 | `AppConfig.get` | a setting from `db.properties` (or a `-Daniplato.<key>` override), with a fallback | FileStorageService | TestDbTest |
 | `AppConfig.required` | the same, but a missing value is a setup mistake | Database | TestDbTest |
 | `Database.getConnection` | opens a connection | every service | every service test |
+| `Database.read` | a read-only query on its own connection; a database error becomes a DataAccessException | the services that only read | DatabaseReadTest |
 | `Database.inTransaction` | all-or-nothing: commit if the work finishes, roll back if anything throws (A2) | RegistrationService, AccountStatusService, DocumentReviewService, SafetyService | RegistrationDecisionTest (rollback) |
 | `Session.start` | begins a session | AuthenticationService | AuthenticationServiceTest |
 | `Session.clear` | ends it | AuthenticationService | AuthenticationServiceTest |
