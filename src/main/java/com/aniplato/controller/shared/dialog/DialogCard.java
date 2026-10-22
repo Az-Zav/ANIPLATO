@@ -1,8 +1,7 @@
 package com.aniplato.controller.shared.dialog;
 
+import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.exception.DataAccessException;
-import com.aniplato.exception.RuleViolationException;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
@@ -46,13 +45,9 @@ public abstract class DialogCard {
 
     /** Runs a confirm action. A broken rule is shown and the dialog stays open; success closes it (A8). */
     protected void confirm(Runnable action) {
-        try {
-            action.run();
-        } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());
-            return;
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            DialogController.showError("Could not save this. Check the database connection and try again.");
+        String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
+        if (problem != null) {
+            DialogController.showError(problem);
             return;
         }
         close();

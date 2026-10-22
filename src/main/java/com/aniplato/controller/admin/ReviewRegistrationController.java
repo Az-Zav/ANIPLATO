@@ -1,8 +1,7 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.exception.DataAccessException;
-import com.aniplato.exception.RuleViolationException;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.service.DocumentReviewService;
@@ -100,16 +99,14 @@ public class ReviewRegistrationController {
     /** Reads the registration and its documents from the service and fills the screen. */
     private void load() {
         hideError();
-        ReviewDetail detail;
-        try {
-            detail = registrationService.getForReview(registrationId);
-        } catch (RuleViolationException e) {
-            orgTitleLabel.setText(e.getMessage());
-            return;
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            orgTitleLabel.setText("Could not load the registration. Check the database connection.");
+        ReviewDetail[] read = new ReviewDetail[1];
+        String problem = FormSupport.failure(() -> read[0] = registrationService.getForReview(registrationId),
+                "Could not load the registration. Check the database connection.");
+        if (problem != null) {
+            orgTitleLabel.setText(problem);
             return;
         }
+        ReviewDetail detail = read[0];
         Registration r = detail.registration();
         documents = r.documents;
 
@@ -179,13 +176,9 @@ public class ReviewRegistrationController {
 
     /** Runs a service action, shows a broken rule (A8), then re-reads the registration so the screen matches the database. */
     private void run(Runnable action) {
-        try {
-            action.run();
-        } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());
-            return;
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            DialogController.showError("Could not save this. Check the database connection and try again.");
+        String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
+        if (problem != null) {
+            DialogController.showError(problem);
             return;
         }
         load();

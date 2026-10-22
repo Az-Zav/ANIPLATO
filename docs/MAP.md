@@ -214,7 +214,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/MyPostRows.java` | the rows of My Listings and My Requests: view offers, release, receipt, cancel, record | LISTING, HANDOFF |
 | `controller/MyOfferRows.java` | the rows of My Offers: withdraw, offer again, release, receipt, record | OFFER, HANDOFF |
 | `controller/IncomingOfferRows.java` | the rows of Incoming Offers: accept, decline, contact | ACCEPT |
-| `controller/FormSupport.java` | runs a service call and shows a broken rule; reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
+| `controller/FormSupport.java` | runs a service call and shows a broken rule (`failure` is the one place that turns a failure into text); reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
 | `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
 | `controller/PhotoPicker.java` | the Add photos button, previews and count | LISTING, OFFER, REPORT |
 | `controller/LabelConverter.java` | shows an enum's label in a combo box | LISTING, OFFER |
@@ -348,6 +348,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
 | `controller/ScreensTest.java` | the round 3 screens load, show service data, and their buttons call the services | LISTING, OFFER, ACCEPT, HANDOFF, REPORT |
 | `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
+| `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |

@@ -6,6 +6,8 @@ import com.aniplato.exception.RuleViolationException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /** What every form and list screen needs: run a service call and show a broken rule (A8), read numbers, format dates. */
@@ -17,26 +19,32 @@ public final class FormSupport {
 
     /** Runs the action. A broken rule or a database problem is shown in a message and false is returned; true means it worked. */
     public static boolean attempt(Runnable action) {
+        String problem = failure(action, "Could not complete this. Check the database connection and try again.");
+        if (problem != null) DialogController.showError(problem);
+        return problem == null;
+    }
+
+    /**
+     * Runs the action and returns null if it worked, else the text to show: the rule's own message for a broken rule (A8),
+     * {@code databaseMessage} for a database problem. The one place that decides which failures are shown and how.
+     */
+    public static String failure(Runnable action, String databaseMessage) {
         try {
             action.run();
-            return true;
+            return null;
         } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());
+            return e.getMessage();
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            DialogController.showError("Could not complete this. Check the database connection and try again.");
+            return databaseMessage;
         }
-        return false;
     }
 
     /** Runs a read and returns its result, or the fallback after showing the problem. */
     public static <T> T load(Supplier<T> read, T fallback) {
-        try {
-            return read.get();
-        } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            DialogController.showError("Could not load this screen. Check the database connection and try again.");
-        }
+        List<T> result = new ArrayList<>(1);
+        String problem = failure(() -> result.add(read.get()), "Could not load this screen. Check the database connection and try again.");
+        if (problem == null) return result.get(0);
+        DialogController.showError(problem);
         return fallback;
     }
 
