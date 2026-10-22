@@ -35,6 +35,7 @@ public final class IncomingOfferRows {
                     Cards.muted("On " + on + "  |  " + FormSupport.kg(offer.kg) + "  |  " + offer.status.label()
                             + "  |  sent " + FormSupport.when(offer.createdAt)));
             Cards.addLines(card, offer.food != null ? PostCards.foodLines(offer.food) : PostCards.useLines(offer.use, "Pickup time"));
+            card.getChildren().add(PostCards.thumbnails(offer.photos));
             if (offer.status == Offer.Status.ACCEPTED) {
                 String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "unavailable");
                 card.getChildren().add(Cards.line("Contact " + offer.offererName + ": " + phone));

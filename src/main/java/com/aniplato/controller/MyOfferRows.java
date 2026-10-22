@@ -41,6 +41,7 @@ public final class MyOfferRows {
                     Cards.muted("To " + post.posterName + "  |  " + FormSupport.kg(offer.kg) + "  |  " + offer.status.label()
                             + "  |  sent " + FormSupport.when(offer.createdAt)));
             Cards.addLines(card, offer.food != null ? PostCards.foodLines(offer.food) : PostCards.useLines(offer.use, "Pickup time"));
+            card.getChildren().add(PostCards.thumbnails(offer.photos));
             if (offer.status == Offer.Status.ACCEPTED || offer.status == Offer.Status.COMPLETED) {
                 card.getChildren().add(Cards.line(contact(offer)));
                 if (post.isListing() && post.food.handoverInstructions != null) {

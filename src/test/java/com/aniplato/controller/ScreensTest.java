@@ -230,6 +230,24 @@ class ScreensTest extends DbTest {
         assertEquals(1, all(screen, Button.class).stream().filter(b -> "Review renewal".equals(b.getText())).count());
     }
 
+    //---PHOTOS---
+
+    @Test
+    void aStoredPhotoShowsAsAPictureAndAMissingOneAsANote() throws java.io.IOException {
+        loginAs(GROUP);
+        assertTrue(mentions(open("foodgroup/browse-listings.fxml"), "photo not found: seed/bread.jpg"));
+        assertEquals(0, all(open("foodgroup/browse-listings.fxml"), javafx.scene.image.ImageView.class).size());
+
+        java.nio.file.Path seed = java.nio.file.Path.of(System.getProperty("aniplato.uploads.dir"), "seed");
+        java.nio.file.Files.createDirectories(seed);
+        java.nio.file.Files.copy(java.nio.file.Path.of("sql", "demo-photos", "bread.jpg"), seed.resolve("bread.jpg"),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        Parent screen = open("foodgroup/browse-listings.fxml");
+        assertEquals(1, all(screen, javafx.scene.image.ImageView.class).size());
+        assertFalse(mentions(screen, "photo not found"));
+    }
+
     //---FLAG A CONCERN---
 
     @Test

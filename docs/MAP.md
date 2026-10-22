@@ -27,7 +27,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post | ✅ | 6.2 Stages 5-6 | 8 |
 | **REPORT** | Documentation report | the food group reports after receipt; the record shows it; overdue flag | ✅ | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards with banners; History with period, tabs and search | ✅ | Section 3 | 11 |
-| **DEMO** | Demo data and polish | a full demo story | ⬜ | Section 5 | 13 |
+| **DEMO** | Demo data and polish | `setup-db -Demo` loads a full story with sample photos; README has the demo script | ✅ | Section 5 | 13 |
 | **SHELL** | The app frame | sidebar, header, navigation, logout, assistant panel | 🔧 | A5 | none |
 | **POPUPS** | Dialogs | every popup, through one door | 🔧 | 7.4 | none |
 | **PLATFORM** | Foundations | config, database, session, email, files, passwords, settings, exceptions | 🔧 | 7.1-7.5 | none |
@@ -210,7 +210,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/MyOffersController.java` | the donor's offers, via `MyOfferRows` (asks for "my" offers, no role check) | OFFER |
 | `controller/shared/HandoffRecordController.java` | one handoff record with its report; the Submit report button for the receiving group | HANDOFF, REPORT |
 | `controller/Cards.java` | small builders for the card rows list screens fill in code | LISTING, OFFER, HANDOFF |
-| `controller/PostCards.java` | how a listing, a request and an offer read as cards | LISTING, OFFER |
+| `controller/PostCards.java` | how a listing, a request and an offer read as cards, with photo thumbnails | LISTING, OFFER |
 | `controller/MyPostRows.java` | the rows of My Listings and My Requests: view offers, release, receipt, cancel, record | LISTING, HANDOFF |
 | `controller/MyOfferRows.java` | the rows of My Offers: withdraw, offer again, release, receipt, record | OFFER, HANDOFF |
 | `controller/IncomingOfferRows.java` | the rows of Incoming Offers: accept, decline, contact | ACCEPT |
@@ -311,6 +311,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `sql/schema.sql` | the only copy of the schema; drops and recreates `aniplato` | PLATFORM |
 | `sql/seed.sql` | demo data: admin, three organizations, one pending application, a listing and a request | DEMO |
 | `sql/seed-admin-demo.sql` | extra demo rows for the admin screens; run once after the seed | DEMO |
+| `sql/seed-demo.sql` | the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
+| `sql/demo-photos/bread.jpg`, `sql/demo-photos/venue.jpg`, `sql/demo-photos/vegetables.png`, `sql/demo-photos/rice.png`, `sql/demo-photos/event.png` | five small sample photos; `setup-db -Demo` copies them to `uploads/seed/` | DEMO |
 | `setup-db.bat`, `setup-db.ps1` | create the database and load the demo data | PLATFORM |
 | `scripts/new-methods.sh` | lists the methods a branch adds, for review | TESTS |
 | `pom.xml` | Maven build: JavaFX, MySQL, JUnit, copies FXML and CSS to the output | PLATFORM |
@@ -333,6 +335,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/HistoryServiceTest.java` | the cards, outcomes, report column and period filter | HISTORY |
 | `service/RenewalTest.java` | upload a renewal, verify it, the expiry suspension ends, the admin's way to it | PROFILE, ACCOUNTS |
 | `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
+| `service/DemoSeedTest.java` | the demo seed loads and its story works through the real services | DEMO |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
@@ -349,7 +352,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
-| `support/TestDb.java` | builds `aniplato_test` from the schema and seed; refuses any other database | TESTS |
+| `support/TestDb.java` | builds `aniplato_test` from the schema and seed (and one more script on request); refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
 | `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
 | `support/Fx.java` | runs test code on the JavaFX thread | TESTS |

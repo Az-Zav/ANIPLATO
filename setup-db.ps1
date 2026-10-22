@@ -7,8 +7,11 @@
   WARNING: schema.sql drops and recreates the `aniplato` database.
 .PARAMETER Force
   Skip the confirmation prompt when the database already exists.
+.PARAMETER Demo
+  Also load the demo story (sql/seed-admin-demo.sql and sql/seed-demo.sql) and copy the sample photos
+  from sql/demo-photos to uploads/seed, so every screen has something to show.
 #>
-param([switch]$Force)
+param([switch]$Force, [switch]$Demo)
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
@@ -86,6 +89,15 @@ try {
     Invoke-SqlFile (Join-Path $root 'sql/schema.sql')
     Write-Host 'Loading seed data...'
     Invoke-SqlFile (Join-Path $root 'sql/seed.sql')
+    if ($Demo) {
+        Write-Host 'Loading the demo story...'
+        Invoke-SqlFile (Join-Path $root 'sql/seed-admin-demo.sql')
+        Invoke-SqlFile (Join-Path $root 'sql/seed-demo.sql')
+        $uploads = if ($cfg['uploads.dir']) { $cfg['uploads.dir'] } else { Join-Path $root 'uploads' }
+        $seedPhotos = Join-Path $uploads 'seed'
+        New-Item -ItemType Directory -Force -Path $seedPhotos | Out-Null
+        Copy-Item (Join-Path $root 'sql/demo-photos/*') $seedPhotos -Force
+    }
 }
 finally {
     Remove-Item Env:\MYSQL_PWD -ErrorAction SilentlyContinue

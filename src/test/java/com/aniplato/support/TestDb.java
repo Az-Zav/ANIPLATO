@@ -67,6 +67,18 @@ public final class TestDb {
         }
     }
 
+    /** Runs one more SQL script from the project (for example sql/seed-demo.sql) on aniplato_test, after {@link #reset}. */
+    public static void loadScript(String file) {
+        configure();
+        try (Connection c = DriverManager.getConnection(serverUrl,
+                System.getProperty("aniplato.user"), System.getProperty("aniplato.password"));
+             Statement st = c.createStatement()) {
+            runScript(st, retarget(read(file)));
+        } catch (SQLException e) {
+            throw new IllegalStateException("Could not run " + file, e);
+        }
+    }
+
     /** One value from a query, e.g. scalar("SELECT COUNT(*) FROM account WHERE status = ?", "ACTIVE"). */
     @SuppressWarnings("unchecked")
     public static <T> T scalar(String sql, Object... args) {
