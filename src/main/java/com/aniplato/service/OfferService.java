@@ -169,7 +169,7 @@ public class OfferService {
         try {
             int id = Database.inTransaction("Could not send the offer", c -> {
                 if (postDao.findOpenForUpdate(c, post.id) == null) {
-                    throw new RuleViolationException("This " + noun(post) + " is no longer open.");
+                    throw new RuleViolationException("This " + post.noun() + " is no longer open.");
                 }
                 Integer foodId = food == null ? null : detailDao.insertFood(c, food);
                 Integer useId = use == null ? null : detailDao.insertUse(c, use);
@@ -188,8 +188,8 @@ public class OfferService {
                     logDao.logStatusChange(c, OFFER_ENTITY, offerId, Offer.Status.WITHDRAWN.name(), Offer.Status.OFFERED.name(), null, me.id);
                 } else {
                     throw new RuleViolationException(existing.status == Offer.Status.DECLINED
-                            ? "Your offer on this " + noun(post) + " was declined, so you cannot offer again."
-                            : "You have already offered on this " + noun(post) + ".");
+                            ? "Your offer on this " + post.noun() + " was declined, so you cannot offer again."
+                            : "You have already offered on this " + post.noun() + ".");
                 }
                 for (String path : paths) photoDao.insert(c, PhotoDao.Owner.OFFER, offerId, path);
                 return offerId;
@@ -206,7 +206,7 @@ public class OfferService {
     private Post requirePost(int postId, Post.Kind kind) {
         Post post = Database.inTransaction("Could not load the post", c -> postDao.findById(c, postId));
         if (post == null || post.kind != kind) throw new RuleViolationException("That " + kind.name().toLowerCase() + " no longer exists.");
-        if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + noun(post) + " is no longer open.");
+        if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + post.noun() + " is no longer open.");
         return post;
     }
 
@@ -215,9 +215,5 @@ public class OfferService {
         if (!List.of(allowed).contains(me.role)) throw new RuleViolationException(wrongRoleMessage);
         if (!me.canPostOrOffer()) throw new RuleViolationException("A suspended account cannot send offers.");
         return me;
-    }
-
-    private static String noun(Post post) {
-        return post.isListing() ? "listing" : "request";
     }
 }

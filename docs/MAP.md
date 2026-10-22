@@ -344,6 +344,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/ReportServiceTest.java` | the report rules, who sees it, the overdue flag on both routes | REPORT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
+| `model/PostTest.java` | the words a message uses for a listing and a request | LISTING, REQUEST |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
 | `controller/ScreensTest.java` | the round 3 screens load, show service data, and their buttons call the services | LISTING, OFFER, ACCEPT, HANDOFF, REPORT |
@@ -1103,7 +1104,8 @@ flowchart LR
 | `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | ScreensTest |
 | `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, IncomingOfferRows, MyPostRows | AcceptanceServiceTest |
 | `Post.label` | the post status's name on screen (on the status enum) | PostCards | ScreensTest |
-| `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest |
+| `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest, PostTest |
+| `Post.noun` | "listing" or "request" for a message | AcceptanceService, OfferService | PostTest |
 | `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
 | `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | ScreensTest |
 | `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |

@@ -72,7 +72,7 @@ public class AcceptanceService {
         Database.inTransaction("Could not accept the offer", c -> {
             Offer offer = requireOwnOfferOnPost(c, offerId, me);
             Post post = postDao.findForUpdate(c, offer.postId);
-            if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + noun(post) + " is no longer open.");
+            if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + post.noun() + " is no longer open.");
             offer = offerDao.findById(c, offerId);   // read again now that the post is locked
             if (offer.status != Offer.Status.OFFERED) throw new RuleViolationException("Only an Offered offer can be accepted.");
             if (offer.offererSuspended) throw new RuleViolationException("This offer is not available right now.");
@@ -136,9 +136,5 @@ public class AcceptanceService {
             throws SQLException {
         if (offerDao.updateStatusIf(c, offerId, from, to) == 0) throw new RuleViolationException("This offer has already changed.");
         logDao.logStatusChange(c, OFFER_ENTITY, offerId, from.name(), to.name(), null, changedBy);   // A3
-    }
-
-    private static String noun(Post post) {
-        return post.isListing() ? "listing" : "request";
     }
 }
