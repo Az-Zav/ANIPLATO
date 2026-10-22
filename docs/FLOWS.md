@@ -51,14 +51,14 @@ Each module wires screens that already exist in FXML to the call chains below (t
 | 2 | **Registration** | register, register-step2, register-submitted | wire `checkDetails`, `submit`, `cities`; real city list, file picker, expiry dates, consent, Received email | 2 | 1 |
 | 3 | **Admin review** | pending-registrations, review-registration, approve/reject dialogs | `RegistrationService`: `listPending`, `getForReview`, `verifyDocument`, `approve`, `reject`; new DAO methods; document preview | 2 | 2 |
 | 4 | **Profile, accounts** | profile, accounts, suspend/reinstate/renewal/upgrade dialogs | `updateProfile`, `uploadRenewal`, `submitUpgrade`, `suspend`, `reinstate`, `listAccounts` | 8 | 3 |
-| 5 | **Post a listing** | new-listing, my-listings, cancel dialog | `Post`/`FoodDetail`/`Photo` models, `PostService`, `PostDao`, `DetailDao`, `PhotoDao` | 3a | 4 |
-| 6 | **Browse and offer** | browse-listings (food group), make-offer, my-offers (shared) | `OfferService.sendListingOffer`, `withdraw`, `listMine`; rewrite `OfferDao` | 4 | 5 |
-| 7 | **Accept offer** | incoming-offers, accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
-| 8 | **Handoff** | confirm release/receipt dialogs, handoff-record, history | `confirmRelease`, `confirmReceipt`, `buildHandoffRecord`, `cancelPost` | 6 | 7 |
-| 9 | **Requests (Route 2)** | new-listing as request, browse-request (donor), donor make-offer, `[FE]` my-requests, `[FE]` offers-received | `createRequest`, `sendRequestOffer`, `UseDetail`; reuses modules 5 to 8 | 3b, 4 | 8 |
-| 10 | **Report and safety** | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; let `SafetyNoticeDao.insert` take a notice with no raiser (the overdue kind) | 7 | 8 |
+| 5 | **Post a listing** (built in round 3) | new-listing, my-listings, cancel dialog | `Post`/`FoodDetail`/`Photo` models, `PostService`, `PostDao`, `DetailDao`, `PhotoDao` | 3a | 4 |
+| 6 | **Browse and offer** (built in round 3) | browse-listings (food group), make-offer, my-offers (shared) | `OfferService.sendListingOffer`, `withdraw`, `listMine`; rewrite `OfferDao` | 4 | 5 |
+| 7 | **Accept offer** (built in round 3) | incoming-offers, accept/decline dialogs | `acceptOffer`, `declineOffer`, phone-reveal method (A7) | 5 | 6 |
+| 8 | **Handoff** (built in round 3) | confirm release/receipt dialogs, handoff-record, history | `confirmRelease`, `confirmReceipt`, `buildHandoffRecord`, `cancelPost` | 6 | 7 |
+| 9 | **Requests (Route 2)** (built in round 3) | new-listing as request, browse-request (donor), donor make-offer, `[FE]` my-requests, `[FE]` offers-received | `createRequest`, `sendRequestOffer`, `UseDetail`; reuses modules 5 to 8 | 3b, 4 | 8 |
+| 10 | **Report and safety** (built in round 3 (the Flag Concern dialog is not wired)) | `[FE]` submit-report, flag-concern dialog, safety-notices, resolve dialog | `ReportService`, `ReportDao`; let `SafetyNoticeDao.insert` take a notice with no raiser (the overdue kind) | 7 | 8 |
 | 11 | **Dashboards, history, reports** | three dashboards, history, admin reports | `StatsService`; all values derived (A9) | 9 | 8, 10 |
-| 12 | **Maintenance** | all screens (runs on screen load) | rewrite `MaintenanceService`, re-attach to the shell | 10 | 5 to 10 |
+| 12 | **Maintenance** (built in round 3) | all screens (runs on screen load) | rewrite `MaintenanceService`, re-attach to the shell | 10 | 5 to 10 |
 | 13 | **Seed and polish** | whole app | demo seed, README, AI chat (stretch) | 12 | all |
 
 **Per-module loop**
@@ -86,6 +86,8 @@ See MAP.md, AUTH. Nothing to build.
 See MAP.md, REGISTER and REVIEW. Nothing to build.
 
 ## 3a. Post a listing (Route 1): Stage 2A
+
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
 
 ```mermaid
 flowchart LR
@@ -122,6 +124,8 @@ Rules: account Active and documents current, kg above 0, use-by in the future, w
 
 ## 3b. Post a request (Route 2): Stage 2B
 
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+
 ```mermaid
 flowchart LR
   classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
@@ -150,6 +154,8 @@ flowchart LR
 Reuses everything from 3a. Rows on My Requests: Review offers, Confirm Receipt, Cancel request.
 
 ## 4. Browse and offer: Stage 3
+
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
 
 ```mermaid
 flowchart LR
@@ -189,6 +195,8 @@ Rules: listings and requests in the viewer's city first; posts from suspended po
 
 ## 5. Accept or decline an offer: Stage 4
 
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+
 ```mermaid
 flowchart LR
   classDef screen fill:#e8f1ff,stroke:#3b6fd4,stroke-dasharray:5 3,color:#111827
@@ -220,6 +228,8 @@ flowchart LR
 `getContactPhone` is the only way a phone number is returned (A7): to the owner, an admin, or the other side of an Accepted, not yet closed offer. Offers from a suspended offerer are left out of `listForPost`.
 
 ## 6. Handoff, receipt and cancel: Stages 5 and 6
+
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
 
 ```mermaid
 flowchart LR
@@ -259,6 +269,8 @@ flowchart LR
 The record number is `HR-year-offer_id`, derived and never stored; it says it is not a government certificate. A Completed handoff cannot be cancelled.
 
 ## 7. Report and safety notice: Stage 5 (report), 6.3
+
+> **Report built in round 3; the safety-notice part was already built.** The Flag Concern dialog is the one piece not wired. See [MAP.md](MAP.md).
 
 ```mermaid
 flowchart LR
@@ -331,6 +343,8 @@ flowchart LR
 All values are derived on read (A9). The admin dashboard and reports are built (MAP.md, STATS).
 
 ## 10. Maintenance: 6.6
+
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
 Built and attached (MAP.md, MAINT). Each module below adds exactly one line to `MaintenanceService.runMaintenance`, at the position 6.6 gives it, with a test in `MaintenanceServiceTest`:
 
 | Order | Line | Added by |
@@ -377,6 +391,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | a renewal is a **new** document row awaiting review, and the old one is untouched · an expired date, a wrong type or a file over 5 MB is refused with the message · an upgrade by a Business or Admin account is refused · approving an upgrade changes the role and keeps the password (already tested in `RegistrationDecisionTest`) · a phone number that is not 11 digits is refused on edit · **spec 6.3:** when a renewal is verified for an account suspended with reason "Document expired" and no verified document is still expired, the account is reinstated by the system (add this to `DocumentReviewService.verifyDocument`, one transaction, logged with `changed_by` NULL) |
 
 ## Module 5: Post a listing (Route 1, Stage 2A)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Owner: ___*
 
 | | |
@@ -387,6 +403,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | rules of Stage 2A each have a test: kg above 0 · use-by in the future · pickup window ends before the use-by · 1 to 5 photos · category follows the role (a Casual donor may only pick raw or sealed-packaged) · storage condition required · attestation ticked · a Suspended account cannot post · a failed photo save leaves no post, no detail and no photo rows (one transaction) · the new post is Open and `status_change` has the row |
 
 ## Module 6: Browse and offer (Stage 3, both routes)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 5. Owner: ___*
 
 | | |
@@ -397,6 +415,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | one offer per account per post (the schema already enforces R3.1; the service must give a message) · pickup inside the listing's window and before its use-by · Route 2: kg not above the requested kg, category accepted by the request · a Suspended account cannot offer · offers from a suspended offerer and posts from a suspended poster are not listed · withdraw works only while Offered, and not after accept · listings in the viewer's city come first |
 
 ## Module 7: Accept and decline (Stage 4)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 6. Owner: ___*
 
 | | |
@@ -407,6 +427,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | only the poster can accept or decline · only an Offered, unexpired offer can be accepted · accepting declines the others **in the same transaction**: a forced failure leaves everything unchanged · Route 1 agreed kg is the listing's, Route 2 the offer's · a Suspended poster cannot accept · `getContactPhone` returns a number only to the owner, an admin, or the other side of an Accepted, not yet closed offer, and no list query ever returns a phone number |
 
 ## Module 8: Handoff, receipt and cancel (Stages 5 and 6)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 7. Owner: ___*
 
 | | |
@@ -417,6 +439,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | receipt before release is refused · only the donor can release and only the food group can confirm receipt · confirming receipt completes the offer **and** rescues the post in one transaction · a Completed handoff cannot be cancelled · cancelling an Accepted post cancels its offer with the reason, an Open one declines every waiting offer · a Suspended account can still finish an accepted handoff |
 
 ## Module 9: Requests (Route 2, Stage 2B)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 8. Owner: ___*
 
 | | |
@@ -427,6 +451,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | kg above 0 · needed-by in the future · event date on or after the needed-by · 1 to 5 photos · group attestation ticked · several Open requests at once are allowed · a Suspended group cannot post |
 
 ## Module 10: Report and safety (Stage 5 report, 6.3)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 8. Owner: ___*
 
 | | |
@@ -447,6 +473,8 @@ Every module also follows: one transaction per action (`Database.inTransaction`)
 | **Done when** | a rate with nothing to divide by shows nothing, not 0% · numbers match a hand count on the seed · History lists only the signed-in user's handoffs |
 
 ## Module 12: Maintenance (6.6)
+*Built in round 3. Kept as the record of what was planned; the built methods are in MAP.md. Two differences: the accept and contact methods live in `AcceptanceService`, and release, receipt and the record in `HandoffService`, to keep every file under 300 lines.*
+
 *Needs 5 to 10. Owner: ___*
 
 | | |

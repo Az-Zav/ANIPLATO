@@ -1,8 +1,46 @@
 # Cleanup report
 
-Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**, described next. The rule was: **behavior-preserving**, no new features, bugs found are written down and not fixed.
+Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
 
 **To undo everything:** `git checkout pre-cleanup`. **To undo one step:** `git revert <commit>` using the table below.
+
+## Round 3: posting, offers, handoff, report and the checks
+
+New work, not cleanup. The audit's cleanup items stay deferred (listed in the audit; each is mechanical). One commit per step, the full suite green before each, no attribution lines. Tags: **`cleanup-round-2`** is the code before this round, **`cleanup-round-3`** the code after it. **To undo the round:** `git checkout cleanup-round-2`.
+
+The model is one idea: a post plus offers, and the two routes mirror each other. A listing carries the food and its offers carry the use; a request carries the use and its offers carry the food. The donor is always the one who releases, the food group the one who receives.
+
+| # | Commit | Step | Behavior |
+|---|---|---|---|
+| 1 | 86d15f9 | Slice 1: `PostService` creates listings and requests and serves the two boards and "my posts"; `Post`, `FoodDetail`, `UseDetail`, `DetailDao`, `PhotoDao` | new |
+| 2 | 823858c | Slice 2: `OfferService` sends offers on both routes, withdraws, lists "my offers"; a Withdrawn offer re-opens on the same row | new |
+| 3 | 93a64d6 | Slice 3: `AcceptanceService` accepts (one transaction under a lock), declines, lists incoming offers, and returns phone numbers (A7) | new |
+| 4 | 88f084f | Slice 4: `HandoffService` confirms release and receipt and builds the record; `PostService.cancelPost` | new |
+| 5 | e02fb79 | Slice 5: `ReportService`, and `MaintenanceService` now runs all six 6.6 checks | new; the checks run before every screen |
+| 6 | f097c5d | The screens: forms, boards, lists, dialogs and the record are wired to the services | new; dashboards, History and the shell unchanged |
+| 7 | this commit | `MAP.md` (done with each step), `FLOWS.md` status, this report | docs only |
+
+**Tests:** 226 run, 0 failed, 0 skipped (136 before the round). New: `PostServiceTest`, `OfferServiceTest`, `AcceptanceServiceTest`, `HandoffServiceTest`, `CancelPostTest`, `ReportServiceTest`, six new cases in `MaintenanceServiceTest`, and `ScreensTest`, which loads the screens against the seeded test database.
+
+**Defaults assumed where the spec was silent** (change by saying so):
+- M1: once the donor confirms release, the offer no longer lapses.
+- M2: a Withdrawn offer can be sent again on the same row with new details and photos; a Declined one is final.
+- M3: a post cannot be cancelled after release is confirmed.
+- M4: saved photo files are deleted if the transaction fails (`FileStorageService.deleteAll`).
+- Figma V2: two date-time pickers for windows, one category for a listing or an offer and several for a request, record number `HR-year-0042`, a disabled "Offered" button, the report's event name and date prefilled (the date stays empty and required when the offer did not state one).
+
+**Spec deviations to know about**
+- Spec 7.3 puts accept, release and the record in `OfferService`. They are in `AcceptanceService` and `HandoffService` so no file passes the 300-line rule. `OfferDao` also gave its counts to a new `OfferStatsDao` for the same reason.
+- `SafetyNotice.raisedBy` is now nullable so the system can raise the overdue notice, and the admin list and "suspend the flagged account" name the food group on a request offer too. Before this, an overdue notice could not exist, so no existing behavior changed.
+
+**Not done in this round** (all listed in `MAP.md`, Reference C, or marked 🟡/⬜ there)
+- The donor and food group dashboards and History still show sample rows (feature HISTORY).
+- The sidebar badges for offers awaiting a decision and accepted handoffs: the services (`countOffersAwaitingDecision`, `countAwaitingHandoff`) exist; the shell does not show them.
+- The food group sidebar still has the old items (Figma V2 has seven); the Flag Safety Concern dialog (the service `SafetyService.raise` is built); Profile edit, renewals and upgrade (module 4).
+- Photo files are not shown as images on the cards (the paths are stored and counted).
+- Still unknown, so nothing depends on them: the finals date and person-days, module owners, and who hosts the shared database, uploads and SMTP.
+
+**Check by hand after pulling** (the tests load screens and fire two buttons, but nothing drives a whole flow): log in as the seed Business donor, post a listing with two photos; log in as the food group, offer on it; log in as the donor, accept; confirm release; as the group confirm receipt, open the record and submit the report. Then do the request route the other way round.
 
 ## Round 2: gaps closed and the map
 

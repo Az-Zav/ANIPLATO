@@ -24,7 +24,7 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 1. Find the rule in the spec (section 6) and note its ID (R1.1, A2…). Open your blueprint in `docs/FLOWS.md`.
 2. **DAO:** the SQL method. `PreparedStatement` only.
 3. **Service:** ONE public method per user action: check the rules, `Database.inTransaction("message", c -> {...})` for anything that writes, call `LogDao.logStatusChange` for every status change, throw `RuleViolationException` for a broken rule.
-4. **Controller:** read input, call that method, catch `RuleViolationException`, show the message (`DialogController.showError`).
+4. **Controller:** read input, call that method through `FormSupport.attempt` (it catches `RuleViolationException` and shows the message), then navigate. List screens fill a `VBox` with `Cards` and `PostCards` (see `MyPostRows` for the pattern); forms use `DateTimeField` and `PhotoPicker`.
 5. **Test:** copy the pattern in `src/test/java/com/aniplato/service/AccountStatusTest.java`. One test per rule in the blueprint's "Done when".
 6. Run `mvn test`, then `scripts/new-methods.sh` and check every method it lists is in your blueprint.
 
@@ -32,6 +32,7 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 - `mvn test` needs MySQL running. Tests use their own **`aniplato_test`** database, rebuilt from `sql/schema.sql` and `sql/seed.sql` before every test, and refuse any other database. They read the MySQL user and password from your `db.properties` (or `ANIPLATO_TEST_DB_USER` / `ANIPLATO_TEST_DB_PASSWORD`). They never send real email and never touch `uploads/`.
 - Skip them with `mvn package -DskipTests` if you have no MySQL.
 - `MapCoverageTest` fails when a file, or a public method of a service, DAO, util or model class, has no row in `docs/MAP.md`: add the row in the same pull request.
+- `ScreensTest` loads the round 3 screens against the seeded test database; copy it when you wire another screen (it needs a desktop).
 - `ArchitectureTest` fails the build on a layer breach or a class over 300 lines. `FxmlWiringTest` fails when an FXML and its controller do not match. `DialogControllerTest` drives the real popups (needs a desktop).
 - Tests assume today's seed data. If you change `sql/seed.sql`, update the tests that depend on it in the same pull request.
 
@@ -50,6 +51,9 @@ Flow is always **View → Controller → Service → DAO → MySQL**. Never skip
 - One service calling another inside a transaction passes its `Connection` (see `AccountStatusService.suspend`).
 - A rule ID goes in a comment only where the rule is enforced.
 - The uploads folder is `uploads.dir` in `db.properties` (default `uploads/`); open stored files with `FileStorageService.resolve`, never `new File("uploads", …)`.
+
+## Status
+Modules 1 to 3 and 5 to 10 and 12 are built (see `docs/MAP.md`). Left: module 4 (profile edit, renewals, upgrade), module 11 (dashboards, History) and module 13 (polish), plus the sidebar badges and the Flag Concern dialog.
 
 ## Ownership (write the names; one owner per slice)
 | Slice (FLOWS.md modules) | Owner |
