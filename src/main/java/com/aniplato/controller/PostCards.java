@@ -1,7 +1,6 @@
 package com.aniplato.controller;
 
 import com.aniplato.model.FoodDetail;
-import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
 import com.aniplato.model.UseDetail;
 import com.aniplato.service.FileStorageService;
@@ -78,16 +77,6 @@ public final class PostCards {
         Cards.addLines(card, post.isListing() ? foodLines(post.food) : useLines(post.use, "Needed by"));
         card.getChildren().add(thumbnails(post.photos));
         if (post.cancelReason != null) card.getChildren().add(Cards.muted("Cancelled: " + post.cancelReason));
-        card.getChildren().add(actions);
-        return card;
-    }
-
-    /** An offer as a card: who made it, how much, what it carries. */
-    public static VBox offerCard(Offer offer, Node actions) {
-        VBox card = Cards.card(Cards.title(offer.offererName),
-                Cards.muted(FormSupport.kg(offer.kg) + "  |  " + offer.status.label() + "  |  sent " + FormSupport.when(offer.createdAt)));
-        Cards.addLines(card, offer.food != null ? foodLines(offer.food) : useLines(offer.use, "Pickup time"));
-        card.getChildren().add(thumbnails(offer.photos));
         card.getChildren().add(actions);
         return card;
     }

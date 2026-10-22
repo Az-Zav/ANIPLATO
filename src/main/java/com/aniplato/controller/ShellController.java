@@ -29,7 +29,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-import java.util.List;
 import java.util.Locale;
 
 /** Header, sidebar and content area shared by every logged-in screen. */

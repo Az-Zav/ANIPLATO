@@ -13,6 +13,7 @@ import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -25,6 +26,7 @@ import javafx.scene.layout.VBox;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -207,12 +209,12 @@ public class ProfileController {
                 return;
             }
             Desktop.getDesktop().open(file);
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             DialogController.showError("Could not open " + file.getName() + ".");
         }
     }
 
-    private static void setShown(javafx.scene.Node node, boolean shown) {
+    private static void setShown(Node node, boolean shown) {
         node.setVisible(shown);
         node.setManaged(shown);
     }

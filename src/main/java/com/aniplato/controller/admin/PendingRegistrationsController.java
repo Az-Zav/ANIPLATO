@@ -1,7 +1,6 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.exception.DataAccessException;
-import com.aniplato.model.Account;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.PendingRow;
 import com.aniplato.util.AdminSelection;

@@ -81,7 +81,7 @@ public class DashboardService {
 
     //---BANNERS---
 
-    private List<Banner> banners(Account me, java.sql.Connection c) throws SQLException {
+    private List<Banner> banners(Account me, Connection c) throws SQLException {
         List<Banner> banners = new ArrayList<>();
         if (me.isSuspended()) {
             banners.add(new Banner(BannerKind.SUSPENDED, "Your account is suspended" + (me.suspendReason == null ? "" : ": " + me.suspendReason)

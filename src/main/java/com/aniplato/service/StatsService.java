@@ -8,8 +8,6 @@ import com.aniplato.dao.RegistrationDao;
 import com.aniplato.dao.ReportDao;
 import com.aniplato.dao.SafetyNoticeDao;
 import com.aniplato.exception.DataAccessException;
-import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
 import com.aniplato.model.Registration;
 import com.aniplato.util.Database;
 import com.aniplato.util.Session;
