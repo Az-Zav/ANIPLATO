@@ -348,7 +348,11 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/PostTest.java` | the words a message uses for a listing and a request | LISTING, REQUEST |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
 | `controller/LoginScreenTest.java` | the Forgot password link opens the dialog with the typed email | AUTH |
-| `controller/ScreensTest.java` | the round 3 screens load, show service data, and their buttons call the services | LISTING, OFFER, ACCEPT, HANDOFF, REPORT |
+| `controller/ScreenTestBase.java` | what the screen tests share: load a real screen, read its labels and buttons | TESTS |
+| `controller/BoardScreensTest.java` | the boards, My Listings and My Requests, and photos on the cards load, show service data and call the services | LISTING, REQUEST, ACCEPT, HANDOFF |
+| `controller/OfferScreensTest.java` | the offer screens, Flag a concern, the handoff record and the report form load and call the services | OFFER, SAFETY, REPORT |
+| `controller/DashboardScreensTest.java` | the two dashboards and History show their cards, banners and tables | DASHBOARD, HISTORY |
+| `controller/ProfileScreensTest.java` | the upgrade button and Review renewal show only where they apply | PROFILE |
 | `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
@@ -603,7 +607,7 @@ Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/sha
 | `ProfileService.updateContact` | saves the contact person and a number of exactly 11 digits | EditContactDialogController | ProfileServiceTest |
 | `ProfileService.submitUpgrade` | a Casual donor's new Pending Business registration with both permits; approval changes the role | UpgradeBusinessDonorDialogController | ProfileServiceTest |
 | `RegistrationDao.updateContact` | saves new contact details on a registration | ProfileService | ProfileServiceTest |
-| `Account.canUpgradeToBusiness` | only a Casual donor can upgrade | ProfileController, ProfileService | ScreensTest |
+| `Account.canUpgradeToBusiness` | only a Casual donor can upgrade | ProfileController, ProfileService | ProfileScreensTest |
 
 **Flow**
 
@@ -629,7 +633,7 @@ Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNo
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | FlagSafetyDialogController | SafetyServiceTest, ScreensTest |
+| `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | FlagSafetyDialogController | SafetyServiceTest, OfferScreensTest |
 | `SafetyService.raiseOverdueReport` | the system flags a food group that owes a report (a notice with no raiser), once per handoff | ReportService | ReportServiceTest |
 | `OfferDao.isOnListing` | is the offer on a listing or a request (tells who the food group is) | SafetyService | ReportServiceTest |
 | `SafetyService.getNoticeRows` | every notice with both organization names, newest first (as the service's own `NoticeRow`) | SafetyNoticesController | SafetyServiceTest |
@@ -833,10 +837,10 @@ Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.ja
 | `OfferDao.findById` | one offer with its detail | OfferService | OfferServiceTest |
 | `OfferDao.findByPostAndOfferer` | the offer one account made on a post, in any status | OfferService | OfferServiceTest |
 | `OfferDao.findByOfferer` | every offer one account made | OfferService | OfferServiceTest |
-| `Selection.selectPost` | remembers the post opened from a board or list | BrowseListingsController, BrowseRequestsController, MyOfferRows | ScreensTest |
-| `Selection.postId` | the post the Make Offer form is for | both MakeOfferControllers | ScreensTest |
-| `Selection.selectOffer` | remembers the offer opened from a list | MyPostRows, MyOfferRows, HandoffRecordController | ScreensTest |
-| `Selection.offerId` | the offer the record and report screens are for | HandoffRecordController, SubmitReportController | ScreensTest |
+| `Selection.selectPost` | remembers the post opened from a board or list | BrowseListingsController, BrowseRequestsController, MyOfferRows | OfferScreensTest |
+| `Selection.postId` | the post the Make Offer form is for | both MakeOfferControllers | OfferScreensTest |
+| `Selection.selectOffer` | remembers the offer opened from a list | MyPostRows, MyOfferRows, HandoffRecordController | OfferScreensTest |
+| `Selection.offerId` | the offer the record and report screens are for | HandoffRecordController, SubmitReportController | OfferScreensTest |
 | `DetailDao.deleteFood` | removes the food detail an offer no longer uses | OfferService | OfferServiceTest |
 | `DetailDao.deleteUse` | removes the use detail an offer no longer uses | OfferService | OfferServiceTest |
 | `PhotoDao.deleteFor` | removes the photo rows of an offer being re-opened | OfferService | OfferServiceTest |
@@ -944,7 +948,7 @@ Files: `service/ReportService.java`, `dao/ReportDao.java`, `model/Report.java`, 
 | `ReportDao.insert` | saves a report | ReportService | ReportServiceTest |
 | `ReportDao.findByOffer` | the report of one handoff | ReportService | ReportServiceTest |
 | `Report.isLate` | submitted after the deadline | HandoffRecordController | ReportServiceTest |
-| `ReportService.canSubmit` | is this account the receiving group with no report yet: shows the Submit report button | HandoffRecordController | ScreensTest |
+| `ReportService.canSubmit` | is this account the receiving group with no report yet: shows the Submit report button | HandoffRecordController | OfferScreensTest |
 
 ```mermaid
 flowchart LR
@@ -969,9 +973,9 @@ Files: `service/DashboardService.java`, `service/HistoryService.java`, `dao/Hist
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `DashboardService.getDonorDashboard` | open listings, offers to review, awaiting release, kg rescued, kg needed (as the donor's board shows it), active listings, banners | DonorDashboardController | DashboardServiceTest, ScreensTest |
-| `DashboardService.getFoodGroupDashboard` | open listings and their kg, in my city, accepted offers, kg rescued, nearest listings, banners incl. a report due | FoodGroupDashboardController | DashboardServiceTest, ScreensTest |
-| `HistoryService.getHistory` | all-time cards, the months that have lines, and the table lines of one period with outcome text and report status | HistoryController | HistoryServiceTest, ScreensTest |
+| `DashboardService.getDonorDashboard` | open listings, offers to review, awaiting release, kg rescued, kg needed (as the donor's board shows it), active listings, banners | DonorDashboardController | DashboardServiceTest, DashboardScreensTest |
+| `DashboardService.getFoodGroupDashboard` | open listings and their kg, in my city, accepted offers, kg rescued, nearest listings, banners incl. a report due | FoodGroupDashboardController | DashboardServiceTest, DashboardScreensTest |
+| `HistoryService.getHistory` | all-time cards, the months that have lines, and the table lines of one period with outcome text and report status | HistoryController | HistoryServiceTest, DashboardScreensTest |
 | `HistoryService.count` | how many table lines have one outcome, for the tab labels | HistoryController | HistoryServiceTest |
 | `HistoryDao.totals` | kg, handoffs and partners of completed handoffs the account was a side of | DashboardService, HistoryService | HistoryServiceTest |
 | `HistoryDao.countAwaitingRelease` | accepted offers a donor still has to release, on either route | DashboardService | DashboardServiceTest |
@@ -1088,7 +1092,7 @@ flowchart LR
 | `Account.key` | the role's `role-<key>` style class for the sidebar | ShellController | none |
 | `Account.profileRows` | the rows the Profile screen lists (each subclass supplies its own) | ProfileController | none |
 | `Account.isSuspended` | is this account Suspended | ProfileController | AccountTest |
-| `Account.mayGive` | a Casual donor may give raw or sealed-packaged only; a Business donor any category (6.5) | NewListingController, donor MakeOfferController, PostService, OfferService | ScreensTest, PostServiceTest |
+| `Account.mayGive` | a Casual donor may give raw or sealed-packaged only; a Business donor any category (6.5) | NewListingController, donor MakeOfferController, PostService, OfferService | BoardScreensTest, PostServiceTest |
 | `Account.canPostOrOffer` | only an Active account may post, offer or accept (6.3) | PostService | AccountTest, PostServiceTest |
 | `Admin.displayName` | the admin's name | ShellController | none |
 | `Admin.profileRows` | the admin's profile rows | ProfileController | none |
@@ -1102,13 +1106,13 @@ flowchart LR
 | `Document.fromDb` | reads a stored value back into the enum | DocumentDao | RegistrationApplyTest |
 | `Document.isExpired` | the expiry date is before today | RegistrationService, ProfileController | RegistrationDecisionTest |
 | `Document.expiresWithin` | still valid but ending within N days | ProfileController | DocumentReviewTest |
-| `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | ScreensTest |
+| `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | BoardScreensTest |
 | `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, IncomingOfferRows, MyPostRows | AcceptanceServiceTest |
-| `Post.label` | the post status's name on screen (on the status enum) | PostCards | ScreensTest |
+| `Post.label` | the post status's name on screen (on the status enum) | PostCards | BoardScreensTest |
 | `Post.isListing` | is this a listing (not a request) | Post.deadline | PostServiceTest, PostTest |
 | `Post.noun` | "listing" or "request" for a message | AcceptanceService, OfferService | PostTest |
 | `Post.deadline` | the use-by of a listing or the needed-by of a request | none yet: the MAINT checks use SQL | none |
-| `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | ScreensTest |
+| `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | BoardScreensTest |
 | `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |
 | `FoodDetail.column` | the value stored in the allergens SET column | DetailDao | PostServiceTest |
 | `FoodDetail.fromColumn` | reads a stored allergen back | DetailDao | PostServiceTest |
