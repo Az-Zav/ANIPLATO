@@ -9,8 +9,8 @@ public class SafetyNotice {
 
     public int id;                          // shown as "Notice #12"
     public int offerId;
-    public Kind kind = Kind.CONCERN;        // the other kind is built with the report feature (FLOWS.md module 10)
-    public int raisedBy;                   // account id of whoever flagged the concern
+    public Kind kind = Kind.CONCERN;
+    public Integer raisedBy;                // account id of whoever flagged the concern; null when the system raised an overdue report
     public String concern;
     public Status status;
     public String adminNote;                // null until resolved; required on resolve

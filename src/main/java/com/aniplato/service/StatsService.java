@@ -2,7 +2,7 @@ package com.aniplato.service;
 
 import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DocumentDao;
-import com.aniplato.dao.OfferDao;
+import com.aniplato.dao.OfferStatsDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.dao.RegistrationDao;
 import com.aniplato.dao.ReportDao;
@@ -40,7 +40,7 @@ public class StatsService {
                                 List<CityRow> cities) { }
 
     private final PostDao postDao = new PostDao();
-    private final OfferDao offerDao = new OfferDao();
+    private final OfferStatsDao offerDao = new OfferStatsDao();
     private final ReportDao reportDao = new ReportDao();
     private final RegistrationDao registrationDao = new RegistrationDao();
     private final AccountDao accountDao = new AccountDao();

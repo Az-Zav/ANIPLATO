@@ -98,10 +98,26 @@ public class SafetyService {
         });
     }
 
-    /** The account a notice is about: whichever side of the offer did not raise it. */
+    /**
+     * The overdue-report flag (6.6, R5.4): the system tells the admin a food group owes a report. Runs inside the
+     * caller's transaction; the schema allows one per offer, and the caller only asks for offers without one.
+     */
+    public void raiseOverdueReport(Connection c, int offerId) throws SQLException {
+        SafetyNotice notice = new SafetyNotice();
+        notice.offerId = offerId;
+        notice.kind = SafetyNotice.Kind.OVERDUE_REPORT;
+        notice.status = SafetyNotice.Status.OPEN;
+        notice.raisedAt = LocalDateTime.now();
+        int id = noticeDao.insert(c, notice);
+        logDao.logStatusChange(c, ENTITY, id, null, SafetyNotice.Status.OPEN.name(), null, null);   // A3, by the system
+    }
+
+    /** The account a notice is about: whichever side of the offer did not raise it; for an overdue report, the food group. */
     private int flaggedAccountId(Connection c, SafetyNotice notice) throws SQLException {
         OfferDao.Parties parties = offerDao.findParties(c, notice.offerId);
-        // an overdue-report notice has no raiser (raisedBy reads as 0): the food group that owes the report is flagged
+        if (notice.kind == SafetyNotice.Kind.OVERDUE_REPORT) {
+            return offerDao.isOnListing(c, notice.offerId) ? parties.offererId() : parties.posterId();
+        }
         return notice.raisedBy == parties.offererId() ? parties.posterId() : parties.offererId();
     }
 

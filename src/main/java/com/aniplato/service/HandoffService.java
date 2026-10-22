@@ -96,6 +96,26 @@ public class HandoffService {
         return Database.inTransaction("Could not count the handoffs", c -> offerDao.countAcceptedFor(c, me.id));
     }
 
+    //---AUTOMATIC CHECK (6.6, step 1)---
+
+    /**
+     * Lapse: an Accepted offer with no release 2 hours after its pickup time (Route 1) or window end (Route 2) becomes
+     * Lapsed and its post Expired. Once the donor confirmed release the offer no longer lapses (M1). Logged by the system (A3).
+     */
+    public void lapseMissedPickups(LocalDateTime now) {
+        LocalDateTime cutoff = now.minusHours(Settings.PICKUP_GRACE_HOURS);
+        Database.inTransaction("Could not lapse missed pickups", c -> {
+            for (OfferDao.MissedPickup missed : offerDao.findMissedPickups(c, cutoff)) {
+                if (offerDao.updateStatusIf(c, missed.offerId(), Offer.Status.ACCEPTED, Offer.Status.LAPSED) > 0) {
+                    logDao.logStatusChange(c, OFFER_ENTITY, missed.offerId(), Offer.Status.ACCEPTED.name(),
+                            Offer.Status.LAPSED.name(), "Pickup missed", null);
+                    postService.changeStatus(c, missed.postId(), Post.Status.ACCEPTED, Post.Status.EXPIRED, "Pickup missed", null);
+                }
+            }
+            return null;
+        });
+    }
+
     //---HELPERS---
 
     private Offer requireOffer(Connection c, int offerId) throws SQLException {

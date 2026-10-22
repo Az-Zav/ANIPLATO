@@ -145,6 +145,21 @@ public class OfferService {
         });
     }
 
+    //---AUTOMATIC CHECK (6.6, step 4)---
+
+    /** An Offered offer nobody answered by its pickup time (Route 1) or window end (Route 2) becomes Expired. Logged by the system (A3). */
+    public void expireUnansweredOffers(LocalDateTime now) {
+        Database.inTransaction("Could not expire unanswered offers", c -> {
+            for (int offerId : offerDao.findUnansweredPastPickup(c, now)) {
+                if (offerDao.updateStatusIf(c, offerId, Offer.Status.OFFERED, Offer.Status.EXPIRED) > 0) {
+                    logDao.logStatusChange(c, OFFER_ENTITY, offerId, Offer.Status.OFFERED.name(), Offer.Status.EXPIRED.name(),
+                            "Pickup time passed", null);
+                }
+            }
+            return null;
+        });
+    }
+
     //---HELPERS---
 
     /** Saves the photos, then the offer, its detail and photos in one transaction; removes the files if it fails (M4). */

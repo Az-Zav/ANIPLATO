@@ -20,7 +20,7 @@ public class SafetyNoticeDao {
         try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, notice.offerId);
             ps.setString(2, notice.kind.name());
-            ps.setInt(3, notice.raisedBy);
+            ps.setObject(3, notice.raisedBy, java.sql.Types.INTEGER);   // null for an overdue-report notice (the system)
             ps.setString(4, notice.concern);
             ps.setString(5, notice.status.name());
             ps.setObject(6, notice.raisedAt);
@@ -61,7 +61,8 @@ public class SafetyNoticeDao {
         notice.id = rs.getInt("notice_id");
         notice.offerId = rs.getInt("offer_id");
         notice.kind = SafetyNotice.Kind.valueOf(rs.getString("kind"));
-        notice.raisedBy = rs.getInt("raised_by");
+        int raisedBy = rs.getInt("raised_by");
+        notice.raisedBy = rs.wasNull() ? null : raisedBy;
         notice.concern = rs.getString("concern");
         notice.status = SafetyNotice.Status.valueOf(rs.getString("status"));
         notice.adminNote = rs.getString("admin_note");
@@ -83,7 +84,10 @@ public class SafetyNoticeDao {
     public List<NoticeRow> findRows(Connection c) throws SQLException {
         String sql = """
                 SELECT n.notice_id, n.kind, n.status, n.concern, n.admin_note, n.raised_at,
-                       CASE WHEN n.raised_by = o.offerer_id THEN poster_reg.name ELSE offerer_reg.name END AS flagged_name,
+                       CASE WHEN n.kind = 'OVERDUE_REPORT' THEN
+                                 CASE WHEN p.kind = 'LISTING' THEN offerer_reg.name ELSE poster_reg.name END   -- the food group owes the report
+                            WHEN n.raised_by = o.offerer_id THEN poster_reg.name
+                            ELSE offerer_reg.name END AS flagged_name,
                        CASE WHEN n.raised_by IS NULL THEN 'System'
                             WHEN n.raised_by = o.offerer_id THEN offerer_reg.name
                             ELSE poster_reg.name END AS raised_by_name,

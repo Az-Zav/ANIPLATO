@@ -214,7 +214,23 @@ public class PostService {
         });
     }
 
-    private void settleOffer(Connection c, int offerId, Offer.Status from, Offer.Status to, String reason, int changedBy) throws SQLException {
+    /**
+     * Expiry (6.6, steps 2 and 3): an Open listing past its use-by, or an Open request past its needed-by, becomes
+     * Expired and its Offered offers expire with it. Logged by the system (A3).
+     */
+    public void expireOpenPosts(Post.Kind kind, LocalDateTime now) {
+        Database.inTransaction("Could not expire old posts", c -> {
+            for (int postId : postDao.findOpenPastDeadline(c, kind, now)) {
+                if (!changeStatus(c, postId, Post.Status.OPEN, Post.Status.EXPIRED, "Deadline passed", null)) continue;
+                for (int offerId : offerDao.findIdsByStatus(c, postId, Offer.Status.OFFERED)) {
+                    settleOffer(c, offerId, Offer.Status.OFFERED, Offer.Status.EXPIRED, "Deadline passed", null);
+                }
+            }
+            return null;
+        });
+    }
+
+    private void settleOffer(Connection c, int offerId, Offer.Status from, Offer.Status to, String reason, Integer changedBy) throws SQLException {
         if (offerDao.updateStatusIf(c, offerId, from, to) > 0) {
             logDao.logStatusChange(c, "OFFER", offerId, from.name(), to.name(), reason, changedBy);   // A3
         }

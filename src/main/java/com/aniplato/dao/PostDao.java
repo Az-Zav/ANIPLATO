@@ -137,6 +137,22 @@ public class PostDao {
         return found.isEmpty() ? null : found.get(0);
     }
 
+    /** Open posts of one kind whose use-by (listing) or needed-by (request) has passed. */
+    public List<Integer> findOpenPastDeadline(Connection c, Post.Kind kind, LocalDateTime now) throws SQLException {
+        String sql = "SELECT p.post_id FROM post p LEFT JOIN food_detail fd ON fd.food_detail_id = p.food_detail_id "
+                + "LEFT JOIN use_detail ud ON ud.use_detail_id = p.use_detail_id "
+                + "WHERE p.kind = ? AND p.status = 'OPEN' AND COALESCE(fd.use_by, ud.due_at) < ? ORDER BY p.post_id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, kind.name());
+            ps.setObject(2, now);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Integer> ids = new ArrayList<>();
+                while (rs.next()) ids.add(rs.getInt(1));
+                return ids;
+            }
+        }
+    }
+
     /** A post in any status, locked until the transaction ends, so two accepts or an accept and a cancel cannot overlap. */
     public Post findForUpdate(Connection c, int postId) throws SQLException {
         List<Post> found = query(c, POST_SELECT + "WHERE p.post_id = ? FOR UPDATE", postId);

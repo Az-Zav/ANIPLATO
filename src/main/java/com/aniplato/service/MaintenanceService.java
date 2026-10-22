@@ -1,6 +1,9 @@
 package com.aniplato.service;
 
+import com.aniplato.model.Post;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * The automatic checks of spec 6.6, run in the spec's order. It only calls other services (A4) and owns no
@@ -9,16 +12,20 @@ import java.time.LocalDate;
  */
 public class MaintenanceService {
 
+    private final HandoffService handoffService = new HandoffService();
+    private final PostService postService = new PostService();
+    private final OfferService offerService = new OfferService();
+    private final ReportService reportService = new ReportService();
     private final AccountStatusService accountStatusService = new AccountStatusService();
 
-    /** Runs every check that exists. A check that fails throws to the caller; the shell decides what to do. */
+    /** Runs every check. A check that fails throws to the caller; the shell decides what to do. */
     public void runMaintenance() {
-        // Still to add, in this order (FLOWS.md module in brackets):
-        //   1. Accepted offer past its pickup grace: Lapsed, post Expired   [8]
-        //   2. Open listing past its use-by: Expired, its offers expire     [5]
-        //   3. Open request past its needed-by: Expired, its offers expire  [9]
-        //   4. Offered offer past its pickup time: Expired                  [6]
-        //   5. Completed handoff with an overdue report: flag, once         [10]
+        LocalDateTime now = LocalDateTime.now();
+        handoffService.lapseMissedPickups(now);                            // 1. accepted offer past its pickup grace: Lapsed, post Expired
+        postService.expireOpenPosts(Post.Kind.LISTING, now);               // 2. open listing past its use-by: Expired, its offers expire
+        postService.expireOpenPosts(Post.Kind.REQUEST, now);               // 3. open request past its needed-by: Expired, its offers expire
+        offerService.expireUnansweredOffers(now);                          // 4. offered offer past its pickup time: Expired
+        reportService.flagOverdueReports(now);                             // 5. completed handoff with an overdue report: flag once
         accountStatusService.suspendAccountsWithExpiredDocuments(LocalDate.now());   // 6. expired document: Suspended
     }
 }

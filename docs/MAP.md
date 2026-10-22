@@ -19,13 +19,13 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **PROFILE** | Organization profile | see own details and documents, get expiry warnings; *edit, renew, upgrade: not built* | 🟡 | 6.3 | 4 |
 | **SAFETY** | Safety notices | admin resolves notices, a concern can be raised in the service; *raising from a screen: not built* | 🟡 | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
-| **MAINT** | Automatic checks | expired documents suspend the account on any screen load; *five other checks: not built* | 🟡 | 6.6 | 12 |
+| **MAINT** | Automatic checks | all six 6.6 checks run before every in-shell screen | ✅ | 6.6 | 12 |
 | **LISTING** | Post a listing (Route 1) | post surplus food, see own listings; *screens not wired yet* | 🟡 | 6.2 Stage 2A | 5 |
 | **REQUEST** | Post a request (Route 2) | a food group asks for food; *screens not wired yet* | 🟡 | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | send and withdraw offers (both routes) and list your own; *screens not wired yet* | 🟡 | 6.2 Stage 3 | 6 |
 | **ACCEPT** | Accept or decline | the poster picks an offer; contacts are revealed; *screens not wired yet* | 🟡 | 6.2 Stage 4 | 7 |
 | **HANDOFF** | Handoff and cancel | confirm release, receipt, the handoff record, cancel a post; *screens not wired yet* | 🟡 | 6.2 Stages 5-6 | 8 |
-| **REPORT** | Documentation report | the food group reports after receipt; overdue flag | ⬜ | 6.2 Stage 5 | 10 |
+| **REPORT** | Documentation report | the food group reports after receipt; overdue flag; *screens not wired yet* | 🟡 | 6.2 Stage 5 | 10 |
 | **HISTORY** | Dashboards and History | donor and food group dashboards, History | ⬜ | Section 3 | 11 |
 | **DEMO** | Demo data and polish | a full demo story | ⬜ | Section 5 | 13 |
 | **SHELL** | The app frame | sidebar, header, navigation, logout, assistant panel | 🔧 | A5 | none |
@@ -87,7 +87,7 @@ flowchart LR
 | "File is not in the uploads folder" | `uploads.dir` in `db.properties`, `service/FileStorageService.java` |
 | An account was suspended by itself | `service/MaintenanceService.java`, `service/AccountStatusService.java` (6.6, reason "Document expired") |
 | Login or password trouble | `service/AuthenticationService.java`, `dao/AccountDao.java` |
-| Numbers on the admin pages look wrong | `service/StatsService.java`, then `dao/PostDao.java`, `OfferDao.java`, `ReportDao.java` |
+| Numbers on the admin pages look wrong | `service/StatsService.java`, then `dao/PostDao.java`, `OfferStatsDao.java`, `ReportDao.java` |
 | A test cannot connect | `src/test/resources/db.properties`, `support/TestDb.java`, your `db.properties` password |
 
 ## 4. Reference A: every file
@@ -127,6 +127,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `model/Post.java` | a listing or a request with its statuses, deadline and photos | LISTING, REQUEST |
 | `model/FoodDetail.java` | what a donor gives: category, storage, allergens, times; the enums for them | LISTING, REQUEST |
 | `model/UseDetail.java` | what a food group needs or will do: event, people, place, needed-by | LISTING, REQUEST |
+| `model/Report.java` | a food group's report on one handoff; "late" is worked out | REPORT |
 | `model/HandoffRecord.java` | the record a completed handoff leaves, worked out when asked and never stored | HANDOFF |
 | `model/Offer.java` | an offer on a post: status, kg, its food or use detail, release and receipt times, photos | OFFER, SAFETY, STATS |
 
@@ -139,11 +140,12 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/DocumentDao.java` | the `document` table: insert, review, expiry queries | REGISTER, REVIEW, PROFILE, ACCOUNTS, MAINT |
 | `dao/CityDao.java` | the `city` table: the registration city list | REGISTER |
 | `dao/SafetyNoticeDao.java` | the `safety_notice` table: insert, resolve, admin rows | SAFETY |
-| `dao/OfferDao.java` | the `offer` table: send, re-open a withdrawn one, change status only if still in the expected one, an offerer's list, the two parties, report counts | OFFER, SAFETY, STATS |
+| `dao/OfferStatsDao.java` | the `offer` table's counts for the dashboard and report (split from OfferDao to keep both short) | STATS |
+| `dao/OfferDao.java` | the `offer` table: send, re-open a withdrawn one, change status only if still in the expected one, an offerer's list, the two parties, the lapse and expiry lookups | OFFER, SAFETY, MAINT |
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
-| `dao/ReportDao.java` | the `report` table: people served, report deadlines | STATS |
+| `dao/ReportDao.java` | the `report` table: save and read a report, handoffs with an overdue report, people served, report deadlines | REPORT, STATS |
 | `dao/LogDao.java` | `status_change` (every status change, A3) and `email_log` | PLATFORM |
 
 ### Services
@@ -162,7 +164,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/HandoffService.java` | confirm release, confirm receipt (completes the offer, rescues the post), build the handoff record | HANDOFF |
 | `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
-| `service/ReportService.java` | empty stub from the scaffold: the REPORT feature fills it (save the report, work out its deadline) | REPORT |
+| `service/ReportService.java` | save a report (once, with photos), read it, work out its due date, prefill the form, flag overdue reports | REPORT |
 | `service/EmailService.java` | fills the HTML emails, sends, logs every attempt | AUTH, REGISTER, REVIEW |
 | `service/FileStorageService.java` | validates and stores uploads; saves 1 to 5 photos at once; removes files; finds a stored file | REGISTER, PROFILE, REVIEW, LISTING |
 
@@ -312,7 +314,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
 | `service/AcceptanceServiceTest.java` | accept and decline, who sees the offers, who sees a phone number | ACCEPT |
-| `service/MaintenanceServiceTest.java` | the expiry check runs once and is quiet when nothing expired | MAINT |
+| `service/MaintenanceServiceTest.java` | each of the six checks, and quiet when nothing expired | MAINT |
+| `service/ReportServiceTest.java` | the report rules, who sees it, the overdue flag on both routes | REPORT |
 | `dao/SafetyNoticeDaoTest.java` | the notice kind is written and read | SAFETY |
 | `model/AccountTest.java` | a Suspended account may not post or offer | PROFILE |
 | `controller/DialogControllerTest.java` | the real popups: text, one open at a time, Back, callbacks | POPUPS |
@@ -585,6 +588,8 @@ Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNo
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `SafetyService.raise` | either side of an Accepted or Completed offer flags a concern about the other | **no screen yet** | SafetyServiceTest |
+| `SafetyService.raiseOverdueReport` | the system flags a food group that owes a report (a notice with no raiser), once per handoff | ReportService | ReportServiceTest |
+| `OfferDao.isOnListing` | is the offer on a listing or a request (tells who the food group is) | SafetyService | ReportServiceTest |
 | `SafetyService.getNoticeRows` | every notice with both organization names, newest first | SafetyNoticesController | SafetyServiceTest |
 | `SafetyService.dismiss` | admin closes a notice with a note | SafetyNoticesController | SafetyServiceTest |
 | `SafetyService.suspendFlaggedAccount` | admin suspends the other side and closes the notice; one transaction | SafetyNoticesController | SafetyServiceTest |
@@ -647,9 +652,9 @@ Files: `service/StatsService.java`, `controller/admin/AdminDashboardController.j
 | `PostDao.countWithOffers` | posts that got at least one offer | StatsService | StatsServiceTest |
 | `PostDao.countWithAcceptedOffer` | posts that had an offer accepted | StatsService | StatsServiceTest |
 | `PostDao.findMonthsWithPosts` | every month that has a post | StatsService | StatsServiceTest |
-| `OfferDao.countCompleted` | completed handoffs in a period | StatsService | StatsServiceTest |
-| `OfferDao.countAccepted` | offers ever accepted in a period | StatsService | StatsServiceTest |
-| `OfferDao.countLapsed` | offers that lapsed in a period | StatsService | StatsServiceTest |
+| `OfferStatsDao.countCompleted` | completed handoffs in a period | StatsService | StatsServiceTest |
+| `OfferStatsDao.countAccepted` | offers ever accepted in a period | StatsService | StatsServiceTest |
+| `OfferStatsDao.countLapsed` | offers that lapsed in a period | StatsService | StatsServiceTest |
 | `ReportDao.sumPeopleServed` | people served in reports of a period | StatsService | StatsServiceTest |
 | `ReportDao.countHandoffsPastDeadline` | handoffs whose report was due | StatsService | StatsServiceTest |
 | `ReportDao.countReportedOnTime` | those reported on time | StatsService | StatsServiceTest |
@@ -675,7 +680,7 @@ flowchart LR
   AS --> PD[PostDao<br/>totalsByCity<br/>sumKgListed]:::dao --> TP[(post)]:::tbl
   RM --> PD
   RM --> PC[PostDao<br/>countWithOffers<br/>countWithAcceptedOffer<br/>findMonthsWithPosts]:::dao --> TP
-  RM --> OC[OfferDao<br/>countCompleted<br/>countAccepted<br/>countLapsed]:::dao --> TO[(offer)]:::tbl
+  RM --> OC[OfferStatsDao<br/>countCompleted<br/>countAccepted<br/>countLapsed]:::dao --> TO[(offer)]:::tbl
   RM --> RP[ReportDao<br/>sumPeopleServed<br/>countHandoffsPastDeadline<br/>countReportedOnTime]:::dao --> TRP[(report)]:::tbl
 ```
 
@@ -685,12 +690,20 @@ Files: `service/MaintenanceService.java`, `controller/ShellController.java`, `ut
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `MaintenanceService.runMaintenance` | runs the 6.6 checks in order; today only the expiry suspension | ShellController | MaintenanceServiceTest, ShellMaintenanceTest |
+| `MaintenanceService.runMaintenance` | runs the six 6.6 checks in order, calling the owning services | ShellController | MaintenanceServiceTest, ShellMaintenanceTest |
+| `HandoffService.lapseMissedPickups` | 1: an Accepted offer 2 hours past its pickup with no release becomes Lapsed, its post Expired | MaintenanceService | MaintenanceServiceTest |
+| `PostService.expireOpenPosts` | 2 and 3: an Open listing past its use-by, or an Open request past its needed-by, expires with its Offered offers | MaintenanceService | MaintenanceServiceTest |
+| `OfferService.expireUnansweredOffers` | 4: an Offered offer past its pickup time or window end expires | MaintenanceService | MaintenanceServiceTest |
+| `ReportService.flagOverdueReports` | 5: a Completed handoff with no report 7 days after receipt is flagged to the admin once | MaintenanceService | MaintenanceServiceTest, ReportServiceTest |
+| `OfferDao.findMissedPickups` | Accepted, unreleased offers past the lapse cutoff | HandoffService | MaintenanceServiceTest |
+| `OfferDao.findUnansweredPastPickup` | Offered offers past their pickup | OfferService | MaintenanceServiceTest |
+| `PostDao.findOpenPastDeadline` | Open posts of one kind past their deadline | PostService | MaintenanceServiceTest |
+| `ReportDao.findOverdueWithoutFlag` | Completed handoffs past the report deadline with no report and no flag yet | ReportService | ReportServiceTest |
 | `AccountStatusService.suspendAccountsWithExpiredDocuments` | an Active account with a current verified expired document becomes Suspended ("Document expired") | MaintenanceService | AccountStatusTest, MaintenanceServiceTest |
 | `DocumentDao.findCurrentExpiredRegistrations` | the accounts that query finds | AccountStatusService | AccountStatusTest |
 | `Navigator.setBeforeScreenListener` | lets the shell run something before each in-shell screen loads | ShellController | ShellMaintenanceTest |
 
-**Flow** (dashed = not built yet)
+**Flow** (the six checks run in this order)
 
 ```mermaid
 flowchart LR
@@ -699,15 +712,13 @@ flowchart LR
   classDef svc fill:#e8f7ee,stroke:#2f9e5a,color:#111827
   classDef dao fill:#fff4e0,stroke:#d98a00,color:#111827
   classDef tbl fill:#f3e8ff,stroke:#8a4fd1,color:#111827
-  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:5 3,color:#475569
   NV[Navigator.show<br/>any in-shell screen]:::ctrl --> BL[beforeScreenListener]:::ctrl --> SC[ShellController<br/>runMaintenance]:::ctrl --> MS{{MaintenanceService<br/>runMaintenance}}:::svc
   SC -. a failing check is printed and skipped .-> NV
-  MS -.-> P1[1 lapse accepted offers<br/>module 8]:::planned
-  MS -.-> P2[2 expire listings<br/>module 5]:::planned
-  MS -.-> P3[3 expire requests<br/>module 9]:::planned
-  MS -.-> P4[4 expire offered offers<br/>module 6]:::planned
-  MS -.-> P5[5 flag overdue reports<br/>module 10]:::planned
-  MS --> ES{{AccountStatusService<br/>suspendAccountsWithExpiredDocuments}}:::svc
+  MS --> P1{{1 HandoffService<br/>lapseMissedPickups}}:::svc
+  MS --> P2{{2 and 3 PostService<br/>expireOpenPosts}}:::svc
+  MS --> P4{{4 OfferService<br/>expireUnansweredOffers}}:::svc
+  MS --> P5{{5 ReportService<br/>flagOverdueReports}}:::svc --> SN{{SafetyService<br/>raiseOverdueReport}}:::svc
+  MS --> ES{{6 AccountStatusService<br/>suspendAccountsWithExpiredDocuments}}:::svc
   subgraph TX[one transaction A2]
     FE[DocumentDao<br/>findCurrentExpiredRegistrations]:::dao
     SI[AccountDao<br/>suspendIfActive]:::dao
@@ -874,6 +885,37 @@ flowchart LR
   CP --> LG
 ```
 
+### REPORT: the food group's documentation report 🟡
+
+Files: `service/ReportService.java`, `dao/ReportDao.java`, `model/Report.java`, `service/SafetyService.java` (the overdue flag). The Submit Report screen and the report on the handoff record are wired in the last step of round 3.
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `ReportService.submitReport` | the receiving food group submits the report once for a Completed handoff, with 1 to 5 photos and the consent; late is accepted | **no screen yet** | ReportServiceTest |
+| `ReportService.getReport` | the report for the two sides or an admin, read-only, or nothing yet | **no screen yet** | ReportServiceTest |
+| `ReportService.getDueAt` | receipt plus 7 days, worked out | **no screen yet** | ReportServiceTest |
+| `ReportService.getDefaults` | the event name and date the form starts with | **no screen yet** | ReportServiceTest |
+| `ReportDao.insert` | saves a report | ReportService | ReportServiceTest |
+| `ReportDao.findByOffer` | the report of one handoff | ReportService | ReportServiceTest |
+| `Report.isLate` | submitted after the deadline | none yet: the record screen will show "submitted late" | ReportServiceTest |
+
+```mermaid
+flowchart LR
+  classDef svc fill:#e8f1ff,stroke:#3b6fd4,color:#111827
+  classDef dao fill:#fff4e5,stroke:#d9822b,color:#111827
+  classDef tbl fill:#f1f5f9,stroke:#64748b,color:#111827
+  classDef planned fill:#ffffff,stroke:#94a3b8,stroke-dasharray:4 3,color:#475569
+  SR([Submit Report screen<br/>not wired yet]):::planned -.-> RS{{ReportService<br/>submitReport}}:::svc
+  RS --> FS[FileStorageService<br/>saveAllPhotos]:::svc
+  RS --> RD[ReportDao<br/>insert<br/>findByOffer]:::dao --> TR[(report)]:::tbl
+  RS --> PH[PhotoDao<br/>insert]:::dao --> TF[(photo)]:::tbl
+  RS --> OD[OfferDao<br/>findById]:::dao --> TO[(offer)]:::tbl
+  HR([Handoff record<br/>not wired yet]):::planned -.-> GR{{ReportService<br/>getReport<br/>getDueAt<br/>getDefaults}}:::svc --> RD
+  MT[MaintenanceService]:::svc --> FO{{ReportService<br/>flagOverdueReports}}:::svc
+  FO --> OV[ReportDao<br/>findOverdueWithoutFlag]:::dao --> TO
+  FO --> SS{{SafetyService<br/>raiseOverdueReport}}:::svc --> SN[SafetyNoticeDao<br/>insert]:::dao --> TN[(safety_notice)]:::tbl
+```
+
 ### SHELL: the app frame 🔧
 
 Files: `controller/ShellController.java`, `view/shared/shell.fxml`, `util/Navigator.java`, `util/SvgIcon.java`, `view/aniplato.css`, `aniplato/Main.java`.
@@ -1003,7 +1045,7 @@ flowchart LR
 | `AcceptanceService.getIncomingOffers`, `countOffersAwaitingDecision`, `accept`, `decline`, `getContactPhone` | built and tested; the screens are wired in the last step of round 3 | keep: module 7 |
 | `HandoffService.confirmRelease`, `confirmReceipt`, `getHandoffRecord`, `countAwaitingHandoff`, `PostService.cancelPost` | built and tested; the screens are wired in the last step of round 3 | keep: module 8 |
 | `DialogController.showConfirmReleaseMode`, `showConfirmReceiptMode`, `showFlagSafetyConcernMode`, `showAcceptOfferMode`, `showWithdrawOfferMode`, `showUpgradeBusinessDonorMode` | their screens are not built, so no caller | keep: modules 4, 6, 7, 8, 10 |
-| `ReportService` | empty class from the scaffold; spec 7.3 gives it the documentation report | keep: FLOWS.md module 10 |
+| `ReportService.submitReport`, `getReport`, `getDueAt`, `getDefaults` | built and tested; the Submit Report screen and the handoff record are wired in the last step of round 3 | keep: module 10 |
 | the eight placeholder dialogs | open and close only | each becomes real with its feature |
 | placeholder controllers under `controller/donor`, `controller/foodgroup`, `controller/shared` | screens that exist in FXML with sample data | each becomes real with its feature |
 
