@@ -102,13 +102,8 @@ public class ShellController {
                 });
     }
 
-    private void configureIcon(Button button) {
-        String iconName = button.getStyleClass().stream()
-                .filter(styleClass -> styleClass.startsWith("icon-"))
-                .map(styleClass -> styleClass.substring("icon-".length()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Sidebar button has no icon class: " + button.getText()));
-        String filename = switch (iconName) {
+    private static String iconFile(String iconName) {
+        return switch (iconName) {
             case "all-accounts" -> "AllAccountsIcon.svg";
             case "browse-requests" -> "BrowseRequest.svg";
             case "dashboard" -> "Dashboard Icon.svg";
@@ -122,7 +117,15 @@ public class ShellController {
             case "safety-notices" -> "SafetyNotices.svg";
             default -> throw new IllegalStateException("Unknown sidebar icon: " + iconName);
         };
-        Node icon = SvgIcon.load("/assets/" + filename, 17);
+    }
+
+    private void configureIcon(Button button) {
+        String iconName = button.getStyleClass().stream()
+                .filter(styleClass -> styleClass.startsWith("icon-"))
+                .map(styleClass -> styleClass.substring("icon-".length()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Sidebar button has no icon class: " + button.getText()));
+        Node icon = SvgIcon.load("/assets/" + iconFile(iconName), 17);
         Label label = new Label(button.getText());
         label.getStyleClass().add("sidebar-nav-label");
 

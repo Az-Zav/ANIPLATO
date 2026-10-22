@@ -43,18 +43,7 @@ public final class SvgIcon {
             Group paths = new Group();
             NodeList elements = root.getElementsByTagName("path");
             for (int i = 0; i < elements.getLength(); i++) {
-                Element element = (Element) elements.item(i);
-                SVGPath path = new SVGPath();
-                path.setContent(element.getAttribute("d"));
-                path.setFill(paint(attribute(element, root, "fill"), Color.BLACK,
-                        attribute(element, root, "fill-opacity")));
-                path.setStroke(paint(attribute(element, root, "stroke"), null,
-                        attribute(element, root, "stroke-opacity")));
-                path.setStrokeWidth(number(attribute(element, root, "stroke-width"), 1));
-                path.setStrokeLineCap(lineCap(element.getAttribute("stroke-linecap")));
-                path.setStrokeLineJoin(lineJoin(element.getAttribute("stroke-linejoin")));
-                path.setOpacity(number(element.getAttribute("opacity"), 1));
-                paths.getChildren().add(path);
+                paths.getChildren().add(shape((Element) elements.item(i), root));
             }
 
             Pane icon = new Pane(paths);
@@ -68,6 +57,19 @@ public final class SvgIcon {
         } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new IllegalStateException("Cannot load SVG icon: " + resourcePath, e);
         }
+    }
+
+    /** One path element as a shape; a style it does not set comes from the svg element. */
+    private static SVGPath shape(Element element, Element root) {
+        SVGPath path = new SVGPath();
+        path.setContent(element.getAttribute("d"));
+        path.setFill(paint(attribute(element, root, "fill"), Color.BLACK, attribute(element, root, "fill-opacity")));
+        path.setStroke(paint(attribute(element, root, "stroke"), null, attribute(element, root, "stroke-opacity")));
+        path.setStrokeWidth(number(attribute(element, root, "stroke-width"), 1));
+        path.setStrokeLineCap(lineCap(element.getAttribute("stroke-linecap")));
+        path.setStrokeLineJoin(lineJoin(element.getAttribute("stroke-linejoin")));
+        path.setOpacity(number(element.getAttribute("opacity"), 1));
+        return path;
     }
 
     private static String attribute(Element element, Element root, String name) {

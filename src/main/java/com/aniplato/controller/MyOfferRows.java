@@ -61,6 +61,27 @@ public final class MyOfferRows {
         return "Accepted by " + offer.post.posterName + "  |  contact " + phone;
     }
 
+    /** The donor confirms the food was released to the group that will collect it. */
+    private Button confirmRelease(Offer offer) {
+        return Cards.primary("Confirm release", () -> dialog.showConfirmReleaseMode(offer.food.description,
+                FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.food.pickupEnd),
+                FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""), offer.id, () -> {
+                    handoffService.confirmRelease(offer.id);
+                    refresh.run();
+                }));
+    }
+
+    /** The donor has released, so the food group confirms it received the food. */
+    private Button confirmReceipt(Offer offer) {
+        return Cards.primary("Confirm receipt", () -> dialog.showConfirmReceiptMode(offer.post.food.description,
+                FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.use.dueAt),
+                FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""),
+                FormSupport.when(offer.releasedAt), offer.id, () -> {
+                    handoffService.confirmReceipt(offer.id);
+                    refresh.run();
+                }));
+    }
+
     private List<Button> buttons(Offer offer) {
         List<Button> buttons = new ArrayList<>();
         boolean supplier = offer.food != null;   // the donor's offer carries the food; the food group's carries its use
@@ -76,23 +97,8 @@ public final class MyOfferRows {
                 Navigator.show(offer.post.isListing() ? Navigator.Screen.MAKE_OFFER : Navigator.Screen.DONOR_MAKE_OFFER);
             }));
         }
-        if (offer.status == Offer.Status.ACCEPTED && supplier && offer.releasedAt == null) {
-            buttons.add(Cards.primary("Confirm release", () -> dialog.showConfirmReleaseMode(offer.food.description,
-                    FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.food.pickupEnd),
-                    FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""), offer.id, () -> {
-                        handoffService.confirmRelease(offer.id);
-                        refresh.run();
-                    })));
-        }
-        if (offer.status == Offer.Status.ACCEPTED && !supplier && offer.releasedAt != null) {
-            buttons.add(Cards.primary("Confirm receipt", () -> dialog.showConfirmReceiptMode(offer.post.food.description,
-                    FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.use.dueAt),
-                    FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""),
-                    FormSupport.when(offer.releasedAt), offer.id, () -> {
-                        handoffService.confirmReceipt(offer.id);
-                        refresh.run();
-                    })));
-        }
+        if (offer.status == Offer.Status.ACCEPTED && supplier && offer.releasedAt == null) buttons.add(confirmRelease(offer));
+        if (offer.status == Offer.Status.ACCEPTED && !supplier && offer.releasedAt != null) buttons.add(confirmReceipt(offer));
         if (offer.status == Offer.Status.ACCEPTED || offer.status == Offer.Status.COMPLETED) {
             buttons.add(Cards.secondary("Flag a concern", () -> dialog.showFlagSafetyConcernMode(offer.id)));
         }

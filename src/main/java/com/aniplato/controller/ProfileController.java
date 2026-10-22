@@ -133,38 +133,7 @@ public class ProfileController {
         Label file = styled(new Label(new File(d.filePath).getName()), "table-cell-text");
         Label expires = styled(new Label(d.expiresOn == null ? "No expiry" : d.expiresOn.format(DATE)), "table-cell-text");
 
-        boolean needsRenewal = d.review == Document.Review.OK
-                && (d.isExpired(today) || d.expiresWithin(Settings.DOCUMENT_WARNING_DAYS, today));
-        Label status;
-        if (d.review == Document.Review.OK && !needsRenewal) {
-            status = styled(new Label("Verified"), "pill-food-donor");
-        } else if (d.review == Document.Review.FLAGGED) {
-            status = styled(new Label("Flagged"), "tag-reregistered");
-        } else if (d.review == null) {
-            status = styled(new Label("Awaiting review"), "tag-reregistered");
-        } else if (d.isExpired(today)) {
-            status = styled(new Label("Expired"), "tag-reregistered");
-        } else {
-            long days = ChronoUnit.DAYS.between(today, d.expiresOn);
-            status = styled(new Label("Expires in " + days + (days == 1 ? " day" : " days")), "tag-reregistered");
-        }
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox statusCell = new HBox(8, status, spacer);
-        statusCell.setAlignment(Pos.CENTER_LEFT);
-        if (needsRenewal) {
-            Button renew = new Button("Upload renewal");
-            renew.getStyleClass().add("table-review-btn");
-            renew.setMinWidth(Region.USE_PREF_SIZE);
-            renew.setOnAction(e -> handleUploadRenewal(d.type));
-            statusCell.getChildren().add(renew);
-        } else {
-            Hyperlink view = new Hyperlink("View file");
-            view.getStyleClass().add("terms-link");
-            view.setOnAction(e -> openFile(d));
-            statusCell.getChildren().add(view);
-        }
+        HBox statusCell = statusCell(d, today);
 
         GridPane.setColumnIndex(type, 0);
         GridPane.setColumnIndex(file, 1);
@@ -172,6 +141,38 @@ public class ProfileController {
         GridPane.setColumnIndex(statusCell, 3);
         row.getChildren().addAll(type, file, expires, statusCell);
         return row;
+    }
+
+    /** The status tag of a document, with "Upload renewal" when it ended or ends soon and "View file" otherwise. */
+    private HBox statusCell(Document d, LocalDate today) {
+        boolean needsRenewal = d.review == Document.Review.OK
+                && (d.isExpired(today) || d.expiresWithin(Settings.DOCUMENT_WARNING_DAYS, today));
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox cell = new HBox(8, statusTag(d, today, needsRenewal), spacer);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        if (needsRenewal) {
+            Button renew = new Button("Upload renewal");
+            renew.getStyleClass().add("table-review-btn");
+            renew.setMinWidth(Region.USE_PREF_SIZE);
+            renew.setOnAction(e -> handleUploadRenewal(d.type));
+            cell.getChildren().add(renew);
+        } else {
+            Hyperlink view = new Hyperlink("View file");
+            view.getStyleClass().add("terms-link");
+            view.setOnAction(e -> openFile(d));
+            cell.getChildren().add(view);
+        }
+        return cell;
+    }
+
+    private static Label statusTag(Document d, LocalDate today, boolean needsRenewal) {
+        if (d.review == Document.Review.OK && !needsRenewal) return styled(new Label("Verified"), "pill-food-donor");
+        if (d.review == Document.Review.FLAGGED) return styled(new Label("Flagged"), "tag-reregistered");
+        if (d.review == null) return styled(new Label("Awaiting review"), "tag-reregistered");
+        if (d.isExpired(today)) return styled(new Label("Expired"), "tag-reregistered");
+        long days = ChronoUnit.DAYS.between(today, d.expiresOn);
+        return styled(new Label("Expires in " + days + (days == 1 ? " day" : " days")), "tag-reregistered");
     }
 
     /** The banner above the cards: how many documents are expired or about to expire (6.6). */
