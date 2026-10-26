@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 
-/** My Offers. Shared screen: it asks for "my" offers and never checks the role (A5). */
+/** My Offers (donor and food group). Shared screen: it asks for "my" offers and never checks the role (A5). */
 public class MyOffersController {
 
     private final OfferService offerService = new OfferService();

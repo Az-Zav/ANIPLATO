@@ -132,6 +132,11 @@ public class PostService {
 
     //---BOARDS AND LISTS---
 
+    /** The browse board of whoever is logged in: a food group sees Open listings, a donor sees Open requests. */
+    public List<Post> getOpenBoard() {
+        return Session.require().role == Account.Role.FOOD_GROUP ? getOpenListings() : getOpenRequests();
+    }
+
     /** The food group's browse board: Open listings, its own city first, Suspended donors hidden (R2.3). Handover instructions are never included. */
     public List<Post> getOpenListings() {
         Account me = Session.require();

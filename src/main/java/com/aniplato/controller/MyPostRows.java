@@ -25,13 +25,11 @@ public final class MyPostRows {
     private final HandoffService handoffService = new HandoffService();
     private final AcceptanceService acceptanceService = new AcceptanceService();
     private final DialogController dialog;
-    private final Navigator.Screen offersScreen;
     private final Runnable refresh;
 
-    /** @param offersScreen where "View offers" goes; @param refresh reloads the list after an action */
-    public MyPostRows(DialogController dialog, Navigator.Screen offersScreen, Runnable refresh) {
+    /** @param refresh reloads the list after an action */
+    public MyPostRows(DialogController dialog, Runnable refresh) {
         this.dialog = dialog;
-        this.offersScreen = offersScreen;
         this.refresh = refresh;
     }
 
@@ -50,7 +48,7 @@ public final class MyPostRows {
         Offer accepted = post.acceptedOffer;
         boolean released = accepted != null && accepted.releasedAt != null;
         if (post.status == Post.Status.OPEN && post.offerCount > 0) {
-            buttons.add(Cards.primary("View offers (" + post.offerCount + ")", () -> Navigator.show(offersScreen)));
+            buttons.add(Cards.primary("View offers (" + post.offerCount + ")", () -> Navigator.show(post.isListing() ? Navigator.Screen.LISTING_OFFERS : Navigator.Screen.FOODGROUP_OFFERS_RECEIVED)));
         }
         if (post.status == Post.Status.ACCEPTED && post.isListing() && !released) {
             buttons.add(Cards.primary("Confirm release", () -> confirmRelease(post, accepted)));

@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.MyRequestsController">
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.MyPostsController">
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
         <VBox spacing="16.0" styleClass="dashboard-bg">

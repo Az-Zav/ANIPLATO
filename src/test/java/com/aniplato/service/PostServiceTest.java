@@ -204,6 +204,14 @@ class PostServiceTest extends DbTest {
     }
 
     @Test
+    void theOneBoardIsListingsForAFoodGroupAndRequestsForADonor() {
+        loginAs(GROUP);
+        assertEquals(Post.Kind.LISTING, posts.getOpenBoard().get(0).kind);
+        loginAs(BUSINESS);
+        assertEquals(Post.Kind.REQUEST, posts.getOpenBoard().get(0).kind);
+    }
+
+    @Test
     void aSuspendedPostersPostsAreHiddenUntilReinstated() {
         TestDb.exec("UPDATE account SET status = 'SUSPENDED', suspend_reason = 'test' WHERE email = ?", BUSINESS);
         loginAs(GROUP);

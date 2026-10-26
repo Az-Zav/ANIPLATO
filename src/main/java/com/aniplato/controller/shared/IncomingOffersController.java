@@ -1,4 +1,4 @@
-package com.aniplato.controller.foodgroup;
+package com.aniplato.controller.shared;
 
 import com.aniplato.controller.Cards;
 import com.aniplato.controller.FormSupport;
@@ -12,8 +12,8 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 
-/** Offers Received: the offers on the food group's requests, accept or decline. */
-public class FoodGroupIncomingOffersController {
+/** Incoming Offers (donor) and Offers Received (food group): the offers on my post, accept or decline. Shared screen (A5). */
+public class IncomingOffersController {
 
     private final AcceptanceService acceptanceService = new AcceptanceService();
     private IncomingOfferRows rows;
