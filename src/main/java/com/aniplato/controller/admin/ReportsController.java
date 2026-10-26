@@ -1,5 +1,6 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.TableRows;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.service.StatsService;
 import com.aniplato.service.StatsService.CityRow;
@@ -109,16 +110,16 @@ public class ReportsController {
 
     /** City, three kg totals, and the rescue rate with a bar. */
     private GridPane buildRow(CityRow city) {
-        GridPane row = AdminTable.row(24, 18, 18, 18, 22);
-        AdminTable.put(row, 0, AdminTable.label(city.city(), "form-label"));
-        AdminTable.put(row, 1, AdminTable.label(AdminTable.kg(city.kgPosted()) + " kg", "table-cell-text"));
-        AdminTable.put(row, 2, AdminTable.label(AdminTable.kg(city.kgRescued()) + " kg", "table-cell-text"));
-        AdminTable.put(row, 3, AdminTable.label(AdminTable.kg(city.kgExpired()) + " kg", "table-cell-text"));
+        GridPane row = TableRows.row(24, 18, 18, 18, 22);
+        TableRows.put(row, 0, AdminTable.label(city.city(), "form-label"));
+        TableRows.put(row, 1, AdminTable.label(AdminTable.kg(city.kgPosted()) + " kg", "table-cell-text"));
+        TableRows.put(row, 2, AdminTable.label(AdminTable.kg(city.kgRescued()) + " kg", "table-cell-text"));
+        TableRows.put(row, 3, AdminTable.label(AdminTable.kg(city.kgExpired()) + " kg", "table-cell-text"));
         ProgressBar bar = new ProgressBar(city.rescueRate() == null ? 0 : city.rescueRate());
         HBox.setHgrow(bar, Priority.ALWAYS);
         HBox rate = new HBox(10, AdminTable.label(AdminTable.percent(city.rescueRate()), "text-success-bold"), bar);
         rate.setAlignment(Pos.CENTER_LEFT);
-        AdminTable.put(row, 4, rate);
+        TableRows.put(row, 4, rate);
         return row;
     }
 }

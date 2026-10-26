@@ -3,12 +3,10 @@ package com.aniplato.controller.admin;
 import com.aniplato.model.Account;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -28,25 +26,6 @@ final class AdminTable {
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("MMM d, h:mm a");
 
     private AdminTable() {}
-
-    /** An empty data row with the given column widths (percent). */
-    static GridPane row(double... percents) {
-        GridPane row = new GridPane();
-        row.getStyleClass().add("table-data-row");
-        row.setPadding(new Insets(12, 16, 12, 16));
-        for (double percent : percents) {
-            ColumnConstraints column = new ColumnConstraints();
-            column.setPercentWidth(percent);
-            row.getColumnConstraints().add(column);
-        }
-        return row;
-    }
-
-    /** Puts the node in a column of the row. */
-    static void put(GridPane row, int column, Node node) {
-        GridPane.setColumnIndex(node, column);
-        row.getChildren().add(node);
-    }
 
     static Label label(String text, String styleClass) {
         Label label = new Label(text);

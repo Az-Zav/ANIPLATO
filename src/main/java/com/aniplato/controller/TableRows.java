@@ -20,7 +20,7 @@ public final class TableRows {
     }
 
     /** An empty data row; fill it with {@link #put}. */
-    public static GridPane row(double[] widths) {
+    public static GridPane row(double... widths) {
         GridPane row = grid(widths);
         row.getStyleClass().add("table-data-row");
         return row;

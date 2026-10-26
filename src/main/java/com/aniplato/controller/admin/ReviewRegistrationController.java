@@ -9,7 +9,7 @@ import com.aniplato.service.DocumentReviewService;
 import com.aniplato.service.FileStorageService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.ReviewDetail;
-import com.aniplato.util.AdminSelection;
+import com.aniplato.util.Selection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.SvgIcon;
@@ -87,7 +87,7 @@ public class ReviewRegistrationController {
 
     @FXML
     private void initialize() {
-        registrationId = AdminSelection.registrationId();
+        registrationId = Selection.registrationId();
         orgTypeBox.setVisible(false);
         orgTypeBox.setManaged(false);
         GridPane.setRowIndex(cityBox, 2);

@@ -1,12 +1,13 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.TableRows;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.Account;
 import com.aniplato.service.AccountStatusService;
 import com.aniplato.service.AccountStatusService.AccountRow;
 import com.aniplato.service.AccountStatusService.AccountsOverview;
-import com.aniplato.util.AdminSelection;
+import com.aniplato.util.Selection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
@@ -80,23 +81,23 @@ public class AccountsController {
     /** Name with its status, role, city, and the document note with Suspend or Reinstate. */
     private GridPane buildRow(AccountRow account) {
         boolean suspended = account.status() == Account.Status.SUSPENDED;
-        GridPane row = AdminTable.row(32, 18, 18, 32);
-        AdminTable.put(row, 0, suspended
+        GridPane row = TableRows.row(32, 18, 18, 32);
+        TableRows.put(row, 0, suspended
                 ? AdminTable.titled(account.name(), AdminTable.label("Suspended", "required-star"),
                         AdminTable.label(account.statusNote() == null ? "" : account.statusNote(), "table-cell-muted"))
                 : AdminTable.titled(account.name(), AdminTable.label("Approved", "pill-food-donor")));
-        AdminTable.put(row, 1, AdminTable.pill(AdminTable.roleName(account.role()), AdminTable.roleStyle(account.role())));
-        AdminTable.put(row, 2, AdminTable.label(account.city(), "table-cell-text"));
+        TableRows.put(row, 1, AdminTable.pill(AdminTable.roleName(account.role()), AdminTable.roleStyle(account.role())));
+        TableRows.put(row, 2, AdminTable.label(account.city(), "table-cell-text"));
         Button review = account.renewalToReview()   // a renewal is waiting for the admin: Review opens the registration's files
                 ? AdminTable.button("Review renewal", "table-review-btn", e -> review(account)) : null;
-        AdminTable.put(row, 3, AdminTable.textAndButton(account.documentNote(), review, suspended
+        TableRows.put(row, 3, AdminTable.textAndButton(account.documentNote(), review, suspended
                 ? AdminTable.button("Reinstate", "table-review-btn", e -> reinstate(account))
                 : AdminTable.button("Suspend", "btn-suspend-outline", e -> suspend(account))));
         return row;
     }
 
     private void review(AccountRow account) {
-        AdminSelection.selectRegistration(account.registrationId());
+        Selection.selectRegistration(account.registrationId());
         Navigator.show(Navigator.Screen.REVIEW_REGISTRATION);
     }
 

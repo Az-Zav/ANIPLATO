@@ -1,5 +1,6 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.TableRows;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.SafetyNotice;
@@ -51,13 +52,13 @@ public class SafetyNoticesController {
     /** Flagged account with its status and notice number, who raised it, the listing, the concern, and when. */
     private GridPane buildRow(NoticeRow notice) {
         boolean open = notice.status() == SafetyNotice.Status.OPEN;
-        GridPane row = AdminTable.row(22, 22, 17, 17, 22);
-        AdminTable.put(row, 0, AdminTable.titled(notice.flaggedName(), statusTag(notice.status()),
+        GridPane row = TableRows.row(22, 22, 17, 17, 22);
+        TableRows.put(row, 0, AdminTable.titled(notice.flaggedName(), statusTag(notice.status()),
                 AdminTable.label("Notice #" + notice.id(), "table-cell-muted")));
-        AdminTable.put(row, 1, AdminTable.pill(notice.raisedByName(), "pill-food-org"));
-        AdminTable.put(row, 2, AdminTable.wrapped(notice.listingText() == null ? "" : notice.listingText(), "table-cell-text"));
-        AdminTable.put(row, 3, AdminTable.wrapped(concernText(notice), "table-cell-text"));
-        AdminTable.put(row, 4, AdminTable.textAndButton(AdminTable.dateTime(notice.raisedAt()), open
+        TableRows.put(row, 1, AdminTable.pill(notice.raisedByName(), "pill-food-org"));
+        TableRows.put(row, 2, AdminTable.wrapped(notice.listingText() == null ? "" : notice.listingText(), "table-cell-text"));
+        TableRows.put(row, 3, AdminTable.wrapped(concernText(notice), "table-cell-text"));
+        TableRows.put(row, 4, AdminTable.textAndButton(AdminTable.dateTime(notice.raisedAt()), open
                 ? AdminTable.button("Resolve", "table-review-btn", e -> resolve(notice))
                 : AdminTable.button("View", "secondary-button", e -> view(notice))));
         return row;

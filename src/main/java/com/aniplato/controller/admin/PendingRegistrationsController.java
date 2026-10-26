@@ -1,9 +1,10 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.TableRows;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.PendingRow;
-import com.aniplato.util.AdminSelection;
+import com.aniplato.util.Selection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import javafx.fxml.FXML;
@@ -44,20 +45,20 @@ public class PendingRegistrationsController {
 
     /** Name (with a "Registered again" tag), role, city, and the registered date with the Review button. */
     private GridPane buildRow(PendingRow pending) {
-        GridPane row = AdminTable.row(38, 20, 22, 20);
-        AdminTable.put(row, 0, pending.registeredAgain()
+        GridPane row = TableRows.row(38, 20, 22, 20);
+        TableRows.put(row, 0, pending.registeredAgain()
                 ? AdminTable.titled(pending.name(), AdminTable.label("Registered again", "tag-reregistered"))
                 : AdminTable.label(pending.name(), "form-label"));
-        AdminTable.put(row, 1, AdminTable.pill(AdminTable.roleName(pending.role()), AdminTable.roleStyle(pending.role())));
-        AdminTable.put(row, 2, AdminTable.label(pending.city(), "table-cell-text"));
-        AdminTable.put(row, 3, AdminTable.textAndButton(AdminTable.date(pending.submittedAt()),
+        TableRows.put(row, 1, AdminTable.pill(AdminTable.roleName(pending.role()), AdminTable.roleStyle(pending.role())));
+        TableRows.put(row, 2, AdminTable.label(pending.city(), "table-cell-text"));
+        TableRows.put(row, 3, AdminTable.textAndButton(AdminTable.date(pending.submittedAt()),
                 AdminTable.button("Review", "table-review-btn", e -> review(pending.registrationId()))));
         return row;
     }
 
     // PATTERN:NAV -> REVIEW_REGISTRATION (with the chosen registration)
     private void review(int registrationId) {
-        AdminSelection.selectRegistration(registrationId);
+        Selection.selectRegistration(registrationId);
         Navigator.show(Screen.REVIEW_REGISTRATION);
     }
 }

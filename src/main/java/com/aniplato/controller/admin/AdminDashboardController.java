@@ -1,11 +1,12 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.TableRows;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.PendingRow;
 import com.aniplato.service.StatsService;
 import com.aniplato.service.StatsService.AdminSummary;
-import com.aniplato.util.AdminSelection;
+import com.aniplato.util.Selection;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.Settings;
@@ -84,13 +85,13 @@ public class AdminDashboardController {
 
     /** Organization, role, city, and the registered date with the Review button. */
     private GridPane buildRow(PendingRow pendingRow) {
-        GridPane row = AdminTable.row(38, 20, 22, 20);
-        AdminTable.put(row, 0, AdminTable.label(pendingRow.name(), "form-label"));
-        AdminTable.put(row, 1, AdminTable.pill(AdminTable.roleName(pendingRow.role()), AdminTable.roleStyle(pendingRow.role())));
-        AdminTable.put(row, 2, AdminTable.label(pendingRow.city(), "table-cell-text"));
-        AdminTable.put(row, 3, AdminTable.textAndButton(AdminTable.date(pendingRow.submittedAt()),
+        GridPane row = TableRows.row(38, 20, 22, 20);
+        TableRows.put(row, 0, AdminTable.label(pendingRow.name(), "form-label"));
+        TableRows.put(row, 1, AdminTable.pill(AdminTable.roleName(pendingRow.role()), AdminTable.roleStyle(pendingRow.role())));
+        TableRows.put(row, 2, AdminTable.label(pendingRow.city(), "table-cell-text"));
+        TableRows.put(row, 3, AdminTable.textAndButton(AdminTable.date(pendingRow.submittedAt()),
                 AdminTable.button("Review ›", "table-review-btn", e -> {
-                    AdminSelection.selectRegistration(pendingRow.registrationId());
+                    Selection.selectRegistration(pendingRow.registrationId());
                     Navigator.show(Screen.REVIEW_REGISTRATION);
                 })));
         return row;
