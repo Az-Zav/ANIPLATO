@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /** 6.3: editing contact details, and a Casual donor's upgrade to Business, from submission to approval. */
 class ProfileServiceTest extends DbTest {
 
-    private final ProfileService profile = new ProfileService();
+    private final RegistrationService profile = new RegistrationService();
 
     @TempDir
     Path tmp;
@@ -92,7 +92,7 @@ class ProfileServiceTest extends DbTest {
         loginAs(ADMIN);
         for (String bound : List.of("MIN", "MAX")) {
             int id = ((Number) TestDb.scalar("SELECT " + bound + "(document_id) FROM document WHERE registration_id = ?", upgrade)).intValue();
-            new DocumentReviewService().verifyDocument(id);
+            new RegistrationService().verifyDocument(id);
         }
         new RegistrationService().approve(upgrade);
 

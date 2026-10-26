@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** 6.3 suspend and reinstate, the All Accounts list, and the 6.6 document-expiry suspension. */
 class AccountStatusTest extends DbTest {
 
-    private final AccountStatusService accounts = new AccountStatusService();
+    private final RegistrationService accounts = new RegistrationService();
 
     private String status(String email) {
         return TestDb.scalar("SELECT status FROM account WHERE email = ?", email);

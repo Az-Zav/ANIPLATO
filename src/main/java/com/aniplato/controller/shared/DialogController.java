@@ -10,8 +10,6 @@ import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Document;
 import com.aniplato.model.DocumentUpload;
 import com.aniplato.service.AuthenticationService;
-import com.aniplato.service.DocumentReviewService;
-import com.aniplato.service.ProfileService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.SafetyService;
 import com.aniplato.util.Navigator;
@@ -51,8 +49,6 @@ public class DialogController {
 
     private final RegistrationService registrationService = new RegistrationService();
     private final AuthenticationService authenticationService = new AuthenticationService();
-    private final ProfileService profileService = new ProfileService();
-    private final DocumentReviewService documentReviewService = new DocumentReviewService();
     private final SafetyService safetyService = new SafetyService();
 
     @FXML
@@ -244,7 +240,7 @@ public class DialogController {
                 .action("Accept offer", Style.PRIMARY, 110, form -> onConfirm.run()));
     }
 
-    /** Upload Renewal: the file and date go to DocumentReviewService; {@code onDone} runs after it saved. */
+    /** Upload Renewal: the file and date go to RegistrationService; {@code onDone} runs after it saved. */
     public void showUploadRenewalMode(Document.Type type, Runnable onDone) {
         open(DialogSpec.of(Tone.GREEN, "Upload renewal: " + type.label(),
                         "Upload the renewed permit and type its new expiry date. Your current file stays on record until an admin verifies the new one.")
@@ -252,7 +248,7 @@ public class DialogController {
                         Block.file("file", "Renewed document *", "Choose the renewed document"),
                         Block.dateOrNoExpiry("expiry", "New expiry date *", "noExpiry", !type.requiresExpiry()))
                 .action("Submit for review", Style.PRIMARY, 150, form -> {
-                    documentReviewService.uploadRenewal(type, form.file("file"), form.date("expiry"), form.checked("noExpiry"));
+                    registrationService.uploadRenewal(type, form.file("file"), form.date("expiry"), form.checked("noExpiry"));
                     onDone.run();
                 }));
     }
@@ -265,7 +261,7 @@ public class DialogController {
                         Block.text("person", "Contact person *", null, contactPerson, false),
                         Block.text("phone", "Contact number *", "09171234567", contactPhone, false))
                 .action("Save", Style.PRIMARY, 120, form -> {
-                    profileService.updateContact(form.text("person"), form.text("phone"));
+                    registrationService.updateContact(form.text("person"), form.text("phone"));
                     if (onSaved != null) onSaved.run();
                 }));
     }
@@ -290,7 +286,7 @@ public class DialogController {
                     if (form.file("sanitary") != null) {
                         uploads.add(new DocumentUpload(Document.Type.SANITARY_PERMIT, form.file("sanitary"), form.date("sanitaryDate"), false));
                     }
-                    profileService.submitUpgrade(uploads, form.checked("consent"));
+                    registrationService.submitUpgrade(uploads, form.checked("consent"));
                     onDone.run();
                 }));
     }

@@ -15,7 +15,7 @@ public class MaintenanceService {
     private final OfferService offerService = new OfferService();
     private final PostService postService = new PostService();
     private final ReportService reportService = new ReportService();
-    private final AccountStatusService accountStatusService = new AccountStatusService();
+    private final RegistrationService registrationService = new RegistrationService();
 
     /** Runs every check. A check that fails throws to the caller; the shell decides what to do. */
     public void runMaintenance() {
@@ -25,6 +25,6 @@ public class MaintenanceService {
         postService.expireOpenPosts(Post.Kind.REQUEST, now);               // 3. open request past its needed-by: Expired, its offers expire
         offerService.expireUnansweredOffers(now);                          // 4. offered offer past its pickup time: Expired
         reportService.flagOverdueReports(now);                             // 5. completed handoff with an overdue report: flag once
-        accountStatusService.suspendAccountsWithExpiredDocuments(LocalDate.now());   // 6. expired document: Suspended
+        registrationService.suspendAccountsWithExpiredDocuments(LocalDate.now());   // 6. expired document: Suspended
     }
 }

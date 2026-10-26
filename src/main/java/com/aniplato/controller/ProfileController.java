@@ -5,9 +5,8 @@ import com.aniplato.model.Account;
 import com.aniplato.model.Admin;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
-import com.aniplato.service.DocumentReviewService;
+import com.aniplato.service.RegistrationService;
 import com.aniplato.service.FileStorageService;
-import com.aniplato.service.ProfileService;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
@@ -69,8 +68,7 @@ public class ProfileController {
     @FXML private Label loginEmailLabel;
     @FXML private Label passwordStatusLabel;
 
-    private final DocumentReviewService documentReviewService = new DocumentReviewService();
-    private final ProfileService profileService = new ProfileService();
+    private final RegistrationService registrationService = new RegistrationService();
 
     @FXML
     private void initialize() {
@@ -110,7 +108,7 @@ public class ProfileController {
         docRowsBox.getChildren().clear();
         List<Document> documents;
         try {
-            documents = documentReviewService.getMyDocuments();
+            documents = registrationService.getMyDocuments();
         } catch (RuntimeException e) {
             docRowsBox.getChildren().add(styled(new Label("Could not load your documents."), "text-muted"));
             return;
@@ -179,7 +177,7 @@ public class ProfileController {
     private void loadDocumentAlert() {
         List<Document> alerts;
         try {
-            alerts = documentReviewService.getCurrentDocumentAlerts(LocalDate.now());
+            alerts = registrationService.getCurrentDocumentAlerts(LocalDate.now());
         } catch (RuntimeException e) {
             return;   // no banner is better than a wrong one
         }
@@ -233,7 +231,7 @@ public class ProfileController {
     @FXML
     private void handleEditContact() {
         Registration registration = Session.require().registration;
-        String phone = FormSupport.load(profileService::getMyPhone, "");   // the owner may read its own number (A7)
+        String phone = FormSupport.load(registrationService::getMyPhone, "");   // the owner may read its own number (A7)
         dialogController.showEditContactMode(registration.contactPerson, phone, () -> orgContactLabel.setText(registration.contactPerson));
     }
 

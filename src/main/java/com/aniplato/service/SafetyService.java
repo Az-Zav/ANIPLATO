@@ -25,7 +25,7 @@ public class SafetyService {
     private final SafetyNoticeDao noticeDao = new SafetyNoticeDao();
     private final OfferDao offerDao = new OfferDao();
     private final LogDao logDao = new LogDao();
-    private final AccountStatusService accountStatusService = new AccountStatusService();
+    private final RegistrationService registrationService = new RegistrationService();
 
     /**
      * R7.1: either side of an Accepted or Completed offer flags a concern about the other side.
@@ -86,7 +86,7 @@ public class SafetyService {
 
     /**
      * Admin suspends the flagged account (the other side of the offer) and closes the notice.
-     * One transaction (A2); the suspension itself goes through AccountStatusService (R7.2).
+     * One transaction (A2); the suspension itself goes through RegistrationService (R7.2).
      */
     public void suspendFlaggedAccount(int noticeId, String adminNote) {
         Account admin = Session.requireAdmin();
@@ -96,7 +96,7 @@ public class SafetyService {
             SafetyNotice notice = requireOpen(c, noticeId);
             int flaggedId = flaggedAccountId(c, notice);
             resolve(c, notice, SafetyNotice.Status.ACCOUNT_SUSPENDED, note, admin.id);
-            accountStatusService.suspend(c, flaggedId, note, admin.id);
+            registrationService.suspend(c, flaggedId, note, admin.id);
             return null;
         });
     }

@@ -60,7 +60,7 @@ public class StatsService {
     private final HistoryDao historyDao = new HistoryDao();
     private final OfferDao offers = new OfferDao();
     private final PostService postService = new PostService();
-    private final DocumentReviewService documentReviewService = new DocumentReviewService();
+    private final RegistrationService registrationService = new RegistrationService();
 
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("MMM d");
     private static final DateTimeFormatter FULL_DAY = DateTimeFormatter.ofPattern("MMM d, yyyy");
@@ -197,7 +197,7 @@ public class StatsService {
 
     private List<Banner> documentBanner() {
         LocalDate today = LocalDate.now();
-        List<Document> documents = documentReviewService.getCurrentDocumentAlerts(today);
+        List<Document> documents = registrationService.getCurrentDocumentAlerts(today);
         if (documents.isEmpty()) return List.of();
         long expired = documents.stream().filter(d -> d.isExpired(today)).count();
         String names = documents.stream().map(d -> d.type.label() + " (" + d.expiresOn.format(DAY) + ")").collect(Collectors.joining(" and "));

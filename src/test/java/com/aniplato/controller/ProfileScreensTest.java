@@ -31,7 +31,7 @@ class ProfileScreensTest extends ScreenTestBase {
     @Test
     void theAccountsListOffersReviewRenewalOnlyWhereAFileWaits() {
         loginAs(BUSINESS);
-        new com.aniplato.service.DocumentReviewService().uploadRenewal(com.aniplato.model.Document.Type.MAYORS_PERMIT,
+        new com.aniplato.service.RegistrationService().uploadRenewal(com.aniplato.model.Document.Type.MAYORS_PERMIT,
                 Fixtures.photos(java.nio.file.Path.of(System.getProperty("java.io.tmpdir")), 1).get(0), java.time.LocalDate.now().plusYears(1), false);
         loginAs(ADMIN);
         Parent screen = open("admin/accounts.fxml");

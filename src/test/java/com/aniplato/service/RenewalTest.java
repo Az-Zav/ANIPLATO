@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Spec 6.3: an organization renews a document, the admin verifies it, and a document-expiry suspension ends. */
 class RenewalTest extends DbTest {
 
-    private final DocumentReviewService documents = new DocumentReviewService();
+    private final RegistrationService documents = new RegistrationService();
     private final MaintenanceService maintenance = new MaintenanceService();
 
     @TempDir
@@ -153,10 +153,10 @@ class RenewalTest extends DbTest {
         int renewal = newestDocument("mayors_permit");
         loginAs(ADMIN);
 
-        var row = new AccountStatusService().getAccounts(LocalDate.now()).rows().stream()
+        var row = new RegistrationService().getAccounts(LocalDate.now()).rows().stream()
                 .filter(r -> r.name().equals("Sunrise Bakery")).findFirst().orElseThrow();
         assertTrue(row.renewalToReview());
-        assertTrue(new AccountStatusService().getAccounts(LocalDate.now()).rows().stream()
+        assertTrue(new RegistrationService().getAccounts(LocalDate.now()).rows().stream()
                 .filter(r -> !r.name().equals("Sunrise Bakery")).noneMatch(r -> r.renewalToReview()));
 
         var shown = new RegistrationService().getForReview(row.registrationId()).registration().documents;
@@ -164,6 +164,6 @@ class RenewalTest extends DbTest {
         assertTrue(shown.stream().anyMatch(d -> d.id == renewal));
 
         documents.verifyDocument(renewal);
-        assertTrue(new AccountStatusService().getAccounts(LocalDate.now()).rows().stream().noneMatch(r -> r.renewalToReview()));
+        assertTrue(new RegistrationService().getAccounts(LocalDate.now()).rows().stream().noneMatch(r -> r.renewalToReview()));
     }
 }

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RegistrationDecisionTest extends DbTest {
 
     private final RegistrationService registrations = new RegistrationService();
-    private final DocumentReviewService documents = new DocumentReviewService();
+    private final RegistrationService documents = new RegistrationService();
     private int pending;      // Ana Cruz, a Casual donor with one unreviewed Barangay Certificate
     private int adminId;
 

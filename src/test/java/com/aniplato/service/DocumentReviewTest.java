@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** R1.4 document verification, and the document lists the Profile screen shows. */
 class DocumentReviewTest extends DbTest {
 
-    private final DocumentReviewService documents = new DocumentReviewService();
+    private final RegistrationService documents = new RegistrationService();
 
     private int pendingDocument() {
         return ((Number) TestDb.scalar("SELECT document_id FROM document WHERE registration_id = ?",
