@@ -6,7 +6,7 @@ Branch `ccr-f2e57831-6tfkkw` (rounds 1-5); round 6 is described first. Round 1 i
 
 ## Round 6: simplify (branch `simplify-codebase`)
 
-One commit per slice, the full suite run after each, **no rule or message changed** except the two flagged below. Tag **`pre-simplify`** is the code before the round; **To undo the round:** `git checkout pre-simplify`. The suite was run on MariaDB 10.11 (285 tests before; one, `RegistrationDecisionTest.anApplicantRejectedBeforeIsMarkedRegisteredAgain`, fails on the untouched code as well and was not investigated).
+One commit per slice, the full suite run after each, **no rule or message changed** except the two flagged below. Commit **`5ca484c`** is the code before the round; **To undo the round:** `git checkout 5ca484c` (or branch from it). The suite was run on MariaDB 10.11 (285 tests before; one, `RegistrationDecisionTest.anApplicantRejectedBeforeIsMarkedRegisteredAgain`, fails on the untouched code as well and was not investigated).
 
 | # | Commit | Slice | Behavior |
 |---|---|---|---|
