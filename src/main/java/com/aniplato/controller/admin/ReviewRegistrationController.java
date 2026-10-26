@@ -2,6 +2,7 @@ package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.Inline;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
 import com.aniplato.service.DocumentReviewService;
@@ -98,7 +99,7 @@ public class ReviewRegistrationController {
 
     /** Reads the registration and its documents from the service and fills the screen. */
     private void load() {
-        hideError();
+        Inline.hide(errorLabel);
         ReviewDetail[] read = new ReviewDetail[1];
         String problem = FormSupport.failure(() -> read[0] = registrationService.getForReview(registrationId),
                 "Could not load the registration. Check the database connection.");
@@ -178,7 +179,7 @@ public class ReviewRegistrationController {
     private void run(Runnable action) {
         String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
         if (problem != null) {
-            DialogController.showError(problem);
+            Inline.error(problem);
             return;
         }
         load();
@@ -190,24 +191,13 @@ public class ReviewRegistrationController {
         File file = new FileStorageService().resolve(documents.get(index).filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                Inline.error("The file " + file.getName() + " is not in the uploads folder.");
                 return;
             }
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+            Inline.error("Could not open " + file.getName() + ".");
         }
-    }
-
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        errorLabel.setManaged(true);
-    }
-
-    private void hideError() {
-        errorLabel.setVisible(false);
-        errorLabel.setManaged(false);
     }
 
     @FXML
@@ -223,10 +213,10 @@ public class ReviewRegistrationController {
     @FXML
     private void handleApprove() {
         if (documents.stream().anyMatch(d -> d.review != Document.Review.OK)) {
-            showError("Verify every document before approving.");   // A8; the service checks this too
+            Inline.show(errorLabel, "Verify every document before approving.");   // A8; the service checks this too
             return;
         }
-        hideError();
+        Inline.hide(errorLabel);
         dialogController.showApproveMode(registrationId, orgNameLabel.getText(), emailLabel.getText());   // the dialog approves and emails
     }
 }

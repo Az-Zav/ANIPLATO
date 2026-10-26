@@ -1,5 +1,6 @@
 package com.aniplato.controller.shared;
 
+import com.aniplato.controller.Inline;
 import com.aniplato.controller.shared.dialog.AcceptOfferDialogController;
 import com.aniplato.controller.shared.dialog.ApproveDialogController;
 import com.aniplato.controller.shared.dialog.CancelListingDialogController;
@@ -23,7 +24,7 @@ import com.aniplato.controller.shared.dialog.WithdrawOfferDialogController;
 import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -39,6 +40,7 @@ import java.util.function.Consumer;
 public class DialogController implements DialogHost {
 
     @FXML private VBox overlay;
+    @FXML private Label messageLabel;   // where the open dialog's errors and confirmations appear (Inline)
 
     @FXML private RejectDialogController rejectController;
     @FXML private ApproveDialogController approveController;
@@ -69,6 +71,8 @@ public class DialogController implements DialogHost {
                 confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController, noticeResolvedController, editContactController);
         cards.forEach(card -> card.attach(this));
         hideAll();
+        Inline.bindDialog(messageLabel, overlay::isVisible);
+        Inline.hide(messageLabel);
 
         // Populate all green confirmation badge hosts with Check_Button.svg
         overlay.lookupAll(".modal-icon-green-box").forEach(node -> {
@@ -90,6 +94,7 @@ public class DialogController implements DialogHost {
     @Override
     public void show(Node card) {
         hideAll();
+        Inline.clearDialog();
         card.setVisible(true);
         card.setManaged(true);
         overlay.setVisible(true);
@@ -99,6 +104,7 @@ public class DialogController implements DialogHost {
     @Override
     public void close() {
         hideAll();
+        Inline.clearDialog();
         overlay.setVisible(false);
         overlay.setManaged(false);
     }
@@ -113,11 +119,6 @@ public class DialogController implements DialogHost {
             card.card().setVisible(false);
             card.card().setManaged(false);
         }
-    }
-
-    /** A8: shows a RuleViolationException message. Built in code because the dialogs have no error label. */
-    public static void showError(String message) {
-        new Alert(Alert.AlertType.WARNING, message).showAndWait();
     }
 
     //---OPENING A DIALOG---

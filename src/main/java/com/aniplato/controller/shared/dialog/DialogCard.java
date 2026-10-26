@@ -1,7 +1,7 @@
 package com.aniplato.controller.shared.dialog;
 
 import com.aniplato.controller.FormSupport;
-import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.Inline;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
@@ -47,7 +47,7 @@ public abstract class DialogCard {
     protected void confirm(Runnable action) {
         String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
         if (problem != null) {
-            DialogController.showError(problem);
+            Inline.error(problem);
             return;
         }
         close();

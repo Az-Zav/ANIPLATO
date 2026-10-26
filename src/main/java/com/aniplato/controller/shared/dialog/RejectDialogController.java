@@ -1,6 +1,6 @@
 package com.aniplato.controller.shared.dialog;
 
-import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.Inline;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
@@ -32,11 +32,11 @@ public class RejectDialogController extends DialogCard {
         try {
             emailed = registrationService.reject(reviewedRegistrationId, rejectReasonTextArea.getText());
         } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());   // A8: stay open so the reason can be fixed
+            Inline.error(e.getMessage());   // A8: stay open so the reason can be fixed
             return;
         }
         close();
-        if (!emailed) DialogController.showError("The registration was rejected, but the email could not be sent. Check the email log.");
+        if (!emailed) Inline.notice("The registration was rejected, but the email could not be sent. Check the email log.");
         Navigator.show(Screen.PENDING_REGISTRATIONS);
     }
 }

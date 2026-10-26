@@ -1,6 +1,6 @@
 package com.aniplato.controller.shared.dialog;
 
-import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.Inline;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.AuthenticationService;
 import javafx.fxml.FXML;
@@ -45,7 +45,7 @@ public class SetNewPasswordDialogController extends DialogCard {
         try {
             authenticationService.changePassword(currentPasswordField.getText(), newPasswordField.getText(), confirmPasswordField.getText());
         } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());   // A8: stay open until the password is accepted
+            Inline.error(e.getMessage());   // A8: stay open until the password is accepted
             return;
         }
         close();

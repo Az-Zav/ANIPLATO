@@ -2,6 +2,7 @@
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="overlay" alignment="CENTER" styleClass="modal-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.DialogController">
@@ -31,5 +32,8 @@
         <fx:include fx:id="upgradeBusinessDonor" source="dialog/upgrade-business-donor.fxml" />
         <fx:include fx:id="noticeResolved" source="dialog/notice-resolved.fxml" />
         <fx:include fx:id="editContact" source="dialog/edit-contact.fxml" />
+
+        <!-- Errors and confirmations of whichever dialog is open (Inline). Hidden until there is something to say. -->
+        <Label fx:id="messageLabel" managed="false" maxWidth="448.0" styleClass="modal-message" visible="false" wrapText="true" />
     </children>
 </VBox>

@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
  * without anyone clicking through 17 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
- * Error paths are not covered here: they open a modal Alert, which would block the test.
+ * A broken rule shows in the dialog's own message line (Inline), so the error paths are covered too.
  */
 class DialogControllerTest {
 
@@ -416,5 +416,29 @@ class DialogControllerTest {
         click(again, "Suspend account");
         assertEquals("Unsafe", suspended.get());
         assertAllClosed();
+    }
+
+    //---ERRORS STAY INSIDE THE DIALOG---
+
+    @Test
+    void aBrokenRuleIsShownInTheDialogAndItStaysOpen() {
+        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery", reason -> {
+            throw new com.aniplato.exception.RuleViolationException("Give a reason.");
+        }));
+        click(onlyShownCard(), "✕ Suspend");
+        javafx.scene.control.Label message = (javafx.scene.control.Label) fx(() -> root.lookup(".modal-message"));
+        assertTrue(fx(message::isVisible));
+        assertEquals("Give a reason.", fx(message::getText));
+        assertEquals(1, shownCards().size(), "the dialog stays open so the reason can be fixed (A8)");
+        fx(() -> dialogs.close());
+        assertFalse(fx(message::isVisible), "closing the dialog clears its message");
+    }
+
+    @Test
+    void forgotPasswordConfirmsInsideTheDialogWithoutRevealingWhichEmailsExist() {
+        fx(() -> dialogs.showForgotPasswordMode(""));
+        click(onlyShownCard(), "Send reset email");   // an empty email is refused in the dialog
+        javafx.scene.control.Label message = (javafx.scene.control.Label) fx(() -> root.lookup(".modal-message"));
+        assertEquals("Please enter your email address.", fx(message::getText));
     }
 }

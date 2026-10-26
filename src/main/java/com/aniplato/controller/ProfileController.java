@@ -206,12 +206,12 @@ public class ProfileController {
         File file = new FileStorageService().resolve(d.filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                Inline.error("The file " + file.getName() + " is not in the uploads folder.");
                 return;
             }
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+            Inline.error("Could not open " + file.getName() + ".");
         }
     }
 

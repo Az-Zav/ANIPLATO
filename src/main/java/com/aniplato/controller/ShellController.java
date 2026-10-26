@@ -37,6 +37,7 @@ public class ShellController {
     private static final String ACTIVE = "sidebar-button-active";
 
     @FXML private StackPane contentArea;
+    @FXML private Label messageBar;   // the screen's errors and confirmations (Inline)
     @FXML private VBox sidebar;
     // FXML: fx:id="userRoleLabel" shows the logged-in account's role
     @FXML private Label userRoleLabel;
@@ -71,7 +72,11 @@ public class ShellController {
         // Highlight follows Navigator.currentScreen(): set now, and again after every in-shell navigation
         refreshActive();
         badges.refresh();
-        Navigator.setBeforeScreenListener(this::runMaintenance);
+        Inline.bindScreen(messageBar);
+        Navigator.setBeforeScreenListener(() -> {
+            Inline.clearScreen();   // the old message goes before the next screen can add its own
+            runMaintenance();
+        });
         Navigator.setScreenListener(() -> {
             refreshActive();
             badges.refresh();   // an approval or resolved notice changes the counts

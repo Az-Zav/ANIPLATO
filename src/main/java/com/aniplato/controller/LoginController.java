@@ -29,15 +29,15 @@ public class LoginController {
     @FXML
     private void initialize() {
         // the message goes away as soon as the user edits either field
-        emailField.textProperty().addListener((o, was, now) -> hideError());
-        passwordField.textProperty().addListener((o, was, now) -> hideError());
+        emailField.textProperty().addListener((o, was, now) -> Inline.fade(errorLabel));
+        passwordField.textProperty().addListener((o, was, now) -> Inline.fade(errorLabel));
     }
 
     // FXML: loginButton onAction="#handleLogin"
     // PATTERN:ACTION
     @FXML
     private void handleLogin() {
-        hideError();
+        Inline.fade(errorLabel);
         try {
             authenticationService.login(emailField.getText(), passwordField.getText());
             if (authenticationService.mustChangePassword()) {
@@ -49,17 +49,8 @@ public class LoginController {
                 Navigator.show(Screen.SHELL);
             }
         } catch (RuleViolationException e) {
-            showError(e.getMessage());
+            Inline.show(errorLabel, e.getMessage());
         }
-    }
-
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-    }
-
-    private void hideError() {
-        errorLabel.setVisible(false);
     }
 
     // FXML: forgotPasswordLink onAction="#handleForgotPassword"

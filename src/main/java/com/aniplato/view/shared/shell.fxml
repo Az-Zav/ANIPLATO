@@ -93,7 +93,11 @@
         <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <children>
                 <!-- PATTERN:DYNAMIC current screen content -->
-                <StackPane fx:id="contentArea" />
+                <VBox>
+                    <!-- Errors and confirmations from the screen below (Inline); cleared on every screen change. -->
+                    <Label fx:id="messageBar" managed="false" maxWidth="1.7976931348623157E308" styleClass="page-message" visible="false" wrapText="true" />
+                    <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS" />
+                </VBox>
                 <VBox alignment="BOTTOM_RIGHT" pickOnBounds="false" spacing="12.0" StackPane.alignment="BOTTOM_RIGHT">
                     <padding><Insets bottom="22.0" right="24.0" /></padding>
                     <children>

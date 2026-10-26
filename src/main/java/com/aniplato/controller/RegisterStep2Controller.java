@@ -104,13 +104,13 @@ public class RegisterStep2Controller {
         credentialTypeCombo.getItems().setAll(Document.Type.FOOD_GROUP_CREDENTIALS);
         credentialTypeCombo.valueProperty().addListener((o, was, now) -> {
             credential.setType(now);
-            hideError();
+            Inline.hide(errorLabel);
         });
 
         for (UploadSlot slot : List.of(mayorsPermit, sanitaryPermit, barangayCert, credential, authLetter)) {
             slot.clear();   // the FXML holds sample file names; start every row empty
             if (!slot.hasNoExpiryBox()) slot.expiryPicker().setPromptText("Expiry date");
-            slot.expiryPicker().valueProperty().addListener((o, was, now) -> hideError());
+            slot.expiryPicker().valueProperty().addListener((o, was, now) -> Inline.hide(errorLabel));
         }
         credentialExpiryPicker.setPromptText("Expiry date");
         authLetterExpiryPicker.setPromptText("No expiry");   // its No expiry box starts ticked, as in the FXML
@@ -214,7 +214,7 @@ public class RegisterStep2Controller {
     @FXML
     private void handleUploadCredential() {
         if (credential.type() == null) {
-            showError("Choose a credential first.");
+            Inline.show(errorLabel, "Choose a credential first.");
             return;
         }
         upload(credential, credential.type().label());
@@ -222,9 +222,9 @@ public class RegisterStep2Controller {
 
     /** Opens the file explorer for one row; a refused file is shown in place (R1.1, A8). */
     private void upload(UploadSlot slot, String documentName) {
-        hideError();
+        Inline.hide(errorLabel);
         String problem = slot.choose(submitBtn.getScene().getWindow(), documentName);
-        if (problem != null) showError(problem);
+        if (problem != null) Inline.show(errorLabel, problem);
     }
 
     /** The chosen files of the rows this role needs, with their expiry dates. */
@@ -251,28 +251,18 @@ public class RegisterStep2Controller {
 
     @FXML
     private void handleConfirmSubmit() {
-        hideError();
+        Inline.hide(errorLabel);
         try {
             // the rules and the saving live in the service (A1, A2)
             registrationService.submit(RegistrationDraft.get(), chosenUploads(), consentCheckBox.isSelected());
         } catch (RuleViolationException e) {
-            showError(e.getMessage());   // A8
+            Inline.show(errorLabel, e.getMessage());   // A8
             return;
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not submit your registration. Check the database connection and try again.");
+            Inline.show(errorLabel, "Could not submit your registration. Check the database connection and try again.");
             return;
         }
         Navigator.show(Screen.REGISTER_SUBMITTED);   // the submitted screen reads and then clears the draft
     }
 
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        errorLabel.setManaged(true);
-    }
-
-    private void hideError() {
-        errorLabel.setVisible(false);
-        errorLabel.setManaged(false);
-    }
 }

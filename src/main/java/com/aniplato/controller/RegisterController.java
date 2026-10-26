@@ -74,9 +74,9 @@ public class RegisterController {
         updateFormForRole();
         // the message goes away as soon as the user edits a field
         for (TextField field : new TextField[] {businessNameField, contactPersonField, contactNumberField, emailField}) {
-            field.textProperty().addListener((o, was, now) -> hideError());
+            field.textProperty().addListener((o, was, now) -> Inline.hide(errorLabel));
         }
-        cityComboBox.valueProperty().addListener((o, was, now) -> hideError());
+        cityComboBox.valueProperty().addListener((o, was, now) -> Inline.hide(errorLabel));
     }
 
     /** The city field is searchable: typing narrows the list to the cities whose name contains the text. */
@@ -111,7 +111,7 @@ public class RegisterController {
         try {
             ((ObservableList<City>) visibleCities.getSource()).setAll(registrationService.cities());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not load the city list. Check the database connection and reopen this screen.");
+            Inline.show(errorLabel, "Could not load the city list. Check the database connection and reopen this screen.");
         }
     }
 
@@ -214,8 +214,6 @@ public class RegisterController {
         updateFormForRole();
     }
 
-
-
     // PATTERN:NAV -> routes to Login screen
     @FXML
     private void handleNavLogin() {
@@ -225,7 +223,7 @@ public class RegisterController {
     // PATTERN:ACTION validates step 1 inputs and routes to Step 2 Documents
     @FXML
     private void handleNextStep2() {
-        hideError();
+        Inline.hide(errorLabel);
         Registration form = new Registration();
         form.role = selectedRole();
         form.name = businessNameField.getText();
@@ -236,10 +234,10 @@ public class RegisterController {
         try {
             registrationService.checkDetails(form);   // R1 rules live in the service (A1)
         } catch (RuleViolationException e) {
-            showError(e.getMessage());   // A8
+            Inline.show(errorLabel, e.getMessage());   // A8
             return;
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not check your details. Check the database connection and try again.");
+            Inline.show(errorLabel, "Could not check your details. Check the database connection and try again.");
             return;
         }
         RegistrationDraft.set(form);   // step 2 adds the documents and submits
@@ -259,14 +257,4 @@ public class RegisterController {
         return hasPermitsRadio.isSelected() ? Account.Role.BUSINESS_DONOR : Account.Role.CASUAL_DONOR;
     }
 
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        errorLabel.setManaged(true);
-    }
-
-    private void hideError() {
-        errorLabel.setVisible(false);
-        errorLabel.setManaged(false);
-    }
 }

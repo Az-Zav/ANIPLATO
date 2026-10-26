@@ -1,6 +1,5 @@
 package com.aniplato.controller;
 
-import com.aniplato.controller.shared.DialogController;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 
@@ -20,7 +19,7 @@ public final class FormSupport {
     /** Runs the action. A broken rule or a database problem is shown in a message and false is returned; true means it worked. */
     public static boolean attempt(Runnable action) {
         String problem = failure(action, "Could not complete this. Check the database connection and try again.");
-        if (problem != null) DialogController.showError(problem);
+        if (problem != null) Inline.error(problem);
         return problem == null;
     }
 
@@ -44,7 +43,7 @@ public final class FormSupport {
         List<T> result = new ArrayList<>(1);
         String problem = failure(() -> result.add(read.get()), "Could not load this screen. Check the database connection and try again.");
         if (problem == null) return result.get(0);
-        DialogController.showError(problem);
+        Inline.error(problem);
         return fallback;
     }
 
