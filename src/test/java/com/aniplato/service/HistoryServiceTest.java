@@ -1,8 +1,8 @@
 package com.aniplato.service;
 
-import com.aniplato.service.HistoryService.Outcome;
-import com.aniplato.service.HistoryService.Row;
-import com.aniplato.service.HistoryService.View;
+import com.aniplato.service.StatsService.Outcome;
+import com.aniplato.service.StatsService.Row;
+import com.aniplato.service.StatsService.View;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** History (spec 3): the cards, the table of closed posts and offers, the report column and the period filter. */
 class HistoryServiceTest extends DbTest {
 
-    private final HistoryService history = new HistoryService();
+    private final StatsService history = new StatsService();
 
     /** The seed listing, rescued through a completed offer received the given days ago. Returns the offer id. */
     private int rescuedListing(int daysAgo) {

@@ -5,7 +5,7 @@ import com.aniplato.controller.Cards;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.TableRows;
 import com.aniplato.model.Post;
-import com.aniplato.service.DashboardService;
+import com.aniplato.service.StatsService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
 import javafx.fxml.FXML;
@@ -18,7 +18,7 @@ public class FoodGroupDashboardController {
 
     private static final double[] WIDTHS = {30, 26, 10, 22, 12};
 
-    private final DashboardService dashboardService = new DashboardService();
+    private final StatsService statsService = new StatsService();
 
     @FXML private VBox alertBox;
     @FXML private Label welcomeLabel;
@@ -34,7 +34,7 @@ public class FoodGroupDashboardController {
 
     @FXML
     private void initialize() {
-        DashboardService.FoodGroupDashboard d = FormSupport.load(dashboardService::getFoodGroupDashboard, null);
+        StatsService.FoodGroupDashboard d = FormSupport.load(statsService::getFoodGroupDashboard, null);
         if (d == null) return;
         Banners.fill(alertBox, d.banners());
         welcomeLabel.setText("Welcome, " + d.name());

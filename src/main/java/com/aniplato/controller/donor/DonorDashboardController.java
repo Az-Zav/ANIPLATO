@@ -5,7 +5,7 @@ import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.TableRows;
 import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
-import com.aniplato.service.DashboardService;
+import com.aniplato.service.StatsService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -16,7 +16,7 @@ public class DonorDashboardController {
 
     private static final double[] WIDTHS = {28, 10, 16, 12, 20, 14};
 
-    private final DashboardService dashboardService = new DashboardService();
+    private final StatsService statsService = new StatsService();
 
     @FXML private VBox alertBox;
     @FXML private Label welcomeLabel;
@@ -34,7 +34,7 @@ public class DonorDashboardController {
 
     @FXML
     private void initialize() {
-        DashboardService.DonorDashboard d = FormSupport.load(dashboardService::getDonorDashboard, null);
+        StatsService.DonorDashboard d = FormSupport.load(statsService::getDonorDashboard, null);
         if (d == null) return;
         Banners.fill(alertBox, d.banners());
         welcomeLabel.setText("Welcome, " + d.name());

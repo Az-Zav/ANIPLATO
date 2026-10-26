@@ -1,6 +1,6 @@
 package com.aniplato.controller;
 
-import com.aniplato.service.DashboardService.Banner;
+import com.aniplato.service.StatsService.Banner;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
 import javafx.geometry.Pos;

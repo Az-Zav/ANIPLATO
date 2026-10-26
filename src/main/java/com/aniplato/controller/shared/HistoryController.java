@@ -2,9 +2,9 @@ package com.aniplato.controller.shared;
 
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.TableRows;
-import com.aniplato.service.HistoryService;
-import com.aniplato.service.HistoryService.Outcome;
-import com.aniplato.service.HistoryService.Row;
+import com.aniplato.service.StatsService;
+import com.aniplato.service.StatsService.Outcome;
+import com.aniplato.service.StatsService.Row;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
 import javafx.fxml.FXML;
@@ -33,9 +33,9 @@ public class HistoryController {
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("MMMM yyyy");
     private static final String ALL_TIME = "All time";
 
-    private final HistoryService historyService = new HistoryService();
+    private final StatsService statsService = new StatsService();
     private List<YearMonth> months = List.of();
-    private HistoryService.View view;
+    private StatsService.View view;
     private Outcome tab;            // null = all
     private boolean loading;        // refilling the period list must not reload the table
 
@@ -66,7 +66,7 @@ public class HistoryController {
     }
 
     private void load(YearMonth period) {
-        HistoryService.View loaded = FormSupport.load(() -> historyService.getHistory(period), null);
+        StatsService.View loaded = FormSupport.load(() -> statsService.getHistory(period), null);
         if (loaded == null) return;
         view = loaded;
         if (period == null) {   // the period choices come from the data, so they are filled on the all-time load

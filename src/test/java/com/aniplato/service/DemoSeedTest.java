@@ -1,6 +1,6 @@
 package com.aniplato.service;
 
-import com.aniplato.service.HistoryService.Outcome;
+import com.aniplato.service.StatsService.Outcome;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.TestDb;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +44,7 @@ class DemoSeedTest extends DbTest {
     @Test
     void theDonorHasAnOfferToDecideAndOneHandoffToRelease() {
         loginAs(BUSINESS);
-        var dashboard = new DashboardService().getDonorDashboard();
+        var dashboard = new StatsService().getDonorDashboard();
         assertEquals(1, dashboard.offersToReview());   // the group's offer on the vegetables
         assertEquals(1, dashboard.awaitingRelease());  // the rice meals; the bread and the typhoon packs are already released
         assertTrue(dashboard.kgRescued() > 0);
@@ -54,10 +54,10 @@ class DemoSeedTest extends DbTest {
     @Test
     void theFoodGroupHasThreeAcceptedHandoffsAndTwoReportsDue() {
         loginAs(GROUP);
-        var dashboard = new DashboardService().getFoodGroupDashboard();
+        var dashboard = new StatsService().getFoodGroupDashboard();
         assertEquals(3, dashboard.acceptedOffers());   // the rice meals, the bread, the typhoon packs
         var banner = dashboard.banners().get(0);
-        assertEquals(DashboardService.BannerKind.REPORT_DUE, banner.kind());
+        assertEquals(StatsService.BannerKind.REPORT_DUE, banner.kind());
         assertTrue(banner.text().startsWith("2 reports are due"));   // the pastries, and the overdue community pantry
         assertTrue(banner.text().contains("was due") && banner.text().contains("Community pantry restock"));
     }
@@ -65,8 +65,8 @@ class DemoSeedTest extends DbTest {
     @Test
     void historyShowsRescuedExpiredAndCancelledForTheDonor() {
         loginAs(BUSINESS);
-        var rows = new HistoryService().getHistory(null).rows();
-        Set<Outcome> outcomes = rows.stream().map(HistoryService.Row::outcome).collect(Collectors.toSet());
+        var rows = new StatsService().getHistory(null).rows();
+        Set<Outcome> outcomes = rows.stream().map(StatsService.Row::outcome).collect(Collectors.toSet());
         assertEquals(Set.of(Outcome.RESCUED, Outcome.EXPIRED, Outcome.CANCELLED), outcomes);
         assertTrue(rows.stream().anyMatch(r -> r.outcomeText().equals("Expired (missed pickup)")));
     }

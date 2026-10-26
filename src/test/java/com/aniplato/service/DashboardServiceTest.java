@@ -1,8 +1,8 @@
 package com.aniplato.service;
 
-import com.aniplato.service.DashboardService.BannerKind;
-import com.aniplato.service.DashboardService.DonorDashboard;
-import com.aniplato.service.DashboardService.FoodGroupDashboard;
+import com.aniplato.service.StatsService.BannerKind;
+import com.aniplato.service.StatsService.DonorDashboard;
+import com.aniplato.service.StatsService.FoodGroupDashboard;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** The two dashboards (spec 3, Figma V2): every card is worked out from the data, and the banners say what needs attention. */
 class DashboardServiceTest extends DbTest {
 
-    private final DashboardService dashboards = new DashboardService();
+    private final StatsService dashboards = new StatsService();
 
     //---DONOR---
 
