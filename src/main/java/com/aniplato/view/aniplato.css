@@ -90,11 +90,6 @@
 }
 
 /* Official Registration Badge */
-.official-badge {
-    -fx-background-color: #E6F4EA;
-    -fx-background-radius: 20px;
-    -fx-padding: 3px 10px;
-}
 
 /* ComboBox Styling */
 .combo-box {
@@ -243,72 +238,9 @@
     -fx-text-fill: #4B5563;
 }
 
-.table-cell-primary {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
 .table-cell-muted {
     -fx-font-size: 12px;
     -fx-text-fill: #6B7280;
-}
-
-.table-cell-primary {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #121D26;
-}
-
-.metric-card, .claim-card {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8px;
-    -fx-border-color: rgba(223, 233, 247, 0.6);
-    -fx-border-radius: 8px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 2, 0, 0, 1);
-    -fx-padding: 24px;
-}
-
-.metric-card {
-    -fx-min-height: 181px;
-}
-
-.metric-icon {
-    -fx-background-radius: 8px;
-    -fx-padding: 8px;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-}
-
-.metric-icon-blue {
-    -fx-background-color: rgba(0, 116, 176, 0.14);
-    -fx-text-fill: #0074B0;
-}
-
-.metric-icon-orange {
-    -fx-background-color: rgba(252, 130, 12, 0.14);
-    -fx-text-fill: #FC820C;
-}
-
-.metric-icon-green {
-    -fx-background-color: rgba(13, 99, 27, 0.12);
-    -fx-text-fill: #0D631B;
-}
-
-.metric-value {
-    -fx-font-size: 32px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #121D26;
-}
-
-.metric-caption, .table-footer-note {
-    -fx-font-size: 12px;
-    -fx-text-fill: #707A6C;
-}
-
-.refresh-button {
-    -fx-padding: 8px 12px;
-    -fx-background-radius: 4px;
 }
 
 .tab-strip {
@@ -331,128 +263,11 @@
     -fx-font-weight: bold;
 }
 
-.offer-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #121D26;
-}
-
-.fact-card {
-    -fx-background-color: #F2F7F1;
-    -fx-background-radius: 8px;
-    -fx-padding: 12px 14px;
-}
-
-.fact-label {
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #707A6C;
-    -fx-letter-spacing: 0.5px;
-}
-
-.fact-value {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #121D26;
-}
-
-.fact-note, .helper-note {
-    -fx-font-size: 12px;
-    -fx-text-fill: #707A6C;
-}
-
-.fact-warning {
-    -fx-font-size: 12px;
-    -fx-text-fill: #B45309;
-}
-
-.tag-green {
-    -fx-background-color: #E8F3EA;
-    -fx-background-radius: 999px;
-    -fx-padding: 4px 10px;
-    -fx-font-size: 12px;
-    -fx-text-fill: #0D631B;
-}
-
-.divider {
-    -fx-background-color: #E2E8F0;
-}
-
-.offer-section-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
-.attestation-row {
-    -fx-background-color: #F2F7F1;
-    -fx-background-radius: 6px;
-    -fx-padding: 10px;
-}
-
-.upload-preview {
-    -fx-background-color: #E2E8F0;
-    -fx-text-fill: #64748B;
-    -fx-padding: 10px 14px;
-}
-
-.status-offered {
-    -fx-background-color: #E6F1F8;
-    -fx-text-fill: #2563EB;
-}
-
-.status-declined {
-    -fx-background-color: #F1F5F9;
-    -fx-text-fill: #64748B;
-}
-
 .danger-button {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #FCA5A5;
     -fx-border-radius: 6px;
     -fx-text-fill: #EF4444;
-}
-
-.filter-bar {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 10px;
-    -fx-border-color: #E5E7EB;
-    -fx-border-radius: 10px;
-    -fx-padding: 12px;
-}
-
-.notice-box-text {
-    -fx-background-color: #F0FDF4;
-    -fx-background-radius: 8px;
-    -fx-text-fill: #166534;
-    -fx-font-size: 11px;
-    -fx-padding: 10px;
-}
-
-.status-pill {
-    -fx-background-radius: 20px;
-    -fx-padding: 4px 12px;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-}
-
-.status-pending {
-    -fx-background-color: #FEF3C7;
-    -fx-text-fill: #B45309;
-}
-
-.status-accepted {
-    -fx-background-color: #DCFCE7;
-    -fx-text-fill: #15803D;
-}
-
-.status-completed {
-    -fx-background-color: #E0F2FE;
-    -fx-text-fill: #0369A1;
-}
-
-.small-button {
-    -fx-padding: 6px 12px;
 }
 
 /* ==========================================================================
@@ -465,36 +280,6 @@
 /* Sidebar Navigation */
 .sidebar-container {
     -fx-background-color: #03521E;
-}
-
-.sidebar-item-active {
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-background-radius: 8px;
-    -fx-padding: 10px 14px;
-    -fx-cursor: hand;
-}
-
-.sidebar-text-active {
-    -fx-font-family: 'Segoe UI', System, sans-serif;
-    -fx-font-weight: bold;
-    -fx-font-size: 13px;
-    -fx-text-fill: #FFFFFF;
-}
-
-.sidebar-item {
-    -fx-padding: 10px 14px;
-    -fx-background-radius: 8px;
-    -fx-cursor: hand;
-}
-
-.sidebar-item:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.08);
-}
-
-.sidebar-text {
-    -fx-font-family: 'Segoe UI', System, sans-serif;
-    -fx-font-size: 13px;
-    -fx-text-fill: #D1FAE5;
 }
 
 /* Shell sidebar buttons */
@@ -536,12 +321,6 @@
     -fx-font-size: 10px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-}
-
-.badge-count {
-    -fx-background-color: #D97706;
-    -fx-background-radius: 12px;
-    -fx-padding: 2px 8px;
 }
 
 /* Metric Cards */
@@ -770,12 +549,6 @@
     -fx-padding: 0 12px 12px;
 }
 
-.notification-badge {
-    -fx-background-color: #EA580C;
-    -fx-background-radius: 10px;
-    -fx-padding: 1px 5px;
-}
-
 /* Card Container Shadow & Radius */
 .card-container {
     -fx-background-color: #FFFFFF;
@@ -786,84 +559,14 @@
 }
 
 /* Registering as Segment Toggle */
-.segment-toggle-container {
-    -fx-background-color: #F3F4F6;
-    -fx-background-radius: 10px;
-    -fx-padding: 3px;
-}
-
-.segment-btn {
-    -fx-background-color: transparent;
-    -fx-text-fill: #6B7280;
-    -fx-font-size: 13px;
-    -fx-background-radius: 8px;
-    -fx-padding: 8px;
-    -fx-cursor: hand;
-}
-
-.segment-btn:hover {
-    -fx-text-fill: #111827;
-}
-
-.segment-btn:selected {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #111827;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 4, 0, 0, 1);
-}
 
 /* ==========================================================================
    REGISTER STEP INDICATOR
    ========================================================================== */
-.step-connector {
-    -fx-background-color: #D1D5DB;
-}
-
-.step-connector-done {
-    -fx-background-color: #03521E;
-}
-
-.step-dot-idle   { -fx-fill: #E5E7EB; }
-.step-dot-active { -fx-fill: #03521E; }
-.step-dot-done   { -fx-fill: #15803D; }
-
-.step-dot-text {
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #FFFFFF;
-}
-
-.step-dot-text-idle {
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #6B7280;
-}
-
-.step-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #6B7280;
-}
-
-.step-label-active {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
-.step-label-done {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #15803D;
-}
 
 /* ==========================================================================
    REGISTER DOCUMENTS
    ========================================================================== */
-.doc-title {
-    -fx-font-weight: bold;
-    -fx-font-size: 12px;
-    -fx-text-fill: #111827;
-}
 
 .required-star {
     -fx-font-weight: bold;
@@ -874,27 +577,6 @@
 .doc-subtitle {
     -fx-font-size: 11px;
     -fx-text-fill: #9CA3AF;
-}
-
-.file-pill {
-    -fx-background-color: #E6F4EA;
-    -fx-background-radius: 8px;
-    -fx-border-color: #BBF7D0;
-    -fx-border-radius: 8px;
-    -fx-padding: 8px 12px;
-}
-
-.file-name {
-    -fx-font-weight: bold;
-    -fx-font-size: 12px;
-    -fx-text-fill: #111827;
-}
-
-.link-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #6B7280;
-    -fx-font-size: 11px;
-    -fx-cursor: hand;
 }
 
 .upload-button {
@@ -913,11 +595,6 @@
 .small-check {
     -fx-font-size: 11px;
     -fx-text-fill: #4B5563;
-}
-
-.helper-note {
-    -fx-font-size: 11px;
-    -fx-text-fill: #6B7280;
 }
 
 .terms-link {
@@ -944,49 +621,15 @@
     -fx-text-fill: #111827;
 }
 
-.dashboard-unit {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #4B5563;
-}
-
 .dashboard-section-title {
     -fx-font-size: 17px;
     -fx-font-weight: bold;
     -fx-text-fill: #111827;
 }
 
-.dashboard-row-primary {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
-.dashboard-row-text {
-    -fx-font-size: 12px;
-    -fx-text-fill: #4B5563;
-}
-
-.listing-status-open {
-    -fx-background-color: #DCFCE7;
-    -fx-background-radius: 14px;
-    -fx-padding: 4px 10px;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #15803D;
-}
-
 /* ==========================================================================
    PENDING REGISTRATIONS / EXTRA TAGS
    ========================================================================== */
-.tag-new {
-    -fx-background-color: #F3F4F6;
-    -fx-background-radius: 4px;
-    -fx-padding: 1px 6px;
-    -fx-font-size: 10px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #4B5563;
-}
 
 .tag-reregistered {
     -fx-background-color: #FEF3C7;
@@ -1008,21 +651,6 @@
 }
 
 /* Suspend Button - Red Border & Red Text */
-.table-suspend-btn {
-    -fx-background-color: transparent;
-    -fx-border-color: #fca5a5; /* Light red border */
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
-    -fx-text-fill: #991b1b;    /* Dark red text */
-    -fx-font-weight: bold;
-    -fx-padding: 6px 16px;
-    -fx-cursor: hand;
-}
-
-.table-suspend-btn:hover {
-    -fx-background-color: #fef2f2; /* Light red fill on hover */
-    -fx-border-color: #f87171;
-}
 
 /* Modal Overlay Background */
 .modal-overlay {
