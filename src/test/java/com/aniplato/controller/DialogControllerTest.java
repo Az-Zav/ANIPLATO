@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
- * without anyone clicking through 17 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
+ * without anyone clicking through 17 popups (every popup is a DialogSpec drawn into the one card). Needs a desktop for the JavaFX toolkit; skipped without one.
  * A broken rule shows in the dialog's own message line (Inline), so the error paths are covered too.
  */
 class DialogControllerTest {
@@ -136,7 +136,7 @@ class DialogControllerTest {
                     throw new IllegalStateException(screen, e);
                 }
             });
-            assertEquals(17, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all seventeen dialogs");
+            assertEquals(1, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " has the one dialog card");
         }
     }
 
@@ -145,7 +145,7 @@ class DialogControllerTest {
     @Test
     void everyDialogStartsHidden() {
         assertEquals(0, shownCards().size());
-        assertEquals(17, fx(() -> root.lookupAll(".modal-card").size()), "all seventeen dialogs are on the screen");
+        assertEquals(1, fx(() -> root.lookupAll(".modal-card").size()), "one dialog card serves every popup");
     }
 
     @Test

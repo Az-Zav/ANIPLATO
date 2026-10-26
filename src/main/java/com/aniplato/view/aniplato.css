@@ -757,7 +757,7 @@
     -fx-font-size: 12px;
 }
 
-/* Inline messages (Inline.java): the bar above a screen, and the line under an open dialog */
+/* Inline messages (Inline.java): the bar above a screen. A dialog's line is a plain .error-text / .success-text label. */
 .page-message {
     -fx-background-color: #FEF2F2;
     -fx-border-color: #FECACA;
@@ -765,22 +765,6 @@
     -fx-padding: 10 24 10 24;
     -fx-text-fill: #B91C1C;
     -fx-font-size: 13px;
-}
-
-.modal-message {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 8px;
-    -fx-padding: 10 14 10 14;
-    -fx-font-size: 13px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 12, 0, 0, 3);
-}
-
-.modal-message.error-text {
-    -fx-text-fill: #B91C1C;
-}
-
-.modal-message.success-text {
-    -fx-text-fill: #166534;
 }
 
 /* Green Container Box (for Check_Button.svg) */

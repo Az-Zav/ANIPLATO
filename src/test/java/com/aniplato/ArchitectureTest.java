@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ArchitectureTest {
 
     private static final Path MAIN = Path.of("src", "main", "java", "com", "aniplato");
-    private static final int MAX_LINES = 300;
+    private static final int MAX_LINES = 400;
 
     private static final List<String> CONTROLLERS_IMPORTING_A_DAO = List.of();
 

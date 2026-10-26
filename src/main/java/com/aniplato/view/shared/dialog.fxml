@@ -3,8 +3,14 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<!--
+    The one dialog card. DialogController fills it from a DialogSpec: the icon, the heading and subheading, the content
+    blocks (inserted between the heading and the message line) and the buttons. There is no other dialog FXML.
+-->
 <VBox fx:id="overlay" alignment="CENTER" styleClass="modal-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.shared.DialogController">
     <stylesheets>
         <URL value="@../aniplato.css" />
@@ -13,27 +19,28 @@
         <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
     </padding>
     <children>
+        <VBox fx:id="card" managed="false" maxWidth="480.0" spacing="20.0" styleClass="modal-card" visible="false">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <HBox fx:id="header" spacing="16.0">
+                    <children>
+                        <StackPane fx:id="iconHost" />
+                        <VBox fx:id="headingBox" spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label fx:id="titleLabel" styleClass="modal-title" />
+                                <Label fx:id="subtitleLabel" styleClass="text-muted" wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
 
-        <!-- One file per dialog in dialog/, one controller each in controller/shared/dialog/. -->
-        <fx:include fx:id="reject" source="dialog/reject.fxml" />
-        <fx:include fx:id="approve" source="dialog/approve.fxml" />
-        <fx:include fx:id="resolveSafety" source="dialog/resolve-safety.fxml" />
-        <fx:include fx:id="suspend" source="dialog/suspend-account.fxml" />
-        <fx:include fx:id="reinstate" source="dialog/reinstate-account.fxml" />
-        <fx:include fx:id="cancelListing" source="dialog/cancel-listing.fxml" />
-        <fx:include fx:id="confirmRelease" source="dialog/confirm-release.fxml" />
-        <fx:include fx:id="flagSafety" source="dialog/flag-safety.fxml" />
-        <fx:include fx:id="acceptOffer" source="dialog/accept-offer.fxml" />
-        <fx:include fx:id="uploadRenewal" source="dialog/upload-renewal.fxml" />
-        <fx:include fx:id="setNewPassword" source="dialog/set-new-password.fxml" />
-        <fx:include fx:id="withdrawOffer" source="dialog/withdraw-offer.fxml" />
-        <fx:include fx:id="confirmReceipt" source="dialog/confirm-receipt.fxml" />
-        <fx:include fx:id="forgotPassword" source="dialog/forgot-password.fxml" />
-        <fx:include fx:id="upgradeBusinessDonor" source="dialog/upgrade-business-donor.fxml" />
-        <fx:include fx:id="noticeResolved" source="dialog/notice-resolved.fxml" />
-        <fx:include fx:id="editContact" source="dialog/edit-contact.fxml" />
+                <!-- Errors and confirmations of this dialog (Inline); hidden until there is something to say. -->
+                <Label fx:id="messageLabel" managed="false" maxWidth="1.7976931348623157E308" styleClass="modal-message, error-text" visible="false" wrapText="true" />
 
-        <!-- Errors and confirmations of whichever dialog is open (Inline). Hidden until there is something to say. -->
-        <Label fx:id="messageLabel" managed="false" maxWidth="448.0" styleClass="modal-message" visible="false" wrapText="true" />
+                <HBox fx:id="buttonRow" alignment="CENTER_LEFT" spacing="12.0" />
+            </children>
+        </VBox>
     </children>
 </VBox>
