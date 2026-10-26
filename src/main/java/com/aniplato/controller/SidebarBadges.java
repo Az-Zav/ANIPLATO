@@ -1,7 +1,6 @@
 package com.aniplato.controller;
 
-import com.aniplato.service.AcceptanceService;
-import com.aniplato.service.HandoffService;
+import com.aniplato.service.OfferService;
 import com.aniplato.service.StatsService;
 import javafx.scene.control.Label;
 
@@ -17,8 +16,7 @@ import java.util.List;
 final class SidebarBadges {
 
     private final StatsService statsService = new StatsService();
-    private final AcceptanceService acceptanceService = new AcceptanceService();
-    private final HandoffService handoffService = new HandoffService();
+    private final OfferService offerService = new OfferService();
     private final List<Label> badges = new ArrayList<>();
 
     /** Adds the badge for a key (pending, notices, decisions or handoffs) and returns it for the button. */
@@ -44,8 +42,8 @@ final class SidebarBadges {
             return switch (key) {
                 case "pending" -> statsService.getAdminSummary(LocalDate.now()).pendingRegistrations();
                 case "notices" -> statsService.getAdminSummary(LocalDate.now()).openSafetyNotices();
-                case "decisions" -> acceptanceService.countOffersAwaitingDecision();
-                case "handoffs" -> handoffService.countAwaitingHandoff();
+                case "decisions" -> offerService.countOffersAwaitingDecision();
+                case "handoffs" -> offerService.countAwaitingHandoff();
                 default -> 0;
             };
         } catch (RuntimeException e) {

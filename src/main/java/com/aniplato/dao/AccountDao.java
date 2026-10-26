@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +115,7 @@ public class AccountDao {
         }
     }
 
-    /** An account's contact number. Only AcceptanceService.getContactPhone (after it checks who may see it) and the owner's own upgrade read it (A7). */
+    /** An account's contact number. Only OfferService.getContactPhone (after it checks who may see it) and the owner's own upgrade read it (A7). */
     public String findContactPhone(Connection c, int accountId) throws SQLException {
         String sql = "SELECT r.contact_phone FROM account a JOIN registration r ON r.registration_id = a.registration_id "
                 + "WHERE a.account_id = ?";

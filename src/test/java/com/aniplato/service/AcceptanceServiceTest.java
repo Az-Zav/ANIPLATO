@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Stage 4: the poster's list of offers, accept, decline, and who sees a contact number (R4.1 to R4.3, A7). */
 class AcceptanceServiceTest extends DbTest {
 
-    private final AcceptanceService acceptance = new AcceptanceService();
+    private final OfferService acceptance = new OfferService();
 
     private String offerStatus(int id) {
         return TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", id);

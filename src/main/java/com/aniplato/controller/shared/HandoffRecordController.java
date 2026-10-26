@@ -4,7 +4,7 @@ import com.aniplato.controller.Cards;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.model.HandoffRecord;
 import com.aniplato.model.Report;
-import com.aniplato.service.HandoffService;
+import com.aniplato.service.OfferService;
 import com.aniplato.service.ReportService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
@@ -16,7 +16,7 @@ import javafx.scene.layout.VBox;
 /** The handoff record and, once submitted, its report, read-only. Shared screen: it never checks the role (A5). */
 public class HandoffRecordController {
 
-    private final HandoffService handoffService = new HandoffService();
+    private final OfferService offerService = new OfferService();
     private final ReportService reportService = new ReportService();
     private int offerId;
 
@@ -27,7 +27,7 @@ public class HandoffRecordController {
     @FXML
     private void initialize() {
         offerId = Selection.offerId();
-        HandoffRecord record = FormSupport.load(() -> handoffService.getHandoffRecord(offerId), null);
+        HandoffRecord record = FormSupport.load(() -> offerService.getHandoffRecord(offerId), null);
         boolean canSubmit = record != null && FormSupport.load(() -> reportService.canSubmit(offerId), false);
         submitReportButton.setVisible(canSubmit);
         submitReportButton.setManaged(canSubmit);

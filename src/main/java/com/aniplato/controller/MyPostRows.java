@@ -3,8 +3,7 @@ package com.aniplato.controller;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
-import com.aniplato.service.AcceptanceService;
-import com.aniplato.service.HandoffService;
+import com.aniplato.service.OfferService;
 import com.aniplato.service.PostService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
@@ -22,8 +21,7 @@ import java.util.List;
 public final class MyPostRows {
 
     private final PostService postService = new PostService();
-    private final HandoffService handoffService = new HandoffService();
-    private final AcceptanceService acceptanceService = new AcceptanceService();
+    private final OfferService offerService = new OfferService();
     private final DialogController dialog;
     private final Runnable refresh;
 
@@ -72,7 +70,7 @@ public final class MyPostRows {
     private Node contactLine(Post post) {
         Offer offer = post.acceptedOffer;
         if (offer.status != Offer.Status.ACCEPTED) return Cards.muted("Completed with " + offer.offererName);
-        String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "unavailable");
+        String phone = FormSupport.load(() -> offerService.getContactPhone(offer.offererId, offer.id), "unavailable");
         return Cards.line("Accepted: " + offer.offererName + "  |  " + FormSupport.kg(offer.kg) + "  |  contact " + phone
                 + (released(offer) ? "  |  food released " + FormSupport.when(offer.releasedAt) : ""));
     }
@@ -82,19 +80,19 @@ public final class MyPostRows {
     }
 
     private void confirmRelease(Post post, Offer offer) {
-        String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "");
+        String phone = FormSupport.load(() -> offerService.getContactPhone(offer.offererId, offer.id), "");
         dialog.showConfirmReleaseMode(post.food.description, FormSupport.kg(offer.kg), offer.offererName,
                 FormSupport.when(offer.pickupDeadline()), phone, offer.id, () -> {
-                    handoffService.confirmRelease(offer.id);
+                    offerService.confirmRelease(offer.id);
                     refresh.run();
                 });
     }
 
     private void confirmReceipt(Post post, Offer offer) {
-        String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.offererId, offer.id), "");
+        String phone = FormSupport.load(() -> offerService.getContactPhone(offer.offererId, offer.id), "");
         dialog.showConfirmReceiptMode(offer.food.description, FormSupport.kg(offer.kg), offer.offererName,
                 FormSupport.when(offer.food.pickupEnd), phone, FormSupport.when(offer.releasedAt), offer.id, () -> {
-                    handoffService.confirmReceipt(offer.id);
+                    offerService.confirmReceipt(offer.id);
                     refresh.run();
                 });
     }

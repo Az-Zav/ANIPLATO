@@ -3,8 +3,6 @@ package com.aniplato.controller;
 import com.aniplato.controller.shared.DialogController;
 import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
-import com.aniplato.service.AcceptanceService;
-import com.aniplato.service.HandoffService;
 import com.aniplato.service.OfferService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
@@ -22,8 +20,6 @@ import java.util.List;
 public final class MyOfferRows {
 
     private final OfferService offerService = new OfferService();
-    private final HandoffService handoffService = new HandoffService();
-    private final AcceptanceService acceptanceService = new AcceptanceService();
     private final DialogController dialog;
     private final Runnable refresh;
 
@@ -57,7 +53,7 @@ public final class MyOfferRows {
 
     private String contact(Offer offer) {
         if (offer.status == Offer.Status.COMPLETED) return "Completed with " + offer.post.posterName;
-        String phone = FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), "unavailable");
+        String phone = FormSupport.load(() -> offerService.getContactPhone(offer.post.posterId, offer.id), "unavailable");
         return "Accepted by " + offer.post.posterName + "  |  contact " + phone;
     }
 
@@ -65,8 +61,8 @@ public final class MyOfferRows {
     private Button confirmRelease(Offer offer) {
         return Cards.primary("Confirm release", () -> dialog.showConfirmReleaseMode(offer.food.description,
                 FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.food.pickupEnd),
-                FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""), offer.id, () -> {
-                    handoffService.confirmRelease(offer.id);
+                FormSupport.load(() -> offerService.getContactPhone(offer.post.posterId, offer.id), ""), offer.id, () -> {
+                    offerService.confirmRelease(offer.id);
                     refresh.run();
                 }));
     }
@@ -75,9 +71,9 @@ public final class MyOfferRows {
     private Button confirmReceipt(Offer offer) {
         return Cards.primary("Confirm receipt", () -> dialog.showConfirmReceiptMode(offer.post.food.description,
                 FormSupport.kg(offer.kg), offer.post.posterName, FormSupport.when(offer.use.dueAt),
-                FormSupport.load(() -> acceptanceService.getContactPhone(offer.post.posterId, offer.id), ""),
+                FormSupport.load(() -> offerService.getContactPhone(offer.post.posterId, offer.id), ""),
                 FormSupport.when(offer.releasedAt), offer.id, () -> {
-                    handoffService.confirmReceipt(offer.id);
+                    offerService.confirmReceipt(offer.id);
                     refresh.run();
                 }));
     }

@@ -1,5 +1,6 @@
 package com.aniplato.service;
 
+import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DetailDao;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
@@ -9,13 +10,17 @@ import com.aniplato.dao.PostDao;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 import com.aniplato.model.FoodDetail;
+import com.aniplato.model.HandoffRecord;
 import com.aniplato.model.Offer;
 import com.aniplato.model.Post;
 import com.aniplato.model.UseDetail;
 import com.aniplato.util.Database;
 import com.aniplato.util.Session;
+import com.aniplato.util.Settings;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,7 +33,10 @@ import static com.aniplato.service.DetailRules.requireAttestation;
 import static com.aniplato.service.DetailRules.requireKg;
 import static com.aniplato.service.DetailRules.requireText;
 
-/** Offers on both routes (stage 3): send and withdraw, and the offerer's own list. Accept, handoff and contacts come in later steps. */
+/**
+ * Offers on both routes (spec 7.3): send and withdraw (stage 3); the poster's list, accept, decline and the contact
+ * numbers (stage 4); release, receipt and the handoff record (stage 5); and the two automatic checks that act on offers.
+ */
 public class OfferService {
 
     private static final String OFFER_ENTITY = "OFFER";
@@ -38,8 +46,10 @@ public class OfferService {
     private final PostDao postDao = new PostDao();
     private final DetailDao detailDao = new DetailDao();
     private final PhotoDao photoDao = new PhotoDao();
+    private final AccountDao accountDao = new AccountDao();
     private final LogDao logDao = new LogDao();
     private final FileStorageService fileStorageService = new FileStorageService();
+    private final PostService postService = new PostService();
 
     /** What a food group enters to offer on a listing (3A). The kg is the listing's whole quantity. */
     public record ListingOfferForm(int postId, String useDescription, LocalDate eventDate, String beneficiaries,
@@ -162,6 +172,182 @@ public class OfferService {
         });
     }
 
+    //---THE POSTER'S LIST---
+
+    /**
+     * Offers on the logged-in account's posts, newest first, each with its post and photos. Withdrawn offers and
+     * Offered offers from a Suspended offerer are left out. A donor's handover text on an offer to a request
+     * stays hidden until the offer is accepted (R2.1).
+     */
+    public List<Offer> getIncomingOffers() {
+        Account me = Session.require();
+        return Database.inTransaction("Could not load the offers", c -> {
+            List<Offer> offers = offerDao.findIncoming(c, me.id);
+            for (Offer offer : offers) {
+                offer.photos = photoDao.findPaths(c, PhotoDao.Owner.OFFER, offer.id);
+                offer.post = postDao.findById(c, offer.postId);
+                offer.post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, offer.postId);
+                boolean accepted = offer.status == Offer.Status.ACCEPTED || offer.status == Offer.Status.COMPLETED;
+                if (offer.food != null && !accepted) offer.food.handoverInstructions = null;
+            }
+            return offers;
+        });
+    }
+
+    /** How many Offered offers are waiting for the logged-in poster's decision: the donor's sidebar badge. */
+    public int countOffersAwaitingDecision() {
+        Account me = Session.require();
+        return Database.inTransaction("Could not count the offers", c -> offerDao.countAwaitingDecision(c, me.id));
+    }
+
+    //---ACCEPT AND DECLINE---
+
+    /**
+     * The poster accepts one Offered offer (R4.1). In one transaction: that offer is Accepted, every other Offered
+     * offer on the post is Declined, and the post is Accepted. If any part fails, nothing changes (A2).
+     */
+    public void accept(int offerId) {
+        Account me = Session.require();
+        if (!me.canPostOrOffer()) throw new RuleViolationException("A suspended account cannot accept offers.");
+        Database.inTransaction("Could not accept the offer", c -> {
+            Offer offer = requireOwnOfferOnPost(c, offerId, me);
+            Post post = postDao.findForUpdate(c, offer.postId);
+            if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + post.noun() + " is no longer open.");
+            offer = offerDao.findById(c, offerId);   // read again now that the post is locked
+            if (offer.status != Offer.Status.OFFERED) throw new RuleViolationException("Only an Offered offer can be accepted.");
+            if (offer.offererSuspended) throw new RuleViolationException("This offer is not available right now.");
+            if (!offer.pickupDeadline().isAfter(LocalDateTime.now())) throw new RuleViolationException("This offer has expired.");
+            changeOfferStatus(c, offerId, Offer.Status.OFFERED, Offer.Status.ACCEPTED, me.id);
+            for (int other : offerDao.findOfferedIdsExcept(c, post.id, offerId)) {
+                changeOfferStatus(c, other, Offer.Status.OFFERED, Offer.Status.DECLINED, me.id);
+            }
+            postService.changeStatus(c, post.id, Post.Status.OPEN, Post.Status.ACCEPTED, null, me.id);
+            return null;
+        });
+    }
+
+    /** The poster declines one Offered offer (R4.2). The offerer sees Declined and cannot offer on this post again. */
+    public void decline(int offerId) {
+        Account me = Session.require();
+        Database.inTransaction("Could not decline the offer", c -> {
+            requireOwnOfferOnPost(c, offerId, me);
+            if (offerDao.updateStatusIf(c, offerId, Offer.Status.OFFERED, Offer.Status.DECLINED) == 0) {
+                throw new RuleViolationException("Only an Offered offer can be declined.");
+            }
+            logDao.logStatusChange(c, OFFER_ENTITY, offerId, Offer.Status.OFFERED.name(), Offer.Status.DECLINED.name(), null, me.id);   // A3
+            return null;
+        });
+    }
+
+    //---CONTACT NUMBERS (A7)---
+
+    /**
+     * The one place a phone number leaves the database (A7). The owner and an admin may read any number they ask
+     * for; otherwise only the other side of an Accepted offer, until the handoff closes (R4.3).
+     */
+    public String getContactPhone(int accountId, int offerId) {
+        Account me = Session.require();
+        return Database.inTransaction("Could not load the contact number", c -> {
+            boolean allowed = me.id == accountId || me.role == Account.Role.ADMIN;
+            if (!allowed) {
+                OfferDao.Parties parties = offerDao.findParties(c, offerId);
+                boolean otherSide = parties != null
+                        && ((me.id == parties.offererId() && accountId == parties.posterId())
+                        || (me.id == parties.posterId() && accountId == parties.offererId()));
+                allowed = otherSide && offerDao.findStatus(c, offerId) == Offer.Status.ACCEPTED;
+            }
+            if (!allowed) throw new RuleViolationException("You can see this contact number only on an accepted offer.");
+            return accountDao.findContactPhone(c, accountId);
+        });
+    }
+
+    //---RELEASE AND RECEIPT---
+
+    /** At pickup the donor confirms the food was handed over (R5.1). Only on an Accepted offer, once. */
+    public void confirmRelease(int offerId) {
+        Account me = Session.require();
+        Database.inTransaction("Could not confirm the release", c -> {
+            Offer offer = requireOffer(c, offerId);
+            Post post = postDao.findById(c, offer.postId);
+            if (me.id != supplierId(offer, post)) throw new RuleViolationException("Only the donor can confirm release.");
+            if (offer.status != Offer.Status.ACCEPTED) throw new RuleViolationException("Only an Accepted offer can be released.");
+            if (offerDao.markReleasedIf(c, offerId, LocalDateTime.now()) == 0) {
+                throw new RuleViolationException("Release was already confirmed.");
+            }
+            return null;   // no status changes yet, so nothing to log (A3)
+        });
+    }
+
+    /**
+     * The food group confirms it received the food (R5.2). Only after the donor confirmed release. One transaction:
+     * the offer is Completed with the receipt time, the post is Rescued, both logged (A2, A3).
+     */
+    public void confirmReceipt(int offerId) {
+        Account me = Session.require();
+        Database.inTransaction("Could not confirm the receipt", c -> {
+            Offer offer = requireOffer(c, offerId);
+            Post post = postDao.findForUpdate(c, offer.postId);
+            if (me.id != receiverId(offer, post)) throw new RuleViolationException("Only the food group can confirm receipt.");
+            if (offer.status == Offer.Status.COMPLETED) throw new RuleViolationException("This handoff is already complete.");
+            if (offer.status != Offer.Status.ACCEPTED) throw new RuleViolationException("Only an Accepted offer can be received.");
+            if (offerDao.completeIfReleased(c, offerId, LocalDateTime.now()) == 0) {
+                throw new RuleViolationException("Receipt can be confirmed only after the donor confirms release.");
+            }
+            logDao.logStatusChange(c, OFFER_ENTITY, offerId, Offer.Status.ACCEPTED.name(), Offer.Status.COMPLETED.name(), null, me.id);
+            postService.changeStatus(c, post.id, Post.Status.ACCEPTED, Post.Status.RESCUED, null, me.id);
+            return null;
+        });
+    }
+
+    //---THE RECORD---
+
+    /** The handoff record of a Completed offer, for either side of it. Worked out, not stored (A9). */
+    public HandoffRecord getHandoffRecord(int offerId) {
+        Account me = Session.require();
+        return Database.inTransaction("Could not load the handoff record", c -> {
+            Offer offer = requireOffer(c, offerId);
+            Post post = postDao.findById(c, offer.postId);
+            boolean side = me.id == offer.offererId || me.id == post.posterId;
+            if (!side && me.role != Account.Role.ADMIN) throw new RuleViolationException("Only the two sides of a handoff can see its record.");
+            if (offer.status != Offer.Status.COMPLETED) throw new RuleViolationException("A record exists once the handoff is complete.");
+            boolean listing = post.isListing();
+            String food = listing ? post.food.description : offer.food.description;
+            var category = listing ? post.food.category : offer.food.category;
+            var use = listing ? offer.use : post.use;
+            String number = "HR-" + offer.receivedAt.getYear() + "-" + String.format("%04d", offer.id);
+            return new HandoffRecord(number, offer.id, listing ? post.posterName : offer.offererName,
+                    listing ? offer.offererName : post.posterName, food, category, offer.kg, offer.releasedAt,
+                    offer.receivedAt, use.useDescription, use.beneficiaries, use.headcount, use.place,
+                    offer.receivedAt.plusDays(Settings.REPORT_DEADLINE_DAYS));
+        });
+    }
+
+    /** Accepted offers waiting for pickup or receipt that the logged-in account is a side of: the food group's sidebar badge. */
+    public int countAwaitingHandoff() {
+        Account me = Session.require();
+        return Database.inTransaction("Could not count the handoffs", c -> offerDao.countAcceptedFor(c, me.id));
+    }
+
+    //---AUTOMATIC CHECK (6.6, step 1)---
+
+    /**
+     * Lapse: an Accepted offer with no release 2 hours after its pickup time (Route 1) or window end (Route 2) becomes
+     * Lapsed and its post Expired. Once the donor confirmed release the offer no longer lapses (M1). Logged by the system (A3).
+     */
+    public void lapseMissedPickups(LocalDateTime now) {
+        LocalDateTime cutoff = now.minusHours(Settings.PICKUP_GRACE_HOURS);
+        Database.inTransaction("Could not lapse missed pickups", c -> {
+            for (OfferSweepDao.MissedPickup missed : offerSweepDao.findMissedPickups(c, cutoff)) {
+                if (offerDao.updateStatusIf(c, missed.offerId(), Offer.Status.ACCEPTED, Offer.Status.LAPSED) > 0) {
+                    logDao.logStatusChange(c, OFFER_ENTITY, missed.offerId(), Offer.Status.ACCEPTED.name(),
+                            Offer.Status.LAPSED.name(), "Pickup missed", null);
+                    postService.changeStatus(c, missed.postId(), Post.Status.ACCEPTED, Post.Status.EXPIRED, "Pickup missed", null);
+                }
+            }
+            return null;
+        });
+    }
+
     //---HELPERS---
 
     /** Saves the photos, then the offer, its detail and photos in one transaction; removes the files if it fails (M4). */
@@ -217,5 +403,38 @@ public class OfferService {
         if (!List.of(allowed).contains(me.role)) throw new RuleViolationException(wrongRoleMessage);
         if (!me.canPostOrOffer()) throw new RuleViolationException("A suspended account cannot send offers.");
         return me;
+    }
+
+
+    /** The offer, if it exists and is on a post the account made. */
+    private Offer requireOwnOfferOnPost(Connection c, int offerId, Account me) throws SQLException {
+        Offer offer = offerDao.findById(c, offerId);
+        if (offer == null) throw new RuleViolationException("That offer no longer exists.");
+        Post post = postDao.findById(c, offer.postId);
+        if (post.posterId != me.id) throw new RuleViolationException("Only the poster can decide on this offer.");
+        return offer;
+    }
+
+    private void changeOfferStatus(Connection c, int offerId, Offer.Status from, Offer.Status to, int changedBy)
+            throws SQLException {
+        if (offerDao.updateStatusIf(c, offerId, from, to) == 0) throw new RuleViolationException("This offer has already changed.");
+        logDao.logStatusChange(c, OFFER_ENTITY, offerId, from.name(), to.name(), null, changedBy);   // A3
+    }
+
+
+    private Offer requireOffer(Connection c, int offerId) throws SQLException {
+        Offer offer = offerDao.findById(c, offerId);
+        if (offer == null) throw new RuleViolationException("That offer no longer exists.");
+        return offer;
+    }
+
+    /** The donor: whoever posted a listing, or whoever offered on a request. */
+    private static int supplierId(Offer offer, Post post) {
+        return post.isListing() ? post.posterId : offer.offererId;
+    }
+
+    /** The food group: whoever offered on a listing, or whoever posted a request. */
+    private static int receiverId(Offer offer, Post post) {
+        return post.isListing() ? offer.offererId : post.posterId;
     }
 }

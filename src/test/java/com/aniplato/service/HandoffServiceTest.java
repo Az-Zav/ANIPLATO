@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /** Stage 5: release, then receipt, and the handoff record (R5.1, R5.2). The donor releases and the food group receives on both routes. */
 class HandoffServiceTest extends DbTest {
 
-    private final HandoffService handoff = new HandoffService();
+    private final OfferService handoff = new OfferService();
 
     private String offerStatus(int id) {
         return TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", id);

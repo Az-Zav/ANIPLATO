@@ -12,16 +12,15 @@ import java.time.LocalDateTime;
  */
 public class MaintenanceService {
 
-    private final HandoffService handoffService = new HandoffService();
-    private final PostService postService = new PostService();
     private final OfferService offerService = new OfferService();
+    private final PostService postService = new PostService();
     private final ReportService reportService = new ReportService();
     private final AccountStatusService accountStatusService = new AccountStatusService();
 
     /** Runs every check. A check that fails throws to the caller; the shell decides what to do. */
     public void runMaintenance() {
         LocalDateTime now = LocalDateTime.now();
-        handoffService.lapseMissedPickups(now);                            // 1. accepted offer past its pickup grace: Lapsed, post Expired
+        offerService.lapseMissedPickups(now);                            // 1. accepted offer past its pickup grace: Lapsed, post Expired
         postService.expireOpenPosts(Post.Kind.LISTING, now);               // 2. open listing past its use-by: Expired, its offers expire
         postService.expireOpenPosts(Post.Kind.REQUEST, now);               // 3. open request past its needed-by: Expired, its offers expire
         offerService.expireUnansweredOffers(now);                          // 4. offered offer past its pickup time: Expired
