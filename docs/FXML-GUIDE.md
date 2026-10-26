@@ -390,7 +390,7 @@ private void handleSave() {
         authenticationService.changePassword(newPasswordField.getText());   // R1.7
         Navigator.show(Screen.PROFILE);
     } catch (RuleViolationException e) {
-        DialogController.showError(e.getMessage());                         // A8
+        Inline.error(e.getMessage());                                       // A8
     }
 }
 ```

@@ -22,16 +22,16 @@ Demo logins, password `Aniplato123!` for all: `admin@aniplato.test`, `business@a
 src/main/java/com/aniplato/
   Main.java
   model/       entities and enums
-  view/        FXML + CSS (admin/, donor/, foodgroup/, shared/, shared/dialog/)
-  controller/  one per screen (admin/, donor/, foodgroup/, shared/); shared/dialog/ has one per popup
+  view/        FXML + CSS (admin/, donor/, foodgroup/, shared/); shared/dialog.fxml is the one popup card
+  controller/  one per screen (admin/, donor/, foodgroup/, shared/); DialogController + DialogSpec draw every popup
   service/     business rules, one transaction per action
   dao/         SQL only, one per table
   exception/   RuleViolationException
   util/        AppConfig, Database, PasswordHasher, Settings, Session, Navigator
 src/test/      tests (service rules, FXML wiring, popups, architecture rules)
 sql/           schema.sql, seed.sql, seed-admin-demo.sql, seed-demo.sql, demo-photos/
-scripts/       new-methods.sh (lists the methods a branch adds, for review)
-docs/          MAP.md (what exists), FLOWS.md (what to build), ARCHITECTURE.md (schema + diagrams)
+scripts/       new-methods.sh (lists the methods a branch adds), callgraph.py (writes docs/CALL-GRAPH.md)
+docs/          GUIDE.md (how the code is organised), CALL-GRAPH.md (who calls whom), ARCHITECTURE.md (schema + diagrams), FLOWS.md (the original blueprints)
 uploads/       documents and photos (git-ignored; folder set by uploads.dir in db.properties)
 ```
-Start with `AGENTS.md` (how to add code), then `docs/MAP.md`. `CLAUDE.md` has the coding rules and `docs/Project Spec.md` the full spec.
+Start with `docs/GUIDE.md`, then `AGENTS.md` (how to add code). `CLAUDE.md` has the coding rules and `docs/Project Spec.md` the full spec.

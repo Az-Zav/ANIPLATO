@@ -16,7 +16,7 @@ Notation: `Screen → Controller.handler → Service.method → Dao.method → t
 
 Tags: **[built]** exists, fits the schema and has tests · **[new]** does not exist yet. The old **[stale]** code (the `listing` model) was deleted in the cleanup.
 
-**What exists today is in [MAP.md](MAP.md); how to build the rest is the Blueprints section at the end of this file. Read MAP first.**
+**What exists today is in MAP.md (removed; see [GUIDE.md](GUIDE.md)); how to build the rest is the Blueprints section at the end of this file. The code is the map now: read [GUIDE.md](GUIDE.md) first.**
 
 ## Screens (Figma file H5M7MWgWL1sqJMN3dZ8PyF, page "V2 (edited)", is the source of truth)
 Figma frames that differ by role or account type are **variants of one shared screen** (A5: the screen never checks role; differences come from the Account subclass or the data). The spec's 7.2 tree is outdated; Figma wins.
@@ -77,7 +77,7 @@ Each module wires screens that already exist in FXML to the call chains below (t
 
 ## How to read the diagrams
 
-Dashed boxes are **planned**; a solid green outline is something that **already exists** and is reused. Colours: blue = screen, grey = controller, green = service, orange = DAO, purple = table. A dotted arrow back to the controller is a broken rule shown as a message. Method names are proposals (C7). The built features have their diagrams in [MAP.md](MAP.md) section 5 (AUTH, REGISTER, REVIEW, ACCOUNTS, PROFILE, SAFETY, STATS, MAINT, SHELL, POPUPS, PLATFORM).
+Dashed boxes are **planned**; a solid green outline is something that **already exists** and is reused. Colours: blue = screen, grey = controller, green = service, orange = DAO, purple = table. A dotted arrow back to the controller is a broken rule shown as a message. Method names are proposals (C7). The built features have their diagrams in MAP.md (removed; see [GUIDE.md](GUIDE.md)) section 5 (AUTH, REGISTER, REVIEW, ACCOUNTS, PROFILE, SAFETY, STATS, MAINT, SHELL, POPUPS, PLATFORM).
 
 ## 1. Login: built
 See MAP.md, AUTH. Nothing to build. A temporary password (R1.7): `LoginController` asks `AuthenticationService.mustChangePassword()` and opens the Set a new password dialog; `Navigator.show` keeps the shell closed while the password is temporary, and Back on that dialog logs out.
@@ -87,7 +87,7 @@ See MAP.md, REGISTER and REVIEW. Nothing to build.
 
 ## 3a. Post a listing (Route 1): Stage 2A
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -124,7 +124,7 @@ Rules: account Active and documents current, kg above 0, use-by in the future, w
 
 ## 3b. Post a request (Route 2): Stage 2B
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -155,7 +155,7 @@ Reuses everything from 3a. Rows on My Requests: Review offers, Confirm Receipt, 
 
 ## 4. Browse and offer: Stage 3
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -195,7 +195,7 @@ Rules: listings and requests in the viewer's city first; posts from suspended po
 
 ## 5. Accept or decline an offer: Stage 4
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -229,7 +229,7 @@ flowchart LR
 
 ## 6. Handoff, receipt and cancel: Stages 5 and 6
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -270,7 +270,7 @@ The record number is `HR-year-offer_id`, derived and never stored; it says it is
 
 ## 7. Report and safety notice: Stage 5 (report), 6.3
 
-> **Report built in round 3; the safety-notice part was already built.** The Flag Concern dialog is the one piece not wired. See [MAP.md](MAP.md).
+> **Report built in round 3; the safety-notice part was already built.** The Flag Concern dialog is the one piece not wired. See MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 
 ```mermaid
 flowchart LR
@@ -344,7 +344,7 @@ All values are derived on read (A9). The admin dashboard and reports are built (
 
 ## 10. Maintenance: 6.6
 
-> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in [MAP.md](MAP.md).
+> **Built in round 3.** The diagram below is the original plan; the real call chains and tests are in MAP.md (removed; see [GUIDE.md](GUIDE.md)).
 Built and attached (MAP.md, MAINT). Each module below adds exactly one line to `MaintenanceService.runMaintenance`, at the position 6.6 gives it, with a test in `MaintenanceServiceTest`:
 
 | Order | Line | Added by |
@@ -366,7 +366,7 @@ Built (MAP.md, SHELL). The sidebar matches Figma V2 for both roles and shows the
 
 # Blueprints: what to build, module by module
 
-Read [MAP.md](MAP.md) first (what exists), then your module here. Modules 1 to 3 are built and tested, so they have no blueprint.
+Read MAP.md (removed; see [GUIDE.md](GUIDE.md)) first (what exists), then your module here. Modules 1 to 3 are built and tested, so they have no blueprint.
 
 **How to use one**
 1. Give your AI `AGENTS.md` and your blueprint. Ask it to build **one layer at a time** (DAO, then Service, then Controller) and to list the files and the existing methods it will reuse **before** writing.

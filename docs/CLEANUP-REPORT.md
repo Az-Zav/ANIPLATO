@@ -1,8 +1,28 @@
 # Cleanup report
 
-Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**; round 4 (the last features) is 6 more after **`cleanup-round-3`**; round 5 (the audit cleanup) is 18 more after **`cleanup-round-4`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
+Branch `ccr-f2e57831-6tfkkw` (rounds 1-5); round 6 is described first. Round 1 is 12 commits after the tag **`pre-cleanup`** (the code as it was); round 2 is 14 more after the tag **`cleanup-round-1`**; round 3 (new features) is 7 more after the tag **`cleanup-round-2`**; round 4 (the last features) is 6 more after **`cleanup-round-3`**; round 5 (the audit cleanup) is 18 more after **`cleanup-round-4`**, described first. Rounds 1 and 2 were **behavior-preserving**: no new features, bugs found are written down and not fixed.
 
 **To undo everything:** `git checkout pre-cleanup`. **To undo one step:** `git revert <commit>` using the table below.
+
+## Round 6: simplify (branch `simplify-codebase`)
+
+One commit per slice, the full suite run after each, **no rule or message changed** except the two flagged below. Tag **`pre-simplify`** is the code before the round; **To undo the round:** `git checkout pre-simplify`. The suite was run on MariaDB 10.11 (285 tests before; one, `RegistrationDecisionTest.anApplicantRejectedBeforeIsMarkedRegisteredAgain`, fails on the untouched code as well and was not investigated).
+
+| # | Commit | Slice | Behavior |
+|---|---|---|---|
+| 1 | b2b3069 | 61 unused CSS classes removed (JavaFX's own `modena.css` classes kept); screens rendered pixel-identical | same |
+| 2 | 8624556 | `docs/MAP.md` and `MapCoverageTest` deleted | docs only |
+| 3 | 1fad15a | `Inline`: errors and confirmations are labels on the screen; both `Alert` calls gone; `ArchitectureTest` forbids `Alert` | **changed**: messages are inline, not pop-ups |
+| 4 | ba51a42 | One controller for each donor/food-group pair (8 controllers to 4); `PostService.getOpenBoard` | same |
+| 5 | 53f5bb9 | 17 dialog FXMLs and controllers become one card drawn from a `DialogSpec`; 20 of 23 renders pixel-identical, the rest focus ring, caret, one 4px gap | **changed**: Approve shows a broken rule inside the dialog and stays open |
+| 6 | 05dae1f | `AdminTable` row helpers and `AdminSelection` folded into `TableRows` and `Selection` | same |
+| 7 | d448e60 | `AcceptanceService`, `HandoffService` into `OfferService` | same |
+| 8 | b7eae87 | `DashboardService`, `HistoryService` into `StatsService` | same |
+| 9 | 20c0d42 | `AccountStatusService`, `DocumentReviewService`, `ProfileService` into `RegistrationService` | same |
+| 10 | 2bbc182 | `OfferStatsDao`, `OfferSweepDao` into `OfferDao` | same |
+| 11 | this commit | `docs/GUIDE.md`, `docs/CALL-GRAPH.md` and `scripts/callgraph.py`; README, AGENTS and the other docs point at them | docs only |
+
+**Size:** main Java 10,541 to 9,997 lines; controllers 64 to 43 files; services 18 to 11 (the spec's ten plus `DetailRules`); DAOs 14 to 12; FXML 47 to 30 files and 4,251 to 3,400 lines; CSS 1,165 to 808 lines. The size cap in `ArchitectureTest` is 600 lines (it was 300).
 
 ## Round 5: the audit cleanup
 
