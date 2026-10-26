@@ -4,7 +4,6 @@ import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DocumentDao;
 import com.aniplato.dao.HistoryDao;
 import com.aniplato.dao.OfferDao;
-import com.aniplato.dao.OfferStatsDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.dao.RegistrationDao;
 import com.aniplato.dao.ReportDao;
@@ -51,7 +50,6 @@ public class StatsService {
                                 List<CityRow> cities) { }
 
     private final PostDao postDao = new PostDao();
-    private final OfferStatsDao offerDao = new OfferStatsDao();
     private final ReportDao reportDao = new ReportDao();
     private final RegistrationDao registrationDao = new RegistrationDao();
     private final AccountDao accountDao = new AccountDao();
@@ -115,10 +113,10 @@ public class StatsService {
                     sum(totals, PostDao.CityTotals::kgRescued),
                     sum(totals, PostDao.CityTotals::kgExpired),
                     rate(sum(totals, PostDao.CityTotals::kgRescued), sum(totals, PostDao.CityTotals::kgClosed)),
-                    offerDao.countCompleted(c, from, to),
+                    offers.countCompleted(c, from, to),
                     reportDao.sumPeopleServed(c, from, to),
                     rate(postDao.countWithAcceptedOffer(c, from, to), postDao.countWithOffers(c, from, to)),
-                    rate(offerDao.countLapsed(c, from, to), offerDao.countAccepted(c, from, to)),
+                    rate(offers.countLapsed(c, from, to), offers.countAccepted(c, from, to)),
                     rate(reportDao.countReportedOnTime(c, from, to, days, now),
                             reportDao.countHandoffsPastDeadline(c, from, to, days, now)),
                     cities);

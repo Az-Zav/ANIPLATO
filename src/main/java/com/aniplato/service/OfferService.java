@@ -4,7 +4,6 @@ import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DetailDao;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
-import com.aniplato.dao.OfferSweepDao;
 import com.aniplato.dao.PhotoDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.exception.RuleViolationException;
@@ -42,7 +41,6 @@ public class OfferService {
     private static final String OFFER_ENTITY = "OFFER";
 
     private final OfferDao offerDao = new OfferDao();
-    private final OfferSweepDao offerSweepDao = new OfferSweepDao();
     private final PostDao postDao = new PostDao();
     private final DetailDao detailDao = new DetailDao();
     private final PhotoDao photoDao = new PhotoDao();
@@ -162,7 +160,7 @@ public class OfferService {
     /** An Offered offer nobody answered by its pickup time (Route 1) or window end (Route 2) becomes Expired. Logged by the system (A3). */
     public void expireUnansweredOffers(LocalDateTime now) {
         Database.inTransaction("Could not expire unanswered offers", c -> {
-            for (int offerId : offerSweepDao.findUnansweredPastPickup(c, now)) {
+            for (int offerId : offerDao.findUnansweredPastPickup(c, now)) {
                 if (offerDao.updateStatusIf(c, offerId, Offer.Status.OFFERED, Offer.Status.EXPIRED) > 0) {
                     logDao.logStatusChange(c, OFFER_ENTITY, offerId, Offer.Status.OFFERED.name(), Offer.Status.EXPIRED.name(),
                             "Pickup time passed", null);
@@ -337,7 +335,7 @@ public class OfferService {
     public void lapseMissedPickups(LocalDateTime now) {
         LocalDateTime cutoff = now.minusHours(Settings.PICKUP_GRACE_HOURS);
         Database.inTransaction("Could not lapse missed pickups", c -> {
-            for (OfferSweepDao.MissedPickup missed : offerSweepDao.findMissedPickups(c, cutoff)) {
+            for (OfferDao.MissedPickup missed : offerDao.findMissedPickups(c, cutoff)) {
                 if (offerDao.updateStatusIf(c, missed.offerId(), Offer.Status.ACCEPTED, Offer.Status.LAPSED) > 0) {
                     logDao.logStatusChange(c, OFFER_ENTITY, missed.offerId(), Offer.Status.ACCEPTED.name(),
                             Offer.Status.LAPSED.name(), "Pickup missed", null);
