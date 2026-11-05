@@ -4,7 +4,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 /** Header and data rows for the table cards of the dashboards and History: a GridPane whose columns are percentages. */
 public final class TableRows {
@@ -37,6 +41,42 @@ public final class TableRows {
         label.getStyleClass().add(styleClass);
         label.setWrapText(true);
         return label;
+    }
+
+    /** A rounded status pill in its own cell so it keeps its natural width. {@code tone}: open, accepted, done, neutral or danger. */
+    public static HBox pill(String text, String tone) {
+        Label label = new Label(text);
+        label.getStyleClass().addAll("board-pill", "board-pill-" + tone);
+        return new HBox(label);
+    }
+
+    /** The small green button at the end of a board row. */
+    public static Button rowButton(String text, Runnable action) {
+        Button button = new Button(text);
+        button.getStyleClass().add("row-button");
+        button.setOnAction(e -> action.run());
+        return button;
+    }
+
+    /** The small outlined button (Withdraw, Suspend, ...). */
+    public static Button rowOutline(String text, Runnable action) {
+        Button button = new Button(text);
+        button.getStyleClass().add("row-button-outline");
+        button.setOnAction(e -> action.run());
+        return button;
+    }
+
+    /** A small underlined link under a row button ("Cancel request"). */
+    public static Hyperlink rowLink(String text, Runnable action) {
+        Hyperlink link = new Hyperlink(text);
+        link.getStyleClass().add("board-link");
+        link.setOnAction(e -> action.run());
+        return link;
+    }
+
+    /** A cell that stacks its nodes with a small gap (a name over its detail lines). */
+    public static VBox stack(Node... nodes) {
+        return new VBox(2, nodes);
     }
 
     private static GridPane grid(double[] widths) {

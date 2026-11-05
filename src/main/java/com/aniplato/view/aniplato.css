@@ -1437,3 +1437,88 @@
 .context-menu, .tooltip {
     -fx-background-radius: 8px;
 }
+
+/* ==========================================================================
+   BOARDS (the shared list screens: tiles, tabs, search, table, bands)
+   ========================================================================== */
+.board-chip {
+    -fx-background-radius: 8px;
+    -fx-min-width: 34px;
+    -fx-min-height: 34px;
+    -fx-max-width: 34px;
+    -fx-max-height: 34px;
+}
+
+.board-chip-blue { -fx-background-color: #E0F2FE; }
+.board-chip-orange { -fx-background-color: #FFEDD5; }
+.board-chip-green { -fx-background-color: #DCFCE7; }
+
+.board-band {
+    -fx-background-color: #E8F3EC;
+    -fx-text-fill: #03521E;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+}
+
+.board-search, .board-city {
+    -fx-background-color: #F3F6F4;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8px;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 12px;
+}
+
+.board-city .list-cell { -fx-font-size: 12px; }
+
+.board-pill {
+    -fx-background-radius: 20px;
+    -fx-padding: 3px 12px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.board-pill-open { -fx-background-color: #E0F2FE; -fx-text-fill: #0369A1; }
+.board-pill-accepted { -fx-background-color: #FFEDD5; -fx-text-fill: #C2410C; }
+.board-pill-done { -fx-background-color: #DCFCE7; -fx-text-fill: #15803D; }
+.board-pill-neutral { -fx-background-color: #F1F5F9; -fx-text-fill: #64748B; }
+.board-pill-danger { -fx-background-color: #FEE2E2; -fx-text-fill: #B91C1C; }
+
+.row-button {
+    -fx-background-color: #0D631B;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 6px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+}
+
+.row-button:hover { -fx-background-color: #03521E; }
+
+.row-button:disabled {
+    -fx-background-color: #E5E7EB;
+    -fx-text-fill: #9CA3AF;
+}
+
+.row-button-outline {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1F2937;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 12px;
+    -fx-cursor: hand;
+}
+
+.row-button-outline:hover { -fx-border-color: #03521E; }
+
+.board-link {
+    -fx-text-fill: #6B7280;
+    -fx-underline: true;
+    -fx-font-size: 11px;
+    -fx-padding: 0;
+}

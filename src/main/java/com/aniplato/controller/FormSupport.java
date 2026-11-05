@@ -3,6 +3,7 @@ package com.aniplato.controller;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -68,6 +69,18 @@ public final class FormSupport {
     /** "Oct 22, 2026 4:30 PM". */
     public static String when(LocalDateTime time) {
         return time == null ? "" : time.format(WHEN);
+    }
+
+    private static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("h:mm a");
+    private static final DateTimeFormatter DAY_CLOCK = DateTimeFormatter.ofPattern("MMM d, h:mm a");
+
+    /** "Today, 6:00 PM", "Tomorrow, 9:00 AM", or "Nov 12, 9:00 AM" for any other day. */
+    public static String soon(LocalDateTime time, LocalDate today) {
+        if (time == null) return "";
+        LocalDate day = time.toLocalDate();
+        if (day.equals(today)) return "Today, " + time.format(CLOCK);
+        if (day.equals(today.plusDays(1))) return "Tomorrow, " + time.format(CLOCK);
+        return time.format(DAY_CLOCK);
     }
 
     /** "12.5 kg" (no trailing zeros). */

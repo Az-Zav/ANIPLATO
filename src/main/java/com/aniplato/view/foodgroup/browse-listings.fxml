@@ -2,30 +2,18 @@
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
+<!-- A board screen: the controller builds the title, tiles, tabs and table in code (controller/board/Board) and puts them in boardHost. -->
 <ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.BrowseListingsController">
     <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
         <VBox spacing="16.0" styleClass="dashboard-bg">
             <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
-                <HBox alignment="CENTER_LEFT">
-                    <children>
-                        <Label styleClass="page-title" text="Browse Listings" />
-                        <Region HBox.hgrow="ALWAYS" />
-                    </children>
-                </HBox>
-                <Label styleClass="text-muted" text="Open listings from donors, your city first. Offer for the whole quantity." wrapText="true" />
-                <!-- PATTERN:LIST rowsBox : one card per row, built in the controller -->
-                <VBox fx:id="rowsBox" spacing="12.0" />
-                <!-- PATTERN:DYNAMIC emptyLabel : shown when there are no rows -->
-                <Label fx:id="emptyLabel" styleClass="text-muted" text="No listings are open right now." wrapText="true" />
+                <!-- PATTERN:LIST boardHost : the whole board, built in the controller -->
+                <VBox fx:id="boardHost" spacing="16.0" />
             </children>
         </VBox>
     </content>

@@ -168,6 +168,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/ProfileService.java` | edit contact details, submit an upgrade (spec 7.3 puts these in RegistrationService; split to keep it under 300 lines) | PROFILE |
 | `service/DashboardService.java` | the donor's and the food group's dashboards and their banners (split from StatsService to keep each file short) | HISTORY |
 | `service/HistoryService.java` | History for the logged-in account: the cards, the period list and the table lines | HISTORY |
+| `service/BoardService.java` | the figures on the tiles of the list screens, worked out from the rows already loaded (spec 7.3 has no class for this; split so PostService and OfferService stay under 300 lines) | BOARDS |
 | `service/AcceptanceService.java` | the poster's offers list, accept, decline, and the one method that returns a phone number (spec 7.3 puts these in OfferService; split to keep each file under 300 lines) | ACCEPT |
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | save a report (once, with photos), read it, work out its due date, prefill the form, flag overdue reports | REPORT |
@@ -224,6 +225,10 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ScreenMessage.java` | the inline message bar at the top of every in-shell screen: a broken rule or database problem is written there (A8), cleared before each screen loads | A8 |
 | `controller/ContactEditor.java` | edits the contact person and number in place on the Profile, no popup | PROFILE |
 | `controller/Banners.java` | the warning banners above a dashboard, each with its link | HISTORY |
+| `controller/board/Board.java` | the shared list screen: title and one action, tiles, tabs, city filter, search, table with bands, footnote | BOARDS |
+| `controller/board/Tile.java` | one summary tile: icon chip, title, figure, unit, note | BOARDS |
+| `controller/board/Tiles.java` | builds the row of tiles | BOARDS |
+| `controller/board/BrowseBoard.java` | Browse Requests (donor) and Browse Listings (food group): the board with the city bands and Make offer | BOARDS |
 
 ### Controllers: popups
 
@@ -331,6 +336,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/StatsServiceTest.java` | dashboard numbers and the monthly report | STATS |
 | `service/PostServiceTest.java` | posting rules, the boards, hidden suspended posters, my posts | LISTING, REQUEST |
 | `service/DashboardServiceTest.java` | every dashboard card and banner, for both roles | HISTORY |
+| `service/BoardServiceTest.java` | the tile figures for browse, my posts and my offers | BOARDS |
+| `controller/board/BoardTest.java` | tabs with counts, search, city filter, bands, empty state, and "Today, 6:00 PM" dates (no database) | BOARDS |
 | `service/HistoryServiceTest.java` | the cards, outcomes, report column and period filter | HISTORY |
 | `service/RenewalTest.java` | upload a renewal, verify it, the expiry suspension ends, the admin's way to it | PROFILE, ACCOUNTS |
 | `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
@@ -996,6 +1003,17 @@ flowchart LR
   HC --> TL[(status_change)]:::tbl
   HV --> RF[ReportDao<br/>findByOffer]:::dao --> TR
 ```
+
+### BOARDS: the shared list screens 🟡
+
+Files: `service/BoardService.java`, `controller/board/Board.java`, `controller/board/Tile.java`, `controller/board/Tiles.java`, `controller/board/BrowseBoard.java`, `controller/TableRows.java`, `controller/donor/BrowseRequestsController.java`, `controller/foodgroup/BrowseListingsController.java`, `view/donor/browse-request.fxml`, `view/foodgroup/browse-listings.fxml`. The Figma list screens are one design: a title with one action, three tiles, tabs, search, a table. Tabs, city and search only narrow the rows already loaded; every figure is worked out from those rows (A9).
+
+| Method | What it does | Called by | Test |
+|---|---|---|---|
+| `BoardService.browse` | open posts, how many are in the viewer's city, total kg, the one due soonest | BrowseBoard | BoardServiceTest |
+| `BoardService.posts` | open posts and kg, accepted-and-waiting posts and kg, offers waiting for a decision | the My Listings and My Requests boards | BoardServiceTest |
+| `BoardService.offers` | accepted offers, the ones the other side released, kg rescued | the My Offers boards | BoardServiceTest |
+| `BoardService.dueAt` | the use-by of a listing or the needed-by of a request | BoardService, BrowseBoard | BoardServiceTest |
 
 ### SHELL: the app frame 🔧
 

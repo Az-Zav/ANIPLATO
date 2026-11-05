@@ -1,6 +1,8 @@
 package com.aniplato.controller;
 
 import com.aniplato.model.FoodDetail;
+import com.aniplato.support.Fx;
+import javafx.scene.Node;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
 import javafx.scene.Parent;
@@ -81,17 +83,41 @@ class BoardScreensTest extends ScreenTestBase {
 
     @Test
     void aStoredPhotoShowsAsAPictureAndAMissingOneAsANote() throws java.io.IOException {
-        loginAs(GROUP);
-        assertTrue(mentions(open("foodgroup/browse-listings.fxml"), "photo not found: seed/bread.jpg"));
-        assertEquals(0, all(open("foodgroup/browse-listings.fxml"), javafx.scene.image.ImageView.class).size());
+        Fx.start();
+        Node missing = Fx.call(() -> PostCards.thumbnails(java.util.List.of("seed/bread.jpg")));
+        assertTrue(mentions((Parent) missing, "photo not found: seed/bread.jpg"));
+        assertEquals(0, all(missing, javafx.scene.image.ImageView.class).size());
 
         java.nio.file.Path seed = java.nio.file.Path.of(System.getProperty("aniplato.uploads.dir"), "seed");
         java.nio.file.Files.createDirectories(seed);
         java.nio.file.Files.copy(java.nio.file.Path.of("sql", "demo-photos", "bread.jpg"), seed.resolve("bread.jpg"),
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
+        Node shown = Fx.call(() -> PostCards.thumbnails(java.util.List.of("seed/bread.jpg")));
+        assertEquals(1, all(shown, javafx.scene.image.ImageView.class).size());
+        assertFalse(mentions((Parent) shown, "photo not found"));
+    }
+
+    //---THE BROWSE BOARDS---
+
+    @Test
+    void theBrowseBoardShowsTilesTabsAndTheCityBand() {
+        loginAs(GROUP);
         Parent screen = open("foodgroup/browse-listings.fxml");
-        assertEquals(1, all(screen, javafx.scene.image.ImageView.class).size());
-        assertFalse(mentions(screen, "photo not found"));
+        assertTrue(mentions(screen, "OPEN SURPLUS"));
+        assertTrue(mentions(screen, "KG AVAILABLE"));
+        assertTrue(mentions(screen, "All (1)"));
+        assertTrue(mentions(screen, "IN QUEZON CITY · 1 LISTING"));
+        assertTrue(mentions(screen, "Refresh"));
+    }
+
+    @Test
+    void aDonorsBrowseBoardListsTheOpenRequestsWithTheirGroupAndNeededBy() {
+        Fixtures.seedRequestId();
+        loginAs(BUSINESS);
+        Parent screen = open("donor/browse-request.fxml");
+        assertTrue(mentions(screen, "OPEN REQUESTS"));
+        assertTrue(mentions(screen, "NEEDED-BY"));
+        button(screen, "Make offer");
     }
 }
