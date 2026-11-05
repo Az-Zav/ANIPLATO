@@ -43,7 +43,7 @@ class FirstLoginTest extends DbTest {
     /** Presses the button whose text contains the given text; a dialog's button wins over a hidden twin on another dialog. */
     private static void click(Parent screen, String text) {
         Fx.run(() -> {
-            List<Button> found = screen.lookupAll(".button").stream()
+            List<Button> found = (screen.getScene() == null ? screen : screen.getScene().getRoot()).lookupAll(".button").stream()
                     .filter(n -> n instanceof Labeled l && l.getText() != null && l.getText().contains(text))
                     .map(n -> (Button) n).toList();
             found.stream().filter(FirstLoginTest::isShown).findFirst()
@@ -79,11 +79,12 @@ class FirstLoginTest extends DbTest {
 
         click(login, "Log In");
 
-        List<Node> open = Fx.call(() -> login.lookupAll(".modal-card").stream().filter(FirstLoginTest::isShown).toList());
+        List<Node> open = Fx.call(() -> login.getScene().getRoot().lookupAll(".modal-card").stream().filter(FirstLoginTest::isShown).toList());
         assertEquals(1, open.size());
         assertTrue(Fx.call(() -> open.get(0).lookupAll(".label").stream()
                 .anyMatch(n -> n instanceof Labeled l && "Set a new password".equals(l.getText()))));
-        assertSame(login, Fx.call(() -> login.getScene().getRoot()), "the app did not open");
+        // the open dialog is laid over the login screen, so the login is still on screen and no shell was loaded
+        assertTrue(Fx.call(() -> login.getScene() != null && login.getScene().getRoot().lookup(".sidebar-container") == null), "the app did not open");
     }
 
     @Test

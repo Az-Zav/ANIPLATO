@@ -112,9 +112,8 @@ class ArchitectureTest {
 
     @Test
     void allPopupsGoThroughTheDialogs() throws IOException {
-        List<String> breaches = filesWhere(s -> !s.path().startsWith("controller/shared/Dialog")
-                && !in(s, "controller/shared/dialog") && s.text().contains("new Alert("));
-        assertEquals(List.of(), breaches, "Popups are dialogs in controller/shared/dialog, or DialogController.showError");
+        List<String> breaches = filesWhere(s -> s.text().contains("new Alert(") || s.text().contains("showAndWait("));
+        assertEquals(List.of(), breaches, "No system popups: a broken rule is an inline message (ScreenMessage, or DialogCard.showProblem in a dialog)");
     }
 
     //---SIZE---

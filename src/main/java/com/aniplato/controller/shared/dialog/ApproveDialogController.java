@@ -1,6 +1,6 @@
 package com.aniplato.controller.shared.dialog;
 
-import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.ScreenMessage;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.util.Navigator;
@@ -29,13 +29,12 @@ public class ApproveDialogController extends DialogCard {
         try {
             emailed = registrationService.approve(reviewedRegistrationId);
         } catch (RuleViolationException e) {
-            close();
-            DialogController.showError(e.getMessage());   // A8
+            showProblem(e.getMessage());   // A8: stay open, the message shows inside the dialog
             return;
         }
         close();
-        if (!emailed) DialogController.showError("The account was created, but the email could not be sent. "
-                + "The user can get a temporary password with Forgot password.");
         Navigator.show(Screen.PENDING_REGISTRATIONS);
+        if (!emailed) ScreenMessage.error("The account was created, but the email could not be sent. "
+                + "The user can get a temporary password with Forgot password.");
     }
 }

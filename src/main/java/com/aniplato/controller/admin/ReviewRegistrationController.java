@@ -178,7 +178,7 @@ public class ReviewRegistrationController {
     private void run(Runnable action) {
         String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
         if (problem != null) {
-            DialogController.showError(problem);
+            showError(problem);
             return;
         }
         load();
@@ -190,12 +190,12 @@ public class ReviewRegistrationController {
         File file = new FileStorageService().resolve(documents.get(index).filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                showError("The file " + file.getName() + " is not in the uploads folder.");
                 return;
             }
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+            showError("Could not open " + file.getName() + ".");
         }
     }
 

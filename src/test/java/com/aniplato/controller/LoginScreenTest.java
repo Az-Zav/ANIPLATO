@@ -55,7 +55,7 @@ class LoginScreenTest {
                     .map(n -> (Hyperlink) n).findFirst().orElseThrow(() -> new AssertionError("no Forgot password link")).fire();
         });
 
-        List<Node> open = Fx.call(() -> login.lookupAll(".modal-card").stream().filter(LoginScreenTest::isShown).toList());
+        List<Node> open = Fx.call(() -> login.getScene().getRoot().lookupAll(".modal-card").stream().filter(LoginScreenTest::isShown).toList());
         assertEquals(1, open.size(), "exactly one dialog is open");
         boolean prefilled = Fx.call(() -> open.get(0).lookupAll(".text-field").stream()
                 .anyMatch(n -> n instanceof TextField f && "me@aniplato.test".equals(f.getText())));

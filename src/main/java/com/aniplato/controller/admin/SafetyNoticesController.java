@@ -59,7 +59,7 @@ public class SafetyNoticesController {
         AdminTable.put(row, 3, AdminTable.wrapped(concernText(notice), "table-cell-text"));
         AdminTable.put(row, 4, AdminTable.textAndButton(AdminTable.dateTime(notice.raisedAt()), open
                 ? AdminTable.button("Resolve", "table-review-btn", e -> resolve(notice))
-                : AdminTable.button("View", "secondary-button", e -> view(notice))));
+                : AdminTable.button("View", "secondary-button", e -> toggleOutcome(notice, row))));
         return row;
     }
 
@@ -89,9 +89,18 @@ public class SafetyNoticesController {
                 });
     }
 
-    // PATTERN:ACTION shows how a closed notice was resolved
-    private void view(NoticeRow notice) {
+    // PATTERN:ACTION shows how a closed notice was resolved, in a line under its row (View again hides it)
+    private void toggleOutcome(NoticeRow notice, GridPane row) {
+        int next = safetyNoticeRowsBox.getChildren().indexOf(row) + 1;
+        if (next < safetyNoticeRowsBox.getChildren().size()
+                && safetyNoticeRowsBox.getChildren().get(next).getStyleClass().contains("notice-outcome")) {
+            safetyNoticeRowsBox.getChildren().remove(next);
+            return;
+        }
         String how = notice.status() == SafetyNotice.Status.DISMISSED ? "Dismissed" : "Account suspended";
-        dialogController.showNoticeResolvedMode(how, notice.adminNote());
+        Label outcome = new Label(how + ". Admin note: " + (notice.adminNote() == null ? "—" : notice.adminNote()));
+        outcome.getStyleClass().addAll("notice-outcome", "table-cell-muted");
+        outcome.setWrapText(true);
+        safetyNoticeRowsBox.getChildren().add(next, outcome);
     }
 }

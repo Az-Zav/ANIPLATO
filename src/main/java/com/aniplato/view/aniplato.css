@@ -1163,3 +1163,277 @@
     -fx-font-weight: bold;
     -fx-text-fill: #9A5B00;
 }
+
+/* ==========================================================================
+   MODERN CONTROLS (replaces the stock JavaFX "Modena" look; matches the Figma V2 inputs)
+   ========================================================================== */
+
+/* One green accent instead of Modena's blue: focus rings, selection, hover */
+.root {
+    -fx-accent: #03521E;
+    -fx-focus-color: #03521E;
+    -fx-faint-focus-color: transparent;
+    -fx-selection-bar: #DCEFE3;
+    -fx-selection-bar-non-focused: #EEF6F1;
+}
+
+/* Inline messages: replace system popups (A8) */
+.inline-error {
+    -fx-background-color: #FEF2F2;
+    -fx-background-radius: 8px;
+    -fx-border-color: #FECACA;
+    -fx-border-radius: 8px;
+    -fx-padding: 10px 14px;
+}
+
+.inline-error-text {
+    -fx-text-fill: #B91C1C;
+    -fx-font-size: 13px;
+}
+
+.inline-success-text {
+    -fx-text-fill: #15803D;
+    -fx-font-size: 13px;
+}
+
+.inline-error-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #B91C1C;
+    -fx-font-size: 16px;
+    -fx-padding: 0 4px;
+    -fx-cursor: hand;
+}
+
+.notice-outcome {
+    -fx-padding: 0 0 12px 22px;
+    -fx-font-size: 12px;
+}
+
+/* Check boxes: rounded square, green when ticked, white tick */
+.check-box {
+    -fx-text-fill: #1F2937;
+}
+
+.check-box > .box {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5px;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 3px 4px 3px 4px;
+}
+
+.check-box:hover > .box {
+    -fx-border-color: #03521E;
+}
+
+.check-box:selected > .box {
+    -fx-background-color: #03521E;
+    -fx-border-color: #03521E;
+}
+
+.check-box > .box > .mark {
+    -fx-background-color: transparent;
+}
+
+.check-box:selected > .box > .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+.check-box:focused > .box {
+    -fx-border-color: #03521E;
+}
+
+/* Radio buttons: ring with a green dot */
+.radio-button > .radio {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-border-color: #CBD5E1;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 1em;
+    -fx-background-radius: 1em;
+}
+
+.radio-button:hover > .radio,
+.radio-button:selected > .radio {
+    -fx-border-color: #03521E;
+}
+
+.radio-button > .radio > .dot {
+    -fx-background-color: #03521E;
+    -fx-background-insets: 0;
+}
+
+/* Scroll bars: thin rounded thumb, no track, no arrow buttons */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 2px;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12px;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12px;
+}
+
+.scroll-bar > .track,
+.scroll-bar > .track-background {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar > .thumb {
+    -fx-background-color: #C5D0C9;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6px;
+}
+
+.scroll-bar > .thumb:hover,
+.scroll-bar > .thumb:pressed {
+    -fx-background-color: #98A99F;
+}
+
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+    -fx-min-height: 0;
+    -fx-min-width: 0;
+}
+
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .corner {
+    -fx-background-color: transparent;
+}
+
+/* Multi-line text: same rounded outline as the single-line fields */
+.text-area {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8px;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+}
+
+.text-area:focused {
+    -fx-border-color: #03521E;
+    -fx-border-width: 1.5px;
+}
+
+.text-area .scroll-pane,
+.text-area .viewport {
+    -fx-background-color: transparent;
+}
+
+.text-area .content {
+    -fx-background-color: transparent;
+    -fx-padding: 10px 12px;
+}
+
+/* Date picker: one rounded outline around the field and its calendar icon (no grey button) */
+.date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8px;
+    -fx-padding: 0;
+}
+
+.date-picker:focused {
+    -fx-border-color: #03521E;
+    -fx-border-width: 1.5px;
+}
+
+.date-picker > .text-field,
+.date-picker > .text-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8px;
+}
+
+.date-picker > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0 12px 0 4px;
+}
+
+.date-picker > .arrow-button > .arrow {
+    -fx-background-color: #64748B;
+}
+
+.date-picker-popup {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 16, 0, 0, 6);
+}
+
+.date-picker-popup > .month-year-pane {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-radius: 6px;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #E8F3EC;
+}
+
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #03521E;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* Drop-down lists: floating rounded card, soft green hover */
+.combo-box-popup > .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10px;
+    -fx-padding: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 16, 0, 0, 6);
+}
+
+.combo-box-popup .list-cell {
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #1F2937;
+}
+
+.combo-box-popup .list-cell:filled:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #E8F3EC;
+    -fx-text-fill: #03521E;
+}
+
+.context-menu, .tooltip {
+    -fx-background-radius: 8px;
+}

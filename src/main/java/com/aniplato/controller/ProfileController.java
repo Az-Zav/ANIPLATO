@@ -58,6 +58,9 @@ public class ProfileController {
     @FXML private Label orgTypeLabel;       // shows the organization's contact email: the schema has no "type"
     @FXML private Label orgCityLabel;
     @FXML private Label orgContactLabel;
+    @FXML private VBox contactBox;
+    @FXML private Hyperlink editContactLink;
+    private ContactEditor contactEditor;
     @FXML private Button upgradeButton;
     @FXML private Label upgradeStatusLabel;
     @FXML private Label orgApprovedDateLabel;
@@ -206,12 +209,12 @@ public class ProfileController {
         File file = new FileStorageService().resolve(d.filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                ScreenMessage.error("The file " + file.getName() + " is not in the uploads folder.");
                 return;
             }
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+            ScreenMessage.error("Could not open " + file.getName() + ".");
         }
     }
 
@@ -234,7 +237,8 @@ public class ProfileController {
     private void handleEditContact() {
         Registration registration = Session.require().registration;
         String phone = FormSupport.load(profileService::getMyPhone, "");   // the owner may read its own number (A7)
-        dialogController.showEditContactMode(registration.contactPerson, phone, () -> orgContactLabel.setText(registration.contactPerson));
+        if (contactEditor == null) contactEditor = new ContactEditor(contactBox, orgContactLabel, editContactLink);
+        contactEditor.open(registration.contactPerson, phone, () -> orgContactLabel.setText(Session.require().registration.contactPerson));
     }
 
     // PATTERN:ACTION handleUpgrade - opens the Upgrade to Business donor dialog

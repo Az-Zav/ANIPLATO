@@ -1,12 +1,12 @@
 # ANIPLATO Feature Flows
 
 One diagram per feature: the call chain, then what is still to build. Build in this order. Spec stage numbers refer to `Project Spec.md`.
-Notation: `Screen → Controller.handler → Service.method → Dao.method → table`. `⚠` = throws `RuleViolationException` (shown by `DialogController.showError`).
+Notation: `Screen → Controller.handler → Service.method → Dao.method → table`. `⚠` = throws `RuleViolationException` (shown inline: `ScreenMessage.error` on a screen, `DialogCard.showProblem` inside a dialog).
 
 ## Conventions
 - **C1** A feature's chain is written here before its code.
 - **C2** Touch only files in the chain. Create a file only when a chain needs it.
-- **C3** Controller: one `@FXML` handler per button; read input → one service call → `Navigator.show` or bind result; `catch RuleViolationException` → `DialogController.showError`.
+- **C3** Controller: one `@FXML` handler per button; read input → one service call → `Navigator.show` or bind result; `catch RuleViolationException` → `ScreenMessage.error`.
 - **C4** Service method: validate (⚠) → `Database.inTransaction("message", c -> { DAO calls; LogDao.logStatusChange if a status changes })` for anything that writes. A read-only method uses `try (Connection c = Database.getConnection())`. `SQLException` becomes `DataAccessException`. Never write your own commit/rollback.
 - **C5** DAO method: takes a `Connection`, `PreparedStatement`, no rules.
 - **C6** Model: fields only for existing schema columns; status enums nested.

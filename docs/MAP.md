@@ -221,13 +221,15 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/LabelConverter.java` | shows an enum's label in a combo box | LISTING, OFFER |
 | `controller/shared/HistoryController.java` | History: cards, period, tabs, search, table (asks for "my" history, no role check) | HISTORY |
 | `controller/TableRows.java` | header and data rows (percent columns) for the dashboard and History tables | HISTORY |
+| `controller/ScreenMessage.java` | the inline message bar at the top of every in-shell screen: a broken rule or database problem is written there (A8), cleared before each screen loads | A8 |
+| `controller/ContactEditor.java` | edits the contact person and number in place on the Profile, no popup | PROFILE |
 | `controller/Banners.java` | the warning banners above a dashboard, each with its link | HISTORY |
 
 ### Controllers: popups
 
 | File | What it does | Features |
 |---|---|---|
-| `controller/shared/DialogController.java` | the one door to every popup: opens one card, closes the rest, `showError` | POPUPS |
+| `controller/shared/DialogController.java` | the one door to every popup card: opens one, closes the rest. A broken rule shows inside the card (`DialogCard.showProblem`), never in a system popup | POPUPS |
 | `controller/shared/dialog/DialogCard.java` | what every dialog shares: its card, open, close, confirm | POPUPS |
 | `controller/shared/dialog/DialogHost.java` | what a dialog may ask of its overlay | POPUPS |
 | `controller/shared/dialog/RejectDialogController.java` | reject an application with a reason | REVIEW |
@@ -235,13 +237,11 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/dialog/SuspendAccountDialogController.java` | suspend with a reason | ACCOUNTS |
 | `controller/shared/dialog/ReinstateAccountDialogController.java` | reinstate | ACCOUNTS |
 | `controller/shared/dialog/ResolveSafetyDialogController.java` | dismiss or suspend from a safety notice | SAFETY |
-| `controller/shared/dialog/NoticeResolvedDialogController.java` | shows how a closed notice was resolved | SAFETY |
 | `controller/shared/dialog/FlagSafetyDialogController.java` | flag a concern: Send raises it through `SafetyService.raise` | SAFETY |
 | `controller/shared/dialog/SetNewPasswordDialogController.java` | replace a temporary password or change a password | AUTH |
 | `controller/shared/dialog/ForgotPasswordDialogController.java` | email a temporary password | AUTH |
 | `controller/shared/dialog/UploadRenewalDialogController.java` | upload a renewal: file and new expiry go to DocumentReviewService | PROFILE |
 | `controller/shared/dialog/UpgradeBusinessDonorDialogController.java` | upgrade to Business donor: both permits and the consent go to ProfileService | PROFILE |
-| `controller/shared/dialog/EditContactDialogController.java` | edit contact person and number | PROFILE |
 | `controller/shared/dialog/CancelListingDialogController.java` | cancel a post (opens and closes only) | HANDOFF |
 | `controller/shared/dialog/ConfirmReleaseDialogController.java` | confirm release (opens and closes only) | HANDOFF |
 | `controller/shared/dialog/ConfirmReceiptDialogController.java` | confirm receipt (opens and closes only) | HANDOFF |
@@ -288,13 +288,11 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `view/shared/dialog/suspend-account.fxml` | Suspend card | ACCOUNTS |
 | `view/shared/dialog/reinstate-account.fxml` | Reinstate card | ACCOUNTS |
 | `view/shared/dialog/resolve-safety.fxml` | Resolve notice card | SAFETY |
-| `view/shared/dialog/notice-resolved.fxml` | Notice resolved card | SAFETY |
 | `view/shared/dialog/flag-safety.fxml` | Flag concern card | SAFETY |
 | `view/shared/dialog/set-new-password.fxml` | Set new password card | AUTH |
 | `view/shared/dialog/forgot-password.fxml` | Forgot password card | AUTH |
 | `view/shared/dialog/upload-renewal.fxml` | Upload renewal card | PROFILE |
 | `view/shared/dialog/upgrade-business-donor.fxml` | Upgrade card | PROFILE |
-| `view/shared/dialog/edit-contact.fxml` | Edit contact card | PROFILE |
 | `view/shared/dialog/cancel-listing.fxml` | Cancel post card | HANDOFF |
 | `view/shared/dialog/confirm-release.fxml` | Confirm release card | HANDOFF |
 | `view/shared/dialog/confirm-receipt.fxml` | Confirm receipt card | HANDOFF |
@@ -592,7 +590,7 @@ flowchart LR
 
 ### PROFILE: the organization's own profile ✅
 
-Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/shared/dialog/UploadRenewalDialogController.java`, `controller/shared/dialog/UpgradeBusinessDonorDialogController.java`, `controller/shared/dialog/EditContactDialogController.java`, `service/ProfileService.java`, `model/Admin.java`, `model/Donor.java`, `model/FoodGroup.java`.
+Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/shared/dialog/UploadRenewalDialogController.java`, `controller/shared/dialog/UpgradeBusinessDonorDialogController.java`, `controller/ContactEditor.java`, `service/ProfileService.java`, `model/Admin.java`, `model/Donor.java`, `model/FoodGroup.java`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
@@ -605,7 +603,7 @@ Files: `controller/ProfileController.java`, `view/profile.fxml`, `controller/sha
 | `DocumentDao.findRegistrationIdsAwaitingReview` | registrations with a file nobody reviewed: the "Review renewal" button | AccountStatusService | RenewalTest |
 | `AccountDao.findSuspendedBy` | the account of a registration if it is Suspended for exactly one reason | AccountStatusService | RenewalTest |
 | `ProfileService.getMyPhone` | the organization's own number, to prefill the edit form (A7: the owner) | ProfileController | ProfileServiceTest |
-| `ProfileService.updateContact` | saves the contact person and a number of exactly 11 digits | EditContactDialogController | ProfileServiceTest |
+| `ProfileService.updateContact` | saves the contact person and a number of exactly 11 digits | ContactEditor | ProfileServiceTest |
 | `ProfileService.submitUpgrade` | a Casual donor's new Pending Business registration with both permits; approval changes the role | UpgradeBusinessDonorDialogController | ProfileServiceTest |
 | `RegistrationDao.updateContact` | saves new contact details on a registration | ProfileService | ProfileServiceTest |
 | `Account.canUpgradeToBusiness` | only a Casual donor can upgrade | ProfileController, ProfileService | ProfileScreensTest |
@@ -630,7 +628,7 @@ flowchart LR
 
 ### SAFETY: safety notices 🟡
 
-Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNotice.java`, `controller/admin/SafetyNoticesController.java`, `controller/shared/dialog/ResolveSafetyDialogController.java`, `controller/shared/dialog/NoticeResolvedDialogController.java`, `controller/shared/dialog/FlagSafetyDialogController.java` (placeholder), `view/admin/safety-notices.fxml`.
+Files: `service/SafetyService.java`, `dao/SafetyNoticeDao.java`, `model/SafetyNotice.java`, `controller/admin/SafetyNoticesController.java`, `controller/shared/dialog/ResolveSafetyDialogController.java`, `controller/shared/dialog/FlagSafetyDialogController.java` (placeholder), `view/admin/safety-notices.fxml`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
@@ -679,7 +677,6 @@ flowchart LR
   PA --> TO[(offer)]:::tbl
   SU --> TA[(account)]:::tbl
   LG --> TL[(status_change)]:::tbl
-  NC --> NR[NoticeResolvedDialogController<br/>shows the result]:::ctrl
   FD([Flag concern dialog<br/>from My Listings, My Requests, My Offers]):::screen --> RA{{SafetyService<br/>raise}}:::svc
   RA --> OS[OfferDao<br/>findStatus<br/>findParties]:::dao --> TO
   RA --> IN[SafetyNoticeDao<br/>insert]:::dao --> TN

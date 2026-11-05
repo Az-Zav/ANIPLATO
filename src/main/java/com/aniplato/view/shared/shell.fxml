@@ -93,7 +93,18 @@
         <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <children>
                 <!-- PATTERN:DYNAMIC current screen content -->
-                <StackPane fx:id="contentArea" />
+                <VBox>
+                    <children>
+                        <!-- PATTERN:DYNAMIC inline message bar (A8): ScreenMessage fills it; hidden until there is a message -->
+                        <HBox fx:id="messageBar" alignment="CENTER_LEFT" managed="false" spacing="12.0" styleClass="inline-error" visible="false">
+                            <children>
+                                <Label fx:id="messageText" styleClass="inline-error-text" wrapText="true" HBox.hgrow="ALWAYS" />
+                                <Button onAction="#dismissMessage" styleClass="inline-error-close" text="×" />
+                            </children>
+                        </HBox>
+                        <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
                 <VBox alignment="BOTTOM_RIGHT" pickOnBounds="false" spacing="12.0" StackPane.alignment="BOTTOM_RIGHT">
                     <padding><Insets bottom="22.0" right="24.0" /></padding>
                     <children>

@@ -157,13 +157,13 @@
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <VBox fx:id="contactBox" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
                                                 <Label styleClass="stat-card-title" text="CONTACT PERSON" />
                                                 <!-- PATTERN:DYNAMIC orgContact : contact person name & phone -->
                                                 <Label fx:id="orgContactLabel" styleClass="form-label" text="" />
                                                 <!-- PATTERN:ACTION handleEditContact -->
-                                                <Hyperlink onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
+                                                <Hyperlink fx:id="editContactLink" onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
                                             </children>
                                         </VBox>
 

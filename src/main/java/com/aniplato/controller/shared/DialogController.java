@@ -6,12 +6,10 @@ import com.aniplato.controller.shared.dialog.CancelListingDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReceiptDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReleaseDialogController;
 import com.aniplato.controller.shared.dialog.DialogCard;
-import com.aniplato.controller.shared.dialog.EditContactDialogController;
 import com.aniplato.model.Document;
 import com.aniplato.controller.shared.dialog.DialogHost;
 import com.aniplato.controller.shared.dialog.FlagSafetyDialogController;
 import com.aniplato.controller.shared.dialog.ForgotPasswordDialogController;
-import com.aniplato.controller.shared.dialog.NoticeResolvedDialogController;
 import com.aniplato.controller.shared.dialog.ReinstateAccountDialogController;
 import com.aniplato.controller.shared.dialog.RejectDialogController;
 import com.aniplato.controller.shared.dialog.ResolveSafetyDialogController;
@@ -23,7 +21,9 @@ import com.aniplato.controller.shared.dialog.WithdrawOfferDialogController;
 import com.aniplato.util.SvgIcon;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -56,19 +56,26 @@ public class DialogController implements DialogHost {
     @FXML private ConfirmReceiptDialogController confirmReceiptController;
     @FXML private ForgotPasswordDialogController forgotPasswordController;
     @FXML private UpgradeBusinessDonorDialogController upgradeBusinessDonorController;
-    @FXML private NoticeResolvedDialogController noticeResolvedController;
-    @FXML private EditContactDialogController editContactController;
 
     private List<DialogCard> cards;
+
+    // While a card is open the overlay is lifted out of its screen and laid over the whole window (see liftOverWindow)
+    private Pane home;
+    private int homeIndex;
+    private Scene liftedScene;
+    private Parent screenRoot;
+    private StackPane windowLayer;
 
     @FXML
     private void initialize() {
         cards = List.of(rejectController, approveController, resolveSafetyController, suspendController,
                 reinstateController, cancelListingController, confirmReleaseController, flagSafetyController,
                 acceptOfferController, uploadRenewalController, setNewPasswordController, withdrawOfferController,
-                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController, noticeResolvedController, editContactController);
+                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController);
         cards.forEach(card -> card.attach(this));
         hideAll();
+        overlay.setVisible(false);   // closed until a card opens, whatever the including screen's FXML says
+        overlay.setManaged(false);
 
         // Populate all green confirmation badge hosts with Check_Button.svg
         overlay.lookupAll(".modal-icon-green-box").forEach(node -> {
@@ -94,6 +101,7 @@ public class DialogController implements DialogHost {
         card.setManaged(true);
         overlay.setVisible(true);
         overlay.setManaged(true);
+        liftOverWindow();
     }
 
     @Override
@@ -101,6 +109,40 @@ public class DialogController implements DialogHost {
         hideAll();
         overlay.setVisible(false);
         overlay.setManaged(false);
+        dropBackIntoScreen();
+    }
+
+    /**
+     * A popup is an overlay over the whole window, not a block inside the screen (a screen puts the include in its own
+     * layout, so left alone it would show as a grey section under the content). Wraps the window's root in a stack with
+     * the overlay on top; {@link #dropBackIntoScreen} undoes it. With no scene (a test) nothing moves.
+     */
+    private void liftOverWindow() {
+        Scene scene = overlay.getScene();
+        if (scene == null || liftedScene != null || !(overlay.getParent() instanceof Pane parent)) return;
+        home = parent;
+        homeIndex = parent.getChildren().indexOf(overlay);
+        parent.getChildren().remove(overlay);
+        liftedScene = scene;
+        screenRoot = scene.getRoot();
+        scene.setRoot(new Pane());   // frees the old root so it can be a child of the stack
+        windowLayer = new StackPane(screenRoot, overlay);
+        windowLayer.getStylesheets().add(DialogController.class.getResource("/com/aniplato/view/aniplato.css").toExternalForm());
+        overlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        scene.setRoot(windowLayer);
+    }
+
+    private void dropBackIntoScreen() {
+        if (liftedScene == null) return;
+        windowLayer.getChildren().remove(overlay);
+        if (liftedScene.getRoot() == windowLayer) {   // the screen did not change meanwhile: give it its root back
+            windowLayer.getChildren().remove(screenRoot);
+            liftedScene.setRoot(screenRoot);
+        }
+        home.getChildren().add(Math.min(homeIndex, home.getChildren().size()), overlay);
+        liftedScene = null;
+        screenRoot = null;
+        windowLayer = null;
     }
 
     @Override
@@ -113,11 +155,6 @@ public class DialogController implements DialogHost {
             card.card().setVisible(false);
             card.card().setManaged(false);
         }
-    }
-
-    /** A8: shows a RuleViolationException message. Built in code because the dialogs have no error label. */
-    public static void showError(String message) {
-        new Alert(Alert.AlertType.WARNING, message).showAndWait();
     }
 
     //---OPENING A DIALOG---
@@ -175,11 +212,6 @@ public class DialogController implements DialogHost {
         uploadRenewalController.show(type, onDone);
     }
 
-    /** 17. Edit contact details; {@code onSaved} runs after a successful save. */
-    public void showEditContactMode(String contactPerson, String contactPhone, Runnable onSaved) {
-        editContactController.show(contactPerson, contactPhone, onSaved);
-    }
-
     /** 15. Upgrade to Business Donor; {@code onDone} runs after the upgrade was submitted. */
     public void showUpgradeBusinessDonorMode(Runnable onDone) {
         upgradeBusinessDonorController.show(onDone);
@@ -206,8 +238,4 @@ public class DialogController implements DialogHost {
         forgotPasswordController.show(email);
     }
 
-    /** 16. A closed safety notice: how it was resolved ("Dismissed", "Account suspended") and the admin's note. */
-    public void showNoticeResolvedMode(String how, String adminNote) {
-        noticeResolvedController.show(how, adminNote);
-    }
 }

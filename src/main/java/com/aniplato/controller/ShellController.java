@@ -37,6 +37,8 @@ public class ShellController {
     private static final String ACTIVE = "sidebar-button-active";
 
     @FXML private StackPane contentArea;
+    @FXML private HBox messageBar;
+    @FXML private Label messageText;
     @FXML private VBox sidebar;
     // FXML: fx:id="userRoleLabel" shows the logged-in account's role
     @FXML private Label userRoleLabel;
@@ -55,6 +57,7 @@ public class ShellController {
     @FXML
     private void initialize() {
         Navigator.setContent(contentArea);
+        ScreenMessage.bind(messageBar, messageText);
         Account.Role role = Session.require().role;
         userRoleLabel.setText(role.displayName());
         // FXML: each sidebar button carries "role-<key>" (admin, donor, foodgroup) or "role-all"
@@ -82,6 +85,7 @@ public class ShellController {
 
     /** 6.6: the automatic checks run before each screen loads. A failing check never blocks the screen. */
     private void runMaintenance() {
+        ScreenMessage.clear();   // a message belongs to the screen that raised it
         try {
             maintenanceService.runMaintenance();
         } catch (RuntimeException e) {
@@ -148,6 +152,11 @@ public class ShellController {
         button.setText("");
         button.setGraphic(content);
         button.setGraphicTextGap(0);
+    }
+
+    @FXML
+    private void dismissMessage() {
+        ScreenMessage.clear();
     }
 
     @FXML
