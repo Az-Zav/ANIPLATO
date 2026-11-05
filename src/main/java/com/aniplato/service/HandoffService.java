@@ -88,7 +88,8 @@ public class HandoffService {
             return new HandoffRecord(number, offer.id, listing ? post.posterName : offer.offererName,
                     listing ? offer.offererName : post.posterName, food, category, offer.kg, offer.releasedAt,
                     offer.receivedAt, use.useDescription, use.beneficiaries, use.headcount, use.place,
-                    offer.receivedAt.plusDays(Settings.REPORT_DEADLINE_DAYS));
+                    offer.receivedAt.plusDays(Settings.REPORT_DEADLINE_DAYS),
+                    listing ? post.food.attestedAt : offer.food.attestedAt, listing ? offer.use.attestedAt : post.use.attestedAt);
         });
     }
 

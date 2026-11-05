@@ -59,16 +59,22 @@ public class SafetyNoticesController {
         AdminTable.put(row, 3, AdminTable.wrapped(concernText(notice), "table-cell-text"));
         AdminTable.put(row, 4, AdminTable.textAndButton(AdminTable.dateTime(notice.raisedAt()), open
                 ? AdminTable.button("Resolve", "table-review-btn", e -> resolve(notice))
-                : AdminTable.button("View", "secondary-button", e -> toggleOutcome(notice, row))));
+                : AdminTable.button("View", "table-review-btn", e -> toggleOutcome(notice, row))));
         return row;
     }
 
     private static Label statusTag(SafetyNotice.Status status) {
         return switch (status) {
-            case OPEN -> AdminTable.label("Open", "tag-reregistered");
-            case DISMISSED -> AdminTable.label("Dismissed", "table-cell-muted");
-            case ACCOUNT_SUSPENDED -> AdminTable.label("Suspended", "required-star");
+            case OPEN -> pill("Open", "accepted");
+            case DISMISSED -> pill("Dismissed", "neutral");
+            case ACCOUNT_SUSPENDED -> pill("Account suspended", "danger");
         };
+    }
+
+    private static Label pill(String text, String tone) {
+        Label label = AdminTable.label(text, "board-pill");
+        label.getStyleClass().add("board-pill-" + tone);
+        return label;
     }
 
     private static String concernText(NoticeRow notice) {

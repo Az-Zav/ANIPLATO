@@ -137,6 +137,8 @@ class HandoffServiceTest extends DbTest {
         assertEquals(12.5, record.agreedKg());
         assertEquals("Feeding program", record.useDescription());
         assertEquals(record.receivedAt().plusDays(7), record.reportDueAt());
+        assertNotNull(record.donorAttestedAt(), "the donor signed when it posted the listing");
+        assertNotNull(record.groupAttestedAt(), "the group signed when it sent its offer");
 
         loginAs(BUSINESS);
         assertEquals(record.number(), handoff.getHandoffRecord(offer).number());

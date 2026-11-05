@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public record HandoffRecord(String number, int offerId, String donorName, String groupName, String foodDescription,
                             FoodDetail.Category category, double agreedKg, LocalDateTime releasedAt,
                             LocalDateTime receivedAt, String useDescription, String beneficiaries, int headcount,
-                            String place, LocalDateTime reportDueAt) {
+                            String place, LocalDateTime reportDueAt, LocalDateTime donorAttestedAt,
+                            LocalDateTime groupAttestedAt) {
 
     /** Printed on every record (Appendix A). */
     public static final String DISCLAIMER =

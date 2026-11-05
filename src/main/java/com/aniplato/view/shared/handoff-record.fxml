@@ -15,19 +15,26 @@
         <VBox spacing="16.0" styleClass="dashboard-bg">
             <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
-                <HBox alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
                     <children>
                         <Label styleClass="page-title" text="Handoff Record" />
                         <Region HBox.hgrow="ALWAYS" />
                         <!-- PATTERN:DYNAMIC submitReportButton : shown only to the food group that still owes the report -->
                         <Button fx:id="submitReportButton" onAction="#handleSubmitReport" styleClass="primary-button" text="Submit report" />
+                        <!-- PATTERN:ACTION handleBack -->
+                        <Button onAction="#handleBack" styleClass="primary-button" text="← Back to History" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="info-banner">
+                    <padding><Insets bottom="12.0" left="16.0" right="16.0" top="12.0" /></padding>
+                    <children>
+                        <Label styleClass="text-muted" text="ⓘ" />
+                        <Label fx:id="disclaimerLabel" styleClass="text-muted" wrapText="true" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
                 <!-- PATTERN:DYNAMIC recordBox : the record and, once submitted, the report -->
                 <VBox fx:id="recordBox" spacing="12.0" />
-                <Label fx:id="disclaimerLabel" styleClass="text-muted" wrapText="true" />
-                <!-- PATTERN:ACTION handleBack -->
-                <Button onAction="#handleBack" styleClass="secondary-button" text="Back" />
+                <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
             </children>
         </VBox>
     </content>

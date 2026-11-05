@@ -97,6 +97,10 @@ class OfferScreensTest extends ScreenTestBase {
         Parent asGroup = open("shared/handoff-record.fxml");
         assertTrue(mentions(asGroup, "HR-"));
         assertTrue(mentions(asGroup, "not a certificate"));
+        assertTrue(mentions(asGroup, "RELEASED BY DONOR"));
+        assertTrue(mentions(asGroup, "GROUP ATTESTATION"));
+        assertTrue(mentions(asGroup, "Not submitted"), "the report is still due");
+        assertTrue(mentions(asGroup, "← Back to History"));
         assertTrue(all(asGroup, Button.class).stream().anyMatch(b -> b.isVisible() && b.isManaged() && "Submit report".equals(b.getText())));
 
         loginAs(BUSINESS);

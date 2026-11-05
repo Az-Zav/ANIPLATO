@@ -59,7 +59,8 @@ public class ShellController {
         Navigator.setContent(contentArea);
         ScreenMessage.bind(messageBar, messageText);
         Account.Role role = Session.require().role;
-        userRoleLabel.setText(role.displayName());
+        // the header names the organization (the admin has none, so it says Admin)
+        userRoleLabel.setText(role == Account.Role.ADMIN ? role.displayName() : Session.require().registration.name);
         // FXML: each sidebar button carries "role-<key>" (admin, donor, foodgroup) or "role-all"
         String roleClass = "role-" + role.key();
         sidebar.getChildren().removeIf(item -> item instanceof Button button
@@ -133,9 +134,10 @@ public class ShellController {
         Label label = new Label(button.getText());
         label.getStyleClass().add("sidebar-nav-label");
 
+        label.setMinWidth(Region.USE_PREF_SIZE);   // never cut "Pending Accounts" to "Pending Accou..."
         HBox content = new HBox(12);
         content.setAlignment(Pos.CENTER_LEFT);
-        content.setPrefWidth(180);
+        content.prefWidthProperty().bind(button.widthProperty().subtract(32));   // the button's width less its padding
         content.getChildren().addAll(icon, label);
 
         Region spacer = new Region();
@@ -145,8 +147,14 @@ public class ShellController {
         button.getStyleClass().stream()
                 .filter(styleClass -> styleClass.startsWith("badge-"))
                 .findFirst()
-                .ifPresent(styleClass -> {
+                .ifPresentOrElse(styleClass -> {
                     content.getChildren().add(badges.create(styleClass.substring("badge-".length())));
+                }, () -> {
+                    if (button.getStyleClass().contains("role-admin")) {   // the admin's items without a count carry a chevron, as in the design
+                        Label chevron = new Label("›");
+                        chevron.getStyleClass().add("sidebar-chevron");
+                        content.getChildren().add(chevron);
+                    }
                 });
 
         button.setText("");
