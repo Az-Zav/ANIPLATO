@@ -40,6 +40,7 @@ public class NewRequestController {
     private void initialize() {
         for (FoodDetail.Category category : FoodDetail.Category.values()) {
             CheckBox box = new CheckBox(category.label());
+            box.getStyleClass().add("chip-check");
             categoryChecks.put(category, box);
             categoryBox.getChildren().add(box);
         }

@@ -91,6 +91,18 @@ public final class FormSupport {
         return start.format(CLOCK) + " – " + end.format(CLOCK) + ", " + day.substring(0, day.indexOf(','));
     }
 
+    /** "1h 40m left", "2d 3h left" or "25m left"; empty once the time has passed. */
+    public static String timeLeft(LocalDateTime due, LocalDateTime now) {
+        if (due == null || !due.isAfter(now)) return "";
+        java.time.Duration left = java.time.Duration.between(now, due);
+        long days = left.toDays();
+        long hours = left.toHours() % 24;
+        long minutes = left.toMinutes() % 60;
+        if (days > 0) return days + "d " + hours + "h left";
+        if (hours > 0) return hours + "h " + minutes + "m left";
+        return minutes + "m left";
+    }
+
     /** "12.5 kg" (no trailing zeros). */
     public static String kg(double kg) {
         return (kg == Math.rint(kg) ? String.valueOf((long) kg) : String.valueOf(kg)) + " kg";

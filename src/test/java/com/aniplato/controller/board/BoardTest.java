@@ -126,6 +126,16 @@ class BoardTest {
     }
 
     @Test
+    void timeLeftReadsDaysHoursOrMinutesAndIsEmptyOncePast() {
+        LocalDateTime now = LocalDateTime.of(2026, 11, 6, 12, 0);
+        assertEquals("1h 40m left", FormSupport.timeLeft(now.plusMinutes(100), now));
+        assertEquals("25m left", FormSupport.timeLeft(now.plusMinutes(25), now));
+        assertEquals("2d 3h left", FormSupport.timeLeft(now.plusHours(51), now));
+        assertEquals("", FormSupport.timeLeft(now.minusMinutes(1), now));
+        assertEquals("", FormSupport.timeLeft(null, now));
+    }
+
+    @Test
     void aPickupWindowReadsStartToEndWithTheDay() {
         LocalDate day = LocalDate.of(2026, 11, 6);
         assertEquals("4:00 PM – 8:00 PM, Today",

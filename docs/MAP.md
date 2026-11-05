@@ -222,12 +222,15 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/TableRows.java` | header and data rows (percent columns) for the dashboard and History tables | HISTORY |
 | `controller/ScreenMessage.java` | the inline message bar at the top of every in-shell screen: a broken rule or database problem is written there (A8), cleared before each screen loads | A8 |
 | `controller/ContactEditor.java` | edits the contact person and number in place on the Profile, no popup | PROFILE |
+| `controller/ChipChoice.java` | a row of chips of which one is chosen (the Category); used in FXML | LISTING, OFFER |
+| `controller/CardChoice.java` | cards of which one is chosen, with a line each (the Storage condition); used in FXML | LISTING, OFFER |
 | `controller/Banners.java` | the warning banners above a dashboard, each with its link | HISTORY |
 | `controller/board/Board.java` | the shared list screen: title and one action, tiles, tabs, city filter, search, table with bands, footnote | BOARDS |
 | `controller/board/Tile.java` | one summary tile: icon chip, title, figure, unit, note | BOARDS |
 | `controller/board/Tiles.java` | builds the row of tiles | BOARDS |
 | `controller/board/PostsBoard.java` | My Listings and My Requests as a board: Open and Accepted posts, Review offers, Confirm Release / Receipt, Cancel | BOARDS, HANDOFF |
 | `controller/board/OffersBoard.java` | My Offers as a board (food group and donor): Withdraw, Offer again, Confirm Release / Receipt | BOARDS, OFFER, HANDOFF |
+| `controller/board/PostSummary.java` | the card at the top of a Make Offer form: the post, its status, three facts, photos, venue and message | OFFER |
 | `controller/board/BrowseBoard.java` | Browse Requests (donor) and Browse Listings (food group): the board with the city bands and Make offer | BOARDS |
 
 ### Controllers: popups

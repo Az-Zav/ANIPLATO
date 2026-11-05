@@ -3,12 +3,12 @@ package com.aniplato.controller.foodgroup;
 import com.aniplato.controller.DateTimeField;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
-import com.aniplato.controller.PostCards;
 import com.aniplato.model.Post;
 import com.aniplato.service.OfferService;
 import com.aniplato.service.PostService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Selection;
+import com.aniplato.controller.board.PostSummary;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
@@ -41,7 +41,7 @@ public class MakeOfferController {
         postId = Selection.postId();
         List<Post> board = FormSupport.load(postService::getOpenListings, List.of());
         board.stream().filter(p -> p.id == postId).findFirst()
-                .ifPresent(post -> summaryBox.getChildren().add(PostCards.postCard(post, new VBox())));
+                .ifPresent(post -> summaryBox.getChildren().add(PostSummary.of(post)));
     }
 
     // PATTERN:ACTION sends the offer, then opens My Offers

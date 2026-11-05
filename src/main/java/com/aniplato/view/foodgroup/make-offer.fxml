@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.URL?>
+<?import com.aniplato.controller.CardChoice?>
+<?import com.aniplato.controller.ChipChoice?>
 <?import com.aniplato.controller.DateTimeField?>
 <?import com.aniplato.controller.PhotoPicker?>
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -20,46 +25,90 @@
         <VBox spacing="16.0" styleClass="dashboard-bg">
             <padding><Insets bottom="32.0" left="32.0" right="32.0" top="32.0" /></padding>
             <children>
+                <Hyperlink styleClass="back-link, nav-browse-listings" text="← Browse Listings" />
                 <Label styleClass="page-title" text="Make an Offer" />
                 <!-- PATTERN:DYNAMIC summaryBox : the listing being offered on -->
                 <VBox fx:id="summaryBox" />
-                <VBox spacing="18.0" styleClass="table-card">
+                <VBox spacing="18.0" styleClass="table-card, form-card">
                     <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
                     <children>
-                        <Label styleClass="text-muted" text="You offer for the whole quantity. Only the donor can see your offer." wrapText="true" />
-                        <Label styleClass="form-label" text="How the food will be used *" />
-                        <TextField fx:id="useDescriptionField" promptText="e.g. Weekend feeding program" />
-                        <Label styleClass="form-label" text="Event date (optional)" />
-                        <DatePicker fx:id="eventDatePicker" maxWidth="1.7976931348623157E308" />
-                        <Label styleClass="form-label" text="Who benefits *" />
-                        <TextField fx:id="beneficiariesField" promptText="e.g. Street children" />
-                        <Label styleClass="form-label" text="How many people *" />
-                        <TextField fx:id="headcountField" promptText="40" />
-                        <Label styleClass="form-label" text="Where the food will go *" />
-                        <TextField fx:id="placeField" promptText="Address or venue" />
-                        <Label styleClass="form-label" text="Your pickup time *" />
-                        <DateTimeField fx:id="pickupField" />
-                        <Label styleClass="text-muted" text="Inside the listing's pickup window and before its use-by." wrapText="true" />
-                        <Label styleClass="form-label" text="Photos *" />
-                        <Label styleClass="text-muted" text="Past events or the venue; the recipients if it is a new event. No identifiable children." wrapText="true" />
-                        <PhotoPicker fx:id="photoPicker" />
-                        <Label styleClass="form-label" text="Message to the donor (optional)" />
-                        <TextArea fx:id="messageArea" prefRowCount="3" wrapText="true" />
-                        <VBox spacing="6.0" styleClass="table-card">
-                            <padding><Insets bottom="12.0" left="16.0" right="16.0" top="12.0" /></padding>
-                            <children>
-                                <CheckBox fx:id="attestationCheck" text="Group attestation *" />
-                                <Label styleClass="text-muted" text="We will give this food away free, will not sell it, and will handle it safely after pickup. Photos show no identifiable children, and identifiable adults have consented." wrapText="true" />
-                            </children>
-                        </VBox>
-                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
-                            <children>
-                                <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
-                                <Button styleClass="secondary-button, nav-browse-listings" text="Cancel" />
-                                <!-- PATTERN:ACTION handleSend -->
-                                <Button onAction="#handleSend" styleClass="primary-button" text="Send offer" />
-                            </children>
-                        </HBox>
+        <Label styleClass="form-section-title" text="Your offer" />
+        <Label styleClass="text-muted" text="You offer for the whole quantity. Only the donor can see your offer." wrapText="true" />
+        <VBox spacing="6.0">
+            <children>
+                <Label styleClass="form-label" text="What will the food be used for? *" />
+                <TextField fx:id="useDescriptionField" promptText="e.g. Weekend feeding program" />
+            </children>
+        </VBox>
+        <VBox spacing="6.0">
+            <children>
+                <Label styleClass="form-label" text="Event date (optional)" />
+                <DatePicker fx:id="eventDatePicker" maxWidth="1.7976931348623157E308" />
+            </children>
+        </VBox>
+        <HBox spacing="16.0">
+            <children>
+<VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label styleClass="form-label" text="Who it will feed *" />
+                <TextField fx:id="beneficiariesField" promptText="e.g. Street children" />
+            </children>
+        </VBox>
+<VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label styleClass="form-label" text="Headcount *" />
+                <TextField fx:id="headcountField" promptText="40" />
+            </children>
+        </VBox>
+            </children>
+        </HBox>
+        <HBox spacing="16.0">
+            <children>
+<VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label styleClass="form-label" text="Where it will be used *" />
+                <TextField fx:id="placeField" promptText="Address or venue" />
+            </children>
+        </VBox>
+<VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label styleClass="form-label" text="Pickup time *" />
+                <DateTimeField fx:id="pickupField" />
+                <Label styleClass="text-muted" text="Inside the listing's pickup window and before its use-by." wrapText="true" />
+            </children>
+        </VBox>
+            </children>
+        </HBox>
+        <VBox spacing="6.0">
+            <children>
+                <Label styleClass="form-label" text="Message to the donor (optional)" />
+                <TextArea fx:id="messageArea" prefRowCount="2" wrapText="true" />
+            </children>
+        </VBox>
+        <Separator />
+        <Label styleClass="form-section-title" text="Photos" />
+        <VBox spacing="6.0">
+            <children>
+                <Label styleClass="form-label" text="Photos *" />
+                <PhotoPicker fx:id="photoPicker" />
+                <Label styleClass="text-muted" text="1 to 5 photos of past events or your venue. For a new event, the recipients. No identifiable children." wrapText="true" />
+            </children>
+        </VBox>
+        <VBox spacing="6.0" styleClass="attest-box">
+            <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0" /></padding>
+            <children>
+                <CheckBox fx:id="attestationCheck" text="Group attestation *" />
+                <Label styleClass="text-muted" text="We will give this food away free, will not sell it, and will handle it safely after pickup. Photos show no identifiable children, and identifiable adults have consented." wrapText="true" />
+                <Label styleClass="helper-note" text="Required. Saved with a timestamp when you send." wrapText="true" />
+            </children>
+        </VBox>
+        <Separator />
+        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+            <children>
+                <Button styleClass="secondary-button, nav-browse-listings" text="Cancel" />
+                <Button onAction="#handleSend" styleClass="primary-button" text="Send offer" />
+            </children>
+        </HBox>
                     </children>
                 </VBox>
             </children>

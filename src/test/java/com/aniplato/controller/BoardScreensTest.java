@@ -1,12 +1,12 @@
 package com.aniplato.controller;
 
 import com.aniplato.model.FoodDetail;
+import com.aniplato.util.Selection;
 import com.aniplato.support.Fx;
 import javafx.scene.Node;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
 import javafx.scene.Parent;
-import javafx.scene.control.ComboBox;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -38,16 +38,46 @@ class BoardScreensTest extends ScreenTestBase {
     }
 
     @Test
-    void aCasualDonorSeesOnlyRawAndPackagedInTheCategoryChoices() {
+    void aCasualDonorSeesOnlyRawAndPackagedInTheCategoryChips() {
         loginAs(CASUAL);
         Parent form = open("donor/new-listing.fxml");
         @SuppressWarnings("unchecked")
-        ComboBox<FoodDetail.Category> categories = (ComboBox<FoodDetail.Category>) all(form, ComboBox.class).get(0);
+        ChipChoice<FoodDetail.Category> categories = (ChipChoice<FoodDetail.Category>) all(form, ChipChoice.class).get(0);
         assertEquals(List.of(FoodDetail.Category.RAW, FoodDetail.Category.PACKAGED), categories.getItems());
         loginAs(BUSINESS);
         @SuppressWarnings("unchecked")
-        ComboBox<FoodDetail.Category> every = (ComboBox<FoodDetail.Category>) all(open("donor/new-listing.fxml"), ComboBox.class).get(0);
+        ChipChoice<FoodDetail.Category> every = (ChipChoice<FoodDetail.Category>) all(open("donor/new-listing.fxml"), ChipChoice.class).get(0);
         assertEquals(4, every.getItems().size());
+    }
+
+    @Test
+    void theListingFormHasStorageCardsAllergenChipsAndPhotoTiles() {
+        loginAs(BUSINESS);
+        Parent form = open("donor/new-listing.fxml");
+        assertEquals(3, all(form, CardChoice.class).get(0).getItems().size());
+        assertEquals("Room temperature (22–28 °C), sealed containers.", CardChoice.storageHint(FoodDetail.Storage.AMBIENT_DRY));
+        assertEquals(3, all(form, javafx.scene.control.ToggleButton.class).stream().filter(b -> b.getStyleClass().contains("choice-card")).count());        assertTrue(mentions(form, "Quantity & timing"));
+        assertEquals(1, all(form, javafx.scene.control.Button.class).stream().filter(b -> b.getStyleClass().contains("photo-add")).count(), "the Add photo tile");
+        long chips = all(form, javafx.scene.control.CheckBox.class).stream().filter(c -> c.getStyleClass().contains("chip-check")).count();
+        assertEquals(5, chips, "one chip per allergen");
+    }
+
+    @Test
+    void theMakeOfferFormsStartWithASummaryOfThePostBeingOfferedOn() {
+        loginAs(GROUP);
+        Selection.selectPost(Fixtures.seedListingId());
+        Parent group = open("foodgroup/make-offer.fxml");
+        assertTrue(mentions(group, "Day-old pandesal and loaf bread"));
+        assertTrue(mentions(group, "QUANTITY"));
+        assertTrue(mentions(group, "USE-BY"));
+        assertTrue(mentions(group, "Open"));
+
+        loginAs(BUSINESS);
+        Selection.selectPost(Fixtures.seedRequestId());
+        Parent donor = open("donor/make-offer.fxml");
+        assertTrue(mentions(donor, "NEEDED-BY"));
+        assertTrue(mentions(donor, "EVENT"));
+        assertEquals(1, all(donor, ChipChoice.class).size());
     }
 
     //---MY POSTS---
