@@ -4,6 +4,23 @@ Branch `ccr-f2e57831-6tfkkw`. Round 1 is 12 commits after the tag **`pre-cleanup
 
 **To undo everything:** `git checkout pre-cleanup`. **To undo one step:** `git revert <commit>` using the table below.
 
+## Round 6: the screens match the Figma V2 design
+
+Not behavior-preserving: it changes how screens look and a few list rules (below). One commit per step, the full suite green before each (305 tests), authored as the project owner, no attribution lines. **To undo everything:** `git reset --hard pre-figma-alignment` (the code before this round, tagged on the first commit). **To undo one step:** `git reset --hard <tag>` for the step before it, or `git revert <commit>`. Tags: `pre-figma-alignment`, `figma-step-2` ... `figma-step-7`.
+
+| # | Commit | Step | Behavior |
+|---|---|---|---|
+| 0 | 2e39440 | No system popups: a broken rule is an inline message (`ScreenMessage` bar, `DialogCard.showProblem` inside a dialog). The two dialogs that are not in Figma are gone (Edit contact is inline on the Profile, Notice resolved is a line under the notice). Dialogs open as an overlay over the whole window. Modern check boxes, radios, scroll bars, date pickers, text areas | popups replaced, see below |
+| 1-2 | e78b81a | Shared board kit (`controller/board`) and the Browse Requests / Browse Listings boards: tiles, Today/Tomorrow tabs, city filter, search, city bands. `BoardService` works out the tile figures (A9) | same data; the detail fields moved to Make Offer |
+| 3 | 58e0d15 | My Listings, My Requests, My Offers as boards (`PostsBoard`, `OffersBoard`); `MyPostRows` and `MyOfferRows` removed | **lists changed**, see below |
+| 4 | 18037c3 | One page per listing or request for its offers (`OffersPage`); `getOffersOn(postId)` replaces `getIncomingOffers` | **flat offer lists removed** |
+| 5 | 5cd3990 | Forms as sectioned cards: category chips, storage cards, allergen chips, photo tiles, `PostSummary` on Make Offer | same rules, same service calls |
+| 6-7 | 14c7d7f | Handoff record, organization name in the header, sidebar label and chevrons, safety notice pills | record shows attestation times |
+
+**Behavior that changed (only these):** (1) a post's `offerCount` counts only Offered offers (it counted Withdrawn and Declined ones too); (2) My Listings and My Requests list only Open and Accepted posts, My Offers leaves out Completed offers; closed ones are in History as the Figma footnotes say; (3) the offers of a post are decided on a page for that post, so an offers page needs a post chosen from My Listings or My Requests; (4) a donor's handover text shows under the accepted offer in My Requests, where the poster used to read it on the old offer card (R2.1); (5) **Flag a concern** is a small link on Accepted rows, in the Confirm Release / Receipt dialogs and on the handoff record (not a button on every card).
+
+**Left for a decision (the spec or the data model does not say, so nothing was guessed):** Figma's New Request has a separate "What food do you need?" field and the model has only the event or program name; Figma's Review Registration has three tickable checks and a "Flag problem" button that the spec (R1.4: verify or undo) does not have; Figma's Make Offer shows one "Pickup window" field, the form still has a start and an end side by side because the service stores both; the Inter font is not bundled (the app uses Segoe UI); the Assistant's tooltip and notification dot, the Profile documents table's status pills and "Upload renewal" buttons, History's tile icons and the dialogs were not compared with Figma in detail.
+
 ## Round 5: the audit cleanup
 
 Behavior-preserving, like rounds 1 and 2, with **one flagged exception** (step 8b). One commit per step, the full suite green before each, no attribution lines. Tags: **`cleanup-round-4`** is the code before this round, **`cleanup-round-5`** the code after it. **To undo the round:** `git checkout cleanup-round-4`.
