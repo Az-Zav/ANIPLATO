@@ -93,13 +93,10 @@ public class OfferDao {
         return query(c, OFFER_SELECT + "WHERE o.offerer_id = ? ORDER BY o.created_at DESC, o.offer_id DESC", offererId);
     }
 
-    /**
-     * Every offer on one poster's posts, newest first, except Withdrawn ones (the poster never sees those) and
-     * Offered ones from a Suspended offerer (hidden until reinstated, 6.3).
-     */
-    public List<Offer> findIncoming(Connection c, int posterId) throws SQLException {
-        return query(c, OFFER_SELECT + "JOIN post p ON p.post_id = o.post_id WHERE p.posted_by = ? AND o.status <> 'WITHDRAWN' "
-                + "AND (a.status = 'ACTIVE' OR o.status <> 'OFFERED') ORDER BY o.created_at DESC, o.offer_id DESC", posterId);
+    /** The offers on one post, newest first, without Withdrawn ones and without Offered ones from a Suspended offerer. */
+    public List<Offer> findOnPost(Connection c, int postId) throws SQLException {
+        return query(c, OFFER_SELECT + "WHERE o.post_id = ? AND o.status <> 'WITHDRAWN' "
+                + "AND (a.status = 'ACTIVE' OR o.status <> 'OFFERED') ORDER BY o.created_at DESC, o.offer_id DESC", postId);
     }
 
     /** Records that the donor handed the food over. Only an Accepted offer, once. Returns rows changed. */

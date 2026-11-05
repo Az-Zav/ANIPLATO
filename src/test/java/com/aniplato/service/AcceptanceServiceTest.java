@@ -1,6 +1,7 @@
 package com.aniplato.service;
 
 import com.aniplato.model.Offer;
+import com.aniplato.model.Post;
 import com.aniplato.support.DbTest;
 import com.aniplato.support.Fixtures;
 import com.aniplato.support.TestDb;
@@ -134,21 +135,31 @@ class AcceptanceServiceTest extends DbTest {
     //---THE POSTER'S LIST---
 
     @Test
-    void thePosterSeesItsOffersWithoutWithdrawnOnesOrSuspendedOfferers() {
+    void thePosterSeesTheOffersWaitingOnOnePostWithoutWithdrawnOnesOrSuspendedOfferers() {
         int shown = Fixtures.offerOnSeedRequest(BUSINESS, "OFFERED", 10);
         Fixtures.offerOnSeedRequest(CASUAL, "WITHDRAWN", 5);
         loginAs(GROUP);
+        int post = Fixtures.seedRequestId();
 
-        List<Offer> offers = acceptance.getIncomingOffers();
-        assertEquals(1, offers.size());
-        assertEquals(shown, offers.get(0).id);
-        assertEquals("Sunrise Bakery", offers.get(0).offererName);
-        assertEquals("Kapwa Community Kitchen", offers.get(0).post.posterName);
+        AcceptanceService.PostOffers page = acceptance.getOffersOn(post);
+        assertEquals(post, page.post().id);
+        assertEquals(1, page.offers().size());
+        assertEquals(shown, page.offers().get(0).id);
+        assertEquals("Sunrise Bakery", page.offers().get(0).offererName);
+        assertEquals("Kapwa Community Kitchen", page.offers().get(0).post.posterName);
 
         TestDb.exec("UPDATE account SET status = 'SUSPENDED', suspend_reason = 'test' WHERE email = ?", BUSINESS);
-        assertTrue(acceptance.getIncomingOffers().isEmpty());
+        assertTrue(acceptance.getOffersOn(post).offers().isEmpty());
         TestDb.exec("UPDATE account SET status = 'ACTIVE', suspend_reason = NULL WHERE email = ?", BUSINESS);
-        assertEquals(1, acceptance.getIncomingOffers().size());
+        assertEquals(1, acceptance.getOffersOn(post).offers().size());
+    }
+
+    @Test
+    void onlyOfferedOffersAreListedForADecision() {
+        Fixtures.offerOnSeedRequest(BUSINESS, "DECLINED", 10);
+        Fixtures.offerOnSeedRequest(CASUAL, "OFFERED", 5);
+        loginAs(GROUP);
+        assertEquals(1, acceptance.getOffersOn(Fixtures.seedRequestId()).offers().size());
     }
 
     @Test
@@ -156,18 +167,20 @@ class AcceptanceServiceTest extends DbTest {
         int offer = Fixtures.offerOnSeedRequest(BUSINESS, "OFFERED", 10);
         TestDb.exec("UPDATE food_detail SET handover_instructions = 'Gate B' WHERE description = 'Rice'");
         loginAs(GROUP);
-        assertNull(acceptance.getIncomingOffers().get(0).food.handoverInstructions);
+        assertNull(acceptance.getOffersOn(Fixtures.seedRequestId()).offers().get(0).food.handoverInstructions);
         acceptance.accept(offer);
-        assertEquals("Gate B", acceptance.getIncomingOffers().get(0).food.handoverInstructions);
+        Post request = new PostService().getMyPosts().stream().filter(p -> p.id == Fixtures.seedRequestId()).findFirst().orElseThrow();
+        assertEquals("Gate B", request.acceptedOffer.food.handoverInstructions);
     }
 
     @Test
     void nobodyButThePosterSeesTheOffersOnItsPost() {
         Fixtures.offerOnSeedRequest(BUSINESS, "OFFERED", 10);
+        int post = Fixtures.seedRequestId();
         loginAs(CASUAL);
-        assertTrue(acceptance.getIncomingOffers().isEmpty());
+        assertRule("These offers are not yours to see.", () -> acceptance.getOffersOn(post));
         loginAs(BUSINESS);
-        assertTrue(acceptance.getIncomingOffers().isEmpty());
+        assertRule("These offers are not yours to see.", () -> acceptance.getOffersOn(post));
     }
 
     @Test

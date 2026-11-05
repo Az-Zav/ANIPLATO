@@ -1534,3 +1534,22 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
+
+/* Offers page (offers for one listing or request) */
+.back-link {
+    -fx-text-fill: #0D631B;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+}
+
+.fact-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6B7280;
+}
+
+.fact-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+}

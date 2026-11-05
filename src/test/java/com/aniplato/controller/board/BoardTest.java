@@ -125,6 +125,17 @@ class BoardTest {
         assertEquals("", FormSupport.soon(null, day));
     }
 
+    @Test
+    void aPickupWindowReadsStartToEndWithTheDay() {
+        LocalDate day = LocalDate.of(2026, 11, 6);
+        assertEquals("4:00 PM – 8:00 PM, Today",
+                FormSupport.window(LocalDateTime.of(2026, 11, 6, 16, 0), LocalDateTime.of(2026, 11, 6, 20, 0), day));
+        assertEquals("7:00 AM – 9:00 AM, Tomorrow",
+                FormSupport.window(LocalDateTime.of(2026, 11, 7, 7, 0), LocalDateTime.of(2026, 11, 7, 9, 0), day));
+        assertEquals("Today, 10:00 PM – Tomorrow, 2:00 AM",
+                FormSupport.window(LocalDateTime.of(2026, 11, 6, 22, 0), LocalDateTime.of(2026, 11, 7, 2, 0), day));
+    }
+
     private static List<Button> buttons(Node node) {
         List<Button> found = new ArrayList<>();
         if (node instanceof Button b) found.add(b);

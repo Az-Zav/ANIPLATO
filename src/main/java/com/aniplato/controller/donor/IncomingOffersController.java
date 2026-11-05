@@ -1,35 +1,31 @@
 package com.aniplato.controller.donor;
 
-import com.aniplato.controller.Cards;
 import com.aniplato.controller.FormSupport;
-import com.aniplato.controller.IncomingOfferRows;
+import com.aniplato.controller.board.OffersPage;
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.model.Offer;
 import com.aniplato.service.AcceptanceService;
+import com.aniplato.util.Navigator;
+import com.aniplato.util.Selection;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
-import java.util.List;
-
-/** Incoming Offers: the offers on the donor's listings, accept or decline. */
+/** Offers for this listing: the offers waiting on the listing opened from My Listings, accept or decline. */
 public class IncomingOffersController {
 
     private final AcceptanceService acceptanceService = new AcceptanceService();
-    private IncomingOfferRows rows;
+    private OffersPage page;
 
-    @FXML private VBox rowsBox;
-    @FXML private Label emptyLabel;
+    @FXML private VBox pageHost;
     @FXML private DialogController dialogController;
 
     @FXML
     private void initialize() {
-        rows = new IncomingOfferRows(dialogController, this::refresh);
+        page = new OffersPage(OffersPage.Kind.LISTING, dialogController, Navigator.Screen.MY_LISTINGS, this::refresh);
+        pageHost.getChildren().setAll(page.view());
         refresh();
     }
 
     private void refresh() {
-        List<Offer> offers = FormSupport.load(acceptanceService::getIncomingOffers, List.of());
-        Cards.fill(rowsBox, emptyLabel, rows.build(offers));
+        page.show(FormSupport.load(() -> acceptanceService.getOffersOn(Selection.postId()), null));
     }
 }

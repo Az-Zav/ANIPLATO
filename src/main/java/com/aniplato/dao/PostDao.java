@@ -194,7 +194,7 @@ public class PostDao {
     }
 
     private int countOffers(Connection c, int postId) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM offer WHERE post_id = ?")) {
+        try (PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM offer WHERE post_id = ? AND status = 'OFFERED'")) {
             ps.setInt(1, postId);
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();

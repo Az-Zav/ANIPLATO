@@ -34,23 +34,29 @@ public class AcceptanceService {
 
     //---THE POSTER'S LIST---
 
+    /** One of the poster's posts and the offers still waiting for a decision on it, newest first. */
+    public record PostOffers(Post post, List<Offer> offers) { }
+
     /**
-     * Offers on the logged-in account's posts, newest first, each with its post and photos. Withdrawn offers and
-     * Offered offers from a Suspended offerer are left out. A donor's handover text on an offer to a request
-     * stays hidden until the offer is accepted (R2.1).
+     * The offers on one post the logged-in account made, with the post, as the "Offers for this listing / request"
+     * page shows them. Only Offered offers are listed: those are the ones to decide on. Handover text stays hidden
+     * until acceptance (R2.1).
      */
-    public List<Offer> getIncomingOffers() {
+    public PostOffers getOffersOn(int postId) {
         Account me = Session.require();
         return Database.inTransaction("Could not load the offers", c -> {
-            List<Offer> offers = offerDao.findIncoming(c, me.id);
-            for (Offer offer : offers) {
+            Post post = postDao.findById(c, postId);
+            if (post == null || post.posterId != me.id) throw new RuleViolationException("These offers are not yours to see.");
+            post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, postId);
+            List<Offer> pending = new java.util.ArrayList<>();
+            for (Offer offer : offerDao.findOnPost(c, postId)) {
+                if (offer.status != Offer.Status.OFFERED) continue;
                 offer.photos = photoDao.findPaths(c, PhotoDao.Owner.OFFER, offer.id);
-                offer.post = postDao.findById(c, offer.postId);
-                offer.post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, offer.postId);
-                boolean accepted = offer.status == Offer.Status.ACCEPTED || offer.status == Offer.Status.COMPLETED;
-                if (offer.food != null && !accepted) offer.food.handoverInstructions = null;
+                offer.post = post;
+                if (offer.food != null) offer.food.handoverInstructions = null;
+                pending.add(offer);
             }
-            return offers;
+            return new PostOffers(post, pending);
         });
     }
 

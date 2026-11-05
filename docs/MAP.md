@@ -213,7 +213,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/HandoffRecordController.java` | one handoff record with its report; the Submit report button for the receiving group | HANDOFF, REPORT |
 | `controller/Cards.java` | small builders for the card rows list screens fill in code | LISTING, OFFER, HANDOFF |
 | `controller/PostCards.java` | how a listing, a request and an offer read as cards, with photo thumbnails | LISTING, OFFER |
-| `controller/IncomingOfferRows.java` | the rows of Incoming Offers: accept, decline, contact | ACCEPT |
+| `controller/board/OffersPage.java` | the offers on one listing or request: back link, the post's facts, one card per offer with Decline and Accept offer | ACCEPT |
 | `controller/FormSupport.java` | runs a service call and shows a broken rule (`failure` is the one place that turns a failure into text); reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
 | `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
 | `controller/PhotoPicker.java` | the Add photos button, previews and count | LISTING, OFFER, REPORT |
@@ -835,16 +835,16 @@ Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.ja
 | `OfferService.sendListingOffer` | a food group offers for a listing's whole quantity; re-opens its Withdrawn offer on the same row | foodgroup MakeOfferController | OfferServiceTest |
 | `OfferService.sendRequestOffer` | a donor offers on a request: kg up to the requested amount, a category the request accepts | donor MakeOfferController | OfferServiceTest |
 | `OfferService.withdraw` | the offerer takes back an Offered offer, logged | OffersBoard | OfferServiceTest |
-| `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | MyOfferRows screens, the browse boards | OfferServiceTest |
+| `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | OffersBoard screens, the browse boards | OfferServiceTest |
 | `OfferDao.insert` | saves a new offer | OfferService | OfferServiceTest |
 | `OfferDao.reopenIfWithdrawn` | puts a Withdrawn offer back to Offered with new details | OfferService | OfferServiceTest |
 | `OfferDao.updateStatusIf` | changes the status only if it is still the expected one | OfferService | OfferServiceTest |
 | `OfferDao.findById` | one offer with its detail | OfferService | OfferServiceTest |
 | `OfferDao.findByPostAndOfferer` | the offer one account made on a post, in any status | OfferService | OfferServiceTest |
 | `OfferDao.findByOfferer` | every offer one account made | OfferService | OfferServiceTest |
-| `Selection.selectPost` | remembers the post opened from a board or list | BrowseListingsController, BrowseRequestsController, MyOfferRows | OfferScreensTest |
+| `Selection.selectPost` | remembers the post opened from a board or list | BrowseListingsController, BrowseRequestsController, OffersBoard | OfferScreensTest |
 | `Selection.postId` | the post the Make Offer form is for | both MakeOfferControllers | OfferScreensTest |
-| `Selection.selectOffer` | remembers the offer opened from a list | MyPostRows, MyOfferRows, HandoffRecordController | OfferScreensTest |
+| `Selection.selectOffer` | remembers the offer opened from a list | PostsBoard, OffersBoard, HandoffRecordController | OfferScreensTest |
 | `Selection.offerId` | the offer the record and report screens are for | HandoffRecordController, SubmitReportController | OfferScreensTest |
 | `DetailDao.deleteFood` | removes the food detail an offer no longer uses | OfferService | OfferServiceTest |
 | `DetailDao.deleteUse` | removes the use detail an offer no longer uses | OfferService | OfferServiceTest |
@@ -871,19 +871,19 @@ flowchart LR
 
 ### ACCEPT: the poster decides 🟡
 
-Files: `service/AcceptanceService.java`, `service/PostService.java` (the status door), `dao/OfferDao.java`, `dao/PostDao.java`, `dao/AccountDao.java`. Screens: the two incoming-offers lists (`IncomingOfferRows`).
+Files: `service/AcceptanceService.java`, `service/PostService.java` (the status door), `dao/OfferDao.java`, `dao/PostDao.java`, `dao/AccountDao.java`. Screens: the two incoming-offers lists (`OffersPage`).
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `AcceptanceService.getIncomingOffers` | offers on the logged-in poster's posts, without Withdrawn ones or Offered ones from a Suspended offerer | both incoming-offers controllers | AcceptanceServiceTest |
+| `AcceptanceService.getOffersOn` | the Offered offers waiting on one of the poster's posts, with the post; not Withdrawn ones or ones from a Suspended offerer; handover text hidden | both offers-page controllers | AcceptanceServiceTest |
 | `AcceptanceService.countOffersAwaitingDecision` | Offered offers waiting for the poster: the donor's sidebar badge | ShellController | AcceptanceServiceTest, ShellBadgeTest |
-| `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | IncomingOfferRows | AcceptanceServiceTest |
-| `AcceptanceService.decline` | the poster declines one Offered offer | IncomingOfferRows | AcceptanceServiceTest |
-| `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | MyPostRows, MyOfferRows, IncomingOfferRows | AcceptanceServiceTest |
+| `AcceptanceService.accept` | one transaction: this offer Accepted, the others Declined, the post Accepted, all logged | OffersPage | AcceptanceServiceTest |
+| `AcceptanceService.decline` | the poster declines one Offered offer | OffersPage | AcceptanceServiceTest |
+| `AcceptanceService.getContactPhone` | the only method that returns a phone number: the owner, an admin, or the other side of an Accepted offer (A7) | PostsBoard, OffersBoard, OffersPage | AcceptanceServiceTest |
 | `PostService.changeStatus` | the one door for a post's status change, with the log (A3) | AcceptanceService | AcceptanceServiceTest |
 | `PostDao.findForUpdate` | a post in any status, locked until the transaction ends | AcceptanceService | AcceptanceServiceTest |
 | `PostDao.updateStatusIf` | changes a post's status only if it is still the expected one | PostService | AcceptanceServiceTest |
-| `OfferDao.findIncoming` | the offers on one poster's posts | AcceptanceService | AcceptanceServiceTest |
+| `OfferDao.findOnPost` | the offers on one post, newest first, without Withdrawn ones or Offered ones from a Suspended offerer | AcceptanceService | AcceptanceServiceTest |
 | `OfferDao.findOfferedIdsExcept` | the other Offered offers on a post, which an accept declines | AcceptanceService | AcceptanceServiceTest |
 | `OfferDao.countAwaitingDecision` | Offered offers from Active offerers on a poster's Open posts | AcceptanceService | AcceptanceServiceTest |
 | `AccountDao.findContactPhone` | an account's number; only AcceptanceService.getContactPhone calls it | AcceptanceService | AcceptanceServiceTest |
@@ -900,23 +900,23 @@ flowchart LR
   AS --> PS{{PostService<br/>changeStatus}}:::svc --> PU[PostDao<br/>updateStatusIf]:::dao --> TP
   AS --> LG[LogDao]:::dao --> TL[(status_change)]:::tbl
   PS --> LG
-  IL([Incoming Offers lists]):::screen --> AI{{AcceptanceService<br/>getIncomingOffers<br/>countOffersAwaitingDecision}}:::svc
-  AI --> OI[OfferDao<br/>findIncoming<br/>countAwaitingDecision]:::dao --> TO
+  IL([Incoming Offers lists]):::screen --> AI{{AcceptanceService<br/>getOffersOn<br/>countOffersAwaitingDecision}}:::svc
+  AI --> OI[OfferDao<br/>findOnPost<br/>countAwaitingDecision]:::dao --> TO
   CP([Contact number on the offer]):::screen --> GC{{AcceptanceService<br/>getContactPhone}}:::svc
   GC --> AP[AccountDao<br/>findContactPhone]:::dao --> TA[(registration)]:::tbl
 ```
 
 ### HANDOFF: release, receipt, record, cancel 🟡
 
-Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/OfferDao.java`, `model/HandoffRecord.java`. Screens: the dialogs open from `MyPostRows` and `MyOfferRows`; the record screen is `HandoffRecordController`.
+Files: `service/HandoffService.java`, `service/PostService.java` (cancel), `dao/OfferDao.java`, `model/HandoffRecord.java`. Screens: the dialogs open from `PostsBoard` and `OffersBoard`; the record screen is `HandoffRecordController`.
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
-| `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | MyPostRows, MyOfferRows | HandoffServiceTest |
-| `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | MyPostRows, MyOfferRows | HandoffServiceTest |
+| `HandoffService.confirmRelease` | the donor confirms the handover on an Accepted offer, once | PostsBoard, OffersBoard | HandoffServiceTest |
+| `HandoffService.confirmReceipt` | the food group confirms receipt after release: offer Completed, post Rescued, one transaction, logged | PostsBoard, OffersBoard | HandoffServiceTest |
 | `HandoffService.getHandoffRecord` | the record of a Completed offer for its two sides or an admin: number, names, food, kg, times, use, report due date | HandoffRecordController | HandoffServiceTest |
 | `HandoffService.countAwaitingHandoff` | Accepted offers an account is waiting on: the food group's sidebar badge | ShellController | HandoffServiceTest, ShellBadgeTest |
-| `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | MyPostRows | CancelPostTest |
+| `PostService.cancelPost` | the poster cancels an Open or Accepted post with a reason; waiting offers Declined, the accepted one Cancelled; blocked after release | PostsBoard | CancelPostTest |
 | `OfferDao.markReleasedIf` | sets the release time on an Accepted offer, once | HandoffService | HandoffServiceTest |
 | `OfferDao.completeIfReleased` | Accepted to Completed with the receipt time, only after release | HandoffService | HandoffServiceTest |
 | `OfferDao.findIdsByStatus` | a post's offers in one status | PostService | CancelPostTest |
@@ -1122,8 +1122,8 @@ flowchart LR
 | `Document.fromDb` | reads a stored value back into the enum | DocumentDao | RegistrationApplyTest |
 | `Document.isExpired` | the expiry date is before today | RegistrationService, ProfileController | RegistrationDecisionTest |
 | `Document.expiresWithin` | still valid but ending within N days | ProfileController | DocumentReviewTest |
-| `Offer.label` | the offer status's name on screen | PostCards, MyOfferRows, IncomingOfferRows | BoardScreensTest |
-| `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, IncomingOfferRows, MyPostRows | AcceptanceServiceTest |
+| `Offer.label` | the offer status's name on screen | PostCards, OffersBoard, OffersPage | BoardScreensTest |
+| `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, OffersPage, PostsBoard | AcceptanceServiceTest |
 | `Post.label` | the post status's name on screen (on the status enum) | PostCards | BoardScreensTest |
 | `Post.isListing` | is this a listing (not a request) | PostCards, Post.noun | PostServiceTest, PostTest |
 | `Post.noun` | "listing" or "request" for a message | AcceptanceService, OfferService | PostTest |

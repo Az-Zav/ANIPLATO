@@ -83,6 +83,14 @@ public final class FormSupport {
         return time.format(DAY_CLOCK);
     }
 
+    /** "4:00 PM – 8:00 PM, Today": a pickup window on one day; across two days both ends carry their date. */
+    public static String window(LocalDateTime start, LocalDateTime end, LocalDate today) {
+        if (start == null || end == null) return "";
+        if (!start.toLocalDate().equals(end.toLocalDate())) return soon(start, today) + " – " + soon(end, today);
+        String day = soon(start, today);
+        return start.format(CLOCK) + " – " + end.format(CLOCK) + ", " + day.substring(0, day.indexOf(','));
+    }
+
     /** "12.5 kg" (no trailing zeros). */
     public static String kg(double kg) {
         return (kg == Math.rint(kg) ? String.valueOf((long) kg) : String.valueOf(kg)) + " kg";

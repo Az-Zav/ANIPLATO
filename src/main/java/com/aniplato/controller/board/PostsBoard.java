@@ -129,7 +129,11 @@ public final class PostsBoard {
     private Node acceptedCell(Post post, Offer accepted) {
         String phone = phones.get(post.id);
         Label name = TableRows.text(accepted.offererName, "form-label");
-        return phone == null ? name : TableRows.stack(name, TableRows.text("contact " + phone, "table-cell-muted"));
+        if (phone == null) return name;
+        Label contact = TableRows.text("contact " + phone, "table-cell-muted");
+        boolean handover = !post.isListing() && accepted.food != null && accepted.food.handoverInstructions != null;   // shown once accepted (R2.1)
+        return handover ? TableRows.stack(name, contact, TableRows.text("Handover: " + accepted.food.handoverInstructions, "table-cell-muted"))
+                : TableRows.stack(name, contact);
     }
 
     private static Node offersCell(Post post) {

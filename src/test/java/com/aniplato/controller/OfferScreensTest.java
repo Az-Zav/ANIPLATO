@@ -23,9 +23,13 @@ class OfferScreensTest extends ScreenTestBase {
         int first = Fixtures.offerOnSeedRequest(BUSINESS, "OFFERED", 10);
         int second = Fixtures.offerOnSeedRequest(CASUAL, "OFFERED", 5);
         loginAs(GROUP);
+        Selection.selectPost(Fixtures.seedRequestId());
         Parent screen = open("foodgroup/incoming-offers.fxml");
+        assertTrue(mentions(screen, "Offers for this request"));
+        assertTrue(mentions(screen, "2 offers"));
         assertTrue(mentions(screen, "Sunrise Bakery"));
         assertTrue(mentions(screen, "Santos Household"));
+        button(screen, "Accept offer");
 
         Fx.run(() -> button(screen, "Decline").fire());   // newest first, so the first card is the later offer
 
