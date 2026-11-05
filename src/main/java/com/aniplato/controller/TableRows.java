@@ -1,6 +1,7 @@
 package com.aniplato.controller;
 
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -32,6 +33,7 @@ public final class TableRows {
 
     public static void put(GridPane row, int column, Node node) {
         GridPane.setColumnIndex(node, column);
+        GridPane.setValignment(node, VPos.CENTER);
         row.getChildren().add(node);
     }
 
@@ -54,6 +56,7 @@ public final class TableRows {
     public static Button rowButton(String text, Runnable action) {
         Button button = new Button(text);
         button.getStyleClass().add("row-button");
+        button.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);   // never cut the label to "Review off..."
         button.setOnAction(e -> action.run());
         return button;
     }
@@ -62,6 +65,7 @@ public final class TableRows {
     public static Button rowOutline(String text, Runnable action) {
         Button button = new Button(text);
         button.getStyleClass().add("row-button-outline");
+        button.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
         button.setOnAction(e -> action.run());
         return button;
     }

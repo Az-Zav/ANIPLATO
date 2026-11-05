@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.ScrollPane;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,8 +63,9 @@ abstract class ScreenTestBase extends DbTest {
         return texts(screen).stream().anyMatch(t -> t.contains(text));
     }
 
-    protected static Button button(Node screen, String text) {
-        return all(screen, Button.class).stream().filter(b -> text.equals(b.getText())).findFirst()
+    /** A button or a link with exactly this text (the board rows use small links for Cancel and Flag a concern). */
+    protected static ButtonBase button(Node screen, String text) {
+        return all(screen, ButtonBase.class).stream().filter(b -> text.equals(b.getText())).findFirst()
                 .orElseThrow(() -> new AssertionError("no button " + text + " in " + texts(screen)));
     }
 }

@@ -62,9 +62,10 @@ class BoardScreensTest extends ScreenTestBase {
 
         assertTrue(mentions(screen, "Day-old pandesal and loaf bread"));
         assertTrue(mentions(screen, "09181234567"), "the group's number is shown on an accepted offer");
-        button(screen, "Confirm release");
-        button(screen, "Cancel");
-        assertFalse(texts(screen).contains("Confirm receipt"));
+        button(screen, "Confirm Release");
+        button(screen, "Cancel listing");
+        assertTrue(all(screen, javafx.scene.control.ButtonBase.class).stream()
+                .noneMatch(b -> b.getStyleClass().contains("row-button") && "Confirm Receipt".equals(b.getText())), "a donor never confirms receipt");
         assertEquals("ACCEPTED", TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", offer));
     }
 
@@ -73,10 +74,44 @@ class BoardScreensTest extends ScreenTestBase {
         int offer = Fixtures.offerOnSeedRequest(BUSINESS, "ACCEPTED", 10);
         TestDb.exec("UPDATE post SET status = 'ACCEPTED' WHERE kind = 'REQUEST'");
         loginAs(GROUP);
-        assertFalse(texts(open("foodgroup/my-requests.fxml")).contains("Confirm receipt"));
+        assertTrue(button(open("foodgroup/my-requests.fxml"), "Confirm Receipt").isDisabled(), "waiting for the donor's release");
 
         TestDb.exec("UPDATE offer SET released_at = NOW() WHERE offer_id = ?", offer);
-        button(open("foodgroup/my-requests.fxml"), "Confirm receipt");
+        assertFalse(button(open("foodgroup/my-requests.fxml"), "Confirm Receipt").isDisabled());
+    }
+
+    @Test
+    void myListingsIsABoardWithTilesTabsAndAnOpenRow() {
+        loginAs(BUSINESS);
+        Parent screen = open("donor/my-listings.fxml");
+        assertTrue(mentions(screen, "OFFERS TO REVIEW"));
+        assertTrue(mentions(screen, "OPEN ON BOARD"));
+        assertTrue(mentions(screen, "All (1)"));
+        assertTrue(mentions(screen, "Open (1)"));
+        assertTrue(mentions(screen, "No offers yet"));
+        assertTrue(mentions(screen, "Rescued, expired and cancelled listings move to History."));
+        button(screen, "Cancel listing");
+
+        Fixtures.offerOnSeedListing("OFFERED", 12.5);
+        Parent withOffer = open("donor/my-listings.fxml");
+        assertTrue(mentions(withOffer, "1 offer"));
+        button(withOffer, "Review offers");
+    }
+
+    @Test
+    void myOffersShowsTheReleaseColumnAndWaitsForTheDonor() {
+        int offer = Fixtures.offerOnSeedListing("ACCEPTED", 12.5);
+        TestDb.exec("UPDATE post SET status = 'ACCEPTED' WHERE kind = 'LISTING'");
+        loginAs(GROUP);
+        Parent waiting = open("foodgroup/my-offers.fxml");
+        assertTrue(mentions(waiting, "DONOR RELEASE"));
+        assertTrue(mentions(waiting, "Waiting for donor release"));
+        assertTrue(button(waiting, "Confirm Receipt").isDisabled());
+
+        TestDb.exec("UPDATE offer SET released_at = NOW() WHERE offer_id = ?", offer);
+        Parent released = open("foodgroup/my-offers.fxml");
+        assertTrue(mentions(released, "Confirmed"));
+        assertFalse(button(released, "Confirm Receipt").isDisabled());
     }
 
     //---PHOTOS---

@@ -35,13 +35,13 @@ class OfferScreensTest extends ScreenTestBase {
     }
 
     @Test
-    void myOffersShowsWithdrawForAnOfferedOfferAndTheRecordLinkForACompletedOne() {
+    void myOffersShowsWithdrawForAnOfferedOfferAndLeavesACompletedOneToHistory() {
         Fixtures.offerOnSeedListing("OFFERED", 12.5);
         loginAs(GROUP);
         button(open("foodgroup/my-offers.fxml"), "Withdraw");
 
         TestDb.exec("UPDATE offer SET status = 'COMPLETED', released_at = NOW(), received_at = NOW()");
-        button(open("foodgroup/my-offers.fxml"), "View record");
+        assertFalse(mentions(open("foodgroup/my-offers.fxml"), "Day-old pandesal and loaf bread"), "a completed offer is in History");
     }
 
     @Test

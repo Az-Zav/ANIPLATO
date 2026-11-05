@@ -203,18 +203,16 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/foodgroup/FoodGroupDashboardController.java` | food group dashboard: banners, three cards, nearest open listings | HISTORY |
 | `controller/foodgroup/BrowseListingsController.java` | the food group's board of Open listings | OFFER |
 | `controller/foodgroup/MakeOfferController.java` | the food group's offer form for a listing | OFFER |
-| `controller/foodgroup/MyOffersController.java` | the food group's offers, via `MyOfferRows` | OFFER |
+| `controller/foodgroup/MyOffersController.java` | the food group's offers, via `OffersBoard` | OFFER |
 | `controller/foodgroup/FoodGroupIncomingOffersController.java` | offers on a food group's requests: accept, decline | ACCEPT |
 | `controller/foodgroup/NewRequestController.java` | the New Request form: reads the fields, calls `PostService.createRequest` | REQUEST |
-| `controller/foodgroup/MyRequestsController.java` | the food group's requests, via `MyPostRows` | REQUEST, HANDOFF |
+| `controller/foodgroup/MyRequestsController.java` | the food group's requests, via `PostsBoard` | REQUEST, HANDOFF |
 | `controller/foodgroup/SubmitReportController.java` | the report form, prefilled | REPORT |
-| `controller/shared/MyListingsController.java` | the donor's listings, via `MyPostRows` (asks for "my" posts, no role check) | LISTING, HANDOFF |
-| `controller/shared/MyOffersController.java` | the donor's offers, via `MyOfferRows` (asks for "my" offers, no role check) | OFFER |
+| `controller/shared/MyListingsController.java` | the donor's listings, via `PostsBoard` (asks for "my" posts, no role check) | LISTING, HANDOFF |
+| `controller/shared/MyOffersController.java` | the donor's offers, via `OffersBoard` (asks for "my" offers, no role check) | OFFER |
 | `controller/shared/HandoffRecordController.java` | one handoff record with its report; the Submit report button for the receiving group | HANDOFF, REPORT |
 | `controller/Cards.java` | small builders for the card rows list screens fill in code | LISTING, OFFER, HANDOFF |
 | `controller/PostCards.java` | how a listing, a request and an offer read as cards, with photo thumbnails | LISTING, OFFER |
-| `controller/MyPostRows.java` | the rows of My Listings and My Requests: view offers, release, receipt, cancel, record | LISTING, HANDOFF |
-| `controller/MyOfferRows.java` | the rows of My Offers: withdraw, offer again, release, receipt, record | OFFER, HANDOFF |
 | `controller/IncomingOfferRows.java` | the rows of Incoming Offers: accept, decline, contact | ACCEPT |
 | `controller/FormSupport.java` | runs a service call and shows a broken rule (`failure` is the one place that turns a failure into text); reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
 | `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
@@ -228,6 +226,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/board/Board.java` | the shared list screen: title and one action, tiles, tabs, city filter, search, table with bands, footnote | BOARDS |
 | `controller/board/Tile.java` | one summary tile: icon chip, title, figure, unit, note | BOARDS |
 | `controller/board/Tiles.java` | builds the row of tiles | BOARDS |
+| `controller/board/PostsBoard.java` | My Listings and My Requests as a board: Open and Accepted posts, Review offers, Confirm Release / Receipt, Cancel | BOARDS, HANDOFF |
+| `controller/board/OffersBoard.java` | My Offers as a board (food group and donor): Withdraw, Offer again, Confirm Release / Receipt | BOARDS, OFFER, HANDOFF |
 | `controller/board/BrowseBoard.java` | Browse Requests (donor) and Browse Listings (food group): the board with the city bands and Make offer | BOARDS |
 
 ### Controllers: popups
@@ -794,7 +794,7 @@ Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `da
 | `PostService.createRequest` | a food group posts a request, the same way | NewRequestController | PostServiceTest |
 | `PostService.getOpenListings` | Open listings for a food group, its city first, suspended donors hidden, no handover text | BrowseListingsController, foodgroup MakeOfferController | PostServiceTest |
 | `PostService.getOpenRequests` | Open requests for a donor; a Casual donor sees only raw or packaged | BrowseRequestsController, donor MakeOfferController | PostServiceTest |
-| `PostService.getMyPosts` | the logged-in account's own posts with offer counts | MyPostRows | PostServiceTest |
+| `PostService.getMyPosts` | the logged-in account's own posts with offer counts | PostsBoard | PostServiceTest |
 | `PostDao.insert` | saves the post row for an inserted detail | PostService | PostServiceTest |
 | `PostDao.findById` | one post with its detail | OfferService | OfferServiceTest |
 | `PostDao.findOpenForUpdate` | an Open post from an Active poster, locked until the transaction ends | OfferService | OfferServiceTest |
@@ -828,13 +828,13 @@ flowchart LR
 
 ### OFFER: send and withdraw offers 🟡
 
-Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Offer.java`. Screens: the two Make Offer forms, the browse boards and the My Offers lists (`MyOfferRows`).
+Files: `service/OfferService.java`, `service/DetailRules.java`, `dao/OfferDao.java`, `dao/DetailDao.java`, `dao/PhotoDao.java`, `model/Offer.java`. Screens: the two Make Offer forms, the browse boards and the My Offers lists (`OffersBoard`).
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `OfferService.sendListingOffer` | a food group offers for a listing's whole quantity; re-opens its Withdrawn offer on the same row | foodgroup MakeOfferController | OfferServiceTest |
 | `OfferService.sendRequestOffer` | a donor offers on a request: kg up to the requested amount, a category the request accepts | donor MakeOfferController | OfferServiceTest |
-| `OfferService.withdraw` | the offerer takes back an Offered offer, logged | MyOfferRows | OfferServiceTest |
+| `OfferService.withdraw` | the offerer takes back an Offered offer, logged | OffersBoard | OfferServiceTest |
 | `OfferService.getMyOffers` | the logged-in account's offers with the post, photos and handover text only once accepted | MyOfferRows screens, the browse boards | OfferServiceTest |
 | `OfferDao.insert` | saves a new offer | OfferService | OfferServiceTest |
 | `OfferDao.reopenIfWithdrawn` | puts a Withdrawn offer back to Offered with new details | OfferService | OfferServiceTest |
@@ -1006,7 +1006,7 @@ flowchart LR
 
 ### BOARDS: the shared list screens 🟡
 
-Files: `service/BoardService.java`, `controller/board/Board.java`, `controller/board/Tile.java`, `controller/board/Tiles.java`, `controller/board/BrowseBoard.java`, `controller/TableRows.java`, `controller/donor/BrowseRequestsController.java`, `controller/foodgroup/BrowseListingsController.java`, `view/donor/browse-request.fxml`, `view/foodgroup/browse-listings.fxml`. The Figma list screens are one design: a title with one action, three tiles, tabs, search, a table. Tabs, city and search only narrow the rows already loaded; every figure is worked out from those rows (A9).
+Files: `service/BoardService.java`, `controller/board/PostsBoard.java`, `controller/board/OffersBoard.java`, `controller/board/Board.java`, `controller/board/Tile.java`, `controller/board/Tiles.java`, `controller/board/BrowseBoard.java`, `controller/TableRows.java`, `controller/donor/BrowseRequestsController.java`, `controller/foodgroup/BrowseListingsController.java`, `view/donor/browse-request.fxml`, `view/foodgroup/browse-listings.fxml`. The Figma list screens are one design: a title with one action, three tiles, tabs, search, a table. Tabs, city and search only narrow the rows already loaded; every figure is worked out from those rows (A9).
 
 | Method | What it does | Called by | Test |
 |---|---|---|---|

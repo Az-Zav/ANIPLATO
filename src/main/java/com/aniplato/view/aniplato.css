@@ -1522,3 +1522,15 @@
     -fx-font-size: 11px;
     -fx-padding: 0;
 }
+
+.board-offers {
+    -fx-text-fill: #15803D;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.board-confirmed {
+    -fx-text-fill: #166534;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
