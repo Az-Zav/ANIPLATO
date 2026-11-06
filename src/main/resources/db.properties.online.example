@@ -17,3 +17,7 @@ mail.smtp.auth=true
 mail.smtp.starttls.enable=true
 mail.user=
 mail.password=
+
+# Optional: the help assistant. Make your own free key at https://aistudio.google.com/app/apikey and paste it here.
+# Without a key the assistant says it is not set up; everything else works.
+ai.gemini.api-key=

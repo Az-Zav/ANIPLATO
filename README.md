@@ -35,3 +35,7 @@ docs/          MAP.md (what exists), FLOWS.md (what to build), ARCHITECTURE.md (
 uploads/       documents and photos (git-ignored; folder set by uploads.dir in db.properties)
 ```
 Start with `AGENTS.md` (how to add code), then `docs/MAP.md`. `CLAUDE.md` has the coding rules and `docs/Project Spec.md` the full spec.
+
+## Packaging
+
+`.\scripts\package-exe.ps1` builds `ANIPLATO.exe` as a folder that needs no Java. How to build it and how each user sets up `db.properties` for it: [docs/PACKAGING.md](docs/PACKAGING.md).
