@@ -71,7 +71,7 @@ public final class BrowseBoard {
         Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("primary-button");
         refreshButton.setOnAction(e -> refresh.run());
-        double[] widths = requests ? new double[] {21, 17, 15, 14, 7, 14, 12} : new double[] {27, 20, 16, 8, 17, 12};
+        double[] widths = requests ? new double[] {20, 16, 15, 13, 8, 15, 13} : new double[] {27, 20, 16, 8, 17, 12};
         String[] titles = requests
                 ? new String[] {kind.firstColumn, kind.posterColumn, "ACCEPTS", "CITY", "KG", kind.dueColumn, ""}
                 : new String[] {kind.firstColumn, kind.posterColumn, "CITY", "KG", kind.dueColumn, ""};
@@ -135,7 +135,7 @@ public final class BrowseBoard {
 
     private GridPane row(Post post) {
         boolean requests = kind == Kind.REQUESTS;
-        double[] widths = requests ? new double[] {21, 17, 15, 14, 7, 14, 12} : new double[] {27, 20, 16, 8, 17, 12};
+        double[] widths = requests ? new double[] {20, 16, 15, 13, 8, 15, 13} : new double[] {27, 20, 16, 8, 17, 12};
         GridPane row = TableRows.row(widths);
         int column = 0;
         TableRows.put(row, column++, TableRows.text(post.title(), "form-label"));

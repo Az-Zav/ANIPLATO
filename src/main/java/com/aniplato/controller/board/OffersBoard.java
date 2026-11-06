@@ -32,7 +32,7 @@ public final class OffersBoard {
     /** The side of the handoff this screen is for; it fixes the wording. */
     public enum Side { FOOD_GROUP, DONOR }
 
-    private static final double[] WIDTHS = {18, 23, 7, 13, 13, 10, 16};
+    private static final double[] WIDTHS = {17, 21, 8, 14, 13, 10, 17};
 
     private final Side side;
     private final Board<Offer> board;

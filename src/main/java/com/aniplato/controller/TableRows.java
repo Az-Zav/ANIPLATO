@@ -49,7 +49,9 @@ public final class TableRows {
     public static HBox pill(String text, String tone) {
         Label label = new Label(text);
         label.getStyleClass().addAll("board-pill", "board-pill-" + tone);
-        return new HBox(label);
+        HBox cell = new HBox(label);
+        cell.setAlignment(javafx.geometry.Pos.CENTER_LEFT);   // the cell fills the row; without this the pill sits at its top
+        return cell;
     }
 
     /** The small green button at the end of a board row. */
@@ -80,12 +82,15 @@ public final class TableRows {
 
     /** A cell that stacks its nodes with a small gap (a name over its detail lines). */
     public static VBox stack(Node... nodes) {
-        return new VBox(2, nodes);
+        VBox stack = new VBox(2, nodes);
+        stack.setAlignment(javafx.geometry.Pos.CENTER_LEFT);   // centred in the row like the single-line cells
+        return stack;
     }
 
     private static GridPane grid(double[] widths) {
         GridPane row = new GridPane();
         row.setPadding(new Insets(12, 16, 12, 16));
+        row.setHgap(8);   // a long cell never touches the next column
         for (double percent : widths) {
             ColumnConstraints column = new ColumnConstraints();
             column.setPercentWidth(percent);

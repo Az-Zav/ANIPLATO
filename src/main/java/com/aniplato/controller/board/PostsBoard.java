@@ -33,7 +33,7 @@ public final class PostsBoard {
     /** Which posts the screen lists; it fixes the wording. */
     public enum Kind { LISTINGS, REQUESTS }
 
-    private static final double[] WIDTHS = {18, 6, 12, 10, 17, 10, 7, 20};
+    private static final double[] WIDTHS = {15, 7, 13, 10, 15, 13, 8, 19};
 
     private final Kind kind;
     private final Board<Post> board;
