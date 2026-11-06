@@ -66,9 +66,10 @@ public class RegisterController {
     @FXML
     private void initialize() {
         loadCities();
-        // the contact number field takes digits only, up to the allowed length
+        // the contact number field takes digits, with the spaces and dashes people write them with ("0917 123 4567");
+        // the service drops the separators and checks the digits, so the field only keeps letters and an endless line out
         contactNumberField.setTextFormatter(new TextFormatter<String>(change ->
-                change.getControlNewText().matches("\\d{0," + Settings.CONTACT_NUMBER_DIGITS + "}") ? change : null));
+                change.getControlNewText().matches("[0-9 ().-]{0," + (Settings.CONTACT_NUMBER_DIGITS + 5) + "}") ? change : null));
         restoreDraft();
         updatePermitCardStyles();
         updateFormForRole();

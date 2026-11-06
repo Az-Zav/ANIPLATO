@@ -367,6 +367,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
+| `controller/RegisterScreenTest.java` | the contact number field takes "0917 123 4567" as typed and keeps letters out | REGISTER |
 | `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |
 | `util/NavigatorRoomTest.java` | the room is raised to the minimum and never lowered | SHELL |
