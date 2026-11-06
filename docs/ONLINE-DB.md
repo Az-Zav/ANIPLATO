@@ -12,6 +12,7 @@ path to the CA file (download it from the service page; keep it outside the repo
 `ANIPLATO_TEST_DB`, which must start with `aniplato_test`). On the shared server give each person their own, so runs do not collide:
 
     $env:ANIPLATO_TEST_DB = "aniplato_test_<yourname>"
+    $env:ANIPLATO_TEST_DB_HOST = "<host>:<port>"   # the server the tests may drop and recreate databases on
     $env:ANIPLATO_TEST_DB_USER = "aniplato_test_user"
     $env:ANIPLATO_TEST_DB_PASSWORD = "<test user password>"
 

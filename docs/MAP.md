@@ -71,7 +71,7 @@ flowchart LR
 | StatsService | every admin number (derived, never stored, A9) |
 | MaintenanceService | the 6.6 checks, in order; calls other services only (A4) |
 | EmailService | the four emails and `email_log` |
-| FileStorageService | uploads (PDF, JPG, PNG, 5 MB) under `uploads.dir` |
+| FileStorageService | uploads (PDF 2 MB, JPG/PNG shrunk to 1600 px) stored in the database |
 
 **The popups.** A screen talks only to `DialogController`. It opens one of 16 cards and closes the others. To add a dialog: a card FXML in `view/shared/dialog/`, a `DialogCard` subclass, one `fx:include` in `dialog.fxml`, one `showXxxMode` in `DialogController`. `DialogControllerTest` and `FxmlWiringTest` fail if the wiring is wrong.
 
@@ -84,7 +84,7 @@ flowchart LR
 | The right rule, the wrong data on screen | the DAO method it calls |
 | A popup shows wrong text or does not close | its file in `controller/shared/dialog/` and `view/shared/dialog/` |
 | An email did not arrive | `service/EmailService.java`, then the `email_log` table (the error is stored) |
-| "File is not in the uploads folder" | `uploads.dir` in `db.properties`, `service/FileStorageService.java` |
+| "The file could not be found" | `stored_file` table, `service/FileStorageService.java` |
 | An account was suspended by itself | `service/MaintenanceService.java`, `service/AccountStatusService.java` (6.6, reason "Document expired") |
 | Login or password trouble | `service/AuthenticationService.java`, `dao/AccountDao.java` |
 | Numbers on the admin pages look wrong | `service/StatsService.java`, then `dao/PostDao.java`, `OfferStatsDao.java`, `ReportDao.java` |
@@ -146,6 +146,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/OfferSweepDao.java` | the `offer` table's lookups for the lapse and expiry checks (split from OfferDao to keep both short) | MAINT |
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
+| `dao/StoredFileDao.java` | the `stored_file` table: store, fetch and delete the bytes of an upload | LISTING, REQUEST, REGISTER |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
 | `dao/HistoryDao.java` | the figures behind the dashboards and History for one account: totals, awaiting release, closed posts and offers | HISTORY |
 | `dao/ReportDao.java` | the `report` table: save and read a report, handoffs with an overdue report, people served, report deadlines | REPORT, STATS |
@@ -318,6 +319,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `assets/aniplato-logo-circle 1.png`, `assets/login_hero.png` | the logo (window, emails) and the login picture | SHELL, AUTH |
 | `sql/schema.sql` | the only copy of the schema; drops and recreates `aniplato` | PLATFORM |
 | `sql/seed.sql` | demo data: admin, three organizations, one pending application, a listing and a request | DEMO |
+| `sql/migrate-stored-file.sql` | run once on a database made before uploads moved into the database: adds the `stored_file` table | PLATFORM |
+| `scripts/migrate-online-db.ps1` | applies that migration to the shared online database as its owner | PLATFORM |
 | `sql/migrate-food-needed.sql` | run once on a database made before `use_detail.food_needed` existed: adds the column and fills old requests from their event name | REQUEST |
 | `sql/seed-admin-demo.sql` | extra demo rows for the admin screens; run once after the seed | DEMO |
 | `sql/seed-demo.sql` | the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
@@ -372,6 +375,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/RegisterScreenTest.java` | the contact number field takes "0917 123 4567" as typed and keeps letters out | REGISTER |
 | `support/DatabaseTlsTest.java`, `resources/test-ca.pem` | a PEM CA file becomes a truststore; a bad file is named in the error | PLATFORM |
 | `resources/db.properties.online.example` | settings template for the shared online database (CA file, session time zone, small pool) | PLATFORM |
+| `service/FileStorageServiceTest.java` | uploads are stored in the database, shared between computers, shrunk when large, and removed on failure | PLATFORM |
 | `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |
 | `util/NavigatorRoomTest.java` | the room is raised to the minimum and never lowered | SHELL |
@@ -461,9 +465,9 @@ Files: `service/RegistrationService.java`, `controller/RegisterController.java`,
 | `AccountDao.existsByEmail` | true if a login already uses the email | RegistrationService | RegistrationApplyTest |
 | `RegistrationDao.insert` | saves a Pending registration | RegistrationService | RegistrationApplyTest |
 | `DocumentDao.insert` | saves an uploaded file awaiting review | RegistrationService | RegistrationApplyTest |
-| `FileStorageService.validate` | PDF, JPG or PNG, at most 5 MB | RegistrationService, UploadSlot | RegistrationApplyTest |
-| `FileStorageService.save` | copies the file to `uploads.dir` under a random name | RegistrationService | RegistrationApplyTest |
-| `FileStorageService.resolve` | the stored file for a saved path | ProfileController, ReviewRegistrationController | RegistrationApplyTest |
+| `FileStorageService.validate` | PDF (2 MB) , JPG or PNG (15 MB, shrunk on save) | RegistrationService, UploadSlot | RegistrationApplyTest |
+| `FileStorageService.save` | stores the file (a large photo shrunk to JPEG) in the database under a random name | RegistrationService | RegistrationApplyTest |
+| `FileStorageService.resolve` | the stored file for a saved path, fetched once into a local cache | ProfileController, ReviewRegistrationController | RegistrationApplyTest |
 | `EmailService.sendReceived` | the "we received your registration" email | RegistrationService | RegistrationApplyTest |
 | `RegistrationDraft.get` | the form kept between steps | RegisterController, RegisterStep2Controller, RegisterSubmittedController | none (UI state) |
 | `RegistrationDraft.set` | keeps the step 1 form | RegisterController | none |
@@ -818,10 +822,13 @@ Files: `service/PostService.java`, `dao/PostDao.java`, `dao/DetailDao.java`, `da
 | `DetailDao.insertUse` | saves a use detail | PostService | PostServiceTest |
 | `DetailDao.readFood` | reads the food columns of a joined row | PostDao | PostServiceTest |
 | `DetailDao.readUse` | reads the use columns of a joined row | PostDao | PostServiceTest |
+| `StoredFileDao.insert` | stores the bytes of an upload under its path | FileStorageService | FileStorageServiceTest |
+| `StoredFileDao.findContent` | the bytes stored under a path, or null | FileStorageService | FileStorageServiceTest |
+| `StoredFileDao.delete` | removes a stored upload | FileStorageService | FileStorageServiceTest |
 | `PhotoDao.insert` | attaches a stored photo path to a post (offers and reports reuse it) | PostService | PostServiceTest |
 | `PhotoDao.findPaths` | the photo paths of one post | PostService | PostServiceTest |
 | `FileStorageService.saveAllPhotos` | checks 1 to 5 files, then saves them; removes any it already copied if one fails | PostService | PostServiceTest |
-| `FileStorageService.deleteAll` | removes saved files after a failed transaction | PostService | PostServiceTest |
+| `FileStorageService.deleteAll` | removes stored files after a failed transaction | PostService | PostServiceTest |
 
 ```mermaid
 flowchart LR

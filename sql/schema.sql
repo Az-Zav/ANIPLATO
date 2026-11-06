@@ -1,4 +1,4 @@
--- ANIPLATO schema (MySQL 8.0.16+ for CHECK constraints). Thirteen tables. Run once on an empty database.
+-- ANIPLATO schema (MySQL 8.0.16+ for CHECK constraints). Fourteen tables. Run once on an empty database.
 -- Source: Project Spec section 7.6. Change this file, the spec's 7.6 and the ER diagram in docs/ARCHITECTURE.md together.
 DROP DATABASE IF EXISTS aniplato;
 CREATE DATABASE aniplato CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -182,6 +182,15 @@ CREATE TABLE photo (
   FOREIGN KEY (report_id) REFERENCES report(report_id),
   CONSTRAINT chk_photo_owner CHECK (
     (post_id IS NOT NULL) + (offer_id IS NOT NULL) + (report_id IS NOT NULL) = 1)
+);
+
+-- 14. stored_file: the bytes of every uploaded photo and document, so all users see the same files.
+-- document.file_path and photo.file_path hold the key; there is no foreign key because the file is saved before its row.
+CREATE TABLE stored_file (
+  file_path  VARCHAR(255) PRIMARY KEY,
+  content    MEDIUMBLOB NOT NULL,
+  size_bytes INT NOT NULL,
+  stored_at  DATETIME NOT NULL
 );
 
 -- 11. safety_notice ----------------------------------------------------

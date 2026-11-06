@@ -209,7 +209,7 @@ public class ProfileController {
         File file = new FileStorageService().resolve(d.filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                ScreenMessage.error("The file " + file.getName() + " is not in the uploads folder.");
+                ScreenMessage.error("The file " + file.getName() + " could not be found.");
                 return;
             }
             Desktop.getDesktop().open(file);

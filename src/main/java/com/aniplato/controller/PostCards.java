@@ -48,7 +48,7 @@ public final class PostCards {
         return lines;
     }
 
-    /** The photos of a post or an offer as small pictures; a file that is not in the uploads folder shows a note instead. */
+    /** The photos of a post or an offer as small pictures; a file the database does not have shows a note instead. */
     public static Node thumbnails(List<String> paths) {
         FileStorageService files = new FileStorageService();
         FlowPane row = new FlowPane(8, 8);

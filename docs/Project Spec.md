@@ -670,8 +670,8 @@ aniplato/
   * Asks the owning services to make the changes. Holds no rules.
 
 * **FileStorageService**
-  * Saves uploads (PDF, JPG, PNG; max 5 MB) under `uploads/`.
-  * Returns the relative path.
+  * Saves uploads (PDF up to 2 MB; JPG or PNG up to 15 MB, shrunk to 1600 px and kept as JPEG) in the `stored_file` table, so every user sees the same files.
+  * Returns the path the photo and document rows hold; opening a file copies it once into a local cache folder.
 
 * **EmailService**
   * Fills the HTML templates and sends through Jakarta Mail.
@@ -711,7 +711,7 @@ aniplato/
 
 ## **7.6 Data Model**
 
-Thirteen tables. One post table and one offer table serve both routes. Two detail tables hold what differs: **food_detail** (what the donor gives) and **use_detail** (what the food group needs or will do with it). Organization details live only in registration, and the account holds the login.
+Fourteen tables. One post table and one offer table serve both routes. Two detail tables hold what differs: **food_detail** (what the donor gives) and **use_detail** (what the food group needs or will do with it). Organization details live only in registration, and the account holds the login.
 
 ```mermaid
 erDiagram
@@ -837,9 +837,16 @@ erDiagram
     datetime attested_at "group attestation"
   }
 
+  stored_file {
+    varchar file_path PK "uuid.ext"
+    mediumblob content
+    int size_bytes
+    datetime stored_at
+  }
+
   photo {
     int photo_id PK
-    varchar file_path "under uploads/"
+    varchar file_path "key into stored_file"
     int post_id FK "exactly one of the three"
     int offer_id FK "null"
     int report_id FK "null"

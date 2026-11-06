@@ -33,7 +33,7 @@ class RenewalTest extends DbTest {
     }
 
     private int uploadsInFolder() {
-        return new File(System.getProperty("aniplato.uploads.dir")).list().length;
+        return TestDb.<Long>scalar("SELECT COUNT(*) FROM stored_file").intValue();
     }
 
     private String accountStatus(String email) {

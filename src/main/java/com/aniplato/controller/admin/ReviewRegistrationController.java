@@ -190,7 +190,7 @@ public class ReviewRegistrationController {
         File file = new FileStorageService().resolve(documents.get(index).filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                showError("The file " + file.getName() + " is not in the uploads folder.");
+                showError("The file " + file.getName() + " could not be found.");
                 return;
             }
             Desktop.getDesktop().open(file);

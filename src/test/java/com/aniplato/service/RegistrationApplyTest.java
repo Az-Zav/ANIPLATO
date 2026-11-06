@@ -188,8 +188,8 @@ class RegistrationApplyTest extends DbTest {
         assertRule("Upload a PDF, JPG or PNG file.", () -> registrations.submit(r, List.of(
                 new DocumentUpload(Document.Type.BARANGAY_CERTIFICATE, text, LocalDate.now().plusMonths(6), false)), true));
 
-        File big = Files.write(tmp.resolve("big.pdf"), new byte[5 * 1024 * 1024 + 1]).toFile();
-        assertRule("Each file must be 5 MB or smaller.", () -> registrations.submit(r, List.of(
+        File big = Files.write(tmp.resolve("big.pdf"), new byte[2 * 1024 * 1024 + 1]).toFile();
+        assertRule("Each file must be 2 MB or smaller.", () -> registrations.submit(r, List.of(
                 new DocumentUpload(Document.Type.BARANGAY_CERTIFICATE, big, LocalDate.now().plusMonths(6), false)), true));
     }
 

@@ -49,10 +49,16 @@ public final class TestDb {
     private static synchronized void configure() {
         if (serverUrl != null) return;
         Properties main = readMainConfig();
-        if (main.getProperty("ssl.ca", "").isBlank() == false) OPTIONS = ONLINE_OPTIONS;
-        String hostPort = "localhost:3306";
-        Matcher m = HOST_PORT.matcher(main.getProperty("url", ""));
-        if (m.find()) hostPort = m.group(1);
+        // ANIPLATO_TEST_DB_HOST (host:port) points the tests at their own server, whatever the app itself is set to use
+        String hostPort = env("ANIPLATO_TEST_DB_HOST", "");
+        if (hostPort.isBlank()) {
+            hostPort = "localhost:3306";
+            Matcher m = HOST_PORT.matcher(main.getProperty("url", ""));
+            if (m.find()) hostPort = m.group(1);
+            if (!main.getProperty("ssl.ca", "").isBlank()) OPTIONS = ONLINE_OPTIONS;
+        }
+        hostPort = hostPort.trim();
+        System.setProperty("aniplato.ssl.ca", "");   // the test connections set their own SSL options in the URL
         String user = env("ANIPLATO_TEST_DB_USER", main.getProperty("user", "root"));
         String password = env("ANIPLATO_TEST_DB_PASSWORD", main.getProperty("password", ""));
         serverUrl = "jdbc:mysql://" + hostPort + "/" + OPTIONS;
@@ -62,6 +68,7 @@ public final class TestDb {
         System.setProperty("aniplato.password", password.trim());
         try {
             System.setProperty("aniplato.uploads.dir", Files.createTempDirectory("aniplato-test-uploads").toString());
+            System.setProperty("aniplato.cache.dir", Files.createTempDirectory("aniplato-test-cache").toString());
         } catch (IOException e) {
             throw new IllegalStateException("Could not create a temp uploads folder", e);
         }
