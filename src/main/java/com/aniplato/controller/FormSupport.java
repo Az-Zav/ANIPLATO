@@ -24,6 +24,13 @@ public final class FormSupport {
         return problem == null;
     }
 
+    /** Like {@link #attempt(Runnable)} for a form read through {@code input}: an unreadable number or time is reported by name, in the form's order. */
+    public static boolean attempt(Runnable action, FormInput input) {
+        String problem = failure(action, "Could not complete this. Check the database connection and try again.");
+        if (problem != null) ScreenMessage.error(input.say(problem));
+        return problem == null;
+    }
+
     /**
      * Runs the action and returns null if it worked, else the text to show: the rule's own message for a broken rule (A8),
      * {@code databaseMessage} for a database problem. The one place that decides which failures are shown and how.

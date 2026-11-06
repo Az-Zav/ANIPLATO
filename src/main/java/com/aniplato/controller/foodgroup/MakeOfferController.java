@@ -1,6 +1,7 @@
 package com.aniplato.controller.foodgroup;
 
 import com.aniplato.controller.DateTimeField;
+import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
 import com.aniplato.model.Post;
@@ -47,11 +48,12 @@ public class MakeOfferController {
     // PATTERN:ACTION sends the offer, then opens My Offers
     @FXML
     private void handleSend() {
+        FormInput input = new FormInput();
         boolean sent = FormSupport.attempt(() -> offerService.sendListingOffer(new OfferService.ListingOfferForm(postId,
                 useDescriptionField.getText(), eventDatePicker.getValue(), beneficiariesField.getText(),
-                FormSupport.wholeNumber(headcountField.getText(), "how many people"), placeField.getText(),
-                pickupField.value("your pickup time"), messageArea.getText(), attestationCheck.isSelected(),
-                photoPicker.files())));
+                input.whole(headcountField.getText(), "how many people", FormInput.HEADCOUNT, 0), placeField.getText(),
+                input.when(pickupField, "your pickup time", FormInput.PICKUP_TIME), messageArea.getText(), attestationCheck.isSelected(),
+                photoPicker.files())), input);
         if (sent) Navigator.show(Navigator.Screen.MY_OFFERS);
     }
 }

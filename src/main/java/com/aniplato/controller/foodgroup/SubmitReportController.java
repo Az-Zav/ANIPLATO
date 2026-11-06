@@ -1,5 +1,6 @@
 package com.aniplato.controller.foodgroup;
 
+import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
 import com.aniplato.service.ReportService;
@@ -41,10 +42,11 @@ public class SubmitReportController {
     // PATTERN:ACTION saves the report, then opens the handoff record
     @FXML
     private void handleSubmit() {
+        FormInput input = new FormInput();
         boolean saved = FormSupport.attempt(() -> reportService.submitReport(new ReportService.ReportForm(offerId,
                 eventNameField.getText(), eventDatePicker.getValue(),
-                FormSupport.wholeNumber(peopleServedField.getText(), "people served"), descriptionArea.getText(),
-                consentCheck.isSelected(), photoPicker.files())));
+                input.whole(peopleServedField.getText(), "people served", FormInput.PEOPLE_SERVED, -1), descriptionArea.getText(),
+                consentCheck.isSelected(), photoPicker.files())), input);
         if (saved) Navigator.show(Navigator.Screen.HANDOFF_RECORD);
     }
 

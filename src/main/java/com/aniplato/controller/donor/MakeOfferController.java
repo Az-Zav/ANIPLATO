@@ -1,6 +1,7 @@
 package com.aniplato.controller.donor;
 
 import com.aniplato.controller.DateTimeField;
+import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
 import com.aniplato.model.Account;
@@ -73,6 +74,7 @@ public class MakeOfferController {
     // PATTERN:ACTION sends the offer, then opens My Offers
     @FXML
     private void handleSend() {
+        FormInput input = new FormInput();
         boolean sent = FormSupport.attempt(() -> {
             Set<FoodDetail.Allergen> allergens = EnumSet.noneOf(FoodDetail.Allergen.class);
             allergenChecks.forEach((allergen, box) -> {
@@ -80,10 +82,11 @@ public class MakeOfferController {
             });
             offerService.sendRequestOffer(new OfferService.RequestOfferForm(postId, descriptionField.getText(),
                     categoryChoice.getValue(), storageChoice.getValue(), allergens,
-                    FormSupport.number(kgField.getText(), "the weight"), useByField.value("the use-by"),
-                    pickupStartField.value("the pickup window start"), pickupEndField.value("the pickup window end"),
+                    input.number(kgField.getText(), "the weight", FormInput.WEIGHT), input.when(useByField, "the use-by", FormInput.USE_BY),
+                    input.when(pickupStartField, "the pickup window start", FormInput.PICKUP_WINDOW),
+                    input.when(pickupEndField, "the pickup window end", FormInput.PICKUP_WINDOW),
                     handoverArea.getText(), attestationCheck.isSelected(), photoPicker.files()));
-        });
+        }, input);
         if (sent) Navigator.show(Navigator.Screen.DONOR_MY_OFFERS);
     }
 }

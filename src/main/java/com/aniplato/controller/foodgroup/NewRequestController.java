@@ -1,6 +1,7 @@
 package com.aniplato.controller.foodgroup;
 
 import com.aniplato.controller.DateTimeField;
+import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
 import com.aniplato.model.FoodDetail;
@@ -50,16 +51,17 @@ public class NewRequestController {
     // PATTERN:ACTION posts the request, then opens My Requests
     @FXML
     private void handlePost() {
+        FormInput input = new FormInput();
         boolean saved = FormSupport.attempt(() -> {
             Set<FoodDetail.Category> accepted = EnumSet.noneOf(FoodDetail.Category.class);
             categoryChecks.forEach((category, box) -> {
                 if (box.isSelected()) accepted.add(category);
             });
             postService.createRequest(new PostService.RequestForm(foodNeededField.getText(), eventNameField.getText(), eventDatePicker.getValue(),
-                    beneficiariesField.getText(), FormSupport.wholeNumber(headcountField.getText(), "how many people"),
-                    placeField.getText(), neededByField.value("the needed-by time"), messageArea.getText(), accepted,
-                    FormSupport.number(kgField.getText(), "the weight"), attestationCheck.isSelected(), photoPicker.files()));
-        });
+                    beneficiariesField.getText(), input.whole(headcountField.getText(), "how many people", FormInput.HEADCOUNT, 0),
+                    placeField.getText(), input.when(neededByField, "the needed-by time", FormInput.NEEDED_BY), messageArea.getText(), accepted,
+                    input.number(kgField.getText(), "the weight", FormInput.WEIGHT), attestationCheck.isSelected(), photoPicker.files()));
+        }, input);
         if (saved) Navigator.show(Navigator.Screen.MY_REQUESTS);
     }
 

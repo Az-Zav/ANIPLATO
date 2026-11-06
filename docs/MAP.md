@@ -222,6 +222,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/TableRows.java` | header and data rows (percent columns) for the dashboard and History tables | HISTORY |
 | `controller/ScreenMessage.java` | the inline message bar at the top of every in-shell screen: a broken rule or database problem is written there (A8), cleared before each screen loads | A8 |
 | `controller/ContactEditor.java` | edits the contact person and number in place on the Profile, no popup | PROFILE |
+| `controller/FormInput.java` | reads a form's numbers and times without stopping at the first unreadable one, so the services' checks run in the form's order and the message names the field | A8 |
 | `controller/ChipChoice.java` | a row of chips of which one is chosen (the Category); used in FXML | LISTING, OFFER |
 | `controller/CardChoice.java` | cards of which one is chosen, with a line each (the Storage condition); used in FXML | LISTING, OFFER |
 | `controller/Banners.java` | the warning banners above a dashboard, each with its link | HISTORY |
@@ -366,6 +367,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
+| `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |
 | `util/NavigatorRoomTest.java` | the room is raised to the minimum and never lowered | SHELL |
 | `controller/PhotoPickerTest.java` | picks add to the photos instead of replacing them, duplicates ignored, one grey tile, the limit, the ✕ button | LISTING, OFFER, REPORT |

@@ -42,6 +42,16 @@ public class DateTimeField extends HBox {
         }
     }
 
+    /** Why {@link #value} would refuse the field, or null when it holds a good moment. */
+    public String problem(String fieldName) {
+        try {
+            value(fieldName);
+            return null;
+        } catch (RuleViolationException e) {
+            return e.getMessage();
+        }
+    }
+
     public void setValue(LocalDateTime value) {
         date.setValue(value == null ? null : value.toLocalDate());
         time.setText(value == null ? "" : value.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
