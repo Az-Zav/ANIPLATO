@@ -1663,3 +1663,18 @@
     -fx-text-fill: #7FB08C;
     -fx-font-size: 15px;
 }
+
+.photo-remove {
+    -fx-background-color: rgba(17, 24, 39, 0.72);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 10px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-padding: 0;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+}
+
+.photo-remove:hover { -fx-background-color: #B91C1C; }

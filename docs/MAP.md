@@ -216,7 +216,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/board/OffersPage.java` | the offers on one listing or request: back link, the post's facts, one card per offer with Decline and Accept offer | ACCEPT |
 | `controller/FormSupport.java` | runs a service call and shows a broken rule (`failure` is the one place that turns a failure into text); reads numbers; formats dates and kg | LISTING, OFFER, REPORT |
 | `controller/DateTimeField.java` | a date picker with a time box, used in the forms | LISTING, OFFER |
-| `controller/PhotoPicker.java` | the Add photos button, previews and count | LISTING, OFFER, REPORT |
+| `controller/PhotoPicker.java` | photo tiles: each pick adds to the photos already chosen, a ✕ on each preview, one grey tile for the next, up to 5 | LISTING, OFFER, REPORT |
 | `controller/LabelConverter.java` | shows an enum's label in a combo box | LISTING, OFFER |
 | `controller/shared/HistoryController.java` | History: cards, period, tabs, search, table (asks for "my" history, no role check) | HISTORY |
 | `controller/TableRows.java` | header and data rows (percent columns) for the dashboard and History tables | HISTORY |
@@ -365,6 +365,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ShellBadgeTest.java` | the sidebar counts and the food group's seven items | SHELL, ACCEPT, HANDOFF |
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
+| `controller/PhotoPickerTest.java` | picks add to the photos instead of replacing them, duplicates ignored, one grey tile, the limit, the ✕ button | LISTING, OFFER, REPORT |
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
