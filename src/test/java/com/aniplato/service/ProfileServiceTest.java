@@ -54,6 +54,13 @@ class ProfileServiceTest extends DbTest {
     }
 
     @Test
+    void aNumberWithSpacesIsSavedAsDigits() {
+        loginAs(BUSINESS);
+        profile.updateContact("Maria", "0918 222 3333");
+        assertEquals("09182223333", TestDb.scalar("SELECT contact_phone FROM registration WHERE email = ?", BUSINESS));
+    }
+
+    @Test
     void aBadPhoneOrAMissingPersonIsRefusedAndNothingChanges() {
         loginAs(BUSINESS);
         assertRule("The contact number must be exactly 11 digits.", () -> profile.updateContact("Maria", "0917"));

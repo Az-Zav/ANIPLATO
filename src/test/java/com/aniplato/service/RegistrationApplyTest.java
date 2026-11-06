@@ -79,10 +79,20 @@ class RegistrationApplyTest extends DbTest {
 
     @Test
     void theContactNumberMustBeExactlyElevenDigits() {
-        for (String bad : List.of("0917123456", "091712345678", "0917abc4567", "0917 123 4567")) {
+        for (String bad : List.of("0917123456", "091712345678", "0917abc4567", "0917 123 456")) {
             Registration r = form(Account.Role.CASUAL_DONOR, "new@aniplato.test");
             r.contactPhone = bad;
             assertRule("The contact number must be exactly 11 digits.", () -> registrations.checkDetails(r));
+        }
+    }
+
+    @Test
+    void aNumberWrittenWithSpacesOrDashesIsAcceptedAndStoredAsDigits() {
+        for (String written : List.of("0917 123 4567", "0917-123-4567", "(0917) 123.4567")) {
+            Registration r = form(Account.Role.CASUAL_DONOR, "new@aniplato.test");
+            r.contactPhone = written;
+            registrations.checkDetails(r);
+            assertEquals("09171234567", r.contactPhone, written);
         }
     }
 

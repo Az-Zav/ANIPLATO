@@ -50,6 +50,11 @@ public class RegistrationService {
         return Database.read("Could not load cities", cityDao::findAll);
     }
 
+    /** "0917 123 4567" and "0917-123-4567" are the usual ways to write a number, so spaces, dashes, dots and brackets are dropped before the check; only digits are stored. */
+    static String cleanContactNumber(String phone) {
+        return phone == null ? "" : phone.replaceAll("[\s().-]", "");
+    }
+
     /** The contact number rule (Stage 1, and the profile edit): present and exactly the right number of digits. */
     static void requireContactNumber(String phone) {
         if (phone.isEmpty()) throw new RuleViolationException("Enter a contact number.");
@@ -65,7 +70,7 @@ public class RegistrationService {
         }
         f.name = trim(f.name);
         f.contactPerson = trim(f.contactPerson);
-        f.contactPhone = trim(f.contactPhone);
+        f.contactPhone = cleanContactNumber(trim(f.contactPhone));
         f.email = trim(f.email);
         if (f.name.isEmpty()) throw new RuleViolationException("Enter your name or organization name.");
         if (f.city == null) throw new RuleViolationException("Choose your city.");

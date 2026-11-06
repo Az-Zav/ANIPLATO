@@ -33,7 +33,7 @@ public class ProfileService {
         Account me = Session.require();
         if (me.registration == null) throw new RuleViolationException("Only an organization has contact details.");
         String person = contactPerson == null ? "" : contactPerson.trim();
-        String phone = contactPhone == null ? "" : contactPhone.trim();
+        String phone = RegistrationService.cleanContactNumber(contactPhone == null ? "" : contactPhone.trim());
         if (person.isEmpty()) throw new RuleViolationException("Enter the contact person.");
         RegistrationService.requireContactNumber(phone);
         Database.inTransaction("Could not save your contact details", c -> {
