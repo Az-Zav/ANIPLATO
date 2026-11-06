@@ -43,7 +43,7 @@ class GeminiAssistantServiceTest {
     void withoutAKeyItSaysTheAssistantIsNotSetUp() {
         System.setProperty(KEY, " ");
         String text = failureOf(new GeminiAssistantService().answer("profile", "donor", "How do I update my profile?", NO_HISTORY));
-        assertTrue(text.contains("ai.gemini.api-key"), text);
+        assertTrue(text.contains("not set up"), text);
     }
 
     @Test
@@ -51,7 +51,7 @@ class GeminiAssistantServiceTest {
         System.setProperty(KEY, "test-key-not-real");
         System.setProperty(MODEL, "bad model/name");
         String text = failureOf(new GeminiAssistantService().answer("profile", "donor", "Hello", NO_HISTORY));
-        assertTrue(text.contains("ai.gemini.model"), text);
+        assertTrue(text.contains("model setting"), text);
     }
 
     private static String systemText(JsonObject body) {
@@ -113,7 +113,7 @@ class GeminiAssistantServiceTest {
     void noInternetIsExplainedInPlainWords() {
         assertTrue(GeminiAssistantService.explainFailure(new CompletionException(new UnknownHostException("x")))
                 .contains("internet connection"));
-        assertTrue(GeminiAssistantService.explainFailure(new ConnectException("refused")).contains("Could not connect"));
+        assertTrue(GeminiAssistantService.explainFailure(new ConnectException("refused")).contains("Could not reach"));
     }
 
     @Test
@@ -150,10 +150,52 @@ class GeminiAssistantServiceTest {
     }
 
     @Test
-    void anErrorReplyShowsGooglesOwnMessage() {
+    void anErrorReplyBecomesOnePlainSentenceWithoutTheProvidersWording() {
         String message = assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(429,
-                "{\"error\":{\"message\":\"Quota exceeded\"}}")).getMessage();
-        assertTrue(message.contains("429") && message.contains("Quota exceeded"), message);
+                "{\"error\":{\"message\":\"Quota exceeded for the Gemini API\"}}")).getMessage();
+        assertTrue(message.contains("429") && message.contains("busy"), message);
+        assertFalse(message.contains("Quota"), "the provider's own text stays out of the chat: " + message);
+        assertTrue(assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(403, "{}"))
+                .getMessage().contains("key was not accepted"));
+        assertTrue(assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(404, "{}"))
+                .getMessage().contains("model was not found"));
+    }
+
+    @Test
+    void noMessageTheChatCanShowNamesTheProvider() {
+        System.setProperty(KEY, " ");
+        List<String> shown = new ArrayList<>();
+        shown.add(failureOf(new GeminiAssistantService().answer("profile", "donor", "hi", NO_HISTORY)));
+        System.setProperty(KEY, "x");
+        System.setProperty(MODEL, "bad model");
+        shown.add(failureOf(new GeminiAssistantService().answer("profile", "donor", "hi", NO_HISTORY)));
+        for (int status : new int[]{400, 403, 404, 429, 500}) {
+            shown.add(assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(status, "{}")).getMessage());
+        }
+        for (String json : new String[]{"not json", "[]", reply("{\"finishReason\":\"SAFETY\"}"),
+                reply("{\"content\":{\"role\":\"model\"},\"finishReason\":\"MAX_TOKENS\"}"), "{\"promptFeedback\":{\"blockReason\":\"OTHER\"}}"}) {
+            shown.add(whyNoAnswer(json));
+        }
+        shown.add(GeminiAssistantService.explainFailure(new UnknownHostException("generativelanguage.googleapis.com")));
+        shown.add(GeminiAssistantService.explainFailure(new HttpTimeoutException("t")));
+        shown.add(GeminiAssistantService.explainFailure(new java.io.IOException("talking to generativelanguage.googleapis.com failed")));
+        for (String text : shown) {
+            String lower = text.toLowerCase();
+            assertFalse(lower.contains("gemini") || lower.contains("google") || lower.contains("api key"), "shows the provider: " + text);
+        }
+    }
+
+    @Test
+    void noScreenOrKnowledgeFileNamesTheProvider() throws java.io.IOException {
+        for (String root : new String[]{"src/main/java/com/aniplato/view", "src/main/resources/assistant"}) {
+            try (java.util.stream.Stream<java.nio.file.Path> files = java.nio.file.Files.walk(java.nio.file.Path.of(root))) {
+                for (java.nio.file.Path file : files.filter(java.nio.file.Files::isRegularFile)
+                        .filter(f -> f.toString().endsWith(".fxml") || f.toString().endsWith(".md")).toList()) {
+                    String text = java.nio.file.Files.readString(file).toLowerCase();
+                    assertFalse(text.contains("gemini"), file + " names the provider");
+                }
+            }
+        }
     }
 
     @Test
@@ -164,8 +206,9 @@ class GeminiAssistantServiceTest {
     }
 
     @Test
-    void anyOtherFailureShowsItsMessageOrItsType() {
-        assertTrue(GeminiAssistantService.explainFailure(new IllegalStateException("boom")).equals("boom"));
-        assertTrue(GeminiAssistantService.explainFailure(new IllegalStateException()).equals("IllegalStateException"));
+    void ourOwnSentencesAreShownAndAnythingElseBecomesAPlainLine() {
+        assertEquals("boom", GeminiAssistantService.explainFailure(new IllegalStateException("boom")));
+        assertTrue(GeminiAssistantService.explainFailure(new IllegalStateException()).contains("could not answer"));
+        assertTrue(GeminiAssistantService.explainFailure(new RuntimeException("secret detail")).contains("could not answer"));
     }
 }

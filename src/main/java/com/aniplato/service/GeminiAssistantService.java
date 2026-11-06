@@ -53,13 +53,15 @@ public final class GeminiAssistantService {
     private HttpRequest createRequest(String screen, String role, String question, List<Turn> history) {
         String apiKey = AppConfig.get("ai.gemini.api-key", "");   // AppConfig also finds a packaged app's settings file
         if (apiKey.isEmpty()) {
-            throw new IllegalStateException(
-                    "The assistant has no Gemini key yet. Add ai.gemini.api-key to the db.properties settings file.");
+            System.err.println("Assistant: no ai.gemini.api-key in db.properties.");   // for the developer; users get the line below
+            throw new IllegalStateException("The assistant is not set up on this computer yet. "
+                    + "Ask whoever gave you ANIPLATO to add the assistant key to its settings file.");
         }
 
         String model = AppConfig.get("ai.gemini.model", DEFAULT_MODEL);
         if (!MODEL_NAME.matcher(model).matches()) {
-            throw new IllegalStateException("The ai.gemini.model value in db.properties is invalid.");
+            System.err.println("Assistant: ai.gemini.model in db.properties is not a valid model name.");
+            throw new IllegalStateException("The assistant's model setting is not valid. Ask whoever gave you ANIPLATO to check it.");
         }
 
         return HttpRequest.newBuilder(URI.create(API_URL.formatted(model)))
@@ -172,15 +174,15 @@ public final class GeminiAssistantService {
 
     private static String noAnswer(String blockReason, String finishReason) {
         if (blockReason != null) {
-            return "Gemini would not answer that (" + blockReason + "). Try asking about using ANIPLATO.";
+            return "The assistant would not answer that (" + blockReason + "). Try asking about using ANIPLATO.";
         }
         if ("MAX_TOKENS".equals(finishReason)) {
-            return "Gemini ran out of room before it started answering (MAX_TOKENS). Try a shorter question.";
+            return "The assistant ran out of room before it started answering (MAX_TOKENS). Try a shorter question.";
         }
         if (finishReason != null && !"STOP".equals(finishReason)) {
-            return "Gemini stopped without an answer (" + finishReason + "). Try asking in a different way.";
+            return "The assistant stopped without an answer (" + finishReason + "). Try asking in a different way.";
         }
-        return "Gemini returned an empty answer (" + (finishReason == null ? "no reason given" : finishReason)
+        return "The assistant returned an empty answer (" + (finishReason == null ? "no reason given" : finishReason)
                 + "). Please try again.";
     }
 
@@ -198,21 +200,24 @@ public final class GeminiAssistantService {
             JsonElement parsed = JsonParser.parseString(json);
             if (parsed.isJsonObject()) return parsed.getAsJsonObject();
         } catch (JsonSyntaxException e) {
-            throw new IllegalStateException("Gemini returned an invalid response.", e);
+            throw new IllegalStateException("The assistant returned a reply that could not be read.", e);
         }
-        throw new IllegalStateException("Gemini returned an invalid response.");
+        throw new IllegalStateException("The assistant returned a reply that could not be read.");
     }
 
+    /** One plain sentence for an error reply. Google's own wording goes to the console for the developer, not the chat. */
     private static String apiError(int statusCode, JsonObject body) {
         JsonElement errorElement = body.get("error");
         if (errorElement != null && errorElement.isJsonObject()) {
-            JsonElement message = errorElement.getAsJsonObject().get("message");
-            if (message != null && message.isJsonPrimitive()) {
-                String details = message.getAsString().trim();
-                if (!details.isEmpty()) return "Gemini request failed (HTTP " + statusCode + "): " + details;
-            }
+            String details = text(errorElement.getAsJsonObject().get("message"));
+            if (details != null && !details.isBlank()) System.err.println("Assistant service error " + statusCode + ": " + details.trim());
         }
-        return "Gemini request failed with HTTP " + statusCode + ". Check the API key and network connection.";
+        return switch (statusCode) {
+            case 400, 401, 403 -> "The assistant's key was not accepted (error " + statusCode + "). Ask whoever gave you ANIPLATO to check it.";
+            case 404 -> "The assistant's model was not found (error 404). Ask whoever gave you ANIPLATO to check the settings.";
+            case 429 -> "The assistant is busy right now (error 429). Wait a minute and try again.";
+            default -> "The assistant could not answer right now (error " + statusCode + "). Please try again.";
+        };
     }
 
     public static String explainFailure(Throwable failure) {
@@ -222,13 +227,16 @@ public final class GeminiAssistantService {
         }
         if (cause instanceof HttpConnectTimeoutException || cause instanceof ConnectException
                 || cause instanceof UnknownHostException) {
-            return "Could not connect to Google Gemini. Check your internet connection, firewall, or proxy settings.";
+            return "Could not reach the assistant. Check your internet connection, firewall, or proxy settings.";
         }
         if (cause instanceof HttpTimeoutException) {
-            return "Gemini did not respond within " + REQUEST_TIMEOUT.toSeconds()
+            return "The assistant did not respond within " + REQUEST_TIMEOUT.toSeconds()
                     + " seconds. Please retry; if it keeps happening, check your network or try again later.";
         }
-        String message = cause.getMessage();
-        return message == null || message.isBlank() ? cause.getClass().getSimpleName() : message;
+        if (cause instanceof IllegalStateException && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+            return cause.getMessage();   // our own sentences
+        }
+        System.err.println("Assistant failed: " + cause);   // anything else could carry provider details, so the chat gets a plain line
+        return "The assistant could not answer right now. Please try again.";
     }
 }

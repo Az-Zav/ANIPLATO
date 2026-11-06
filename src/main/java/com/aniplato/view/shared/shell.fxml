@@ -147,7 +147,7 @@
                                         <Button fx:id="assistantSendButton" onAction="#handleSendMessage" styleClass="assistant-send-button" text="Send" />
                                     </children>
                                 </HBox>
-                                <Label styleClass="assistant-disclaimer" text="Read-only · Your question and screen go to Gemini (no account data)" wrapText="true" />
+                                <Label styleClass="assistant-disclaimer" text="Read-only · Your question and screen name are sent online (no account data)" wrapText="true" />
                             </children>
                         </VBox>
                         <!-- PATTERN:ACTION toggleAssistant -->
