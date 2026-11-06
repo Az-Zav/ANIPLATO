@@ -5,13 +5,15 @@ import com.aniplato.model.Account;
 import com.aniplato.model.Admin;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
-import com.aniplato.service.MaintenanceService;
-import com.aniplato.service.RegistrationService;
+import com.aniplato.service.DocumentReviewService;
+import com.aniplato.service.FileStorageService;
+import com.aniplato.service.ProfileService;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -24,6 +26,7 @@ import javafx.scene.layout.VBox;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +58,11 @@ public class ProfileController {
     @FXML private Label orgTypeLabel;       // shows the organization's contact email: the schema has no "type"
     @FXML private Label orgCityLabel;
     @FXML private Label orgContactLabel;
+    @FXML private VBox contactBox;
+    @FXML private Hyperlink editContactLink;
+    private ContactEditor contactEditor;
+    @FXML private Button upgradeButton;
+    @FXML private Label upgradeStatusLabel;
     @FXML private Label orgApprovedDateLabel;
 
     // Document Table Container
@@ -64,8 +72,8 @@ public class ProfileController {
     @FXML private Label loginEmailLabel;
     @FXML private Label passwordStatusLabel;
 
-    private final MaintenanceService maintenanceService = new MaintenanceService();
-    private final RegistrationService registrationService = new RegistrationService();
+    private final DocumentReviewService documentReviewService = new DocumentReviewService();
+    private final ProfileService profileService = new ProfileService();
 
     @FXML
     private void initialize() {
@@ -95,6 +103,7 @@ public class ProfileController {
         orgContactLabel.setText(registration.contactPerson);   // the phone number is not shown here (A7)
         orgApprovedDateLabel.setText(registration.reviewedAt == null ? "—" : date(registration.reviewedAt));
 
+        setShown(upgradeButton, account.canUpgradeToBusiness());
         loadDocuments();
         loadDocumentAlert();
     }
@@ -104,7 +113,7 @@ public class ProfileController {
         docRowsBox.getChildren().clear();
         List<Document> documents;
         try {
-            documents = registrationService.getMyDocuments();
+            documents = documentReviewService.getMyDocuments();
         } catch (RuntimeException e) {
             docRowsBox.getChildren().add(styled(new Label("Could not load your documents."), "text-muted"));
             return;
@@ -127,38 +136,7 @@ public class ProfileController {
         Label file = styled(new Label(new File(d.filePath).getName()), "table-cell-text");
         Label expires = styled(new Label(d.expiresOn == null ? "No expiry" : d.expiresOn.format(DATE)), "table-cell-text");
 
-        boolean needsRenewal = d.review == Document.Review.OK
-                && (d.isExpired(today) || d.expiresWithin(Settings.DOCUMENT_WARNING_DAYS, today));
-        Label status;
-        if (d.review == Document.Review.OK && !needsRenewal) {
-            status = styled(new Label("Verified"), "pill-food-donor");
-        } else if (d.review == Document.Review.FLAGGED) {
-            status = styled(new Label("Flagged"), "tag-reregistered");
-        } else if (d.review == null) {
-            status = styled(new Label("Awaiting review"), "tag-reregistered");
-        } else if (d.isExpired(today)) {
-            status = styled(new Label("Expired"), "tag-reregistered");
-        } else {
-            long days = ChronoUnit.DAYS.between(today, d.expiresOn);
-            status = styled(new Label("Expires in " + days + (days == 1 ? " day" : " days")), "tag-reregistered");
-        }
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox statusCell = new HBox(8, status, spacer);
-        statusCell.setAlignment(Pos.CENTER_LEFT);
-        if (needsRenewal) {
-            Button renew = new Button("Upload renewal");
-            renew.getStyleClass().add("table-review-btn");
-            renew.setMinWidth(Region.USE_PREF_SIZE);
-            renew.setOnAction(e -> handleUploadRenewal(d.type));
-            statusCell.getChildren().add(renew);
-        } else {
-            Hyperlink view = new Hyperlink("View file");
-            view.getStyleClass().add("terms-link");
-            view.setOnAction(e -> openFile(d));
-            statusCell.getChildren().add(view);
-        }
+        HBox statusCell = statusCell(d, today);
 
         GridPane.setColumnIndex(type, 0);
         GridPane.setColumnIndex(file, 1);
@@ -168,11 +146,43 @@ public class ProfileController {
         return row;
     }
 
+    /** The status tag of a document, with "Upload renewal" when it ended or ends soon and "View file" otherwise. */
+    private HBox statusCell(Document d, LocalDate today) {
+        boolean needsRenewal = d.review == Document.Review.OK
+                && (d.isExpired(today) || d.expiresWithin(Settings.DOCUMENT_WARNING_DAYS, today));
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox cell = new HBox(8, statusTag(d, today, needsRenewal), spacer);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        if (needsRenewal) {
+            Button renew = new Button("Upload renewal");
+            renew.getStyleClass().add("table-review-btn");
+            renew.setMinWidth(Region.USE_PREF_SIZE);
+            renew.setOnAction(e -> handleUploadRenewal(d.type));
+            cell.getChildren().add(renew);
+        } else {
+            Hyperlink view = new Hyperlink("View file");
+            view.getStyleClass().add("terms-link");
+            view.setOnAction(e -> openFile(d));
+            cell.getChildren().add(view);
+        }
+        return cell;
+    }
+
+    private static Label statusTag(Document d, LocalDate today, boolean needsRenewal) {
+        if (d.review == Document.Review.OK && !needsRenewal) return styled(new Label("Verified"), "pill-food-donor");
+        if (d.review == Document.Review.FLAGGED) return styled(new Label("Flagged"), "tag-reregistered");
+        if (d.review == null) return styled(new Label("Awaiting review"), "tag-reregistered");
+        if (d.isExpired(today)) return styled(new Label("Expired"), "tag-reregistered");
+        long days = ChronoUnit.DAYS.between(today, d.expiresOn);
+        return styled(new Label("Expires in " + days + (days == 1 ? " day" : " days")), "tag-reregistered");
+    }
+
     /** The banner above the cards: how many documents are expired or about to expire (6.6). */
     private void loadDocumentAlert() {
         List<Document> alerts;
         try {
-            alerts = maintenanceService.getCurrentDocumentAlerts();
+            alerts = documentReviewService.getCurrentDocumentAlerts(LocalDate.now());
         } catch (RuntimeException e) {
             return;   // no banner is better than a wrong one
         }
@@ -196,19 +206,19 @@ public class ProfileController {
     }
 
     private void openFile(Document d) {
-        File file = new File("uploads", d.filePath);
+        File file = new FileStorageService().resolve(d.filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                ScreenMessage.error("The file " + file.getName() + " could not be found.");
                 return;
             }
             Desktop.getDesktop().open(file);
-        } catch (java.io.IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+        } catch (IOException e) {
+            ScreenMessage.error("Could not open " + file.getName() + ".");
         }
     }
 
-    private static void setShown(javafx.scene.Node node, boolean shown) {
+    private static void setShown(Node node, boolean shown) {
         node.setVisible(shown);
         node.setManaged(shown);
     }
@@ -225,11 +235,27 @@ public class ProfileController {
     // PATTERN:ACTION handleEditContact - triggered by Hyperlink in Organization card
     @FXML
     private void handleEditContact() {
-        // TODO(service): open dialog or form to update organization contact info
+        Registration registration = Session.require().registration;
+        String phone = FormSupport.load(profileService::getMyPhone, "");   // the owner may read its own number (A7)
+        if (contactEditor == null) contactEditor = new ContactEditor(contactBox, orgContactLabel, editContactLink);
+        contactEditor.open(registration.contactPerson, phone, () -> orgContactLabel.setText(Session.require().registration.contactPerson));
+    }
+
+    // PATTERN:ACTION handleUpgrade - opens the Upgrade to Business donor dialog
+    @FXML
+    private void handleUpgrade() {
+        dialogController.showUpgradeBusinessDonorMode(() -> {
+            upgradeStatusLabel.setText("Your upgrade was sent. An admin will review your permits; you stay a Casual donor until it is approved.");
+            setShown(upgradeStatusLabel, true);
+            setShown(upgradeButton, false);
+        });
     }
 
     private void handleUploadRenewal(Document.Type type) {
-        dialogController.showUploadRenewalMode(type.label());
+        dialogController.showUploadRenewalMode(type, () -> {
+            loadDocuments();
+            loadDocumentAlert();
+        });
     }
 
     // PATTERN:ACTION handleForgotPassword - triggered by 'Forgot password' button in Account card

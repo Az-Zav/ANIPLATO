@@ -157,13 +157,13 @@
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <VBox fx:id="contactBox" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
                                                 <Label styleClass="stat-card-title" text="CONTACT PERSON" />
                                                 <!-- PATTERN:DYNAMIC orgContact : contact person name & phone -->
                                                 <Label fx:id="orgContactLabel" styleClass="form-label" text="" />
                                                 <!-- PATTERN:ACTION handleEditContact -->
-                                                <Hyperlink onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
+                                                <Hyperlink fx:id="editContactLink" onAction="#handleEditContact" styleClass="terms-link" text="Edit" />
                                             </children>
                                         </VBox>
 
@@ -172,6 +172,14 @@
                                                 <Label styleClass="stat-card-title" text="APPROVED" />
                                                 <!-- PATTERN:DYNAMIC orgApprovedDate : approval date -->
                                                 <Label fx:id="orgApprovedDateLabel" styleClass="form-label" text="" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                            <children>
+                                                <!-- PATTERN:DYNAMIC upgradeButton : shown to a Casual donor only -->
+                                                <Button fx:id="upgradeButton" managed="false" onAction="#handleUpgrade" styleClass="secondary-button" text="Upgrade to Business donor" visible="false" />
+                                                <Label fx:id="upgradeStatusLabel" styleClass="text-muted" managed="false" visible="false" wrapText="true" />
                                             </children>
                                         </VBox>
                                     </children>

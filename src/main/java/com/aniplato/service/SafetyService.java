@@ -1,13 +1,10 @@
 package com.aniplato.service;
 
-import com.aniplato.dao.ListingDao;
 import com.aniplato.dao.LogDao;
 import com.aniplato.dao.OfferDao;
 import com.aniplato.dao.SafetyNoticeDao;
-import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
-import com.aniplato.model.Listing;
 import com.aniplato.model.Offer;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.util.Database;
@@ -23,12 +20,12 @@ public class SafetyService {
 
     private static final String ENTITY = "NOTICE";   // status_change.entity_type
     private static final int MAX_TEXT_LENGTH = 500;   // safety_notice.concern and admin_note
+    private static final String SAVE_ERROR = "Could not save the safety notice";
 
     private final SafetyNoticeDao noticeDao = new SafetyNoticeDao();
     private final OfferDao offerDao = new OfferDao();
-    private final ListingDao listingDao = new ListingDao();
     private final LogDao logDao = new LogDao();
-    private final RegistrationService registrationService = new RegistrationService();
+    private final AccountStatusService accountStatusService = new AccountStatusService();
 
     /**
      * R7.1: either side of an Accepted or Completed offer flags a concern about the other side.
@@ -38,14 +35,14 @@ public class SafetyService {
         Account me = Session.require();
         String text = requireText(concern, "Describe the concern.");
 
-        return inTransaction(c -> {
-            Offer offer = offerDao.findById(c, offerId);
-            if (offer == null) throw new RuleViolationException("That offer no longer exists.");
-            if (offer.status != Offer.Status.ACCEPTED && offer.status != Offer.Status.COMPLETED) {
+        return Database.inTransaction(SAVE_ERROR, c -> {
+            OfferDao.Parties parties = offerDao.findParties(c, offerId);
+            if (parties == null) throw new RuleViolationException("That offer no longer exists.");
+            Offer.Status status = offerDao.findStatus(c, offerId);
+            if (status != Offer.Status.ACCEPTED && status != Offer.Status.COMPLETED) {
                 throw new RuleViolationException("A concern can be raised only on an accepted or completed offer.");
             }
-            int posterId = listingDao.findById(c, offer.listingId).postedBy;
-            if (me.id != offer.groupId && me.id != posterId) {
+            if (me.id != parties.offererId() && me.id != parties.posterId()) {
                 throw new RuleViolationException("Only the donor or the food group of this offer can raise a concern.");
             }
 
@@ -61,32 +58,26 @@ public class SafetyService {
         });
     }
 
-    /** Every notice for the admin's Safety Notices screen, newest first. */
-    public List<SafetyNotice> getNotices() {
-        requireAdmin();
-        try (Connection c = Database.getConnection()) {
-            return noticeDao.findAll(c);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load safety notices", e);
-        }
+    /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
+    public List<NoticeRow> getNoticeRows() {
+        Session.requireAdmin();
+        return Database.read("Could not load safety notices", c -> noticeDao.findRows(c).stream()
+                .map(r -> new NoticeRow(r.id(), r.kind(), r.status(), r.flaggedName(), r.raisedByName(), r.listingText(),
+                        r.concern(), r.adminNote(), r.raisedAt()))
+                .toList());
     }
 
-    /** Every notice with the organization names and listing text the admin's screen shows, newest first. */
-    public List<SafetyNoticeDao.NoticeRow> getNoticeRows() {
-        requireAdmin();
-        try (Connection c = Database.getConnection()) {
-            return noticeDao.findRows(c);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load safety notices", e);
-        }
-    }
+    /** A notice with the names the admin's screen shows. The flagged account is the other side of the offer. */
+    public record NoticeRow(int id, SafetyNotice.Kind kind, SafetyNotice.Status status, String flaggedName,
+                            String raisedByName, String listingText, String concern, String adminNote,
+                            LocalDateTime raisedAt) { }
 
     /** Admin closes an Open notice without action. The note is required. */
     public void dismiss(int noticeId, String adminNote) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String note = requireText(adminNote, "Write a note before dismissing the notice.");
 
-        inTransaction(c -> {
+        Database.read(SAVE_ERROR, c -> {
             SafetyNotice notice = requireOpen(c, noticeId);
             resolve(c, notice, SafetyNotice.Status.DISMISSED, note, admin.id);
             return null;
@@ -95,25 +86,41 @@ public class SafetyService {
 
     /**
      * Admin suspends the flagged account (the other side of the offer) and closes the notice.
-     * One transaction (A2); the suspension itself goes through RegistrationService (R7.2).
+     * One transaction (A2); the suspension itself goes through AccountStatusService (R7.2).
      */
     public void suspendFlaggedAccount(int noticeId, String adminNote) {
-        Account admin = requireAdmin();
+        Account admin = Session.requireAdmin();
         String note = requireText(adminNote, "Write a note before suspending the account.");
 
-        inTransaction(c -> {
+        Database.inTransaction(SAVE_ERROR, c -> {
             SafetyNotice notice = requireOpen(c, noticeId);
             int flaggedId = flaggedAccountId(c, notice);
             resolve(c, notice, SafetyNotice.Status.ACCOUNT_SUSPENDED, note, admin.id);
-            registrationService.suspend(c, flaggedId, note, admin.id);
+            accountStatusService.suspend(c, flaggedId, note, admin.id);
             return null;
         });
     }
 
-    /** The account a notice is about: whichever side of the offer did not raise it. */
+    /**
+     * The overdue-report flag (6.6, R5.4): the system tells the admin a food group owes a report. Runs inside the
+     * caller's transaction; the schema allows one per offer, and the caller only asks for offers without one.
+     */
+    public void raiseOverdueReport(Connection c, int offerId) throws SQLException {
+        SafetyNotice notice = new SafetyNotice();
+        notice.offerId = offerId;
+        notice.kind = SafetyNotice.Kind.OVERDUE_REPORT;
+        notice.status = SafetyNotice.Status.OPEN;
+        notice.raisedAt = LocalDateTime.now();
+        int id = noticeDao.insert(c, notice);
+        logDao.logStatusChange(c, ENTITY, id, null, SafetyNotice.Status.OPEN.name(), null, null);   // A3, by the system
+    }
+
+    /** The account a notice is about: whichever side of the offer did not raise it; for an overdue report, the food group. */
     private int flaggedAccountId(Connection c, SafetyNotice notice) throws SQLException {
         OfferDao.Parties parties = offerDao.findParties(c, notice.offerId);
-        // an overdue-report notice has no raiser (raisedBy reads as 0): the food group that owes the report is flagged
+        if (notice.kind == SafetyNotice.Kind.OVERDUE_REPORT) {
+            return offerDao.isOnListing(c, notice.offerId) ? parties.offererId() : parties.posterId();
+        }
         return notice.raisedBy == parties.offererId() ? parties.posterId() : parties.offererId();
     }
 
@@ -133,12 +140,6 @@ public class SafetyService {
         return notice;
     }
 
-    private Account requireAdmin() {
-        Account me = Session.require();
-        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
-        return me;
-    }
-
     private static String requireText(String text, String missingMessage) {
         if (text == null || text.isBlank()) throw new RuleViolationException(missingMessage);
         String trimmed = text.trim();
@@ -146,27 +147,5 @@ public class SafetyService {
             throw new RuleViolationException("Keep it to " + MAX_TEXT_LENGTH + " characters or fewer.");
         }
         return trimmed;
-    }
-
-    /** Body of one transaction. */
-    private interface Work<T> {
-        T run(Connection c) throws SQLException;
-    }
-
-    /** Runs the work in one transaction (A2): commits if it finishes, rolls back on any exception. */
-    private <T> T inTransaction(Work<T> work) {
-        try (Connection c = Database.getConnection()) {
-            c.setAutoCommit(false);
-            try {
-                T result = work.run(c);
-                c.commit();
-                return result;
-            } catch (SQLException | RuntimeException e) {
-                c.rollback();
-                throw e;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not save the safety notice", e);
-        }
     }
 }

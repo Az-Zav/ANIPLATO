@@ -1,7 +1,7 @@
 package com.aniplato.util;
 
 import com.aniplato.model.Registration;
-import com.aniplato.service.RegistrationService.DocumentUpload;
+import com.aniplato.model.DocumentUpload;
 
 import java.util.List;
 

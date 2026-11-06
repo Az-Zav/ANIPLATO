@@ -5,3 +5,4 @@ target/
 uploads/*
 !uploads/.gitkeep
 src/main/resources/db.properties
+src/test/resources/test-db.local.properties

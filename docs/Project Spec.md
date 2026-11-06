@@ -205,6 +205,7 @@ Items in the viewer's own city come first, and items from other cities are liste
 
 **Rules**
 
+* Food needed is required, up to 200 characters. It is the request's title on every screen; the event name is kept apart.
 * kg above 0. Needed-by in the future. Event date on or after the needed-by.
 * 1 to 5 photos.
 * Group attestation ticked: the food is given free and not sold, handled safely, photos show no identifiable children, and identifiable adults consented.
@@ -353,7 +354,7 @@ Suspended access: a Suspended account cannot post, send an offer, or accept an o
 
 * Active → Suspended: admin suspends (reason written), or a document expires (automatic).
 
-* Suspended → Active: admin reinstates (reason written), or a renewal is uploaded and verified for a document-expiry suspension.
+* Suspended → Active: admin reinstates, or a renewal is uploaded and verified for a document-expiry suspension.
 
 **Registration changes:**
 
@@ -428,7 +429,7 @@ Nobody else can see an offer except the poster and the offerer.
 
 ## **6.6 Automatic Checks**
 
-One function, `runMaintenance()`, runs every time a screen loads. It does these in order:
+One function, `runMaintenance()`, runs when a screen loads: on the first screen after signing in, and then at most once per interval (`maintenance.interval.seconds`, 60 by default; 0 runs it before every screen). The interval exists because each run costs about twenty database round trips, which a remote database makes slow. It does these in order:
 
 * Accepted offer 2 hours past its pickup time (or pickup window end) with no handoff: offer becomes Lapsed, post becomes Expired.
 
@@ -669,8 +670,8 @@ aniplato/
   * Asks the owning services to make the changes. Holds no rules.
 
 * **FileStorageService**
-  * Saves uploads (PDF, JPG, PNG; max 5 MB) under `uploads/`.
-  * Returns the relative path.
+  * Saves uploads (PDF up to 2 MB; JPG or PNG up to 15 MB, shrunk to 1600 px and kept as JPEG) in the `stored_file` table, so every user sees the same files.
+  * Returns the path the photo and document rows hold; opening a file copies it once into a local cache folder.
 
 * **EmailService**
   * Fills the HTML templates and sends through Jakarta Mail.
@@ -710,7 +711,7 @@ aniplato/
 
 ## **7.6 Data Model**
 
-Thirteen tables. One post table and one offer table serve both routes. Two detail tables hold what differs: **food_detail** (what the donor gives) and **use_detail** (what the food group needs or will do with it). Organization details live only in registration, and the account holds the login.
+Fourteen tables. One post table and one offer table serve both routes. Two detail tables hold what differs: **food_detail** (what the donor gives) and **use_detail** (what the food group needs or will do with it). Organization details live only in registration, and the account holds the login.
 
 ```mermaid
 erDiagram
@@ -825,6 +826,7 @@ erDiagram
   use_detail {
     int use_detail_id PK
     varchar use_description "event, program or use"
+    varchar food_needed "requests: the food asked for, up to 200; null on an offer"
     date event_date "null, required on a request"
     varchar beneficiaries
     int headcount "above 0"
@@ -835,9 +837,16 @@ erDiagram
     datetime attested_at "group attestation"
   }
 
+  stored_file {
+    varchar file_path PK "uuid.ext"
+    mediumblob content
+    int size_bytes
+    datetime stored_at
+  }
+
   photo {
     int photo_id PK
-    varchar file_path "under uploads/"
+    varchar file_path "key into stored_file"
     int post_id FK "exactly one of the three"
     int offer_id FK "null"
     int report_id FK "null"

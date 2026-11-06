@@ -80,37 +80,31 @@ public class AccountDao {
         if (account instanceof Admin admin) {
             admin.adminName = rs.getString("admin_name");
         } else {
-            Registration registration = new Registration();
-            registration.id = rs.getInt("registration_id");
-            registration.role = role;
-            registration.name = rs.getString("registration_name");
-            registration.contactPerson = rs.getString("contact_person");
-            registration.email = rs.getString("registration_email");
-            registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
-            registration.rejectionReason = rs.getString("rejection_reason");
-            int reviewedBy = rs.getInt("reviewed_by");
-            registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
-            LocalDateTime reviewedAt = localDateTime(rs, "reviewed_at");
-            registration.reviewedAt = reviewedAt;
-            registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
-
-            City city = new City();
-            city.id = rs.getInt("city_id");
-            city.name = rs.getString("city_name");
-            registration.city = city;
-            account.registration = registration;
+            account.registration = mapRegistration(rs, role);
         }
         return account;
     }
 
-    /** The account id for an email, or null when no account uses it (an approval for an existing login is an upgrade). */
-    public Integer findIdByEmail(Connection c, String email) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement("SELECT account_id FROM account WHERE email = ?")) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : null;
-            }
-        }
+    /** The registration columns of the account query: the organization behind a donor or food group account. */
+    private Registration mapRegistration(ResultSet rs, Account.Role role) throws SQLException {
+        Registration registration = new Registration();
+        registration.id = rs.getInt("registration_id");
+        registration.role = role;
+        registration.name = rs.getString("registration_name");
+        registration.contactPerson = rs.getString("contact_person");
+        registration.email = rs.getString("registration_email");
+        registration.status = Registration.Status.valueOf(rs.getString("registration_status"));
+        registration.rejectionReason = rs.getString("rejection_reason");
+        int reviewedBy = rs.getInt("reviewed_by");
+        registration.reviewedBy = rs.wasNull() ? null : reviewedBy;
+        registration.reviewedAt = localDateTime(rs, "reviewed_at");
+        registration.submittedAt = rs.getTimestamp("submitted_at").toLocalDateTime();
+
+        City city = new City();
+        city.id = rs.getInt("city_id");
+        city.name = rs.getString("city_name");
+        registration.city = city;
+        return registration;
     }
 
     public int reinstateIfSuspended(Connection c, int accountId) throws SQLException {
@@ -119,6 +113,18 @@ public class AccountDao {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, accountId);
             return ps.executeUpdate();
+        }
+    }
+
+    /** An account's contact number. Only AcceptanceService.getContactPhone (after it checks who may see it) and the owner's own upgrade read it (A7). */
+    public String findContactPhone(Connection c, int accountId) throws SQLException {
+        String sql = "SELECT r.contact_phone FROM account a JOIN registration r ON r.registration_id = a.registration_id "
+                + "WHERE a.account_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
         }
     }
 
@@ -200,6 +206,18 @@ public class AccountDao {
             ps.setString(2, role.name());
             ps.setInt(3, accountId);
             return ps.executeUpdate();
+        }
+    }
+
+    /** The id of the account of a registration if it is Suspended for exactly this reason, else null. */
+    public Integer findSuspendedBy(Connection c, int registrationId, String reason) throws SQLException {
+        String sql = "SELECT account_id FROM account WHERE registration_id = ? AND status = 'SUSPENDED' AND suspend_reason = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            ps.setString(2, reason);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : null;
+            }
         }
     }
 

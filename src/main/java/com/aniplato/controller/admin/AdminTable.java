@@ -77,13 +77,15 @@ final class AdminTable {
     }
 
     /** A muted text on the left and a button on the right (the last cell of most rows). */
-    static HBox textAndButton(String text, Button button) {
+    static HBox textAndButton(String text, Button... buttons) {
         Label muted = label(text, "table-cell-muted");
         HBox.setHgrow(muted, Priority.ALWAYS);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox cell = new HBox(8, muted, spacer);
-        if (button != null) cell.getChildren().add(button);
+        for (Button button : buttons) {
+            if (button != null) cell.getChildren().add(button);
+        }
         cell.setAlignment(Pos.CENTER_LEFT);
         return cell;
     }

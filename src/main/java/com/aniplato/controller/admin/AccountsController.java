@@ -1,11 +1,14 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.Account;
-import com.aniplato.service.RegistrationService;
-import com.aniplato.service.RegistrationService.AccountRow;
-import com.aniplato.service.RegistrationService.AccountsOverview;
+import com.aniplato.service.AccountStatusService;
+import com.aniplato.service.AccountStatusService.AccountRow;
+import com.aniplato.service.AccountStatusService.AccountsOverview;
+import com.aniplato.util.AdminSelection;
+import com.aniplato.util.Navigator;
 import com.aniplato.util.Settings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -31,7 +34,7 @@ public class AccountsController {
 
     private static final int PAGE_SIZE = 10;
 
-    private final RegistrationService registrationService = new RegistrationService();
+    private final AccountStatusService accountStatusService = new AccountStatusService();
     private final Pager<AccountRow> pager = new Pager<>(PAGE_SIZE);
 
     // PATTERN:DYNAMIC fills the summary and the list from the organization accounts
@@ -43,9 +46,9 @@ public class AccountsController {
     private void load() {
         AccountsOverview overview;
         try {
-            overview = registrationService.getAccounts(LocalDate.now());
+            overview = accountStatusService.getAccounts(LocalDate.now());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            accountsSummaryLabel.setText("Could not load the accounts. Check the database connection.");
+            accountsSummaryLabel.setText(FormSupport.databaseProblem(e, "Could not load the accounts. Check the database connection."));
             return;
         }
         accountsSummaryLabel.setText(overview.approved() + " approved · " + overview.suspended() + " suspended · "
@@ -85,22 +88,29 @@ public class AccountsController {
                 : AdminTable.titled(account.name(), AdminTable.label("Approved", "pill-food-donor")));
         AdminTable.put(row, 1, AdminTable.pill(AdminTable.roleName(account.role()), AdminTable.roleStyle(account.role())));
         AdminTable.put(row, 2, AdminTable.label(account.city(), "table-cell-text"));
-        AdminTable.put(row, 3, AdminTable.textAndButton(account.documentNote(), suspended
+        Button review = account.renewalToReview()   // a renewal is waiting for the admin: Review opens the registration's files
+                ? AdminTable.button("Review renewal", "table-review-btn", e -> review(account)) : null;
+        AdminTable.put(row, 3, AdminTable.textAndButton(account.documentNote(), review, suspended
                 ? AdminTable.button("Reinstate", "table-review-btn", e -> reinstate(account))
                 : AdminTable.button("Suspend", "btn-suspend-outline", e -> suspend(account))));
         return row;
     }
 
+    private void review(AccountRow account) {
+        AdminSelection.selectRegistration(account.registrationId());
+        Navigator.show(Navigator.Screen.REVIEW_REGISTRATION);
+    }
+
     private void suspend(AccountRow account) {
         dialogController.showSuspendAccountMode(account.name(), reason -> {
-            registrationService.suspendAccount(account.accountId(), reason);   // the service needs a reason
+            accountStatusService.suspendAccount(account.accountId(), reason);   // the service needs a reason
             load();
         });
     }
 
     private void reinstate(AccountRow account) {
         dialogController.showReinstateAccountMode(account.name(), null, () -> {
-            registrationService.reinstateAccount(account.accountId());
+            accountStatusService.reinstateAccount(account.accountId());
             load();
         });
     }

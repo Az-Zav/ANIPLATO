@@ -1,0 +1,135 @@
+package com.aniplato.controller;
+
+import com.aniplato.exception.DataAccessException;
+import com.aniplato.exception.RuleViolationException;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+/** What every form and list screen needs: run a service call and show a broken rule (A8), read numbers, format dates. */
+public final class FormSupport {
+
+    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a");
+
+    private FormSupport() { }
+
+    /** Runs the action. A broken rule or a database problem is shown in a message and false is returned; true means it worked. */
+    public static boolean attempt(Runnable action) {
+        String problem = failure(action, "Could not complete this. Check the database connection and try again.");
+        if (problem != null) ScreenMessage.error(problem);
+        return problem == null;
+    }
+
+    /** Like {@link #attempt(Runnable)} for a form read through {@code input}: an unreadable number or time is reported by name, in the form's order. */
+    public static boolean attempt(Runnable action, FormInput input) {
+        String problem = failure(action, "Could not complete this. Check the database connection and try again.");
+        if (problem != null) ScreenMessage.error(input.say(problem));
+        return problem == null;
+    }
+
+    /**
+     * Runs the action and returns null if it worked, else the text to show: the rule's own message for a broken rule (A8),
+     * {@code databaseMessage} for a database problem. The one place that decides which failures are shown and how.
+     */
+    public static String failure(Runnable action, String databaseMessage) {
+        try {
+            action.run();
+            return null;
+        } catch (RuleViolationException e) {
+            return e.getMessage();
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            return databaseProblem(e, databaseMessage);
+        }
+    }
+
+    private static final String OUT_OF_DATE = "The database is out of date. Run the newest migrate script in the sql folder "
+            + "(for example sql/migrate-food-needed.sql), then reopen this screen.";
+
+    /**
+     * The text for a database failure: a table or column the code expects but the database does not have means the
+     * database was made before this version, so it says so and what to run; any other failure keeps the caller's text.
+     */
+    public static String databaseProblem(Throwable problem, String fallback) {
+        for (Throwable t = problem; t != null; t = t.getCause()) {
+            if (t instanceof java.sql.SQLException sql && (sql.getErrorCode() == 1054 || sql.getErrorCode() == 1146
+                    || (sql.getSQLState() != null && sql.getSQLState().startsWith("42S")))) {
+                return OUT_OF_DATE;
+            }
+            if (t.getCause() == t) break;
+        }
+        return fallback;
+    }
+
+    /** Runs a read and returns its result, or the fallback after showing the problem. */
+    public static <T> T load(Supplier<T> read, T fallback) {
+        List<T> result = new ArrayList<>(1);
+        String problem = failure(() -> result.add(read.get()), "Could not load this screen. Check the database connection and try again.");
+        if (problem == null) return result.get(0);
+        ScreenMessage.error(problem);
+        return fallback;
+    }
+
+    /** A number typed by the user; anything else is refused with a message naming the field. */
+    public static double number(String text, String fieldName) {
+        try {
+            return Double.parseDouble(text == null ? "" : text.trim());
+        } catch (NumberFormatException e) {
+            throw new RuleViolationException("Enter a number for " + fieldName + ".");
+        }
+    }
+
+    /** A whole number typed by the user. */
+    public static int wholeNumber(String text, String fieldName) {
+        try {
+            return Integer.parseInt(text == null ? "" : text.trim());
+        } catch (NumberFormatException e) {
+            throw new RuleViolationException("Enter a whole number for " + fieldName + ".");
+        }
+    }
+
+    /** "Oct 22, 2026 4:30 PM". */
+    public static String when(LocalDateTime time) {
+        return time == null ? "" : time.format(WHEN);
+    }
+
+    private static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("h:mm a");
+    private static final DateTimeFormatter DAY_CLOCK = DateTimeFormatter.ofPattern("MMM d, h:mm a");
+
+    /** "Today, 6:00 PM", "Tomorrow, 9:00 AM", or "Nov 12, 9:00 AM" for any other day. */
+    public static String soon(LocalDateTime time, LocalDate today) {
+        if (time == null) return "";
+        LocalDate day = time.toLocalDate();
+        if (day.equals(today)) return "Today, " + time.format(CLOCK);
+        if (day.equals(today.plusDays(1))) return "Tomorrow, " + time.format(CLOCK);
+        return time.format(DAY_CLOCK);
+    }
+
+    /** "4:00 PM – 8:00 PM, Today": a pickup window on one day; across two days both ends carry their date. */
+    public static String window(LocalDateTime start, LocalDateTime end, LocalDate today) {
+        if (start == null || end == null) return "";
+        if (!start.toLocalDate().equals(end.toLocalDate())) return soon(start, today) + " – " + soon(end, today);
+        String day = soon(start, today);
+        return start.format(CLOCK) + " – " + end.format(CLOCK) + ", " + day.substring(0, day.indexOf(','));
+    }
+
+    /** "1h 40m left", "2d 3h left" or "25m left"; empty once the time has passed. */
+    public static String timeLeft(LocalDateTime due, LocalDateTime now) {
+        if (due == null || !due.isAfter(now)) return "";
+        java.time.Duration left = java.time.Duration.between(now, due);
+        long days = left.toDays();
+        long hours = left.toHours() % 24;
+        long minutes = left.toMinutes() % 60;
+        if (days > 0) return days + "d " + hours + "h left";
+        if (hours > 0) return hours + "h " + minutes + "m left";
+        return minutes + "m left";
+    }
+
+    /** "12.5 kg" (no trailing zeros). */
+    public static String kg(double kg) {
+        return (kg == Math.rint(kg) ? String.valueOf((long) kg) : String.valueOf(kg)) + " kg";
+    }
+}

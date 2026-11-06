@@ -1,12 +1,12 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.dao.SafetyNoticeDao.NoticeRow;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.service.SafetyService;
+import com.aniplato.service.SafetyService.NoticeRow;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -36,7 +36,7 @@ public class SafetyNoticesController {
         try {
             notices = safetyService.getNoticeRows();
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            noticeSummaryLabel.setText("Could not load the safety notices. Check the database connection.");
+            noticeSummaryLabel.setText(FormSupport.databaseProblem(e, "Could not load the safety notices. Check the database connection."));
             return;
         }
         long open = notices.stream().filter(n -> n.status() == SafetyNotice.Status.OPEN).count();
@@ -60,16 +60,22 @@ public class SafetyNoticesController {
         AdminTable.put(row, 3, AdminTable.wrapped(concernText(notice), "table-cell-text"));
         AdminTable.put(row, 4, AdminTable.textAndButton(AdminTable.dateTime(notice.raisedAt()), open
                 ? AdminTable.button("Resolve", "table-review-btn", e -> resolve(notice))
-                : AdminTable.button("View", "secondary-button", e -> view(notice))));
+                : AdminTable.button("View", "table-review-btn", e -> toggleOutcome(notice, row))));
         return row;
     }
 
     private static Label statusTag(SafetyNotice.Status status) {
         return switch (status) {
-            case OPEN -> AdminTable.label("Open", "tag-reregistered");
-            case DISMISSED -> AdminTable.label("Dismissed", "table-cell-muted");
-            case ACCOUNT_SUSPENDED -> AdminTable.label("Suspended", "required-star");
+            case OPEN -> pill("Open", "accepted");
+            case DISMISSED -> pill("Dismissed", "neutral");
+            case ACCOUNT_SUSPENDED -> pill("Account suspended", "danger");
         };
+    }
+
+    private static Label pill(String text, String tone) {
+        Label label = AdminTable.label(text, "board-pill");
+        label.getStyleClass().add("board-pill-" + tone);
+        return label;
     }
 
     private static String concernText(NoticeRow notice) {
@@ -90,10 +96,18 @@ public class SafetyNoticesController {
                 });
     }
 
-    // PATTERN:ACTION shows how a closed notice was resolved
-    private void view(NoticeRow notice) {
+    // PATTERN:ACTION shows how a closed notice was resolved, in a line under its row (View again hides it)
+    private void toggleOutcome(NoticeRow notice, GridPane row) {
+        int next = safetyNoticeRowsBox.getChildren().indexOf(row) + 1;
+        if (next < safetyNoticeRowsBox.getChildren().size()
+                && safetyNoticeRowsBox.getChildren().get(next).getStyleClass().contains("notice-outcome")) {
+            safetyNoticeRowsBox.getChildren().remove(next);
+            return;
+        }
         String how = notice.status() == SafetyNotice.Status.DISMISSED ? "Dismissed" : "Account suspended";
-        new Alert(Alert.AlertType.INFORMATION, how + "\n\nAdmin note: "
-                + (notice.adminNote() == null ? "—" : notice.adminNote())).showAndWait();
+        Label outcome = new Label(how + ". Admin note: " + (notice.adminNote() == null ? "—" : notice.adminNote()));
+        outcome.getStyleClass().addAll("notice-outcome", "table-cell-muted");
+        outcome.setWrapText(true);
+        safetyNoticeRowsBox.getChildren().add(next, outcome);
     }
 }

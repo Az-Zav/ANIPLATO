@@ -1,0 +1,19 @@
+# For the shared online database. Copy to db.properties (git-ignored) and fill in the host, port, your own user and password.
+# The CA file is the "CA certificate" downloaded from the Aiven service page; keep it anywhere outside the repo.
+url=jdbc:mysql://<host>.aivencloud.com:<port>/aniplato
+user=aniplato_app
+password=
+ssl.ca=C:/path/to/ca.pem
+# The server runs on UTC; the app's times are Manila's.
+session.timezone=+08:00
+# Every teammate's pool counts against the server's connection limit (76), so keep it small.
+pool.size=3
+pool.minIdle=1
+
+# Email (SMTP), as in db.properties.example.
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.auth=true
+mail.smtp.starttls.enable=true
+mail.user=
+mail.password=

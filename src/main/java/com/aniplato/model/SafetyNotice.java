@@ -9,17 +9,14 @@ public class SafetyNotice {
 
     public int id;                          // shown as "Notice #12"
     public int offerId;
-    public int raisedBy;                    // account id of whoever flagged the concern
+    public Kind kind = Kind.CONCERN;
+    public Integer raisedBy;                // account id of whoever flagged the concern; null when the system raised an overdue report
     public String concern;
     public Status status;
     public String adminNote;                // null until resolved; required on resolve
     public Integer resolvedBy;              // admin's account id; null until resolved
     public LocalDateTime resolvedAt;        // null until resolved
     public LocalDateTime raisedAt;
-
-    public boolean isOpen() {
-        return status == Status.OPEN;
-    }
 
     /** How the notice is named on screens. */
     public String label() {

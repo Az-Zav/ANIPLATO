@@ -1,11 +1,11 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
-import com.aniplato.exception.DataAccessException;
-import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.model.Document;
 import com.aniplato.model.Registration;
+import com.aniplato.service.DocumentReviewService;
+import com.aniplato.service.FileStorageService;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.ReviewDetail;
 import com.aniplato.util.AdminSelection;
@@ -80,6 +80,7 @@ public class ReviewRegistrationController {
     @FXML private Button approveBtn;
 
     private final RegistrationService registrationService = new RegistrationService();
+    private final DocumentReviewService documentReviewService = new DocumentReviewService();
     private int registrationId;
     private List<Document> documents = List.of();
 
@@ -98,16 +99,14 @@ public class ReviewRegistrationController {
     /** Reads the registration and its documents from the service and fills the screen. */
     private void load() {
         hideError();
-        ReviewDetail detail;
-        try {
-            detail = registrationService.getForReview(registrationId);
-        } catch (RuleViolationException e) {
-            orgTitleLabel.setText(e.getMessage());
-            return;
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            orgTitleLabel.setText("Could not load the registration. Check the database connection.");
+        ReviewDetail[] read = new ReviewDetail[1];
+        String problem = FormSupport.failure(() -> read[0] = registrationService.getForReview(registrationId),
+                "Could not load the registration. Check the database connection.");
+        if (problem != null) {
+            orgTitleLabel.setText(problem);
             return;
         }
+        ReviewDetail detail = read[0];
         Registration r = detail.registration();
         documents = r.documents;
 
@@ -165,25 +164,21 @@ public class ReviewRegistrationController {
 
     @FXML private void handleVerifyDoc1() { verify(0); }
     @FXML private void handleVerifyDoc2() { verify(1); }
-    @FXML private void handleUndoDoc1() { run(() -> registrationService.undoVerification(documents.get(0).id)); }
-    @FXML private void handleUndoDoc2() { run(() -> registrationService.undoVerification(documents.get(1).id)); }
+    @FXML private void handleUndoDoc1() { run(() -> documentReviewService.undoVerification(documents.get(0).id)); }
+    @FXML private void handleUndoDoc2() { run(() -> documentReviewService.undoVerification(documents.get(1).id)); }
     @FXML private void handleViewDoc1() { open(0); }
     @FXML private void handleViewDoc2() { open(1); }
 
     /** R1.4: the admin opens the file, compares it with the reminders, then verifies it. */
     private void verify(int index) {
-        run(() -> registrationService.verifyDocument(documents.get(index).id));
+        run(() -> documentReviewService.verifyDocument(documents.get(index).id));
     }
 
     /** Runs a service action, shows a broken rule (A8), then re-reads the registration so the screen matches the database. */
     private void run(Runnable action) {
-        try {
-            action.run();
-        } catch (RuleViolationException e) {
-            DialogController.showError(e.getMessage());
-            return;
-        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            DialogController.showError("Could not save this. Check the database connection and try again.");
+        String problem = FormSupport.failure(action, "Could not save this. Check the database connection and try again.");
+        if (problem != null) {
+            showError(problem);
             return;
         }
         load();
@@ -192,15 +187,15 @@ public class ReviewRegistrationController {
     /** Opens the uploaded file in the system's viewer. */
     private void open(int index) {
         if (index >= documents.size()) return;
-        File file = new File("uploads", documents.get(index).filePath);
+        File file = new FileStorageService().resolve(documents.get(index).filePath);
         try {
             if (!file.isFile() || !Desktop.isDesktopSupported()) {
-                DialogController.showError("The file " + file.getName() + " is not in the uploads folder.");
+                showError("The file " + file.getName() + " could not be found.");
                 return;
             }
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            DialogController.showError("Could not open " + file.getName() + ".");
+            showError("Could not open " + file.getName() + ".");
         }
     }
 

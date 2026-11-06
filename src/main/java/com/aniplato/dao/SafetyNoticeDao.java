@@ -15,29 +15,20 @@ import java.util.List;
 public class SafetyNoticeDao {
 
     public int insert(Connection c, SafetyNotice notice) throws SQLException {
-        String sql = "INSERT INTO safety_notice (offer_id, raised_by, concern, status, raised_at) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO safety_notice (offer_id, kind, raised_by, concern, status, raised_at) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, notice.offerId);
-            ps.setInt(2, notice.raisedBy);
-            ps.setString(3, notice.concern);
-            ps.setString(4, notice.status.name());
-            ps.setObject(5, notice.raisedAt);
+            ps.setString(2, notice.kind.name());
+            ps.setObject(3, notice.raisedBy, java.sql.Types.INTEGER);   // null for an overdue-report notice (the system)
+            ps.setString(4, notice.concern);
+            ps.setString(5, notice.status.name());
+            ps.setObject(6, notice.raisedAt);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) throw new SQLException("Creating a safety notice did not return an id");
                 return keys.getInt(1);
             }
-        }
-    }
-
-    public List<SafetyNotice> findAll(Connection c) throws SQLException {
-        String sql = "SELECT * FROM safety_notice ORDER BY raised_at DESC, notice_id DESC";
-        try (PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            List<SafetyNotice> notices = new ArrayList<>();
-            while (rs.next()) notices.add(map(rs));
-            return notices;
         }
     }
 
@@ -69,7 +60,9 @@ public class SafetyNoticeDao {
         SafetyNotice notice = new SafetyNotice();
         notice.id = rs.getInt("notice_id");
         notice.offerId = rs.getInt("offer_id");
-        notice.raisedBy = rs.getInt("raised_by");
+        notice.kind = SafetyNotice.Kind.valueOf(rs.getString("kind"));
+        int raisedBy = rs.getInt("raised_by");
+        notice.raisedBy = rs.wasNull() ? null : raisedBy;
         notice.concern = rs.getString("concern");
         notice.status = SafetyNotice.Status.valueOf(rs.getString("status"));
         notice.adminNote = rs.getString("admin_note");
@@ -91,11 +84,14 @@ public class SafetyNoticeDao {
     public List<NoticeRow> findRows(Connection c) throws SQLException {
         String sql = """
                 SELECT n.notice_id, n.kind, n.status, n.concern, n.admin_note, n.raised_at,
-                       CASE WHEN n.raised_by = o.offerer_id THEN poster_reg.name ELSE offerer_reg.name END AS flagged_name,
+                       CASE WHEN n.kind = 'OVERDUE_REPORT' THEN
+                                 CASE WHEN p.kind = 'LISTING' THEN offerer_reg.name ELSE poster_reg.name END   -- the food group owes the report
+                            WHEN n.raised_by = o.offerer_id THEN poster_reg.name
+                            ELSE offerer_reg.name END AS flagged_name,
                        CASE WHEN n.raised_by IS NULL THEN 'System'
                             WHEN n.raised_by = o.offerer_id THEN offerer_reg.name
                             ELSE poster_reg.name END AS raised_by_name,
-                       COALESCE(fd.description, ud.use_description) AS listing_text
+                       COALESCE(fd.description, ud.food_needed, ud.use_description) AS listing_text
                 FROM safety_notice n
                 JOIN offer o ON o.offer_id = n.offer_id
                 JOIN post p ON p.post_id = o.post_id

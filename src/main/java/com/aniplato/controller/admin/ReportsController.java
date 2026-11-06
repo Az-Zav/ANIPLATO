@@ -1,5 +1,6 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.service.StatsService;
 import com.aniplato.service.StatsService.CityRow;
@@ -69,7 +70,7 @@ public class ReportsController {
         try {
             monthComboBox.getItems().setAll(statsService.getReportMonths(LocalDate.now()));
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            totalCityNameLabel.setText("Could not load the reports. Check the database connection.");
+            totalCityNameLabel.setText(FormSupport.databaseProblem(e, "Could not load the reports. Check the database connection."));
             return;
         }
         monthComboBox.valueProperty().addListener((o, was, month) -> show(month));
@@ -82,7 +83,7 @@ public class ReportsController {
         try {
             report = statsService.getReport(month, LocalDateTime.now());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            totalCityNameLabel.setText("Could not load the report. Check the database connection.");
+            totalCityNameLabel.setText(FormSupport.databaseProblem(e, "Could not load the report. Check the database connection."));
             return;
         }
         kgPostedLabel.setText(AdminTable.kg(report.kgPosted()));

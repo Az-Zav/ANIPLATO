@@ -1,5 +1,6 @@
 package com.aniplato.util;
 
+import com.aniplato.exception.RuleViolationException;
 import com.aniplato.model.Account;
 
 /** Who is logged in. Set by AuthenticationService on login, cleared on logout. */
@@ -30,5 +31,12 @@ public final class Session {
     public static Account require() {
         if (current == null) throw new IllegalStateException("No one is logged in");
         return current;
+    }
+
+    /** The logged-in admin; any other account is refused with a message (6.5). */
+    public static Account requireAdmin() {
+        Account me = require();
+        if (me.role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
+        return me;
     }
 }

@@ -1,0 +1,461 @@
+package com.aniplato.controller;
+
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.model.Document;
+import com.aniplato.support.Fx;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Labeled;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
+ * without anyone clicking through 17 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
+ * A broken rule is written inside the card (DialogCard.showProblem), so error paths can be tested here too.
+ */
+class DialogControllerTest {
+
+    private static final String FXML = "/com/aniplato/view/shared/dialog.fxml";
+
+    private static final Runnable NOOP = () -> { };
+    private static final Consumer<String> IGNORE = text -> { };
+
+    private Parent root;
+    private DialogController dialogs;
+
+    @BeforeAll
+    static void startToolkit() {
+        Fx.start();
+    }
+
+    @BeforeEach
+    void loadDialogs() {
+        fx(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(DialogController.class.getResource(FXML));
+                root = loader.load();
+                dialogs = loader.getController();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    //---HELPERS---
+
+    private static void fx(Runnable action) {
+        fx(() -> {
+            action.run();
+            return null;
+        });
+    }
+
+    private static <T> T fx(Supplier<T> action) {
+        return Fx.call(action);
+    }
+
+    private List<Node> shownCards() {
+        return fx(() -> root.lookupAll(".modal-card").stream().filter(n -> n.isVisible() && n.isManaged()).toList());
+    }
+
+    private Node onlyShownCard() {
+        List<Node> shown = shownCards();
+        assertEquals(1, shown.size(), "exactly one dialog is open");
+        return shown.get(0);
+    }
+
+    private static String textIn(Node node) {
+        StringBuilder sb = new StringBuilder();
+        collectText(node, sb);
+        return sb.toString();
+    }
+
+    private static void collectText(Node node, StringBuilder sb) {
+        if (node instanceof Labeled labeled && labeled.getText() != null) sb.append(labeled.getText()).append('\n');
+        if (node instanceof TextInputControl input && input.getText() != null) sb.append(input.getText()).append('\n');
+        if (node instanceof Parent parent) parent.getChildrenUnmodifiable().forEach(child -> collectText(child, sb));
+    }
+
+    private static <T extends Node> List<T> all(Node card, Class<T> type) {
+        List<T> found = new ArrayList<>();
+        collect(card, type, found);
+        return found;
+    }
+
+    private static <T extends Node> void collect(Node node, Class<T> type, List<T> found) {
+        if (type.isInstance(node)) found.add(type.cast(node));
+        if (node instanceof Parent parent) parent.getChildrenUnmodifiable().forEach(child -> collect(child, type, found));
+    }
+
+    private Button buttonStartingWith(Node card, String text) {
+        return all(card, Button.class).stream().filter(b -> b.getText() != null && b.getText().startsWith(text))
+                .findFirst().orElseThrow(() -> new AssertionError("no button \"" + text + "\" in:\n" + textIn(card)));
+    }
+
+    private void click(Node card, String buttonText) {
+        fx(() -> buttonStartingWith(card, buttonText).fire());
+    }
+
+    private void assertAllClosed() {
+        assertEquals(0, shownCards().size(), "no dialog is open");
+        assertFalse(fx(() -> root.isVisible()), "the overlay is hidden");
+        assertFalse(fx(() -> root.isManaged()));
+    }
+
+    //---SCREENS THAT EMBED THE DIALOGS---
+
+    @Test
+    void screensThatIncludeTheDialogsStillLoadThem() {
+        for (String screen : List.of("login", "register", "register-step2")) {
+            Parent loaded = fx(() -> {
+                try {
+                    return new FXMLLoader(DialogController.class.getResource("/com/aniplato/view/" + screen + ".fxml")).load();
+                } catch (Exception e) {
+                    throw new IllegalStateException(screen, e);
+                }
+            });
+            assertEquals(17, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all seventeen dialogs");
+        }
+    }
+
+    //---OPENING---
+
+    @Test
+    void everyDialogStartsHidden() {
+        assertEquals(0, shownCards().size());
+        assertEquals(17, fx(() -> root.lookupAll(".modal-card").size()), "all seventeen dialogs are on the screen");
+        // the overlay itself must not take space either: a screen that includes it without visible="false" showed a grey bar
+        assertFalse(fx(() -> root.isVisible() || root.isManaged()), "the closed overlay is hidden and takes no room");
+    }
+
+    @Test
+    void rejectShowsItsDescriptionAndAnEmptyReason() {
+        fx(() -> dialogs.showRejectMode(7, "Sunrise Bakery"));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("We’ll email Sunrise Bakery your reason"));
+        assertEquals("", all(card, TextArea.class).get(0).getText());
+        assertTrue(fx(() -> root.isVisible() && root.isManaged()));
+    }
+
+    @Test
+    void approveShowsTheOrganizationAndEmail() {
+        fx(() -> dialogs.showApproveMode(7, "Sunrise Bakery", "a@b.test"));
+        assertTrue(textIn(onlyShownCard()).contains("We’ll create Sunrise Bakery’s account and email temporary login details to a@b.test."));
+    }
+
+    @Test
+    void suspendShowsTheOrganizationAndAnEmptyReason() {
+        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery", IGNORE));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Sunrise Bakery can still log in"));
+        assertEquals("", all(card, TextArea.class).get(0).getText());
+    }
+
+    @Test
+    void reinstateMentionsTheDetailsOnlyWhenThereAreSome() {
+        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "Documents are current.", NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery gets full access again. Documents are current."));
+        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "", NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery gets full access again.\n"));
+    }
+
+    @Test
+    void resolveSafetyNoticeShowsWhoFlaggedWhat() {
+        fx(() -> dialogs.showResolveSafetyNoticeMode("Kapwa Kitchen", "Oct 21", "Moldy bread", "Sunrise Bakery", IGNORE, IGNORE));
+        assertTrue(textIn(onlyShownCard()).contains("Flagged by Kapwa Kitchen on Oct 21: \"Moldy bread\" Close it as dismissed, or suspend Sunrise Bakery."));
+    }
+
+    @Test
+    void cancelListingNamesTheRecipientOnlyWhenThereIsOne() {
+        fx(() -> dialogs.showCancelListingMode("Day-old bread", "Kapwa Kitchen", IGNORE));
+        assertTrue(textIn(onlyShownCard()).contains("Day-old bread leaves the board. Kapwa Kitchen’s accepted offer is cancelled with it"));
+        fx(() -> dialogs.showCancelListingMode("Day-old bread", null, IGNORE));
+        assertTrue(textIn(onlyShownCard()).contains("Day-old bread leaves the board and its listing is cancelled."));
+    }
+
+    @Test
+    void confirmReleaseFillsTheHandoffAndTicksTheChecks() {
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "12.5 kg", "Kapwa Kitchen", "Oct 22, 9 AM", "0917 123 4567", 1, NOOP));
+        Node card = onlyShownCard();
+        String text = textIn(card);
+        for (String expected : List.of("Bread", "12.5 kg", "Kapwa Kitchen", "Oct 22, 9 AM", "0917 123 4567",
+                "Kapwa Kitchen hasn’t confirmed receipt yet. The listing becomes Rescued once they do.")) {
+            assertTrue(text.contains(expected), expected);
+        }
+        assertTrue(all(card, CheckBox.class).stream().allMatch(CheckBox::isSelected));
+    }
+
+    @Test
+    void confirmReceiptMentionsTheReleaseTimeOnlyWhenKnown() {
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", "9:05 AM", 1, NOOP));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Sunrise Bakery confirmed release at 9:05 AM. Confirming receipt marks this listing Rescued."));
+        assertTrue(all(card, CheckBox.class).stream().allMatch(CheckBox::isSelected));
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "12.5 kg", "Sunrise Bakery", "Oct 22, 9 AM", "0917 123 4567", null, 1, NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("Confirming receipt marks this listing Rescued."));
+    }
+
+    @Test
+    void acceptOfferCountsTheOtherOffers() {
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 1, NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("Kapwa Kitchen picks up the full 12.5 kg Oct 22 at 9 AM. The other 1 offer is declined automatically."));
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 3, NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("The other 3 offers are declined automatically."));
+        fx(() -> dialogs.showAcceptOfferMode("Kapwa Kitchen", "12.5 kg", "Oct 22 at 9 AM", 0, NOOP));
+        assertFalse(textIn(onlyShownCard()).contains("declined automatically"));
+    }
+
+    @Test
+    void uploadRenewalNamesTheDocumentAndStartsEmpty() {
+        fx(() -> dialogs.showUploadRenewalMode(Document.Type.MAYORS_PERMIT, NOOP));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Upload renewal: " + Document.Type.MAYORS_PERMIT.label()));
+        assertTrue(textIn(card).contains("No file chosen"));
+    }
+
+    @Test
+    void setNewPasswordAsksForTheCurrentPasswordOnlyWhenItIsNotKnown() {
+        fx(() -> dialogs.showSetNewPasswordMode("Temp1234", () -> { }));
+        assertEquals(2, visiblePasswordFields(onlyShownCard()), "new and confirm only");
+        fx(() -> dialogs.showSetNewPasswordMode(null, () -> { }));
+        assertEquals(3, visiblePasswordFields(onlyShownCard()), "current, new and confirm");
+    }
+
+    private long visiblePasswordFields(Node card) {
+        return fx(() -> all(card, PasswordField.class).stream().filter(f -> isShown(f)).count());
+    }
+
+    private static boolean isShown(Node node) {
+        for (Node n = node; n != null; n = n.getParent()) {
+            if (!n.isVisible() || !n.isManaged()) return false;
+        }
+        return true;
+    }
+
+    @Test
+    void withdrawOfferNamesTheDonor() {
+        fx(() -> dialogs.showWithdrawOfferMode("Sunrise Bakery", NOOP));
+        assertTrue(textIn(onlyShownCard()).contains("Sunrise Bakery won’t see this offer anymore."));
+    }
+
+    @Test
+    void forgotPasswordPrefillsTheEmail() {
+        fx(() -> dialogs.showForgotPasswordMode("me@aniplato.test"));
+        assertTrue(all(onlyShownCard(), TextField.class).stream().anyMatch(f -> "me@aniplato.test".equals(f.getText())));
+        fx(() -> dialogs.showForgotPasswordMode(null));
+        assertTrue(all(onlyShownCard(), TextField.class).stream().allMatch(f -> f.getText().isEmpty()));
+    }
+
+    @Test
+    void upgradeToBusinessDonorStartsWithNoFilesChosen() {
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
+        String text = textIn(onlyShownCard());
+        assertEquals(2, text.split("No file chosen", -1).length - 1, "one per permit");
+    }
+
+    @Test
+    void aProblemShowsInsideTheDialogAndLeavesItOpen() {
+        fx(() -> dialogs.showForgotPasswordMode(null));
+        click(onlyShownCard(), "Send reset email");   // no email typed: refused, A8
+        Node card = onlyShownCard();                   // still the one open card
+        assertTrue(textIn(card).contains("Please enter your email address."), "the message is inside the card, not a popup");
+        fx(() -> dialogs.showForgotPasswordMode("me@aniplato.test"));
+        assertFalse(textIn(onlyShownCard()).contains("Please enter your email address."), "opening again clears the message");
+    }
+
+    @Test
+    void theUpgradeDialogOpensWithNoFilesChosenAndNoConsent() {
+        // the upload buttons open the system file explorer, which a test cannot answer, so they are not fired here
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
+        Node card = onlyShownCard();
+        assertEquals(2, textIn(card).split("No file chosen", -1).length - 1, "both permits show no file");
+        assertTrue(all(card, CheckBox.class).stream().noneMatch(CheckBox::isSelected), "the consent starts unticked");
+        assertTrue(all(card, javafx.scene.control.DatePicker.class).stream().allMatch(d -> d.getValue() == null));
+    }
+
+    @Test
+    void flagSafetyConcernStartsEmpty() {
+        fx(() -> dialogs.showFlagSafetyConcernMode(1));
+        assertEquals("", all(onlyShownCard(), TextArea.class).get(0).getText());
+    }
+
+    //---SWITCHING AND CLOSING---
+
+    @Test
+    void openingAnotherDialogClosesTheFirst() {
+        fx(() -> dialogs.showRejectMode(1, "A"));
+        fx(() -> dialogs.showApproveMode(1, "B", "b@b.test"));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("We’ll create B’s account"));
+        assertFalse(textIn(card).contains("We’ll email"));
+    }
+
+    @Test
+    void backClosesTheDialogAndTheOverlay() {
+        fx(() -> dialogs.showRejectMode(1, "A"));
+        click(onlyShownCard(), "← Back");
+        assertAllClosed();
+
+        fx(() -> dialogs.showSuspendAccountMode("A", IGNORE));
+        click(onlyShownCard(), "← Back");
+        assertAllClosed();
+
+        fx(() -> dialogs.showUpgradeBusinessDonorMode(NOOP));
+        click(onlyShownCard(), "← Back");
+        assertAllClosed();
+    }
+
+    @Test
+    void theSafetyLinkOnReleaseAndReceiptOpensTheFlagConcernDialog() {
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C", 1, NOOP));
+        Node release = onlyShownCard();
+        fx(() -> all(release, Hyperlink.class).get(0).fire());
+        assertEquals(1, all(onlyShownCard(), TextArea.class).size());
+        assertTrue(textIn(onlyShownCard()).contains("Send to admin"));
+
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null, 1, NOOP));
+        Node receipt = onlyShownCard();
+        fx(() -> all(receipt, Hyperlink.class).get(0).fire());
+        assertTrue(textIn(onlyShownCard()).contains("Send to admin"));
+    }
+
+    @Test
+    void eachConfirmButtonRunsItsActionOnceAndCloses() {
+        AtomicInteger runs = new AtomicInteger();
+        Runnable count = runs::incrementAndGet;
+        Consumer<String> countReason = reason -> runs.incrementAndGet();
+
+        fx(() -> dialogs.showCancelListingMode("Bread", null, countReason));
+        click(onlyShownCard(), "✕ Cancel listing");
+        assertAllClosed();
+
+        fx(() -> dialogs.showConfirmReleaseMode("Bread", "1 kg", "G", "P", "C", 1, count));
+        click(onlyShownCard(), "Confirm Release");
+        assertAllClosed();
+
+        fx(() -> dialogs.showAcceptOfferMode("G", "1 kg", "now", 0, count));
+        click(onlyShownCard(), "Accept offer");
+        assertAllClosed();
+
+        fx(() -> dialogs.showWithdrawOfferMode("D", count));
+        click(onlyShownCard(), "✕ Withdraw");
+        assertAllClosed();
+
+        fx(() -> dialogs.showConfirmReceiptMode("Bread", "1 kg", "D", "P", "C", null, 1, count));
+        click(onlyShownCard(), "Confirm Receipt");
+        assertAllClosed();
+
+        assertEquals(5, runs.get(), "each action ran exactly once");
+    }
+
+    //---ADMIN CALLBACKS---
+
+    @Test
+    void suspendHandsTheTypedReasonToTheCallbackAndCloses() {
+        AtomicReference<String> reason = new AtomicReference<>();
+        fx(() -> dialogs.showSuspendAccountMode("Sunrise Bakery", reason::set));
+        Node card = onlyShownCard();
+        fx(() -> all(card, TextArea.class).get(0).setText("Reported twice"));
+        click(card, "✕ Suspend");
+        assertEquals("Reported twice", reason.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void reinstateRunsTheCallbackAndCloses() {
+        AtomicReference<Boolean> ran = new AtomicReference<>(false);
+        fx(() -> dialogs.showReinstateAccountMode("Sunrise Bakery", "", () -> ran.set(true)));
+        click(onlyShownCard(), "Reinstate");
+        assertTrue(ran.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void resolveSafetyNoticeHandsTheNoteToTheMatchingCallback() {
+        AtomicReference<String> dismissed = new AtomicReference<>();
+        AtomicReference<String> suspended = new AtomicReference<>();
+        fx(() -> dialogs.showResolveSafetyNoticeMode("G", "Oct 21", "Moldy", "Sunrise", dismissed::set, suspended::set));
+        Node card = onlyShownCard();
+        fx(() -> all(card, TextArea.class).get(0).setText("Checked"));
+        click(card, "Dismiss");
+        assertEquals("Checked", dismissed.get());
+        assertNull(suspended.get());
+        assertAllClosed();
+
+        fx(() -> dialogs.showResolveSafetyNoticeMode("G", "Oct 21", "Moldy", "Sunrise", dismissed::set, suspended::set));
+        Node again = onlyShownCard();
+        fx(() -> all(again, TextArea.class).get(0).setText("Unsafe"));
+        click(again, "Suspend account");
+        assertEquals("Unsafe", suspended.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void confirmActionShowsItsWordsAndRunsTheActionOnlyOnConfirm() {
+        AtomicInteger ran = new AtomicInteger();
+        fx(() -> dialogs.showConfirmActionMode("Sign out?", "You will need to sign in again.", "Sign out", false, ran::incrementAndGet));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Sign out?") && textIn(card).contains("You will need to sign in again."));
+        click(card, "← Back");
+        assertEquals(0, ran.get(), "Back does nothing");
+        assertAllClosed();
+
+        fx(() -> dialogs.showConfirmActionMode("Decline this offer?", "Cannot be undone.", "Decline", true, ran::incrementAndGet));
+        Node decline = onlyShownCard();
+        assertTrue(fx(() -> buttonStartingWith(decline, "Decline").getStyleClass().contains("danger-button")), "a loss is red");
+        click(decline, "Decline");
+        assertEquals(1, ran.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void confirmActionStaysOpenWithTheProblemWhenTheActionIsRefused() {
+        fx(() -> dialogs.showConfirmActionMode("Decline?", "x", "Decline", true, () -> {
+            throw new com.aniplato.exception.RuleViolationException("That offer is already decided.");
+        }));
+        click(onlyShownCard(), "Decline");
+        assertTrue(textIn(onlyShownCard()).contains("That offer is already decided."));
+    }
+
+    @Test
+    void postedOffersOneOrTwoWaysOnAndClosesBeforeGoingThere() {
+        AtomicReference<String> went = new AtomicReference<>();
+        fx(() -> dialogs.showPostedMode("Listing posted", "Food groups can see it.", "View my listings", () -> went.set("list"),
+                "Post another", () -> went.set("again")));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Listing posted"));
+        click(card, "Post another");
+        assertEquals("again", went.get());
+        assertAllClosed();
+
+        fx(() -> dialogs.showPostedMode("Offer sent", "Follow it under My Offers.", "View my offers", () -> went.set("offers"), null, null));
+        Node single = onlyShownCard();
+        assertFalse(fx(() -> all(single, Button.class).stream().anyMatch(b -> "Post another".equals(b.getText()) && b.isVisible())),
+                "no second choice when there is only one place to go");
+        click(single, "View my offers");
+        assertEquals("offers", went.get());
+        assertAllClosed();
+    }
+}

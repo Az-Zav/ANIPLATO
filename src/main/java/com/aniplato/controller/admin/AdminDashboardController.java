@@ -1,5 +1,6 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.PendingRow;
@@ -60,7 +61,7 @@ public class AdminDashboardController {
             documentsExpiringCaptionLabel.setText("Within the next " + Settings.DOCUMENT_WARNING_DAYS + " days");
             suspendedCountLabel.setText(String.valueOf(summary.suspendedAccounts()));
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            pageInfoLabel.setText("Could not load the dashboard. Check the database connection.");
+            pageInfoLabel.setText(FormSupport.databaseProblem(e, "Could not load the dashboard. Check the database connection."));
             return;
         }
         updatePaginationState();

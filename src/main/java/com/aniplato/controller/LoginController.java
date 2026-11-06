@@ -1,8 +1,8 @@
 package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
@@ -40,8 +40,8 @@ public class LoginController {
     private void handleLogin() {
         hideError();
         try {
-            Account account = authenticationService.login(emailField.getText(), passwordField.getText());
-            if (account.mustChangePassword) {
+            authenticationService.login(emailField.getText(), passwordField.getText());
+            if (authenticationService.mustChangePassword()) {
                 // R1.7: nothing else is reachable until the temporary password is replaced
                 dialog.setVisible(true);
                 dialog.setManaged(true);
@@ -51,6 +51,11 @@ public class LoginController {
             }
         } catch (RuleViolationException e) {
             showError(e.getMessage());
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            // no settings file, a bad CA file, or the database is out of reach: say so on the screen instead of failing silently
+            String reason = e instanceof IllegalStateException && e.getMessage() != null ? e.getMessage()
+                    : "Cannot reach the database. Check your internet connection and the db.properties settings.";
+            showError(FormSupport.databaseProblem(e, reason));
         }
     }
 
@@ -63,19 +68,10 @@ public class LoginController {
         errorLabel.setVisible(false);
     }
 
-    // TODO(service): Forgot password link. AuthenticationService.requestPasswordReset is built and the Profile
-    // screen reaches it through DialogController.showForgotPasswordMode; this link is still unwired.
-    // Wire it to open that same dialog mode, or call the service directly as below.
-    //
     // FXML: forgotPasswordLink onAction="#handleForgotPassword"
-    // PATTERN:ACTION
-    // @FXML
-    // private void handleForgotPassword() {
-    //     try {
-    //         authenticationService.requestPasswordReset(emailField.getText());
-    //         // show the same confirmation either way: "If that email has an account, a temporary password is on its way."
-    //     } catch (RuleViolationException e) {
-    //         showError(e.getMessage());   // A8, e.g. blank email
-    //     }
-    // }
+    // PATTERN:ACTION opens the Forgot Password dialog with whatever email was typed (R1.7)
+    @FXML
+    private void handleForgotPassword() {
+        dialogController.showForgotPasswordMode(emailField.getText());
+    }
 }

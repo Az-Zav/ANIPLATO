@@ -1,7 +1,7 @@
 package com.aniplato.controller.admin;
 
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
-import com.aniplato.model.Account;
 import com.aniplato.service.RegistrationService;
 import com.aniplato.service.RegistrationService.PendingRow;
 import com.aniplato.util.AdminSelection;
@@ -29,7 +29,7 @@ public class PendingRegistrationsController {
         try {
             pending = registrationService.getPending();
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            summaryLabel.setText("Could not load the registrations. Check the database connection.");
+            summaryLabel.setText(FormSupport.databaseProblem(e, "Could not load the registrations. Check the database connection."));
             return;
         }
         long again = pending.stream().filter(PendingRow::registeredAgain).count();

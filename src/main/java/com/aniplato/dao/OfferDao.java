@@ -6,95 +6,221 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** SQL only. One DAO per table. */
+/** SQL only. One DAO per table: sending, withdrawing and listing offers, status changes, and the counts for stats and safety. */
 public class OfferDao {
 
+    private static final String OFFER_SELECT = """
+            SELECT o.offer_id, o.post_id, o.offerer_id, o.kg, o.status, o.released_at, o.received_at, o.created_at,
+                   r.name AS offerer_name, a.status AS offerer_status,
+            """ + DetailDao.FOOD_COLUMNS + ",\n" + DetailDao.USE_COLUMNS + """
+
+            FROM offer o
+            JOIN account a ON a.account_id = o.offerer_id
+            JOIN registration r ON r.registration_id = a.registration_id
+            LEFT JOIN food_detail fd ON fd.food_detail_id = o.food_detail_id
+            LEFT JOIN use_detail ud ON ud.use_detail_id = o.use_detail_id
+            """;
+
+    private final DetailDao detailDao = new DetailDao();
+
+    //---SEND AND WITHDRAW---
+
+    /** Saves a new offer for a detail already inserted; exactly one of the two detail ids is set. */
+    public int insert(Connection c, int postId, int offererId, double kg, Integer foodDetailId, Integer useDetailId,
+                      LocalDateTime createdAt) throws SQLException {
+        String sql = "INSERT INTO offer (post_id, offerer_id, kg, food_detail_id, use_detail_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, postId);
+            ps.setInt(2, offererId);
+            ps.setDouble(3, kg);
+            ps.setObject(4, foodDetailId, Types.INTEGER);
+            ps.setObject(5, useDetailId, Types.INTEGER);
+            ps.setObject(6, createdAt);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                return keys.getInt(1);
+            }
+        }
+    }
+
+    /** Puts a Withdrawn offer back to Offered with new details (the table allows one offer per offerer per post). Returns rows changed. */
+    public int reopenIfWithdrawn(Connection c, int offerId, double kg, Integer foodDetailId, Integer useDetailId,
+                                 LocalDateTime createdAt) throws SQLException {
+        String sql = "UPDATE offer SET status = 'OFFERED', kg = ?, food_detail_id = ?, use_detail_id = ?, created_at = ? "
+                + "WHERE offer_id = ? AND status = 'WITHDRAWN'";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setDouble(1, kg);
+            ps.setObject(2, foodDetailId, Types.INTEGER);
+            ps.setObject(3, useDetailId, Types.INTEGER);
+            ps.setObject(4, createdAt);
+            ps.setInt(5, offerId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Changes the status only if the offer is still in the expected one, so two people acting at once cannot both win. Returns rows changed. */
+    public int updateStatusIf(Connection c, int offerId, Offer.Status from, Offer.Status to) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("UPDATE offer SET status = ? WHERE offer_id = ? AND status = ?")) {
+            ps.setString(1, to.name());
+            ps.setInt(2, offerId);
+            ps.setString(3, from.name());
+            return ps.executeUpdate();
+        }
+    }
+
+    //---READ---
+
     public Offer findById(Connection c, int offerId) throws SQLException {
-        String sql = "SELECT * FROM offer WHERE offer_id = ?";
+        List<Offer> found = query(c, OFFER_SELECT + "WHERE o.offer_id = ?", offerId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /** The offer one account already made on a post, in any status, or null. */
+    public Offer findByPostAndOfferer(Connection c, int postId, int offererId) throws SQLException {
+        List<Offer> found = query(c, OFFER_SELECT + "WHERE o.post_id = ? AND o.offerer_id = ?", postId, offererId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /** Every offer one account made, newest first. */
+    public List<Offer> findByOfferer(Connection c, int offererId) throws SQLException {
+        return query(c, OFFER_SELECT + "WHERE o.offerer_id = ? ORDER BY o.created_at DESC, o.offer_id DESC", offererId);
+    }
+
+    /** The offers on one post, newest first, without Withdrawn ones and without Offered ones from a Suspended offerer. */
+    public List<Offer> findOnPost(Connection c, int postId) throws SQLException {
+        return query(c, OFFER_SELECT + "WHERE o.post_id = ? AND o.status <> 'WITHDRAWN' "
+                + "AND (a.status = 'ACTIVE' OR o.status <> 'OFFERED') ORDER BY o.created_at DESC, o.offer_id DESC", postId);
+    }
+
+    /** Records that the donor handed the food over. Only an Accepted offer, once. Returns rows changed. */
+    public int markReleasedIf(Connection c, int offerId, LocalDateTime at) throws SQLException {
+        String sql = "UPDATE offer SET released_at = ? WHERE offer_id = ? AND status = 'ACCEPTED' AND released_at IS NULL";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, at);
+            ps.setInt(2, offerId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Completes an Accepted offer whose release was confirmed, and records the receipt time. Returns rows changed. */
+    public int completeIfReleased(Connection c, int offerId, LocalDateTime at) throws SQLException {
+        String sql = "UPDATE offer SET status = 'COMPLETED', received_at = ? "
+                + "WHERE offer_id = ? AND status = 'ACCEPTED' AND released_at IS NOT NULL";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, at);
+            ps.setInt(2, offerId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** True if the offer is on a listing (Route 1), false if on a request (Route 2). */
+    public boolean isOnListing(Connection c, int offerId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT p.kind FROM offer o JOIN post p ON p.post_id = o.post_id WHERE o.offer_id = ?")) {
             ps.setInt(1, offerId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
-                Offer offer = new Offer();
-                offer.id = rs.getInt("offer_id");
-                offer.listingId = rs.getInt("listing_id");
-                offer.groupId = rs.getInt("group_id");
-                offer.useDescription = rs.getString("use_description");
-                offer.beneficiaries = rs.getString("beneficiaries");
-                offer.headcount = rs.getInt("headcount");
-                offer.place = rs.getString("place");
-                offer.pickupTime = rs.getTimestamp("pickup_time").toLocalDateTime();
-                offer.message = rs.getString("message");
-                offer.groupAttestedAt = rs.getTimestamp("group_attested_at").toLocalDateTime();
-                offer.status = Offer.Status.valueOf(rs.getString("status"));
-                if (rs.getTimestamp("released_at") != null) {
-                    offer.releasedAt = rs.getTimestamp("released_at").toLocalDateTime();
-                }
-                if (rs.getTimestamp("received_at") != null) {
-                    offer.receivedAt = rs.getTimestamp("received_at").toLocalDateTime();
-                }
-                offer.createdAt = rs.getTimestamp("created_at").toLocalDateTime();
-                return offer;
+                return rs.next() && "LISTING".equals(rs.getString(1));
             }
         }
     }
 
-    public List<Integer> findAcceptedPastGracePeriod(Connection c, LocalDateTime pickupCutoff) throws SQLException {
-        String sql = "SELECT offer_id FROM offer WHERE status = 'ACCEPTED' AND pickup_time <= ? ORDER BY offer_id";
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, pickupCutoff);
+    /** The ids of a post's offers in one status. */
+    public List<Integer> findIdsByStatus(Connection c, int postId, Offer.Status status) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT offer_id FROM offer WHERE post_id = ? AND status = ? ORDER BY offer_id")) {
+            ps.setInt(1, postId);
+            ps.setString(2, status.name());
             try (ResultSet rs = ps.executeQuery()) {
                 List<Integer> ids = new ArrayList<>();
-                while (rs.next()) ids.add(rs.getInt("offer_id"));
+                while (rs.next()) ids.add(rs.getInt(1));
                 return ids;
             }
         }
     }
 
-    public List<Integer> findOfferedPastPickupTime(Connection c, LocalDateTime now) throws SQLException {
-        String sql = "SELECT offer_id FROM offer WHERE status = 'OFFERED' AND pickup_time < ? ORDER BY offer_id";
+    /** Accepted offers an account is a side of (as offerer or as poster): the food group's sidebar badge. */
+    public int countAcceptedFor(Connection c, int accountId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM offer o JOIN post p ON p.post_id = o.post_id "
+                + "WHERE o.status = 'ACCEPTED' AND (o.offerer_id = ? OR p.posted_by = ?)";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, now);
+            ps.setInt(1, accountId);
+            ps.setInt(2, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    /** The ids of a post's Offered offers other than one, which an accept declines. */
+    public List<Integer> findOfferedIdsExcept(Connection c, int postId, int exceptOfferId) throws SQLException {
+        String sql = "SELECT offer_id FROM offer WHERE post_id = ? AND status = 'OFFERED' AND offer_id <> ? ORDER BY offer_id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, postId);
+            ps.setInt(2, exceptOfferId);
             try (ResultSet rs = ps.executeQuery()) {
                 List<Integer> ids = new ArrayList<>();
-                while (rs.next()) ids.add(rs.getInt("offer_id"));
+                while (rs.next()) ids.add(rs.getInt(1));
                 return ids;
             }
         }
     }
 
-    public Integer findListingId(Connection c, int offerId) throws SQLException {
-        String sql = "SELECT listing_id FROM offer WHERE offer_id = ?";
+    /** Offered offers from Active offerers on one poster's Open posts: the donor's sidebar badge. */
+    public int countAwaitingDecision(Connection c, int posterId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM offer o JOIN post p ON p.post_id = o.post_id JOIN account a ON a.account_id = o.offerer_id "
+                + "WHERE p.posted_by = ? AND p.status = 'OPEN' AND o.status = 'OFFERED' AND a.status = 'ACTIVE'";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, offerId);
+            ps.setInt(1, posterId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt("listing_id") : null;
+                rs.next();
+                return rs.getInt(1);
             }
         }
     }
 
-    public int lapseAcceptedIfPastGracePeriod(Connection c, int offerId, LocalDateTime pickupCutoff)
-            throws SQLException {
-        String sql = "UPDATE offer SET status = 'LAPSED' " +
-                "WHERE offer_id = ? AND status = 'ACCEPTED' AND pickup_time <= ?";
+    private List<Offer> query(Connection c, String sql, Object... args) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, offerId);
-            ps.setObject(2, pickupCutoff);
-            return ps.executeUpdate();
+            for (int i = 0; i < args.length; i++) ps.setObject(i + 1, args[i]);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Offer> offers = new ArrayList<>();
+                while (rs.next()) offers.add(read(rs));
+                return offers;
+            }
         }
     }
 
-    public int expireOfferedIfPastPickupTime(Connection c, int offerId, LocalDateTime now) throws SQLException {
-        String sql = "UPDATE offer SET status = 'EXPIRED' " +
-                "WHERE offer_id = ? AND status = 'OFFERED' AND pickup_time < ?";
+    private Offer read(ResultSet rs) throws SQLException {
+        Offer o = new Offer();
+        o.id = rs.getInt("offer_id");
+        o.postId = rs.getInt("post_id");
+        o.offererId = rs.getInt("offerer_id");
+        o.offererName = rs.getString("offerer_name");
+        o.offererSuspended = "SUSPENDED".equals(rs.getString("offerer_status"));
+        o.kg = rs.getDouble("kg");
+        o.status = Offer.Status.valueOf(rs.getString("status"));
+        o.releasedAt = rs.getObject("released_at", LocalDateTime.class);
+        o.receivedAt = rs.getObject("received_at", LocalDateTime.class);
+        o.createdAt = rs.getObject("created_at", LocalDateTime.class);
+        o.food = detailDao.readFood(rs);
+        o.use = detailDao.readUse(rs);
+        return o;
+    }
+
+    //---STATUS AND PARTIES---
+
+    public Offer.Status findStatus(Connection c, int offerId) throws SQLException {
+        String sql = "SELECT status FROM offer WHERE offer_id = ?";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, offerId);
-            ps.setObject(2, now);
-            return ps.executeUpdate();
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Offer.Status.valueOf(rs.getString(1)) : null;
+            }
         }
     }
 
@@ -107,36 +233,6 @@ public class OfferDao {
             ps.setInt(1, offerId);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? new Parties(rs.getInt(1), rs.getInt(2)) : null;
-            }
-        }
-    }
-
-    /** Completed handoffs received in [from, to). */
-    public int countCompleted(Connection c, LocalDateTime from, LocalDateTime to) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM offer WHERE status = 'COMPLETED' AND received_at >= ? AND received_at < ?";
-        return countBetween(c, sql, from, to);
-    }
-
-    /** Offers made in [from, to) that were ever accepted (Accepted, Completed or Lapsed). */
-    public int countAccepted(Connection c, LocalDateTime from, LocalDateTime to) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM offer WHERE status IN ('ACCEPTED', 'COMPLETED', 'LAPSED') "
-                + "AND created_at >= ? AND created_at < ?";
-        return countBetween(c, sql, from, to);
-    }
-
-    /** Offers made in [from, to) that lapsed after being accepted. */
-    public int countLapsed(Connection c, LocalDateTime from, LocalDateTime to) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM offer WHERE status = 'LAPSED' AND created_at >= ? AND created_at < ?";
-        return countBetween(c, sql, from, to);
-    }
-
-    private int countBetween(Connection c, String sql, LocalDateTime from, LocalDateTime to) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, from);
-            ps.setObject(2, to);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1);
             }
         }
     }

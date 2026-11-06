@@ -3,36 +3,27 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.ScrollPane?>
 
 <!-- In-shell screen: header, sidebar and logout come from shared/shell.fxml -->
-<!-- Icons to be changed to SVG icons later -->
-
-<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.FoodGroupDashboardController">
-    <stylesheets>
-        <URL value="@../aniplato.css" />
-    </stylesheets>
+<ScrollPane fitToWidth="true" styleClass="table-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.foodgroup.FoodGroupDashboardController">
+    <stylesheets><URL value="@../aniplato.css" /></stylesheets>
     <content>
         <VBox spacing="20.0" styleClass="dashboard-bg">
-            <padding>
-                <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
-            </padding>
+            <padding><Insets bottom="24.0" left="32.0" right="32.0" top="24.0" /></padding>
             <children>
+                <!-- PATTERN:LIST alertBox : banners for a suspension, documents ending, a report due -->
+                <VBox fx:id="alertBox" spacing="8.0" />
                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                     <children>
                         <VBox spacing="4.0">
                             <children>
-                                <!-- PATTERN:DYNAMIC organizationName : "San Roque Parish Feeding Mission" -->
-                                <Label fx:id="organizationNameLabel" styleClass="page-title" text="Welcome, San Roque Parish Feeding Mission" />
-                                <!-- PATTERN:DYNAMIC city : "Mandaluyong City" -->
-                                <Label fx:id="cityLabel" styleClass="text-muted" text="Mandaluyong City" />
+                                <Label fx:id="welcomeLabel" styleClass="dashboard-title" />
+                                <Label fx:id="cityLabel" styleClass="dashboard-subtitle" />
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
@@ -40,114 +31,52 @@
                         <Button styleClass="primary-button, nav-browse-listings" text="Browse Listings" />
                     </children>
                 </HBox>
-
                 <HBox spacing="16.0">
                     <children>
                         <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="stat-card-title" text="OPEN LISTINGS">
-                             <graphic>
-                                <HBox prefHeight="22.0" prefWidth="27.0">
-                                   <children>
-                                      <ImageView>
-                                         <image>
-                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(3).png" />
-                                         </image>
-                                      </ImageView>
-                                   </children>
-                                </HBox>
-                             </graphic></Label>
-                                <!-- PATTERN:DYNAMIC openListingsCount : whole number -->
-                                <Label fx:id="openListingsCountLabel" styleClass="stat-value" text="05" />
-                                <Label styleClass="text-muted" text="Available in Mandaluyong City" />
+                                <Label styleClass="stat-card-title" text="OPEN LISTINGS" wrapText="true" />
+                                <!-- PATTERN:DYNAMIC openListingsValueLabel : the figure -->
+                                <Label fx:id="openListingsValueLabel" styleClass="dashboard-metric-value" />
+                                <!-- PATTERN:DYNAMIC openListingsSubLabel : the line under it -->
+                                <Label fx:id="openListingsSubLabel" styleClass="dashboard-subtitle" wrapText="true" />
                             </children>
                         </VBox>
                         <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="stat-card-title" text="ACCEPTED OFFERS">
-                             <graphic>
-                                <HBox prefHeight="22.0" prefWidth="27.0">
-                                   <children>
-                                      <ImageView>
-                                         <image>
-                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(4).png" />
-                                         </image>
-                                      </ImageView>
-                                   </children>
-                                </HBox>
-                             </graphic></Label>
-                                <!-- PATTERN:DYNAMIC acceptedOffersCount : whole number -->
-                                <Label fx:id="acceptedOffersCountLabel" styleClass="stat-value" text="02" />
-                                <Label styleClass="text-muted" text="Confirm receipt after donor release" />
+                                <Label styleClass="stat-card-title" text="ACCEPTED OFFERS" wrapText="true" />
+                                <!-- PATTERN:DYNAMIC acceptedValueLabel : the figure -->
+                                <Label fx:id="acceptedValueLabel" styleClass="dashboard-metric-value" />
+                                <!-- PATTERN:DYNAMIC acceptedSubLabel : the line under it -->
+                                <Label fx:id="acceptedSubLabel" styleClass="dashboard-subtitle" wrapText="true" />
                             </children>
                         </VBox>
                         <VBox spacing="12.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="stat-card-title" text="KG RESCUED">
-                             <graphic>
-                                <HBox prefHeight="22.0" prefWidth="27.0">
-                                   <children>
-                                      <ImageView>
-                                         <image>
-                                            <Image url="@../../../../../../../../../../Downloads/Overlay%20(5).png" />
-                                         </image>
-                                      </ImageView>
-                                   </children>
-                                </HBox>
-                             </graphic></Label>
-                                <HBox alignment="BASELINE_LEFT" spacing="5.0">
-                                    <children>
-                                        <!-- PATTERN:DYNAMIC rescuedKg : whole number; unit is static -->
-                                        <Label fx:id="rescuedKgLabel" styleClass="stat-value" text="2,340" />
-                                        <Label styleClass="stat-unit" text="kg" />
-                                    </children>
-                                </HBox>
-                                <Label styleClass="text-muted" text="Total rescued to date" />
+                                <Label styleClass="stat-card-title" text="KG RESCUED" wrapText="true" />
+                                <!-- PATTERN:DYNAMIC rescuedValueLabel : the figure -->
+                                <Label fx:id="rescuedValueLabel" styleClass="dashboard-metric-value" />
+                                <!-- PATTERN:DYNAMIC rescuedSubLabel : the line under it -->
+                                <Label fx:id="rescuedSubLabel" styleClass="dashboard-subtitle" wrapText="true" />
                             </children>
                         </VBox>
                     </children>
                 </HBox>
-
-                <VBox spacing="16.0" styleClass="table-card" VBox.vgrow="ALWAYS">
-                    <padding>
-                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                    </padding>
+                <VBox spacing="12.0" styleClass="table-card">
+                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                     <children>
                         <HBox alignment="CENTER_LEFT">
                             <children>
-                                <Label styleClass="section-title" text="Open Listings Near You" />
+                                <Label styleClass="dashboard-section-title" text="Open Listings Near You" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <!-- PATTERN:NAV -> BROWSE_LISTINGS -->
-                                <Hyperlink styleClass="hyperlink, link-bold, link-lg, nav-browse-listings" text="View all →" />
+                                <Button styleClass="secondary-button, nav-browse-listings" text="View all →" />
                             </children>
                         </HBox>
-                        <HBox alignment="CENTER_LEFT" styleClass="table-header-row">
-                            <children>
-                                <Label prefWidth="270.0" styleClass="table-header-text" text="FOOD" />
-                                <Label prefWidth="205.0" styleClass="table-header-text" text="DONOR" />
-                                <Label prefWidth="70.0" styleClass="table-header-text" text="KG" />
-                                <Label prefWidth="145.0" styleClass="table-header-text" text="USE-BY" />
-                                <Region HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-                        <!-- PATTERN:LIST openListingsBox : one sample row; populate with nearby open listings -->
-                        <VBox fx:id="openListingsBox">
-                            <children>
-                                <HBox alignment="CENTER_LEFT" styleClass="table-data-row">
-                                    <children>
-                                        <Label prefWidth="270.0" styleClass="table-cell-text" text="Assorted Pastries &amp; Ensaymada" />
-                                        <Label prefWidth="205.0" styleClass="table-cell-text" text="Maria Artisanal Bakeshop" />
-                                        <Label prefWidth="70.0" styleClass="table-cell-text" text="26 kg" />
-                                        <Label prefWidth="145.0" styleClass="table-cell-muted" text="Today, 3:00 PM" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <!-- PATTERN:NAV -> MAKE_OFFER -->
-                                        <Button styleClass="table-review-btn, nav-make-offer" text="Make Offer" />
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                        <!-- PATTERN:DYNAMIC visibility: emptyListingsLabel shown when no nearby listings are open -->
-                        <Label fx:id="emptyListingsLabel" managed="false" styleClass="text-muted" text="No open listings nearby right now. Check back soon." visible="false" />
+                        <!-- PATTERN:LIST tableBox : header and rows built in the controller -->
+                        <VBox fx:id="tableBox" spacing="4.0" />
+                        <!-- PATTERN:DYNAMIC emptyLabel : shown when there is nothing to list -->
+                        <Label fx:id="emptyLabel" styleClass="dashboard-subtitle" text="No listings are open right now." wrapText="true" />
                     </children>
                 </VBox>
             </children>

@@ -1,12 +1,14 @@
 package com.aniplato.model;
 
-import com.aniplato.util.Settings;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** One food group's offer on one listing. At most one per group per listing (R3.1). */
+/**
+ * An offer on a post. An offer on a listing carries a {@link UseDetail}; an offer on a request carries a
+ * {@link FoodDetail} (the two routes mirror each other). Release and receipt are stored as times; the agreed kg
+ * is this offer's kg once it is accepted (A9).
+ */
 public class Offer {
     public enum Status {
         OFFERED("Offered"), ACCEPTED("Accepted"), COMPLETED("Completed"), DECLINED("Declined"),
@@ -24,41 +26,23 @@ public class Offer {
         }
     }
 
-    public int id;                          // also the handoff record number
-    public int listingId;
-    public int groupId;                     // account id of the food group
-    public String useDescription;           // what the food is for
-    public String beneficiaries;            // who it feeds
-    public int headcount;
-    public String place;
-    public LocalDateTime pickupTime;        // inside the listing's pickup window
-    public String message;                  // null if none
-    public LocalDateTime groupAttestedAt;
+    public int id;
+    public int postId;
+    public int offererId;
+    public String offererName;
+    public boolean offererSuspended;                 // a Suspended offerer's Offered offers are hidden from the poster (6.3)
+    public double kg;
     public Status status;
-    public LocalDateTime releasedAt;        // null until the donor confirms release
-    public LocalDateTime receivedAt;        // null until the group confirms receipt (R5.1)
+    public FoodDetail food;                          // offers on a request only
+    public UseDetail use;                            // offers on a listing only
+    public LocalDateTime releasedAt;                 // the supplier confirmed release
+    public LocalDateTime receivedAt;                 // the receiver confirmed receipt
     public LocalDateTime createdAt;
-    public List<String> photoPaths = new ArrayList<>();   // relative to uploads/, filled by OfferDao
+    public List<String> photos = new ArrayList<>();  // stored paths, filled by the service
+    public Post post;                                // the post it is on, filled by the service
 
-    public boolean isOffered() {
-        return status == Status.OFFERED;
-    }
-
-    public boolean isReleased() {
-        return releasedAt != null;
-    }
-
-    public boolean isReceived() {
-        return receivedAt != null;
-    }
-
-    /** Pickup time plus the grace period. An Accepted offer with no handoff by then becomes Lapsed (6.6). */
-    public LocalDateTime lapsesAt() {
-        return pickupTime.plusHours(Settings.PICKUP_GRACE_HOURS);
-    }
-
-    /** The handoff record number, e.g. HR-2026-12. Worked out, never stored (A9). */
-    public String handoffRecordNumber() {
-        return "HR-" + createdAt.getYear() + "-" + id;
+    /** The time the supplier hands the food over: the offer's pickup time (Route 1) or its window end (Route 2). */
+    public LocalDateTime pickupDeadline() {
+        return use != null ? use.dueAt : food.pickupEnd;
     }
 }

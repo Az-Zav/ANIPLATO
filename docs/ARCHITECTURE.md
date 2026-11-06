@@ -1,6 +1,6 @@
 # ANIPLATO Architecture
 
-The schema lives only in `sql/schema.sql` (thirteen tables). The diagram below mirrors Project Spec section 7.6.
+The schema lives only in `sql/schema.sql` (fourteen tables). The diagram below mirrors Project Spec section 7.6.
 
 ---
 
@@ -130,6 +130,7 @@ erDiagram
   use_detail {
     int use_detail_id PK
     varchar use_description "event, program or use"
+    varchar food_needed "requests: the food asked for, up to 200; null on an offer"
     date event_date "null, required on a request"
     varchar beneficiaries
     int headcount "above 0"
@@ -140,9 +141,16 @@ erDiagram
     datetime attested_at "group attestation"
   }
 
+  stored_file {
+    varchar file_path PK "uuid.ext"
+    mediumblob content
+    int size_bytes
+    datetime stored_at
+  }
+
   photo {
     int photo_id PK
-    varchar file_path "under uploads/"
+    varchar file_path "key into stored_file"
     int post_id FK "exactly one of the three"
     int offer_id FK "null"
     int report_id FK "null"

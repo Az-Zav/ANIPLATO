@@ -2,21 +2,16 @@ package com.aniplato.service;
 
 import com.aniplato.dao.AccountDao;
 import com.aniplato.dao.DocumentDao;
-import com.aniplato.dao.OfferDao;
+import com.aniplato.dao.OfferStatsDao;
 import com.aniplato.dao.PostDao;
 import com.aniplato.dao.RegistrationDao;
 import com.aniplato.dao.ReportDao;
 import com.aniplato.dao.SafetyNoticeDao;
-import com.aniplato.exception.DataAccessException;
-import com.aniplato.exception.RuleViolationException;
-import com.aniplato.model.Account;
 import com.aniplato.model.Registration;
 import com.aniplato.util.Database;
 import com.aniplato.util.Session;
 import com.aniplato.util.Settings;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -40,7 +35,7 @@ public class StatsService {
                                 List<CityRow> cities) { }
 
     private final PostDao postDao = new PostDao();
-    private final OfferDao offerDao = new OfferDao();
+    private final OfferStatsDao offerDao = new OfferStatsDao();
     private final ReportDao reportDao = new ReportDao();
     private final RegistrationDao registrationDao = new RegistrationDao();
     private final AccountDao accountDao = new AccountDao();
@@ -49,11 +44,11 @@ public class StatsService {
 
     /** The six dashboard cards, for the month that contains {@code today}. */
     public AdminSummary getAdminSummary(LocalDate today) {
-        requireAdmin();
+        Session.requireAdmin();
         YearMonth month = YearMonth.from(today);
         LocalDateTime from = month.atDay(1).atStartOfDay();
         LocalDateTime to = month.plusMonths(1).atDay(1).atStartOfDay();
-        try (Connection c = Database.getConnection()) {
+        return Database.read("Could not load the dashboard numbers", c -> {
             List<PostDao.CityTotals> cities = postDao.totalsByCity(c, from, to);
             int ending = (int) documentDao.findEndingBy(c, today.plusDays(Settings.DOCUMENT_WARNING_DAYS)).stream()
                     .filter(d -> !d.expiresOn().isBefore(today)).map(DocumentDao.ExpiringDocument::registrationId)
@@ -65,30 +60,26 @@ public class StatsService {
                     noticeDao.countOpen(c),
                     ending,
                     accountDao.countSuspended(c));
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the dashboard numbers", e);
-        }
+        });
     }
 
     /** Months that have posts, newest first; the current month is always offered. */
     public List<YearMonth> getReportMonths(LocalDate today) {
-        requireAdmin();
-        try (Connection c = Database.getConnection()) {
+        Session.requireAdmin();
+        return Database.read("Could not load the report months", c -> {
             List<YearMonth> months = new ArrayList<>(postDao.findMonthsWithPosts(c));
             YearMonth current = YearMonth.from(today);
             if (!months.contains(current)) months.add(0, current);
             return months;
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the report months", e);
-        }
+        });
     }
 
     /** Every metric of section 3 for one month, and the By City rows. */
     public MonthlyReport getReport(YearMonth month, LocalDateTime now) {
-        requireAdmin();
+        Session.requireAdmin();
         LocalDateTime from = month.atDay(1).atStartOfDay();
         LocalDateTime to = month.plusMonths(1).atDay(1).atStartOfDay();
-        try (Connection c = Database.getConnection()) {
+        return Database.read("Could not load the report", c -> {
             List<PostDao.CityTotals> totals = postDao.totalsByCity(c, from, to);
             List<CityRow> cities = new ArrayList<>();
             for (PostDao.CityTotals t : totals) {
@@ -107,9 +98,7 @@ public class StatsService {
                     rate(reportDao.countReportedOnTime(c, from, to, days, now),
                             reportDao.countHandoffsPastDeadline(c, from, to, days, now)),
                     cities);
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not load the report", e);
-        }
+        });
     }
 
     /** part / whole, or null when there is nothing to divide by. */
@@ -119,9 +108,5 @@ public class StatsService {
 
     private static double sum(List<PostDao.CityTotals> rows, java.util.function.ToDoubleFunction<PostDao.CityTotals> field) {
         return rows.stream().mapToDouble(field).sum();
-    }
-
-    private static void requireAdmin() {
-        if (Session.require().role != Account.Role.ADMIN) throw new RuleViolationException("Only an admin can do this.");
     }
 }

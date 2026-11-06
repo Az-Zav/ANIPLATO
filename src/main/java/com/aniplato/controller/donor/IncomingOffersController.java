@@ -1,26 +1,31 @@
 package com.aniplato.controller.donor;
 
+import com.aniplato.controller.FormSupport;
+import com.aniplato.controller.board.OffersPage;
+import com.aniplato.controller.shared.DialogController;
+import com.aniplato.service.AcceptanceService;
+import com.aniplato.util.Navigator;
+import com.aniplato.util.Selection;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+/** Offers for this listing: the offers waiting on the listing opened from My Listings, accept or decline. */
 public class IncomingOffersController {
 
-    @FXML private Label offerCountLabel;
-    @FXML private VBox offerRowsBox;
-    @FXML private Label emptyOffersLabel;
+    private final AcceptanceService acceptanceService = new AcceptanceService();
+    private OffersPage page;
 
-    // PATTERN:DYNAMIC fills offer count and empty state
+    @FXML private VBox pageHost;
+    @FXML private DialogController dialogController;
+
     @FXML
     private void initialize() {
-        // TODO(service): offerCountLabel.setText(offerService.countIncomingForDonor(...) + " offers")
-        // TODO(service): add one row to offerRowsBox per incoming offer
-        // TODO(service): show emptyOffersLabel when there are no incoming offers
+        page = new OffersPage(OffersPage.Kind.LISTING, dialogController, Navigator.Screen.MY_LISTINGS, this::refresh);
+        pageHost.getChildren().setAll(page.view());
+        refresh();
     }
 
-    // PATTERN:ACTION placeholder: does nothing yet
-    @FXML
-    private void handleReviewOffer() {
-        // TODO(service): load the selected offer review state
+    private void refresh() {
+        page.show(FormSupport.load(() -> acceptanceService.getOffersOn(Selection.postId()), null));
     }
 }
