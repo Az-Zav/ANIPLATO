@@ -17,6 +17,8 @@ public final class Settings {
     public static final int MAX_UPLOAD_MB = 5;
     /** New passwords must be at least this long. */
     public static final int MIN_PASSWORD_LENGTH = 8;
+    /** Space kept under the last row of every in-shell page, so the floating assistant button never covers a button or a link at the end of a page (px). */
+    public static final double ASSISTANT_CLEARANCE = 96;
     /** Contact numbers are exactly this many digits (PH mobile, e.g. 09171234567). */
     public static final int CONTACT_NUMBER_DIGITS = 11;
 }

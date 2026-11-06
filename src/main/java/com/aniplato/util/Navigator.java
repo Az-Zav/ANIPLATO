@@ -8,8 +8,12 @@ import com.aniplato.model.Account;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -163,7 +167,9 @@ public final class Navigator {
                 scene.setRoot(load(Screen.SHELL));
             }
             if (beforeScreenListener != null) beforeScreenListener.run();   // so the screen shows the result of the checks
-            content.getChildren().setAll(load(screen));
+            Parent loaded = load(screen);
+            leaveRoomForAssistant(loaded);
+            content.getChildren().setAll(loaded);
             if (screenListener != null) screenListener.run();   // move the sidebar highlight
         }
     }
@@ -174,6 +180,21 @@ public final class Navigator {
             case FOOD_GROUP -> Screen.FOODGROUP_DASHBOARD;
             case BUSINESS_DONOR, CASUAL_DONOR -> Screen.DONOR_DASHBOARD;
         };
+    }
+
+    /**
+     * The assistant button floats over the bottom-right corner; extra space under the page's last row lets it be scrolled
+     * clear. A page is the scroll pane of the screen, which may sit inside a plain pane that also holds the dialogs.
+     */
+    static void leaveRoomForAssistant(Node page) {
+        if (page instanceof ScrollPane pane) {
+            if (pane.getContent() instanceof Region body) {
+                Insets now = body.getPadding();
+                body.setPadding(new Insets(now.getTop(), now.getRight(), Math.max(now.getBottom(), Settings.ASSISTANT_CLEARANCE), now.getLeft()));
+            }
+        } else if (page instanceof Pane wrapper) {
+            for (Node child : wrapper.getChildren()) leaveRoomForAssistant(child);
+        }
     }
 
     private static Parent load(Screen screen) {
