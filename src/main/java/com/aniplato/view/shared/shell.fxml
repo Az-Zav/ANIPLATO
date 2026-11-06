@@ -9,6 +9,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -108,6 +109,13 @@
                                         </VBox>
                                     </children>
                                 </HBox>
+                                <VBox spacing="5.0" styleClass="assistant-suggestion-area">
+                                    <children>
+                                        <Label styleClass="assistant-suggestion-title" text="Quick help for this screen" />
+                                        <!-- PATTERN:LIST assistantSuggestions -->
+                                        <FlowPane fx:id="assistantSuggestions" hgap="6.0" vgap="6.0" styleClass="assistant-suggestions" />
+                                    </children>
+                                </VBox>
                                 <ScrollPane fx:id="assistantScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="assistant-scroll-pane" VBox.vgrow="ALWAYS">
                                     <content>
                                         <VBox fx:id="assistantMessages" spacing="12.0" styleClass="assistant-messages">
@@ -123,10 +131,10 @@
                                     <children>
                                         <TextField fx:id="assistantInput" onAction="#handleSendMessage" promptText="Ask about ANIPLATO..." styleClass="assistant-input" HBox.hgrow="ALWAYS" />
                                         <!-- PATTERN:ACTION handleSendMessage -->
-                                        <Button onAction="#handleSendMessage" styleClass="assistant-send-button" text="Send" />
+                                        <Button fx:id="assistantSendButton" onAction="#handleSendMessage" styleClass="assistant-send-button" text="Send" />
                                     </children>
                                 </HBox>
-                                <Label styleClass="assistant-disclaimer" text="Read-only help · Does not access or change your account" wrapText="true" />
+                                <Label styleClass="assistant-disclaimer" text="Read-only · Your question and screen go to Gemini (no account data)" wrapText="true" />
                             </children>
                         </VBox>
                         <!-- PATTERN:ACTION toggleAssistant -->

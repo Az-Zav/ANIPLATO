@@ -13,3 +13,9 @@ mail.user=
 mail.password=
 # Optional display name; defaults to mail.user.
 #mail.from=ANIPLATO <your-address@gmail.com>
+
+# Gemini API key for the read-only assistant (get one from Google AI Studio).
+# The assistant remains available but cannot answer until this is configured.
+ai.gemini.api-key=
+# Optional model override.
+ai.gemini.model=gemini-3.5-flash-lite

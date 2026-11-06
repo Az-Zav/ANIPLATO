@@ -701,6 +701,33 @@
     -fx-font-size: 11px;
 }
 
+.assistant-suggestion-area {
+    -fx-background-color: #F8FAF8;
+    -fx-padding: 10px 12px 4px;
+}
+
+.assistant-suggestion-title {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.assistant-suggestion-button {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CFE0D2;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #03521E;
+    -fx-font-size: 10px;
+    -fx-padding: 5px 9px;
+    -fx-cursor: hand;
+}
+
+.assistant-suggestion-button:hover {
+    -fx-background-color: #E8F2EA;
+    -fx-border-color: #80B68D;
+}
+
 .assistant-scroll-pane {
     -fx-background-color: #F8FAF8;
     -fx-background: #F8FAF8;
