@@ -122,6 +122,47 @@ class GeminiAssistantServiceTest {
                 .contains("60 seconds"));
     }
 
+    private static String reply(String candidate) {
+        return "{\"candidates\":[" + candidate + "]}";
+    }
+
+    private static String whyNoAnswer(String json) {
+        return assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(200, json)).getMessage();
+    }
+
+    @Test
+    void anAnswerIsReadFromTheTextPartsAndThinkingPartsAreSkipped() {
+        String json = reply("{\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"hidden\",\"thought\":true},"
+                + "{\"text\":\"Use the Reports page.\"}]},\"finishReason\":\"STOP\"}");
+        assertEquals("Use the Reports page.", GeminiAssistantService.parseAnswer(200, json));
+    }
+
+    @Test
+    void aReplyThatRanOutOfTokensBeforeAnyTextSaysSo() {
+        String json = reply("{\"content\":{\"role\":\"model\"},\"finishReason\":\"MAX_TOKENS\"}");
+        assertTrue(whyNoAnswer(json).contains("MAX_TOKENS"), "the screenshot case: content with no parts");
+    }
+
+    @Test
+    void aFilteredReplyNamesTheReason() {
+        assertTrue(whyNoAnswer(reply("{\"finishReason\":\"SAFETY\"}")).contains("SAFETY"));
+        assertTrue(whyNoAnswer("{\"promptFeedback\":{\"blockReason\":\"OTHER\"}}").contains("OTHER"));
+    }
+
+    @Test
+    void anErrorReplyShowsGooglesOwnMessage() {
+        String message = assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(429,
+                "{\"error\":{\"message\":\"Quota exceeded\"}}")).getMessage();
+        assertTrue(message.contains("429") && message.contains("Quota exceeded"), message);
+    }
+
+    @Test
+    void markdownIsTidiedBecauseTheBubbleShowsPlainText() {
+        assertEquals("Check the Reports section.", GeminiAssistantService.plain("Check the **Reports** section."));
+        assertEquals("• one\n• two", GeminiAssistantService.plain("* one\n- two"));
+        assertEquals("Title\n1. step", GeminiAssistantService.plain("## Title\n1. step"));
+    }
+
     @Test
     void anyOtherFailureShowsItsMessageOrItsType() {
         assertTrue(GeminiAssistantService.explainFailure(new IllegalStateException("boom")).equals("boom"));
