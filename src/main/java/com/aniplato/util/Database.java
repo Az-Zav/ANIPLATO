@@ -93,7 +93,7 @@ public class Database {
         String ca = AppConfig.get("ssl.ca", null);
         if (ca == null) return;
         String password = HexFormat.of().formatHex(randomBytes());
-        Path store = truststoreFrom(Path.of(ca), password);
+        Path store = truststoreFrom(AppConfig.path(ca), password);
         config.addDataSourceProperty("sslMode", "VERIFY_CA");
         config.addDataSourceProperty("trustCertificateKeyStoreUrl", store.toUri().toString());
         config.addDataSourceProperty("trustCertificateKeyStorePassword", password);

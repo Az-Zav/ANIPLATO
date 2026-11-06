@@ -1,6 +1,7 @@
 package com.aniplato.controller;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.exception.DataAccessException;
 import com.aniplato.exception.RuleViolationException;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
@@ -50,6 +51,11 @@ public class LoginController {
             }
         } catch (RuleViolationException e) {
             showError(e.getMessage());
+        } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
+            // no settings file, a bad CA file, or the database is out of reach: say so on the screen instead of failing silently
+            String reason = e instanceof IllegalStateException && e.getMessage() != null ? e.getMessage()
+                    : "Cannot reach the database. Check your internet connection and the db.properties settings.";
+            showError(FormSupport.databaseProblem(e, reason));
         }
     }
 

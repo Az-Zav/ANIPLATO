@@ -50,4 +50,37 @@
       </plugin>
     </plugins>
   </build>
+  <!-- mvn -Pdist package: the build scripts/package-exe.ps1 packs. db.properties stays out of the jar (it holds the password), and
+       the libraries are copied beside it. The packaged app reads its settings from %APPDATA%\ANIPLATO\db.properties. -->
+  <profiles>
+    <profile>
+      <id>dist</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.4.1</version>
+            <configuration><excludes><exclude>db.properties</exclude></excludes></configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.6.1</version>
+            <executions>
+              <execution>
+                <id>copy-libs</id>
+                <phase>package</phase>
+                <goals><goal>copy-dependencies</goal></goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                  <includeScope>runtime</includeScope>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

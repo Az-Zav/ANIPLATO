@@ -99,6 +99,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | File | What it does | Features |
 |---|---|---|
 | `aniplato/Main.java` | JavaFX entry point: builds the window, starts `Navigator` at the login screen | SHELL |
+| `aniplato/Launcher.java` | plain `main` that calls `Main.main`; the packaged exe starts here because JavaFX will not start from a class that extends `Application` on the classpath | PLATFORM |
 | `util/AppConfig.java` | reads `db.properties`; a `-Daniplato.<key>` system property overrides it (tests use this) | PLATFORM |
 | `util/Database.java` | the only class that opens connections, from a small HikariCP pool (a remote connection costs about half a second); runs transactions (`inTransaction`) and reads (`read`) | PLATFORM |
 | `util/Selection.java` | the post or offer opened from a list, carried to the next screen | OFFER, HANDOFF, REPORT |
@@ -331,6 +332,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `setup-db.bat`, `setup-db.ps1` | create the database and load the demo data | PLATFORM |
 | `scripts/setup-online-db.ps1` | one-time setup of the shared online MySQL: empty aniplato, data-only app user, test user limited to aniplato_test*; refuses a non-empty aniplato | PLATFORM |
 | `docs/ONLINE-DB.md` | how the shared online database is set up and used, and how tests stay off it | PLATFORM |
+| `scripts/package-exe.ps1` | builds the program without `db.properties`, then `jpackage` makes `target/installer/ANIPLATO/ANIPLATO.exe` with its own Java | PLATFORM |
+| `packaging/aniplato.ico` | the exe's icon, made from the logo | PLATFORM |
+| `docs/PACKAGING.md` | how to build the exe and how a teammate sets up the settings file beside it | PLATFORM |
 | `scripts/new-methods.sh` | lists the methods a branch adds, for review | TESTS |
 | `pom.xml` | Maven build: JavaFX, MySQL, JUnit, copies FXML and CSS to the output | PLATFORM |
 
@@ -390,6 +394,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
 | `support/TestDb.java` | builds `aniplato_test` from the schema and seed (and one more script on request); refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
+| `util/AppConfigTest.java` | a file named in the settings resolves beside `db.properties`; the expected settings location; a system property wins | PLATFORM |
 | `support/DatabaseReadTest.java` | `Database.read` returns the value, wraps a database error, lets a rule error through | PLATFORM |
 | `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
 | `support/Fx.java` | runs test code on the JavaFX thread | TESTS |
@@ -1113,7 +1118,8 @@ flowchart LR
 | Method | What it does | Called by | Test |
 |---|---|---|---|
 | `AppConfig.get` | a setting from `db.properties` (or a `-Daniplato.<key>` override), with a fallback | FileStorageService | TestDbTest |
-| `AppConfig.required` | the same, but a missing value is a setup mistake | Database | TestDbTest |
+| `AppConfig.required` | the same, but a missing value is a setup mistake (no settings file at all says where to put one) | Database | TestDbTest |
+| `AppConfig.path` | a file named in the settings; a relative name is looked for beside `db.properties` first | Database | AppConfigTest |
 | `Database.getConnection` | a connection from the pool; closing it gives it back | every service | every service test |
 | `Database.closePool` | closes every pooled connection; the next call opens new ones (tests call it before recreating their database) | TestDb | DatabaseReadTest |
 | `Database.read` | a read-only query on its own connection; a database error becomes a DataAccessException | the services that only read | DatabaseReadTest |
