@@ -146,6 +146,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `dao/OfferSweepDao.java` | the `offer` table's lookups for the lapse and expiry checks (split from OfferDao to keep both short) | MAINT |
 | `dao/PostDao.java` | the `post` table: insert, the open boards, a poster's own posts, and the dashboard and report totals | LISTING, REQUEST, STATS |
 | `dao/DetailDao.java` | the `food_detail` and `use_detail` tables: insert, and read them out of a joined row | LISTING, REQUEST |
+| `controller/shared/dialog/ConfirmActionDialogController.java`, `view/shared/dialog/confirm-action.fxml` | the "are you sure?" card for log out and declining an offer | PLATFORM |
+| `controller/shared/dialog/PostedDialogController.java`, `view/shared/dialog/posted.fxml` | the "posted" card after a listing, request, offer or report is saved | PLATFORM |
 | `dao/StoredFileDao.java` | the `stored_file` table: store, fetch and delete the bytes of an upload | LISTING, REQUEST, REGISTER |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
 | `dao/HistoryDao.java` | the figures behind the dashboards and History for one account: totals, awaiting release, closed posts and offers | HISTORY |
@@ -377,6 +379,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `resources/test-db.local.properties.example` | template for the git-ignored file holding a developer's own test-database login | PLATFORM |
 | `support/DatabaseTlsTest.java`, `resources/test-ca.pem` | a PEM CA file becomes a truststore; a bad file is named in the error | PLATFORM |
 | `resources/db.properties.online.example` | settings template for the shared online database (CA file, session time zone, small pool) | PLATFORM |
+| `controller/FeedbackDialogsTest.java` | log out asks first; every posting form carries the posted card | PLATFORM |
 | `service/FileStorageServiceTest.java` | uploads are stored in the database, shared between computers, shrunk when large, and removed on failure | PLATFORM |
 | `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |

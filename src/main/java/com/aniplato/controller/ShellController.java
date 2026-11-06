@@ -1,5 +1,6 @@
 package com.aniplato.controller;
 
+import com.aniplato.controller.shared.DialogController;
 import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.service.MaintenanceService;
@@ -43,6 +44,7 @@ public class ShellController {
     @FXML private VBox sidebar;
     // FXML: fx:id="userRoleLabel" shows the logged-in account's role
     @FXML private Label userRoleLabel;
+    @FXML private DialogController dialogController;
     @FXML private VBox assistantPanel;
     @FXML private VBox assistantMessages;
     @FXML private ScrollPane assistantScrollPane;
@@ -284,8 +286,10 @@ public class ShellController {
     // PATTERN:ACTION
     @FXML
     private void handleLogout() {
-        assistantPulse.stop();
-        authenticationService.logout();
-        Navigator.show(Screen.LOGIN);
+        dialogController.showConfirmActionMode("Log out?", "You will need to sign in again to use ANIPLATO.", "Log out", false, () -> {
+            assistantPulse.stop();
+            authenticationService.logout();
+            Navigator.show(Screen.LOGIN);
+        });
     }
 }

@@ -183,7 +183,11 @@ public final class OffersPage {
     }
 
     private void decline(Offer offer) {
-        if (FormSupport.attempt(() -> acceptanceService.decline(offer.id))) refresh.run();
+        dialog.showConfirmActionMode("Decline this offer?", offer.offererName + " will be told it was declined. This cannot be undone.",
+                "Decline", true, () -> {
+                    acceptanceService.decline(offer.id);
+                    refresh.run();
+                });
     }
 
     // ---- small pieces ----

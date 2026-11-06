@@ -1,5 +1,6 @@
 package com.aniplato.controller.donor;
 
+import com.aniplato.controller.shared.DialogController;
 import com.aniplato.controller.DateTimeField;
 import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
@@ -30,6 +31,8 @@ import java.util.Set;
 
 /** The donor's Make Offer form for a request (R3.2). Reads the fields and hands them to OfferService. */
 public class MakeOfferController {
+    @FXML private DialogController dialogController;
+
 
     private final OfferService offerService = new OfferService();
     private final PostService postService = new PostService();
@@ -87,6 +90,7 @@ public class MakeOfferController {
                     input.when(pickupEndField, "the pickup window end", FormInput.PICKUP_WINDOW),
                     handoverArea.getText(), attestationCheck.isSelected(), photoPicker.files()));
         }, input);
-        if (sent) Navigator.show(Navigator.Screen.DONOR_MY_OFFERS);
+        if (sent) dialogController.showPostedMode("Offer sent", "The food group will decide on it. You can follow it under My Offers.",
+                "View my offers", () -> Navigator.show(Navigator.Screen.DONOR_MY_OFFERS), null, null);
     }
 }

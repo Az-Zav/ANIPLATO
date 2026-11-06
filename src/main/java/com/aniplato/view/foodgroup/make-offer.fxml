@@ -111,6 +111,7 @@
         </HBox>
                     </children>
                 </VBox>
+                <fx:include fx:id="dialog" source="../shared/dialog.fxml" />
             </children>
         </VBox>
     </content>

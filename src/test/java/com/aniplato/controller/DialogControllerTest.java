@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Loads the real dialog screen and drives its public methods, so the dialog code can be reorganised
- * without anyone clicking through 15 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
+ * without anyone clicking through 17 popups. Needs a desktop for the JavaFX toolkit; skipped without one.
  * A broken rule is written inside the card (DialogCard.showProblem), so error paths can be tested here too.
  */
 class DialogControllerTest {
@@ -136,7 +136,7 @@ class DialogControllerTest {
                     throw new IllegalStateException(screen, e);
                 }
             });
-            assertEquals(15, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all fifteen dialogs");
+            assertEquals(17, fx(() -> loaded.lookupAll(".modal-card").size()), screen + " shows all seventeen dialogs");
         }
     }
 
@@ -145,7 +145,7 @@ class DialogControllerTest {
     @Test
     void everyDialogStartsHidden() {
         assertEquals(0, shownCards().size());
-        assertEquals(15, fx(() -> root.lookupAll(".modal-card").size()), "all fifteen dialogs are on the screen");
+        assertEquals(17, fx(() -> root.lookupAll(".modal-card").size()), "all seventeen dialogs are on the screen");
         // the overlay itself must not take space either: a screen that includes it without visible="false" showed a grey bar
         assertFalse(fx(() -> root.isVisible() || root.isManaged()), "the closed overlay is hidden and takes no room");
     }
@@ -409,6 +409,53 @@ class DialogControllerTest {
         fx(() -> all(again, TextArea.class).get(0).setText("Unsafe"));
         click(again, "Suspend account");
         assertEquals("Unsafe", suspended.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void confirmActionShowsItsWordsAndRunsTheActionOnlyOnConfirm() {
+        AtomicInteger ran = new AtomicInteger();
+        fx(() -> dialogs.showConfirmActionMode("Sign out?", "You will need to sign in again.", "Sign out", false, ran::incrementAndGet));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Sign out?") && textIn(card).contains("You will need to sign in again."));
+        click(card, "← Back");
+        assertEquals(0, ran.get(), "Back does nothing");
+        assertAllClosed();
+
+        fx(() -> dialogs.showConfirmActionMode("Decline this offer?", "Cannot be undone.", "Decline", true, ran::incrementAndGet));
+        Node decline = onlyShownCard();
+        assertTrue(fx(() -> buttonStartingWith(decline, "Decline").getStyleClass().contains("danger-button")), "a loss is red");
+        click(decline, "Decline");
+        assertEquals(1, ran.get());
+        assertAllClosed();
+    }
+
+    @Test
+    void confirmActionStaysOpenWithTheProblemWhenTheActionIsRefused() {
+        fx(() -> dialogs.showConfirmActionMode("Decline?", "x", "Decline", true, () -> {
+            throw new com.aniplato.exception.RuleViolationException("That offer is already decided.");
+        }));
+        click(onlyShownCard(), "Decline");
+        assertTrue(textIn(onlyShownCard()).contains("That offer is already decided."));
+    }
+
+    @Test
+    void postedOffersOneOrTwoWaysOnAndClosesBeforeGoingThere() {
+        AtomicReference<String> went = new AtomicReference<>();
+        fx(() -> dialogs.showPostedMode("Listing posted", "Food groups can see it.", "View my listings", () -> went.set("list"),
+                "Post another", () -> went.set("again")));
+        Node card = onlyShownCard();
+        assertTrue(textIn(card).contains("Listing posted"));
+        click(card, "Post another");
+        assertEquals("again", went.get());
+        assertAllClosed();
+
+        fx(() -> dialogs.showPostedMode("Offer sent", "Follow it under My Offers.", "View my offers", () -> went.set("offers"), null, null));
+        Node single = onlyShownCard();
+        assertFalse(fx(() -> all(single, Button.class).stream().anyMatch(b -> "Post another".equals(b.getText()) && b.isVisible())),
+                "no second choice when there is only one place to go");
+        click(single, "View my offers");
+        assertEquals("offers", went.get());
         assertAllClosed();
     }
 }

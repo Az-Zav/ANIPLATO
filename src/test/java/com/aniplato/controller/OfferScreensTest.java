@@ -32,6 +32,9 @@ class OfferScreensTest extends ScreenTestBase {
         button(screen, "Accept offer");
 
         Fx.run(() -> button(screen, "Decline").fire());   // newest first, so the first card is the later offer
+        assertEquals("OFFERED", TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", second), "declining asks first");
+        Fx.run(() -> all(screen, javafx.scene.control.Button.class).stream()
+                .filter(b -> "Decline".equals(b.getText()) && b.getStyleClass().contains("danger-button")).findFirst().orElseThrow().fire());
 
         assertEquals("DECLINED", TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", second));
         assertEquals("OFFERED", TestDb.scalar("SELECT status FROM offer WHERE offer_id = ?", first));

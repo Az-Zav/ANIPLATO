@@ -57,6 +57,7 @@ class MapCoverageTest {
         addAll(keys, Path.of("src", "main", "resources"), "resources/");
         addAll(keys, Path.of("src", "test", "java", "com", "aniplato"), "aniplato/");
         addAll(keys, Path.of("src", "test", "resources"), "resources/");
+        keys.remove("resources/test-db.local.properties");   // a developer's own login: git-ignored, never listed
         if (Files.exists(Path.of("uploads", ".gitkeep"))) keys.add("uploads/.gitkeep");   // the rest of uploads/ is git-ignored
         for (String folder : List.of("sql", "scripts", "docs")) {
             Path root = Path.of(folder);

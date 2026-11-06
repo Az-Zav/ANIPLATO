@@ -1,5 +1,6 @@
 package com.aniplato.controller.donor;
 
+import com.aniplato.controller.shared.DialogController;
 import com.aniplato.controller.DateTimeField;
 import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
@@ -24,6 +25,8 @@ import java.util.Set;
 
 /** The donor's New Listing form (R2.1). Reads the fields and hands them to PostService, which owns every rule. */
 public class NewListingController {
+    @FXML private DialogController dialogController;
+
 
     private final PostService postService = new PostService();
     private final Map<FoodDetail.Allergen, CheckBox> allergenChecks = new EnumMap<>(FoodDetail.Allergen.class);
@@ -70,6 +73,8 @@ public class NewListingController {
                     input.when(pickupEndField, "the pickup window end", FormInput.PICKUP_WINDOW),
                     handoverArea.getText(), attestationCheck.isSelected(), photoPicker.files()));
         }, input);
-        if (saved) Navigator.show(Navigator.Screen.MY_LISTINGS);
+        if (saved) dialogController.showPostedMode("Listing posted", "Food groups can see it on their board now.",
+                "View my listings", () -> Navigator.show(Navigator.Screen.MY_LISTINGS),
+                "Post another", () -> Navigator.show(Navigator.Screen.LISTING_FORM));
     }
 }

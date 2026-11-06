@@ -1,5 +1,6 @@
 package com.aniplato.controller.foodgroup;
 
+import com.aniplato.controller.shared.DialogController;
 import com.aniplato.controller.DateTimeField;
 import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
@@ -21,6 +22,8 @@ import java.util.Set;
 
 /** The food group's New Request form (R2.2). Reads the fields and hands them to PostService, which owns every rule. */
 public class NewRequestController {
+    @FXML private DialogController dialogController;
+
 
     private final PostService postService = new PostService();
     private final Map<FoodDetail.Category, CheckBox> categoryChecks = new EnumMap<>(FoodDetail.Category.class);
@@ -62,7 +65,9 @@ public class NewRequestController {
                     placeField.getText(), input.when(neededByField, "the needed-by time", FormInput.NEEDED_BY), messageArea.getText(), accepted,
                     input.number(kgField.getText(), "the weight", FormInput.WEIGHT), attestationCheck.isSelected(), photoPicker.files()));
         }, input);
-        if (saved) Navigator.show(Navigator.Screen.MY_REQUESTS);
+        if (saved) dialogController.showPostedMode("Request posted", "Donors can see it on their board now.",
+                "View my requests", () -> Navigator.show(Navigator.Screen.MY_REQUESTS),
+                "Post another", () -> Navigator.show(Navigator.Screen.NEW_REQUEST));
     }
 
     // PATTERN:ACTION back to My Requests

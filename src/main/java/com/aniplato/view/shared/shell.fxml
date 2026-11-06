@@ -146,6 +146,7 @@
                         <Button fx:id="assistantToggle" accessibleText="Open ANIPLATO Assistant" onAction="#toggleAssistant" styleClass="assistant-circle-btn" text="✦" />
                     </children>
                 </VBox>
+                <fx:include fx:id="dialog" managed="false" source="dialog.fxml" visible="false" />
             </children>
         </StackPane>
     </center>

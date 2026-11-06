@@ -1,5 +1,6 @@
 package com.aniplato.controller.foodgroup;
 
+import com.aniplato.controller.shared.DialogController;
 import com.aniplato.controller.FormInput;
 import com.aniplato.controller.FormSupport;
 import com.aniplato.controller.PhotoPicker;
@@ -15,6 +16,8 @@ import javafx.scene.control.TextField;
 
 /** The food group's Submit Report form (R5.3) for the handoff opened from the record. */
 public class SubmitReportController {
+    @FXML private DialogController dialogController;
+
 
     private final ReportService reportService = new ReportService();
     private int offerId;
@@ -47,7 +50,8 @@ public class SubmitReportController {
                 eventNameField.getText(), eventDatePicker.getValue(),
                 input.whole(peopleServedField.getText(), "people served", FormInput.PEOPLE_SERVED, -1), descriptionArea.getText(),
                 consentCheck.isSelected(), photoPicker.files())), input);
-        if (saved) Navigator.show(Navigator.Screen.HANDOFF_RECORD);
+        if (saved) dialogController.showPostedMode("Report submitted", "Thank you. The donor and the admin can see it in the handoff record.",
+                "View handoff record", () -> Navigator.show(Navigator.Screen.HANDOFF_RECORD), null, null);
     }
 
     // PATTERN:ACTION back to the handoff record

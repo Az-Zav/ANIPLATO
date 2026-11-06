@@ -3,7 +3,9 @@ package com.aniplato.controller.shared;
 import com.aniplato.controller.shared.dialog.AcceptOfferDialogController;
 import com.aniplato.controller.shared.dialog.ApproveDialogController;
 import com.aniplato.controller.shared.dialog.CancelListingDialogController;
+import com.aniplato.controller.shared.dialog.ConfirmActionDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReceiptDialogController;
+import com.aniplato.controller.shared.dialog.PostedDialogController;
 import com.aniplato.controller.shared.dialog.ConfirmReleaseDialogController;
 import com.aniplato.controller.shared.dialog.DialogCard;
 import com.aniplato.model.Document;
@@ -56,6 +58,8 @@ public class DialogController implements DialogHost {
     @FXML private ConfirmReceiptDialogController confirmReceiptController;
     @FXML private ForgotPasswordDialogController forgotPasswordController;
     @FXML private UpgradeBusinessDonorDialogController upgradeBusinessDonorController;
+    @FXML private ConfirmActionDialogController confirmActionController;
+    @FXML private PostedDialogController postedController;
 
     private List<DialogCard> cards;
 
@@ -71,7 +75,8 @@ public class DialogController implements DialogHost {
         cards = List.of(rejectController, approveController, resolveSafetyController, suspendController,
                 reinstateController, cancelListingController, confirmReleaseController, flagSafetyController,
                 acceptOfferController, uploadRenewalController, setNewPasswordController, withdrawOfferController,
-                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController);
+                confirmReceiptController, forgotPasswordController, upgradeBusinessDonorController,
+                confirmActionController, postedController);
         cards.forEach(card -> card.attach(this));
         hideAll();
         overlay.setVisible(false);   // closed until a card opens, whatever the including screen's FXML says
@@ -231,6 +236,16 @@ public class DialogController implements DialogHost {
     public void showConfirmReceiptMode(String food, String qty, String donor, String pickup, String contact, String releaseTime, int offerId, Runnable onConfirm) {
         flagOfferId = offerId;
         confirmReceiptController.show(food, qty, donor, pickup, contact, releaseTime, onConfirm);
+    }
+
+    /** 16. Are you sure? for an action that cannot be taken back (sign out, decline an offer). */
+    public void showConfirmActionMode(String title, String description, String confirmLabel, boolean danger, Runnable onConfirm) {
+        confirmActionController.show(title, description, confirmLabel, danger, onConfirm);
+    }
+
+    /** 17. Posted: the listing, request, offer or report was saved. {@code secondaryLabel} may be null. */
+    public void showPostedMode(String title, String description, String primaryLabel, Runnable primary, String secondaryLabel, Runnable secondary) {
+        postedController.show(title, description, primaryLabel, primary, secondaryLabel, secondary);
     }
 
     /** 14. Forgot Password */
