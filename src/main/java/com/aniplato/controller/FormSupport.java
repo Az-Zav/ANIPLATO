@@ -35,8 +35,26 @@ public final class FormSupport {
         } catch (RuleViolationException e) {
             return e.getMessage();
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            return databaseMessage;
+            return databaseProblem(e, databaseMessage);
         }
+    }
+
+    private static final String OUT_OF_DATE = "The database is out of date. Run the newest migrate script in the sql folder "
+            + "(for example sql/migrate-food-needed.sql), then reopen this screen.";
+
+    /**
+     * The text for a database failure: a table or column the code expects but the database does not have means the
+     * database was made before this version, so it says so and what to run; any other failure keeps the caller's text.
+     */
+    public static String databaseProblem(Throwable problem, String fallback) {
+        for (Throwable t = problem; t != null; t = t.getCause()) {
+            if (t instanceof java.sql.SQLException sql && (sql.getErrorCode() == 1054 || sql.getErrorCode() == 1146
+                    || (sql.getSQLState() != null && sql.getSQLState().startsWith("42S")))) {
+                return OUT_OF_DATE;
+            }
+            if (t.getCause() == t) break;
+        }
+        return fallback;
     }
 
     /** Runs a read and returns its result, or the fallback after showing the problem. */

@@ -1,6 +1,7 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.Account;
 import com.aniplato.service.AccountStatusService;
@@ -47,7 +48,7 @@ public class AccountsController {
         try {
             overview = accountStatusService.getAccounts(LocalDate.now());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            accountsSummaryLabel.setText("Could not load the accounts. Check the database connection.");
+            accountsSummaryLabel.setText(FormSupport.databaseProblem(e, "Could not load the accounts. Check the database connection."));
             return;
         }
         accountsSummaryLabel.setText(overview.approved() + " approved · " + overview.suspended() + " suspended · "

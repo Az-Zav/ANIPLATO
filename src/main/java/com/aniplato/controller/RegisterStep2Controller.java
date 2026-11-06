@@ -259,7 +259,7 @@ public class RegisterStep2Controller {
             showError(e.getMessage());   // A8
             return;
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not submit your registration. Check the database connection and try again.");
+            showError(FormSupport.databaseProblem(e, "Could not submit your registration. Check the database connection and try again."));
             return;
         }
         Navigator.show(Screen.REGISTER_SUBMITTED);   // the submitted screen reads and then clears the draft

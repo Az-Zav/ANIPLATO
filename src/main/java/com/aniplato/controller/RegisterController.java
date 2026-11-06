@@ -111,7 +111,7 @@ public class RegisterController {
         try {
             ((ObservableList<City>) visibleCities.getSource()).setAll(registrationService.cities());
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not load the city list. Check the database connection and reopen this screen.");
+            showError(FormSupport.databaseProblem(e, "Could not load the city list. Check the database connection and reopen this screen."));
         }
     }
 
@@ -239,7 +239,7 @@ public class RegisterController {
             showError(e.getMessage());   // A8
             return;
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            showError("Could not check your details. Check the database connection and try again.");
+            showError(FormSupport.databaseProblem(e, "Could not check your details. Check the database connection and try again."));
             return;
         }
         RegistrationDraft.set(form);   // step 2 adds the documents and submits

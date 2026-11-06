@@ -1,6 +1,7 @@
 package com.aniplato.controller.admin;
 
 import com.aniplato.controller.shared.DialogController;
+import com.aniplato.controller.FormSupport;
 import com.aniplato.exception.DataAccessException;
 import com.aniplato.model.SafetyNotice;
 import com.aniplato.service.SafetyService;
@@ -35,7 +36,7 @@ public class SafetyNoticesController {
         try {
             notices = safetyService.getNoticeRows();
         } catch (DataAccessException | IllegalStateException | ExceptionInInitializerError e) {
-            noticeSummaryLabel.setText("Could not load the safety notices. Check the database connection.");
+            noticeSummaryLabel.setText(FormSupport.databaseProblem(e, "Could not load the safety notices. Check the database connection."));
             return;
         }
         long open = notices.stream().filter(n -> n.status() == SafetyNotice.Status.OPEN).count();
