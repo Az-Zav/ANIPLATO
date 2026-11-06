@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /** Provides read-only, screen-aware help using the Gemini API. */
@@ -27,6 +28,7 @@ public final class GeminiAssistantService {
 
     private static final String DEFAULT_MODEL = "gemini-3.5-flash-lite";
     private static final int MAX_HISTORY_TURNS = 6;
+    private static final long RETRY_PAUSE_MILLIS = 1500;
     private static final String NL = System.lineSeparator();
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
     private static final String API_URL =
@@ -45,9 +47,27 @@ public final class GeminiAssistantService {
      * messages, oldest first; only the last few are sent.
      */
     public CompletableFuture<String> answer(String screen, String role, String question, List<Turn> history) {
+        return attempt(screen, role, question, history, true);
+    }
+
+    /** A failure that usually passes by itself (the service is busy, or it garbled one reply): worth one more try. */
+    static final class Retryable extends IllegalStateException {
+        Retryable(String message) {
+            super(message);
+        }
+    }
+
+    private CompletableFuture<String> attempt(String screen, String role, String question, List<Turn> history, boolean mayRetry) {
         return CompletableFuture.supplyAsync(() -> createRequest(screen, role, question, history))
                 .thenCompose(request -> HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString()))
-                .thenApply(this::readResponse);
+                .thenApply(this::readResponse)
+                .exceptionallyCompose(failure -> {
+                    Throwable cause = failure;
+                    while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+                    if (!mayRetry || !(cause instanceof Retryable)) return CompletableFuture.failedFuture(failure);
+                    return CompletableFuture.supplyAsync(() -> null, CompletableFuture.delayedExecutor(RETRY_PAUSE_MILLIS,
+                            TimeUnit.MILLISECONDS)).thenCompose(ignored -> attempt(screen, role, question, history, false));
+                });
     }
 
     private HttpRequest createRequest(String screen, String role, String question, List<Turn> history) {
@@ -133,7 +153,8 @@ public final class GeminiAssistantService {
     static String parseAnswer(int statusCode, String json) {
         JsonObject body = parseObject(json);
         if (statusCode < 200 || statusCode >= 300) {
-            throw new IllegalStateException(apiError(statusCode, body));
+            String message = apiError(statusCode, body);
+            throw statusCode >= 500 ? new Retryable(message) : new IllegalStateException(message);
         }
 
         JsonArray candidates = body.has("candidates") && body.get("candidates").isJsonArray()
@@ -159,7 +180,10 @@ public final class GeminiAssistantService {
                 }
             }
         }
-        if (answer.isEmpty()) throw new IllegalStateException(noAnswer(null, finish));
+        if (answer.isEmpty()) {
+            String message = noAnswer(null, finish);
+            throw "MALFORMED_RESPONSE".equals(finish) ? new Retryable(message) : new IllegalStateException(message);
+        }
         return plain(answer.toString());
     }
 
@@ -215,7 +239,7 @@ public final class GeminiAssistantService {
         return switch (statusCode) {
             case 400, 401, 403 -> "The assistant's key was not accepted (error " + statusCode + "). Ask whoever gave you ANIPLATO to check it.";
             case 404 -> "The assistant's model was not found (error 404). Ask whoever gave you ANIPLATO to check the settings.";
-            case 429 -> "The assistant is busy right now (error 429). Wait a minute and try again.";
+            case 429, 503 -> "The assistant is busy right now (error " + statusCode + "). Wait a minute and try again.";
             default -> "The assistant could not answer right now (error " + statusCode + "). Please try again.";
         };
     }

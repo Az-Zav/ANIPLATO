@@ -162,6 +162,21 @@ class GeminiAssistantServiceTest {
     }
 
     @Test
+    void onlyAbusyServiceOrOneGarbledReplyIsWorthAnotherTry() {
+        assertThrows(GeminiAssistantService.Retryable.class, () -> GeminiAssistantService.parseAnswer(503, "{}"));
+        assertThrows(GeminiAssistantService.Retryable.class, () -> GeminiAssistantService.parseAnswer(500, "{}"));
+        assertThrows(GeminiAssistantService.Retryable.class,
+                () -> GeminiAssistantService.parseAnswer(200, reply("{\"finishReason\":\"MALFORMED_RESPONSE\"}")));
+        for (int status : new int[]{400, 403, 404, 429}) {
+            Throwable e = assertThrows(IllegalStateException.class, () -> GeminiAssistantService.parseAnswer(status, "{}"));
+            assertFalse(e instanceof GeminiAssistantService.Retryable, status + " will not fix itself in a second");
+        }
+        Throwable safety = assertThrows(IllegalStateException.class,
+                () -> GeminiAssistantService.parseAnswer(200, reply("{\"finishReason\":\"SAFETY\"}")));
+        assertFalse(safety instanceof GeminiAssistantService.Retryable, "a refusal is not retried");
+    }
+
+    @Test
     void noMessageTheChatCanShowNamesTheProvider() {
         System.setProperty(KEY, " ");
         List<String> shown = new ArrayList<>();
