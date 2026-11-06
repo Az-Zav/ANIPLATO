@@ -1130,6 +1130,7 @@ flowchart LR
 |---|---|---|---|
 | `AppConfig.get` | a setting from `db.properties` (or a `-Daniplato.<key>` override), with a fallback | FileStorageService | TestDbTest |
 | `AppConfig.required` | the same, but a missing value is a setup mistake (no settings file at all says where to put one) | Database | TestDbTest |
+| `AppConfig.withPrefix` | every setting starting with a prefix (for example `mail.`) as a Properties copy, so the mail library never sees the database password | EmailService | AppConfigTest |
 | `AppConfig.path` | a file named in the settings; a relative name is looked for beside `db.properties` first | Database | AppConfigTest |
 | `Database.getConnection` | a connection from the pool; closing it gives it back | every service | every service test |
 | `Database.closePool` | closes every pooled connection; the next call opens new ones (tests call it before recreating their database) | TestDb | DatabaseReadTest |

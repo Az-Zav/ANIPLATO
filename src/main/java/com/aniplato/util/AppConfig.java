@@ -38,6 +38,22 @@ public final class AppConfig {
     }
 
     /**
+     * Every setting whose key starts with the prefix, as a Properties copy (the file, then any -Daniplato.&lt;key&gt;
+     * override). For a library that wants a Properties, such as the mail session; it never gets the unrelated settings.
+     */
+    public static Properties withPrefix(String prefix) {
+        Properties found = new Properties();
+        for (String key : FILE.stringPropertyNames()) {
+            if (key.startsWith(prefix)) found.setProperty(key, FILE.getProperty(key));
+        }
+        String systemPrefix = "aniplato." + prefix;
+        for (String name : System.getProperties().stringPropertyNames()) {
+            if (name.startsWith(systemPrefix)) found.setProperty(name.substring("aniplato.".length()), System.getProperty(name));
+        }
+        return found;
+    }
+
+    /**
      * A file named in the settings. A relative path is looked for beside db.properties first (so a packaged app can keep
      * ca.pem next to it), then as written.
      */

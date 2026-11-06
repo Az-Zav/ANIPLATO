@@ -39,4 +39,17 @@ class AppConfigTest {
         }
         assertEquals("fallback", AppConfig.get("appconfig.test", "fallback"));
     }
+
+    @Test
+    void withPrefixReturnsOnlyThoseSettingsAndHonoursOverrides() {
+        System.setProperty("aniplato.mail.zz.test", "yes");
+        try {
+            java.util.Properties mail = AppConfig.withPrefix("mail.");
+            assertEquals("yes", mail.getProperty("mail.zz.test"));
+            assertTrue(mail.stringPropertyNames().stream().allMatch(k -> k.startsWith("mail.")),
+                    "no database or other settings leak into the mail library");
+        } finally {
+            System.clearProperty("aniplato.mail.zz.test");
+        }
+    }
 }

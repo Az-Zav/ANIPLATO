@@ -2,6 +2,7 @@ package com.aniplato.service;
 
 import com.aniplato.dao.LogDao;
 import com.aniplato.exception.DataAccessException;
+import com.aniplato.util.AppConfig;
 import com.aniplato.util.Database;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -53,7 +54,6 @@ public class EmailService {
         }
     }
 
-    private static final String MAIL_CONFIG = "/db.properties";
     private static final String TEMPLATE_ROOT = "/email/";
     private static final String LOGO = "/assets/aniplato-logo-circle 1.png";
     private static final String LOGO_CID = "logo@aniplato";   // templates use src="cid:logo@aniplato"
@@ -135,18 +135,15 @@ public class EmailService {
         return related;
     }
 
+    /** The mail.* settings, read through AppConfig so a packaged app finds them in its own settings file. */
     private Properties loadConfig() throws IOException {
-        try (InputStream in = EmailService.class.getResourceAsStream(MAIL_CONFIG)) {
-            if (in == null) throw new IOException("Missing " + MAIL_CONFIG + " (SMTP settings)");
-            Properties p = new Properties();
-            p.load(in);
-            for (String key : new String[] {"mail.smtp.host", "mail.user", "mail.password"}) {
-                String value = p.getProperty(key);
-                if (value == null || value.isBlank()) throw new IOException("Missing '" + key + "' in db.properties");
-                p.setProperty(key, value.trim());
-            }
-            return p;
+        Properties p = AppConfig.withPrefix("mail.");
+        for (String key : new String[] {"mail.smtp.host", "mail.user", "mail.password"}) {
+            String value = p.getProperty(key);
+            if (value == null || value.isBlank()) throw new IOException("Missing '" + key + "' in db.properties");
+            p.setProperty(key, value.trim());
         }
+        return p;
     }
 
     private String loadTemplate(Kind kind) throws IOException {
