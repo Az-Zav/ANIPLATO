@@ -1,13 +1,12 @@
 package com.aniplato.service;
 
+import com.aniplato.util.AppConfig;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -18,15 +17,12 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
 /** Provides read-only, screen-aware help using the Gemini API. */
 public final class GeminiAssistantService {
 
-    private static final String CONFIG_RESOURCE = "/db.properties";
     private static final String DEFAULT_MODEL = "gemini-3.5-flash-lite";
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
     private static final String API_URL =
@@ -43,14 +39,13 @@ public final class GeminiAssistantService {
     }
 
     private HttpRequest createRequest(String panel, String question) {
-        Properties config = loadConfig();
-        String apiKey = config.getProperty("ai.gemini.api-key", "").trim();
+        String apiKey = AppConfig.get("ai.gemini.api-key", "");   // AppConfig also finds a packaged app's settings file
         if (apiKey.isEmpty()) {
             throw new IllegalStateException(
-                    "Gemini is not configured. Add ai.gemini.api-key to src/main/resources/db.properties.");
+                    "The assistant has no Gemini key yet. Add ai.gemini.api-key to the db.properties settings file.");
         }
 
-        String model = config.getProperty("ai.gemini.model", DEFAULT_MODEL).trim();
+        String model = AppConfig.get("ai.gemini.model", DEFAULT_MODEL);
         if (!MODEL_NAME.matcher(model).matches()) {
             throw new IllegalStateException("The ai.gemini.model value in db.properties is invalid.");
         }
@@ -103,19 +98,6 @@ public final class GeminiAssistantService {
                 .header("x-goog-api-key", apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString(), StandardCharsets.UTF_8))
                 .build();
-    }
-
-    private Properties loadConfig() {
-        try (InputStream input = GeminiAssistantService.class.getResourceAsStream(CONFIG_RESOURCE)) {
-            if (input == null) {
-                throw new IllegalStateException("Missing src/main/resources/db.properties.");
-            }
-            Properties config = new Properties();
-            config.load(input);
-            return config;
-        } catch (IOException e) {
-            throw new CompletionException("Could not read src/main/resources/db.properties.", e);
-        }
     }
 
     private String readResponse(HttpResponse<String> response) {

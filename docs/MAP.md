@@ -191,6 +191,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ProfileController.java` | own details, documents, expiry banner, password buttons | PROFILE, AUTH |
 | `controller/ShellController.java` | header, sidebar, badges, assistant panel, logout, runs the 6.6 checks | SHELL, MAINT |
 | `controller/SidebarBadges.java` | the sidebar count badges: which count each shows, hides a zero | SHELL |
+| `controller/AssistantPanel.java` | the floating assistant: open/close, chat bubbles, suggested questions for the current screen, "Thinking…" while the answer comes; holds no rules | SHELL |
+| `service/GeminiAssistantService.java` | the read-only help assistant: sends the question and the current screen name (no account data) to Gemini, with the key and model from `db.properties`; turns failures into plain sentences | SHELL |
 | `controller/admin/AdminDashboardController.java` | admin cards and the pending list | STATS, REVIEW |
 | `controller/admin/PendingRegistrationsController.java` | the review queue | REVIEW |
 | `controller/admin/ReviewRegistrationController.java` | one application: documents, verify, approve, reject | REVIEW |
@@ -384,6 +386,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/DatabaseTlsTest.java`, `resources/test-ca.pem` | a PEM CA file becomes a truststore; a bad file is named in the error | PLATFORM |
 | `resources/db.properties.online.example` | settings template for the shared online database (CA file, session time zone, small pool) | PLATFORM |
 | `controller/FeedbackDialogsTest.java` | log out asks first; every posting form carries the posted card | PLATFORM |
+| `service/GeminiAssistantServiceTest.java` | a missing key or bad model name is explained before any request; no-internet and timeout texts (no network used) | SHELL |
 | `service/FileStorageServiceTest.java` | uploads are stored in the database, shared between computers, shrunk when large, and removed on failure | PLATFORM |
 | `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |
@@ -477,6 +480,8 @@ Files: `service/RegistrationService.java`, `controller/RegisterController.java`,
 | `DocumentDao.insert` | saves an uploaded file awaiting review | RegistrationService | RegistrationApplyTest |
 | `FileStorageService.validate` | PDF (2 MB) , JPG or PNG (15 MB, shrunk on save) | RegistrationService, UploadSlot | RegistrationApplyTest |
 | `FileStorageService.save` | stores the file (a large photo shrunk to JPEG) in the database under a random name | RegistrationService | RegistrationApplyTest |
+| `GeminiAssistantService.answer` | asks Gemini a question about the app, for the screen now open, on a background thread; fails with a readable message | AssistantPanel | GeminiAssistantServiceTest |
+| `GeminiAssistantService.explainFailure` | turns a failed answer (no internet, timeout, bad key, API error) into one plain sentence | AssistantPanel | GeminiAssistantServiceTest |
 | `FileStorageService.resolve` | the stored file for a saved path, fetched once into a local cache | ProfileController, ReviewRegistrationController | RegistrationApplyTest |
 | `EmailService.sendReceived` | the "we received your registration" email | RegistrationService | RegistrationApplyTest |
 | `RegistrationDraft.get` | the form kept between steps | RegisterController, RegisterStep2Controller, RegisterSubmittedController | none (UI state) |

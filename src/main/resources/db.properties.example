@@ -19,3 +19,6 @@ mail.password=
 ai.gemini.api-key=
 # Optional model override.
 ai.gemini.model=gemini-3.5-flash-lite
+
+# Optional: where uploaded documents are stored. Point every dev at one shared folder to see each other's files.
+#uploads.dir=uploads
