@@ -62,7 +62,7 @@ public final class PostsBoard {
                         new Board.Tab<>("Accepted", p -> p.status == Post.Status.ACCEPTED),
                         new Board.Tab<>("Open", p -> p.status == Post.Status.OPEN)))
                 .search(listings ? "Search food or food group…" : "Search request or donor…",
-                        p -> heading(p) + " " + (p.acceptedOffer == null ? "" : p.acceptedOffer.offererName))
+                        p -> p.title() + " " + (p.acceptedOffer == null ? "" : p.acceptedOffer.offererName))
                 .columns(WIDTHS, listings ? "FOOD" : "REQUEST", "KG", listings ? "USE-BY" : "NEEDED-BY", "STATUS",
                         "ACCEPTED OFFER", "PICKUP", "RECEIPT", "")
                 .row(this::row)
@@ -115,7 +115,7 @@ public final class PostsBoard {
         Offer accepted = post.acceptedOffer;
         boolean isAccepted = post.status == Post.Status.ACCEPTED && accepted != null;
         GridPane row = TableRows.row(WIDTHS);
-        TableRows.put(row, 0, TableRows.text(heading(post), "form-label"));
+        TableRows.put(row, 0, TableRows.text(post.title(), "form-label"));
         TableRows.put(row, 1, TableRows.text(FormSupport.kg(post.kg), "table-cell-text"));
         TableRows.put(row, 2, TableRows.text(FormSupport.soon(BoardService.dueAt(post), LocalDate.now()), "table-cell-muted"));
         TableRows.put(row, 3, TableRows.pill(post.status.label(), isAccepted ? "accepted" : "open"));
@@ -196,13 +196,10 @@ public final class PostsBoard {
 
     private void cancel(Post post) {
         String accepted = post.acceptedOffer == null ? null : post.acceptedOffer.offererName;
-        dialog.showCancelListingMode(heading(post), accepted, reason -> {
+        dialog.showCancelListingMode(post.title(), accepted, reason -> {
             postService.cancelPost(post.id, reason);
             refresh.run();
         });
     }
 
-    private static String heading(Post post) {
-        return post.isListing() ? post.food.description : post.use.useDescription;
-    }
 }

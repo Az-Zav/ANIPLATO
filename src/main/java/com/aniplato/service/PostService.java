@@ -49,7 +49,7 @@ public class PostService {
                               boolean attested, List<File> photos) { }
 
     /** What a food group enters for a request (2B). */
-    public record RequestForm(String eventName, LocalDate eventDate, String beneficiaries, int headcount, String place,
+    public record RequestForm(String foodNeeded, String eventName, LocalDate eventDate, String beneficiaries, int headcount, String place,
                               LocalDateTime neededBy, String message, Set<FoodDetail.Category> acceptedCategories,
                               double kg, boolean attested, List<File> photos) { }
 
@@ -85,6 +85,7 @@ public class PostService {
     /** A food group posts a request (R2.2). One transaction: use detail, post, photos, status log. Returns the new post id. */
     /** The rules a request form must meet before anything is saved. */
     private static void requireRequestForm(RequestForm f, LocalDateTime now) {
+        requireText(f.foodNeeded(), "Say what food you need.", 200);   // R2.2
         requireText(f.eventName(), "Name the event or program.", 300);
         requireText(f.beneficiaries(), "Say who the food is for.", 200);
         requireText(f.place(), "Say where the food should go.", 200);
@@ -107,6 +108,7 @@ public class PostService {
         LocalDateTime now = LocalDateTime.now();
         requireRequestForm(f, now);
         UseDetail use = new UseDetail();
+        use.foodNeeded = f.foodNeeded().trim();
         use.useDescription = f.eventName().trim();
         use.eventDate = f.eventDate();
         use.beneficiaries = f.beneficiaries().trim();

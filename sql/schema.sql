@@ -94,6 +94,7 @@ CREATE TABLE food_detail (
 CREATE TABLE use_detail (
   use_detail_id       INT AUTO_INCREMENT PRIMARY KEY,
   use_description     VARCHAR(300) NOT NULL,        -- event, program or use
+  food_needed         VARCHAR(200) NULL,            -- requests: the food asked for (service rule: required); NULL on a Route 1 offer
   event_date          DATE NULL,                    -- required on a request (service rule)
   beneficiaries       VARCHAR(200) NOT NULL,
   headcount           INT NOT NULL,

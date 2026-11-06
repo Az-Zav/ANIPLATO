@@ -32,6 +32,12 @@
         <Label styleClass="form-section-title" text="Food needed" />
         <VBox spacing="6.0">
             <children>
+                <Label styleClass="form-label" text="What food do you need? *" />
+                <TextField fx:id="foodNeededField" promptText="e.g. Rice and canned goods" />
+            </children>
+        </VBox>
+        <VBox spacing="6.0">
+            <children>
                 <Label styleClass="form-label" text="Accepted categories *" />
                 <!-- PATTERN:DYNAMIC categoryBox : one chip per category -->
                 <FlowPane fx:id="categoryBox" hgap="8.0" vgap="8.0" />

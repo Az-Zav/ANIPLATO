@@ -28,7 +28,8 @@ public class DetailDao {
             fd.pickup_start AS fd_pickup_start, fd.pickup_end AS fd_pickup_end,
             fd.handover_instructions AS fd_handover, fd.attested_at AS fd_attested_at""";
     public static final String USE_COLUMNS = """
-            ud.use_detail_id AS ud_id, ud.use_description AS ud_description, ud.event_date AS ud_event_date,
+            ud.use_detail_id AS ud_id, ud.use_description AS ud_description, ud.food_needed AS ud_food_needed,
+            ud.event_date AS ud_event_date,
             ud.beneficiaries AS ud_beneficiaries, ud.headcount AS ud_headcount, ud.place AS ud_place,
             ud.due_at AS ud_due_at, ud.message AS ud_message, ud.accepted_categories AS ud_categories,
             ud.attested_at AS ud_attested_at""";
@@ -58,24 +59,25 @@ public class DetailDao {
     }
 
     public int insertUse(Connection c, UseDetail d) throws SQLException {
-        String sql = "INSERT INTO use_detail (use_description, event_date, beneficiaries, headcount, place, due_at, "
-                + "message, accepted_categories, attested_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO use_detail (use_description, food_needed, event_date, beneficiaries, headcount, place, due_at, "
+                + "message, accepted_categories, attested_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, d.useDescription);
-            ps.setObject(2, d.eventDate);
-            ps.setString(3, d.beneficiaries);
-            ps.setInt(4, d.headcount);
-            ps.setString(5, d.place);
-            ps.setObject(6, d.dueAt);
-            ps.setString(7, d.message);
+            ps.setString(2, d.foodNeeded);
+            ps.setObject(3, d.eventDate);
+            ps.setString(4, d.beneficiaries);
+            ps.setInt(5, d.headcount);
+            ps.setString(6, d.place);
+            ps.setObject(7, d.dueAt);
+            ps.setString(8, d.message);
             if (d.acceptedCategories.isEmpty()) {
-                ps.setNull(8, Types.VARCHAR);
+                ps.setNull(9, Types.VARCHAR);
             } else {
                 StringJoiner categories = new StringJoiner(",");
                 d.acceptedCategories.forEach(cat -> categories.add(cat.name()));
-                ps.setString(8, categories.toString());
+                ps.setString(9, categories.toString());
             }
-            ps.setObject(9, d.attestedAt);
+            ps.setObject(10, d.attestedAt);
             ps.executeUpdate();
             return generatedId(ps);
         }
@@ -127,6 +129,7 @@ public class DetailDao {
         UseDetail d = new UseDetail();
         d.id = id;
         d.useDescription = rs.getString("ud_description");
+        d.foodNeeded = rs.getString("ud_food_needed");
         d.eventDate = rs.getObject("ud_event_date", LocalDate.class);
         d.beneficiaries = rs.getString("ud_beneficiaries");
         d.headcount = rs.getInt("ud_headcount");

@@ -130,6 +130,7 @@ erDiagram
   use_detail {
     int use_detail_id PK
     varchar use_description "event, program or use"
+    varchar food_needed "requests: the food asked for, up to 200; null on an offer"
     date event_date "null, required on a request"
     varchar beneficiaries
     int headcount "above 0"

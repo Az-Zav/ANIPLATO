@@ -91,7 +91,7 @@ public class SafetyNoticeDao {
                        CASE WHEN n.raised_by IS NULL THEN 'System'
                             WHEN n.raised_by = o.offerer_id THEN offerer_reg.name
                             ELSE poster_reg.name END AS raised_by_name,
-                       COALESCE(fd.description, ud.use_description) AS listing_text
+                       COALESCE(fd.description, ud.food_needed, ud.use_description) AS listing_text
                 FROM safety_notice n
                 JOIN offer o ON o.offer_id = n.offer_id
                 JOIN post p ON p.post_id = o.post_id

@@ -71,7 +71,7 @@ public final class PostCards {
 
     /** A listing or request as a card, with the given action row under it. */
     public static VBox postCard(Post post, Node actions) {
-        String heading = post.isListing() ? post.food.description : post.use.useDescription;
+        String heading = post.title();
         VBox card = Cards.card(Cards.title(heading),
                 Cards.muted(post.posterName + "  |  " + post.city + "  |  " + FormSupport.kg(post.kg) + "  |  " + post.status.label()));
         Cards.addLines(card, post.isListing() ? foodLines(post.food) : useLines(post.use, "Needed by"));

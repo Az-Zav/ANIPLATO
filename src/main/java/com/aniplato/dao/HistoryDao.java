@@ -65,7 +65,7 @@ public class HistoryDao {
     public List<Row> findClosed(Connection c, int accountId) throws SQLException {
         List<Row> rows = new ArrayList<>();
         String posts = """
-                SELECT COALESCE(fd.description, ud.use_description) AS title, COALESCE(o.kg, p.kg) AS kg, p.status AS post_status,
+                SELECT COALESCE(fd.description, ud.food_needed, ud.use_description) AS title, COALESCE(o.kg, p.kg) AS kg, p.status AS post_status,
                        o.status AS offer_status, r.name AS other_party, o.offer_id, (p.kind = 'REQUEST') AS receiver, o.received_at,
                        COALESCE((SELECT MAX(s.changed_at) FROM status_change s WHERE s.entity_type = 'POST'
                                  AND s.entity_id = p.post_id AND s.to_status = p.status), p.created_at) AS closed_at

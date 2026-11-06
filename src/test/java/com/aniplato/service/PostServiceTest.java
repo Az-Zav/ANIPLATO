@@ -40,7 +40,7 @@ class PostServiceTest extends DbTest {
 
     private RequestForm request() {
         LocalDateTime neededBy = LocalDateTime.now().plusDays(3);
-        return new RequestForm("Sunday feeding", neededBy.toLocalDate().plusDays(1), "Elderly", 40, "Barangay hall",
+        return new RequestForm("  Rice and canned goods  ", "Sunday feeding", neededBy.toLocalDate().plusDays(1), "Elderly", 40, "Barangay hall",
                 neededBy, "  Bring boxes  ", Set.of(FoodDetail.Category.RAW, FoodDetail.Category.PACKAGED), 20, true,
                 Fixtures.photos(tmp, 1));
     }
@@ -165,18 +165,47 @@ class PostServiceTest extends DbTest {
         loginAs(GROUP);
         RequestForm ok = request();
 
-        assertRule("Needed-by must be in the future.", () -> posts.createRequest(new RequestForm(ok.eventName(), ok.eventDate(),
+        assertRule("Needed-by must be in the future.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(), ok.eventDate(),
                 ok.beneficiaries(), ok.headcount(), ok.place(), LocalDateTime.now().minusHours(1), null, ok.acceptedCategories(), 5, true, ok.photos())));
-        assertRule("The event date must be on or after the needed-by date.", () -> posts.createRequest(new RequestForm(ok.eventName(),
+        assertRule("The event date must be on or after the needed-by date.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(),
                 ok.neededBy().toLocalDate().minusDays(1), ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, ok.acceptedCategories(), 5, true, ok.photos())));
-        assertRule("Pick at least one category you will accept.", () -> posts.createRequest(new RequestForm(ok.eventName(), ok.eventDate(),
+        assertRule("Pick at least one category you will accept.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(), ok.eventDate(),
                 ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, Set.of(), 5, true, ok.photos())));
-        assertRule("Tick the attestation to continue.", () -> posts.createRequest(new RequestForm(ok.eventName(), ok.eventDate(),
+        assertRule("Tick the attestation to continue.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(), ok.eventDate(),
                 ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, ok.acceptedCategories(), 5, false, ok.photos())));
-        assertRule("The weight must be more than 0 kg.", () -> posts.createRequest(new RequestForm(ok.eventName(), ok.eventDate(),
+        assertRule("The weight must be more than 0 kg.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(), ok.eventDate(),
                 ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, ok.acceptedCategories(), -1, true, ok.photos())));
-        assertRule("How many people it feeds must be more than 0.", () -> posts.createRequest(new RequestForm(ok.eventName(), ok.eventDate(),
+        assertRule("How many people it feeds must be more than 0.", () -> posts.createRequest(new RequestForm(ok.foodNeeded(), ok.eventName(), ok.eventDate(),
                 ok.beneficiaries(), 0, ok.place(), ok.neededBy(), null, ok.acceptedCategories(), 5, true, ok.photos())));
+    }
+
+    @Test
+    void aRequestNeedsTheFoodItAsksForAndStoresItTrimmed() {
+        loginAs(GROUP);
+        RequestForm ok = request();
+
+        assertRule("Say what food you need.", () -> posts.createRequest(new RequestForm("  ", ok.eventName(), ok.eventDate(),
+                ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, ok.acceptedCategories(), 5, true, ok.photos())));
+        assertRule("Keep it to 200 characters or fewer.", () -> posts.createRequest(new RequestForm("x".repeat(201), ok.eventName(), ok.eventDate(),
+                ok.beneficiaries(), ok.headcount(), ok.place(), ok.neededBy(), null, ok.acceptedCategories(), 5, true, ok.photos())));
+
+        int id = posts.createRequest(ok);
+        assertEquals("Rice and canned goods", TestDb.scalar("SELECT ud.food_needed FROM use_detail ud JOIN post p ON p.use_detail_id = ud.use_detail_id WHERE p.post_id = ?", id));
+        Post saved = posts.getMyPosts().stream().filter(p -> p.id == id).findFirst().orElseThrow();
+        assertEquals("Rice and canned goods", saved.use.foodNeeded);
+        assertEquals("Sunday feeding", saved.use.useDescription, "the event is kept apart from the food");
+        assertEquals("Rice and canned goods", saved.title());
+    }
+
+    @Test
+    void aRequestWithNoFoodNeededIsTitledByItsEventAndAListingByItsFood() {
+        loginAs(GROUP);
+        int id = posts.createRequest(request());
+        TestDb.exec("UPDATE use_detail ud JOIN post p ON p.use_detail_id = ud.use_detail_id SET ud.food_needed = NULL WHERE p.post_id = ?", id);
+        assertEquals("Sunday feeding", posts.getMyPosts().stream().filter(p -> p.id == id).findFirst().orElseThrow().title(), "an old request");
+
+        loginAs(BUSINESS);
+        assertEquals("Day-old pandesal and loaf bread", posts.getMyPosts().get(0).title());
     }
 
     @Test

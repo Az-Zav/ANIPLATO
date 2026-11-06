@@ -81,7 +81,7 @@ public final class BrowseBoard {
                         new Board.Tab<>("Today", p -> due(p).equals(LocalDate.now())),
                         new Board.Tab<>("Tomorrow", p -> due(p).equals(LocalDate.now().plusDays(1)))))
                 .cities(p -> p.city)
-                .search(kind.searchPrompt, p -> heading(p) + " " + p.posterName)
+                .search(kind.searchPrompt, p -> p.title() + " " + p.posterName)
                 .columns(widths, titles)
                 .bands(p -> p.city.equals(myCity) ? "mine" : "other",
                         (key, n) -> (key.equals("mine") ? "IN " + myCity.toUpperCase(Locale.ROOT) : "OTHER CITIES")
@@ -125,7 +125,7 @@ public final class BrowseBoard {
                 : today ? FormSupport.soon(f.soonestAt(), LocalDate.now()).substring("Today, ".length())
                 : FormSupport.soon(f.soonestAt(), LocalDate.now());
         String closestTitle = (kind == Kind.REQUESTS ? "CLOSEST NEEDED-BY" : "CLOSEST USE-BY") + (today ? " · TODAY" : "");
-        String closestNote = f.soonest() == null ? "Nothing is waiting" : heading(f.soonest());
+        String closestNote = f.soonest() == null ? "Nothing is waiting" : f.soonest().title();
         String where = f.inMyCity() + " in " + f.myCity() + " · " + f.elsewhere() + " elsewhere";
         return List.of(
                 Tile.of(Tile.Icon.BLUE, kind.countTitle, String.valueOf(f.open()), where),
@@ -138,7 +138,7 @@ public final class BrowseBoard {
         double[] widths = requests ? new double[] {21, 17, 15, 14, 7, 14, 12} : new double[] {27, 20, 16, 8, 17, 12};
         GridPane row = TableRows.row(widths);
         int column = 0;
-        TableRows.put(row, column++, TableRows.text(heading(post), "form-label"));
+        TableRows.put(row, column++, TableRows.text(post.title(), "form-label"));
         TableRows.put(row, column++, TableRows.text(post.posterName, "table-cell-text"));
         if (requests) TableRows.put(row, column++, TableRows.text(accepts(post), "table-cell-text"));
         TableRows.put(row, column++, TableRows.text(post.city, "table-cell-text"));
@@ -150,9 +150,6 @@ public final class BrowseBoard {
         return row;
     }
 
-    private static String heading(Post post) {
-        return post.isListing() ? post.food.description : post.use.useDescription;
-    }
 
     private static String accepts(Post post) {
         return post.use.acceptedCategories.stream().map(FoodDetail.Category::label).sorted().collect(Collectors.joining(", "));

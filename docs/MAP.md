@@ -317,6 +317,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `assets/aniplato-logo-circle 1.png`, `assets/login_hero.png` | the logo (window, emails) and the login picture | SHELL, AUTH |
 | `sql/schema.sql` | the only copy of the schema; drops and recreates `aniplato` | PLATFORM |
 | `sql/seed.sql` | demo data: admin, three organizations, one pending application, a listing and a request | DEMO |
+| `sql/migrate-food-needed.sql` | run once on a database made before `use_detail.food_needed` existed: adds the column and fills old requests from their event name | REQUEST |
 | `sql/seed-admin-demo.sql` | extra demo rows for the admin screens; run once after the seed | DEMO |
 | `sql/seed-demo.sql` | the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
 | `sql/demo-photos/bread.jpg`, `sql/demo-photos/venue.jpg`, `sql/demo-photos/vegetables.png`, `sql/demo-photos/rice.png`, `sql/demo-photos/event.png` | five small sample photos; `setup-db -Demo` copies them to `uploads/seed/` | DEMO |
@@ -1130,6 +1131,7 @@ flowchart LR
 | `Offer.pickupDeadline` | the pickup time of an offer on a listing, or the window end of an offer on a request | AcceptanceService, OffersPage, PostsBoard | AcceptanceServiceTest |
 | `Post.label` | the post status's name on screen (on the status enum) | PostCards | BoardScreensTest |
 | `Post.isListing` | is this a listing (not a request) | PostCards, Post.noun | PostServiceTest, PostTest |
+| `Post.title` | what a screen calls a post: a listing's food, a request's food needed (the event name on an old request without one) | the boards, the offers pages, PostSummary, PostCards | PostServiceTest |
 | `Post.noun` | "listing" or "request" for a message | AcceptanceService, OfferService | PostTest |
 | `FoodDetail.label` | a category, storage or allergen name on screen | PostCards, LabelConverter users, the forms | BoardScreensTest |
 | `FoodDetail.allowedForCasual` | Casual donors give raw or sealed-packaged only (6.5) | PostService | PostServiceTest |

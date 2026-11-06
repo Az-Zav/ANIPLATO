@@ -63,9 +63,9 @@ VALUES ('LISTING', @business, @qc, 12.50, LAST_INSERT_ID(), NOW());
 INSERT INTO photo (file_path, post_id) VALUES ('seed/bread.jpg', LAST_INSERT_ID());
 
 -- One Open request (Route 2) so donors have something to browse -------------
-INSERT INTO use_detail (use_description, event_date, beneficiaries, headcount, place, due_at,
+INSERT INTO use_detail (use_description, food_needed, event_date, beneficiaries, headcount, place, due_at,
                         accepted_categories, attested_at)
-VALUES ('Weekend feeding program', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 'Street children and elderly', 80,
+VALUES ('Weekend feeding program', 'Rice and canned goods', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 'Street children and elderly', 80,
         'Kapwa Community Kitchen, Quezon City', DATE_ADD(NOW(), INTERVAL 5 DAY),
         'RAW,PACKAGED,BAKED', NOW());
 INSERT INTO post (kind, posted_by, city_id, kg, use_detail_id, created_at)

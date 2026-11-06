@@ -8,6 +8,7 @@ import java.util.Set;
 public class UseDetail {
     public int id;
     public String useDescription;                 // the event or program
+    public String foodNeeded;                     // requests only: the food asked for
     public LocalDate eventDate;                   // required on a request
     public String beneficiaries;
     public int headcount;

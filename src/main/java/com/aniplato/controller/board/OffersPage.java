@@ -118,11 +118,11 @@ public final class OffersPage {
                         fact("QUANTITY", FormSupport.kg(post.kg) + ", whole listing"),
                         fact("USE-BY", FormSupport.soon(post.food.useBy, today)),
                         fact("PICKUP WINDOW", FormSupport.window(post.food.pickupStart, post.food.pickupEnd, today)))
-                : List.of(fact("REQUEST", post.use.useDescription),
+                : List.of(fact("REQUEST", post.title()),
                         fact("ACCEPTS", post.use.acceptedCategories.stream().map(FoodDetail.Category::label).sorted().collect(Collectors.joining(", "))),
                         fact("KG NEEDED", FormSupport.kg(post.kg)),
                         fact("NEEDED-BY", FormSupport.soon(post.use.dueAt, today)),
-                        fact("EVENT DATE", post.use.eventDate == null ? "—" : post.use.eventDate.toString()));
+                        fact("EVENT", post.use.useDescription));
         HBox strip = row(facts);
         VBox card = new VBox(strip);
         card.getStyleClass().add("table-card");

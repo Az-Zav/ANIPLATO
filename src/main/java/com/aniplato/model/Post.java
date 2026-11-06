@@ -45,6 +45,12 @@ public class Post {
         return kind == Kind.LISTING;
     }
 
+    /** What a screen calls this post: the food of a listing, the food a request asks for (the event name on an old request without one). */
+    public String title() {
+        if (isListing()) return food.description;
+        return use.foodNeeded == null || use.foodNeeded.isBlank() ? use.useDescription : use.foodNeeded;
+    }
+
     /** "listing" or "request": the word a message uses for this post. */
     public String noun() {
         return isListing() ? "listing" : "request";

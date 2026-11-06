@@ -24,6 +24,7 @@ public class NewRequestController {
     private final PostService postService = new PostService();
     private final Map<FoodDetail.Category, CheckBox> categoryChecks = new EnumMap<>(FoodDetail.Category.class);
 
+    @FXML private TextField foodNeededField;
     @FXML private TextField eventNameField;
     @FXML private DatePicker eventDatePicker;
     @FXML private TextField beneficiariesField;
@@ -54,7 +55,7 @@ public class NewRequestController {
             categoryChecks.forEach((category, box) -> {
                 if (box.isSelected()) accepted.add(category);
             });
-            postService.createRequest(new PostService.RequestForm(eventNameField.getText(), eventDatePicker.getValue(),
+            postService.createRequest(new PostService.RequestForm(foodNeededField.getText(), eventNameField.getText(), eventDatePicker.getValue(),
                     beneficiariesField.getText(), FormSupport.wholeNumber(headcountField.getText(), "how many people"),
                     placeField.getText(), neededByField.value("the needed-by time"), messageArea.getText(), accepted,
                     FormSupport.number(kgField.getText(), "the weight"), attestationCheck.isSelected(), photoPicker.files()));

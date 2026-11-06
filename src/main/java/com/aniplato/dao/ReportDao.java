@@ -60,7 +60,7 @@ public class ReportDao {
     /** The account's own unreported handoffs, oldest receipt first: a food group's "reports due" list. */
     public List<Pending> findPending(Connection c, int receiverId) throws SQLException {
         String sql = """
-                SELECT o.offer_id, COALESCE(pfd.description, pud.use_description) AS title, o.received_at
+                SELECT o.offer_id, COALESCE(pfd.description, pud.food_needed, pud.use_description) AS title, o.received_at
                 FROM offer o JOIN post p ON p.post_id = o.post_id
                 LEFT JOIN food_detail pfd ON pfd.food_detail_id = p.food_detail_id
                 LEFT JOIN use_detail pud ON pud.use_detail_id = p.use_detail_id

@@ -205,6 +205,7 @@ Items in the viewer's own city come first, and items from other cities are liste
 
 **Rules**
 
+* Food needed is required, up to 200 characters. It is the request's title on every screen; the event name is kept apart.
 * kg above 0. Needed-by in the future. Event date on or after the needed-by.
 * 1 to 5 photos.
 * Group attestation ticked: the food is given free and not sold, handled safely, photos show no identifiable children, and identifiable adults consented.
@@ -825,6 +826,7 @@ erDiagram
   use_detail {
     int use_detail_id PK
     varchar use_description "event, program or use"
+    varchar food_needed "requests: the food asked for, up to 200; null on an offer"
     date event_date "null, required on a request"
     varchar beneficiaries
     int headcount "above 0"

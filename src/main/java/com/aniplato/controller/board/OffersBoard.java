@@ -60,7 +60,7 @@ public final class OffersBoard {
                         new Board.Tab<>("Accepted", o -> o.status == Offer.Status.ACCEPTED),
                         new Board.Tab<>("Closed", o -> o.status != Offer.Status.OFFERED && o.status != Offer.Status.ACCEPTED)))
                 .search(group ? "Search food or donor…" : "Search request or food group…",
-                        o -> heading(o.post) + " " + o.post.posterName)
+                        o -> o.post.title() + " " + o.post.posterName)
                 .columns(WIDTHS, group ? "FOOD" : "REQUEST", group ? "DONOR" : "FOOD GROUP", "KG", "PICKUP",
                         group ? "DONOR RELEASE" : "YOUR RELEASE", "STATUS", "")
                 .row(this::row)
@@ -104,7 +104,7 @@ public final class OffersBoard {
 
     private GridPane row(Offer offer) {
         GridPane row = TableRows.row(WIDTHS);
-        TableRows.put(row, 0, TableRows.text(heading(offer.post), "form-label"));
+        TableRows.put(row, 0, TableRows.text(offer.post.title(), "form-label"));
         TableRows.put(row, 1, partyCell(offer));
         TableRows.put(row, 2, TableRows.text(FormSupport.kg(offer.kg), "table-cell-text"));
         TableRows.put(row, 3, TableRows.text(FormSupport.soon(offer.pickupDeadline(), LocalDate.now()), "table-cell-muted"));
@@ -200,7 +200,4 @@ public final class OffersBoard {
                 });
     }
 
-    private static String heading(Post post) {
-        return post.isListing() ? post.food.description : post.use.useDescription;
-    }
 }

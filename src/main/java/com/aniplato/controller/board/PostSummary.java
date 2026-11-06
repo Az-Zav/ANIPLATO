@@ -31,7 +31,7 @@ public final class PostSummary {
     public static Node of(Post post) {
         LocalDate today = LocalDate.now();
         boolean listing = post.isListing();
-        Label title = new Label(listing ? post.food.description : post.use.useDescription);
+        Label title = new Label(post.title());
         title.getStyleClass().add("offer-title");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -52,7 +52,7 @@ public final class PostSummary {
                         fact("STORAGE", post.food.storage.label(), CardChoice.storageHint(post.food.storage), false))
                 : List.of(fact("QUANTITY", FormSupport.kg(post.kg), "Up to " + FormSupport.kg(post.kg), false),
                         fact("NEEDED-BY", FormSupport.soon(post.use.dueAt, today), left(post.use.dueAt), true),
-                        fact("EVENT", post.use.beneficiaries, post.use.headcount + " people · " + post.use.eventDate, false));
+                        fact("EVENT", post.use.useDescription, post.use.headcount + " people · " + post.use.eventDate, false));
         HBox row = new HBox(12);
         for (Node fact : facts) {
             HBox.setHgrow(fact, Priority.ALWAYS);

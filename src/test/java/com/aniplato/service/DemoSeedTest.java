@@ -59,7 +59,7 @@ class DemoSeedTest extends DbTest {
         var banner = dashboard.banners().get(0);
         assertEquals(DashboardService.BannerKind.REPORT_DUE, banner.kind());
         assertTrue(banner.text().startsWith("2 reports are due"));   // the pastries, and the overdue community pantry
-        assertTrue(banner.text().contains("was due") && banner.text().contains("Community pantry restock"));
+        assertTrue(banner.text().contains("was due") && banner.text().contains("Vegetables and bread for the pantry"));
     }
 
     @Test

@@ -130,8 +130,8 @@ VALUES ('POST', @l7, 'OPEN', 'CANCELLED', 'Another charity collected it', @busin
 
 -- ROUTE 2 -------------------------------------------------------------------------------------------------
 -- R1: an Open request with two offers to choose from (a Business donor and a Casual donor)
-INSERT INTO use_detail (use_description, event_date, beneficiaries, headcount, place, due_at, message, accepted_categories, attested_at)
-VALUES ('School feeding program', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 'Grade school pupils', 150, 'Commonwealth Elementary School, Quezon City',
+INSERT INTO use_detail (use_description, food_needed, event_date, beneficiaries, headcount, place, due_at, message, accepted_categories, attested_at)
+VALUES ('School feeding program', 'Bread and pastries for school meals', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 'Grade school pupils', 150, 'Commonwealth Elementary School, Quezon City',
         DATE_ADD(NOW(), INTERVAL 4 DAY), 'Rice and canned goods are the most useful.', 'RAW,PACKAGED,BAKED', NOW());
 INSERT INTO post (kind, posted_by, city_id, kg, status, use_detail_id, created_at)
 VALUES ('REQUEST', @group, @qc, 40.00, 'OPEN', LAST_INSERT_ID(), NOW());
@@ -149,8 +149,8 @@ VALUES (@r1, @casual, 10.00, 'OFFERED', LAST_INSERT_ID(), NOW());
 INSERT INTO photo (file_path, offer_id) VALUES ('seed/vegetables.png', LAST_INSERT_ID());
 
 -- R2: Accepted and already released by the donor, so the group can confirm receipt
-INSERT INTO use_detail (use_description, event_date, beneficiaries, headcount, place, due_at, accepted_categories, attested_at)
-VALUES ('Typhoon relief packs', CURDATE(), 'Flood-affected families', 70, 'Barangay Payatas covered court', DATE_ADD(NOW(), INTERVAL 1 DAY), 'RAW,PACKAGED', DATE_SUB(NOW(), INTERVAL 1 DAY));
+INSERT INTO use_detail (use_description, food_needed, event_date, beneficiaries, headcount, place, due_at, accepted_categories, attested_at)
+VALUES ('Typhoon relief packs', 'Ready-to-eat relief packs', CURDATE(), 'Flood-affected families', 70, 'Barangay Payatas covered court', DATE_ADD(NOW(), INTERVAL 1 DAY), 'RAW,PACKAGED', DATE_SUB(NOW(), INTERVAL 1 DAY));
 INSERT INTO post (kind, posted_by, city_id, kg, status, use_detail_id, created_at)
 VALUES ('REQUEST', @group, @qc, 30.00, 'ACCEPTED', LAST_INSERT_ID(), DATE_SUB(NOW(), INTERVAL 1 DAY));
 SET @r2 = LAST_INSERT_ID();
@@ -162,8 +162,8 @@ VALUES (@r2, @business, 28.00, 'ACCEPTED', LAST_INSERT_ID(), DATE_SUB(NOW(), INT
 INSERT INTO photo (file_path, offer_id) VALUES ('seed/rice.png', LAST_INSERT_ID());
 
 -- R3: Rescued nine days ago and the group never sent its report: the first screen load flags it to the admin
-INSERT INTO use_detail (use_description, event_date, beneficiaries, headcount, place, due_at, accepted_categories, attested_at)
-VALUES ('Community pantry restock', DATE_SUB(CURDATE(), INTERVAL 9 DAY), 'Pantry visitors', 90, 'Kapwa Community Pantry', DATE_SUB(NOW(), INTERVAL 10 DAY), 'RAW,PACKAGED,BAKED', DATE_SUB(NOW(), INTERVAL 12 DAY));
+INSERT INTO use_detail (use_description, food_needed, event_date, beneficiaries, headcount, place, due_at, accepted_categories, attested_at)
+VALUES ('Community pantry restock', 'Vegetables and bread for the pantry', DATE_SUB(CURDATE(), INTERVAL 9 DAY), 'Pantry visitors', 90, 'Kapwa Community Pantry', DATE_SUB(NOW(), INTERVAL 10 DAY), 'RAW,PACKAGED,BAKED', DATE_SUB(NOW(), INTERVAL 12 DAY));
 INSERT INTO post (kind, posted_by, city_id, kg, status, use_detail_id, created_at)
 VALUES ('REQUEST', @group, @qc, 22.00, 'RESCUED', LAST_INSERT_ID(), DATE_SUB(NOW(), INTERVAL 12 DAY));
 SET @r3 = LAST_INSERT_ID();
