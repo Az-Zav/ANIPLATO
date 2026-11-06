@@ -4,8 +4,20 @@ import com.aniplato.exception.DataAccessException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HexFormat;
 
 /**
  * Opens JDBC connections from db.properties and runs transactions (A2). Connections come from a small pool: opening one
@@ -60,11 +72,59 @@ public class Database {
             config.setConnectionTimeout(Long.parseLong(AppConfig.get("pool.connectTimeoutMs", "20000")));
             config.setKeepaliveTime(Long.parseLong(AppConfig.get("pool.keepAliveMs", "30000")));
             config.setMaxLifetime(Long.parseLong(AppConfig.get("pool.maxLifetimeMs", "1500000")));
+            addOnlineSettings(config);
             config.setInitializationFailTimeout(-1);   // a database that is down shows as a message on the screen, not at start-up
             pool = new HikariDataSource(config);
             poolKey = key;
         }
         return pool;
+    }
+
+    /**
+     * A hosted database (Aiven) needs an encrypted link checked against the provider's CA, and its server clock is UTC
+     * while the app's times are Manila's. Both are plain settings: ssl.ca (path to the CA .pem) and session.timezone
+     * (default +08:00, applied to every connection so NOW() and stored times agree with the app).
+     */
+    private static void addOnlineSettings(HikariConfig config) {
+        String zone = AppConfig.get("session.timezone", "+08:00");
+        if (AppConfig.get("ssl.ca", null) != null || AppConfig.get("url", "").contains("aivencloud")) {
+            config.addDataSourceProperty("sessionVariables", "time_zone='" + zone + "'");
+        }
+        String ca = AppConfig.get("ssl.ca", null);
+        if (ca == null) return;
+        String password = HexFormat.of().formatHex(randomBytes());
+        Path store = truststoreFrom(Path.of(ca), password);
+        config.addDataSourceProperty("sslMode", "VERIFY_CA");
+        config.addDataSourceProperty("trustCertificateKeyStoreUrl", store.toUri().toString());
+        config.addDataSourceProperty("trustCertificateKeyStorePassword", password);
+        config.addDataSourceProperty("trustCertificateKeyStoreType", "PKCS12");
+    }
+
+    private static byte[] randomBytes() {
+        byte[] bytes = new byte[16];
+        new SecureRandom().nextBytes(bytes);
+        return bytes;
+    }
+
+    /** Builds a throw-away PKCS12 truststore (deleted on exit) from a PEM CA file, which is the form providers hand out. */
+    static Path truststoreFrom(Path pem, String password) {
+        try (InputStream in = Files.newInputStream(pem)) {
+            Collection<? extends Certificate> certs = CertificateFactory.getInstance("X.509").generateCertificates(in);
+            if (certs.isEmpty()) throw new GeneralSecurityException("no certificate");
+            KeyStore store = KeyStore.getInstance("PKCS12");
+            store.load(null, null);
+            int n = 0;
+            for (Certificate cert : certs) store.setCertificateEntry("ca" + n++, cert);
+            Path file = Files.createTempFile("aniplato-ca", ".p12");
+            file.toFile().deleteOnExit();
+            try (OutputStream out = Files.newOutputStream(file)) {
+                store.store(out, password.toCharArray());
+            }
+            return file;
+        } catch (IOException | GeneralSecurityException e) {
+            throw new IllegalStateException("Could not read the CA certificate '" + pem
+                    + "' (ssl.ca in db.properties). It must be the PEM file downloaded from the database provider.", e);
+        }
     }
 
     /**

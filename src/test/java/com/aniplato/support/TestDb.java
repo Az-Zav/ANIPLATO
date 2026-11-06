@@ -23,19 +23,33 @@ import java.util.regex.Pattern;
  */
 public final class TestDb {
 
-    public static final String NAME = "aniplato_test";
+    /** aniplato_test, or aniplato_test_<you> when ANIPLATO_TEST_DB says so (teammates sharing one server each need their own). */
+    public static final String NAME = testName();
     private static final Path MAIN_CONFIG = Path.of("src", "main", "resources", "db.properties");
     private static final Pattern HOST_PORT = Pattern.compile("jdbc:mysql://([^/?]+)");
-    private static final String OPTIONS = "?useSSL=false&serverTimezone=Asia/Manila&allowPublicKeyRetrieval=true&allowMultiQueries=true";
+    private static final String LOCAL_OPTIONS = "?useSSL=false&serverTimezone=Asia/Manila&allowPublicKeyRetrieval=true&allowMultiQueries=true";
+    /** A hosted server (ssl.ca set): encrypted, and its UTC clock is shifted to Manila for the session. */
+    private static final String ONLINE_OPTIONS = "?sslMode=REQUIRED&allowMultiQueries=true&sessionVariables=time_zone%3D'%2B08:00'";
+    private static String OPTIONS = LOCAL_OPTIONS;
 
     private static String serverUrl;
 
     private TestDb() { }
 
+    /** The test database's name. It must start with aniplato_test, so it can never be the real aniplato database. */
+    private static String testName() {
+        String name = env("ANIPLATO_TEST_DB", "aniplato_test").trim();
+        if (!name.matches("aniplato_test[A-Za-z0-9_]*")) {
+            throw new IllegalStateException("ANIPLATO_TEST_DB must be aniplato_test or start with aniplato_test_ (got '" + name + "').");
+        }
+        return name;
+    }
+
     /** Points the app's Database and FileStorageService at the test database and a temp uploads folder. */
     private static synchronized void configure() {
         if (serverUrl != null) return;
         Properties main = readMainConfig();
+        if (main.getProperty("ssl.ca", "").isBlank() == false) OPTIONS = ONLINE_OPTIONS;
         String hostPort = "localhost:3306";
         Matcher m = HOST_PORT.matcher(main.getProperty("url", ""));
         if (m.find()) hostPort = m.group(1);

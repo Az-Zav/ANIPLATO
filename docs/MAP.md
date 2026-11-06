@@ -323,6 +323,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `sql/seed-demo.sql` | the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
 | `sql/demo-photos/bread.jpg`, `sql/demo-photos/venue.jpg`, `sql/demo-photos/vegetables.png`, `sql/demo-photos/rice.png`, `sql/demo-photos/event.png` | five small sample photos; `setup-db -Demo` copies them to `uploads/seed/` | DEMO |
 | `setup-db.bat`, `setup-db.ps1` | create the database and load the demo data | PLATFORM |
+| `scripts/setup-online-db.ps1` | one-time setup of the shared online MySQL: empty aniplato, data-only app user, test user limited to aniplato_test*; refuses a non-empty aniplato | PLATFORM |
+| `docs/ONLINE-DB.md` | how the shared online database is set up and used, and how tests stay off it | PLATFORM |
 | `scripts/new-methods.sh` | lists the methods a branch adds, for review | TESTS |
 | `pom.xml` | Maven build: JavaFX, MySQL, JUnit, copies FXML and CSS to the output | PLATFORM |
 
@@ -368,6 +370,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
 | `controller/RegisterScreenTest.java` | the contact number field takes "0917 123 4567" as typed and keeps letters out | REGISTER |
+| `support/DatabaseTlsTest.java`, `resources/test-ca.pem` | a PEM CA file becomes a truststore; a bad file is named in the error | PLATFORM |
+| `resources/db.properties.online.example` | settings template for the shared online database (CA file, session time zone, small pool) | PLATFORM |
 | `controller/FormInputTest.java` | an unreadable value is shown by name, and each service still refuses its placeholder with the message FormInput expects | A8 |
 | `controller/AssistantRoomTest.java` | every in-shell page keeps room under its last row for the floating assistant button | SHELL |
 | `util/NavigatorRoomTest.java` | the room is raised to the minimum and never lowered | SHELL |

@@ -15,7 +15,7 @@ class DatabaseReadTest extends DbTest {
 
     @Test
     void returnsWhatTheWorkReturns() {
-        assertEquals("aniplato_test", Database.read("Could not read", c -> TestDb.scalar("SELECT DATABASE()")));
+        assertEquals(TestDb.NAME, Database.read("Could not read", c -> TestDb.scalar("SELECT DATABASE()")));
     }
 
     @Test
@@ -63,6 +63,6 @@ class DatabaseReadTest extends DbTest {
     @Test
     void closingThePoolLetsTheNextCallOpenFreshConnections() {
         Database.closePool();
-        assertEquals("aniplato_test", Database.read("Could not read", c -> TestDb.scalar("SELECT DATABASE()")));
+        assertEquals(TestDb.NAME, Database.read("Could not read", c -> TestDb.scalar("SELECT DATABASE()")));
     }
 }
