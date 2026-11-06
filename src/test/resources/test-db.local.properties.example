@@ -1,0 +1,6 @@
+# Copy to test-db.local.properties (git-ignored) to point the tests at a MySQL of your own without setting
+# ANIPLATO_TEST_* variables each time. An environment variable still wins over this file.
+host=localhost:3306
+user=
+password=
+# db=aniplato_test_<yourname>

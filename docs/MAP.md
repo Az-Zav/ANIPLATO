@@ -374,6 +374,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/FormSupportFailureTest.java` | what a failed service call shows: the rule text, the database text, nothing hidden | A8 |
 | `controller/ShellMaintenanceTest.java` | the 6.6 checks run before each screen loads | MAINT, SHELL |
 | `controller/RegisterScreenTest.java` | the contact number field takes "0917 123 4567" as typed and keeps letters out | REGISTER |
+| `resources/test-db.local.properties.example` | template for the git-ignored file holding a developer's own test-database login | PLATFORM |
 | `support/DatabaseTlsTest.java`, `resources/test-ca.pem` | a PEM CA file becomes a truststore; a bad file is named in the error | PLATFORM |
 | `resources/db.properties.online.example` | settings template for the shared online database (CA file, session time zone, small pool) | PLATFORM |
 | `service/FileStorageServiceTest.java` | uploads are stored in the database, shared between computers, shrunk when large, and removed on failure | PLATFORM |

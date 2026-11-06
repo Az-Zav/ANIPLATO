@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
  */
 public final class TestDb {
 
+    /** host, user, password, db: the same four settings as the ANIPLATO_TEST_* variables, kept in a file that git ignores. */
+    private static final Properties LOCAL_FILE = readLocalFile();
+
     /** aniplato_test, or aniplato_test_<you> when ANIPLATO_TEST_DB says so (teammates sharing one server each need their own). */
     public static final String NAME = testName();
     private static final Path MAIN_CONFIG = Path.of("src", "main", "resources", "db.properties");
@@ -184,8 +187,23 @@ public final class TestDb {
         return p;
     }
 
+    /** An environment variable, else the same setting from the git-ignored test-db.local.properties, else the fallback. */
     private static String env(String name, String fallback) {
         String value = System.getenv(name);
+        if (value == null || value.isBlank()) value = LOCAL_FILE.getProperty(name.equals("ANIPLATO_TEST_DB") ? "db" : name.replace("ANIPLATO_TEST_DB_", "").toLowerCase());
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private static Properties readLocalFile() {
+        Properties p = new Properties();
+        Path file = Path.of("src", "test", "resources", "test-db.local.properties");
+        if (Files.isRegularFile(file)) {
+            try (InputStream in = Files.newInputStream(file)) {
+                p.load(in);
+            } catch (IOException e) {
+                throw new IllegalStateException("Cannot read " + file, e);
+            }
+        }
+        return p;
     }
 }
