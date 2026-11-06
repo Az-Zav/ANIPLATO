@@ -15,6 +15,7 @@ param(
   [switch]$LoadSeed
 )
 $ErrorActionPreference = "Stop"
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)   # text piped to mysql goes out as UTF-8 (the default is ASCII, which turns n-tilde into "?")
 function Plain([string]$prompt) {
   $s = Read-Host $prompt -AsSecureString
   [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s))

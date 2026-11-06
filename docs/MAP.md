@@ -319,6 +319,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `assets/aniplato-logo-circle 1.png`, `assets/login_hero.png` | the logo (window, emails) and the login picture | SHELL, AUTH |
 | `sql/schema.sql` | the only copy of the schema; drops and recreates `aniplato` | PLATFORM |
 | `sql/seed.sql` | demo data: admin, three organizations, one pending application, a listing and a request | DEMO |
+| `sql/repair-city-names.sql` | puts the n-with-tilde back in Las Piñas and Parañaque on an online database loaded with the old script | PLATFORM |
 | `sql/migrate-stored-file.sql` | run once on a database made before uploads moved into the database: adds the `stored_file` table | PLATFORM |
 | `scripts/migrate-online-db.ps1` | applies that migration to the shared online database as its owner | PLATFORM |
 | `sql/migrate-food-needed.sql` | run once on a database made before `use_detail.food_needed` existed: adds the column and fills old requests from their event name | REQUEST |
