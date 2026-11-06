@@ -1,6 +1,7 @@
 package com.aniplato.service;
 
 import com.aniplato.util.AppConfig;
+import com.aniplato.util.KnowledgeBase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,6 +18,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
 public final class GeminiAssistantService {
 
     private static final String DEFAULT_MODEL = "gemini-3.5-flash-lite";
+    private static final int MAX_HISTORY_TURNS = 6;
+    private static final String NL = System.lineSeparator();
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
     private static final String API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
@@ -32,13 +36,21 @@ public final class GeminiAssistantService {
             .connectTimeout(Duration.ofSeconds(15))
             .build();
 
-    public CompletableFuture<String> answer(String panel, String question) {
-        return CompletableFuture.supplyAsync(() -> createRequest(panel, question))
+    /** One earlier message of the chat, kept so a follow-up such as "and then?" makes sense. */
+    public record Turn(boolean fromUser, String text) { }
+
+    /**
+     * Asks Gemini on a background thread. {@code screen} is the screen key now open and {@code role} the signed-in role;
+     * they only make the answer relevant (no account or database data is ever sent). {@code history} holds the earlier
+     * messages, oldest first; only the last few are sent.
+     */
+    public CompletableFuture<String> answer(String screen, String role, String question, List<Turn> history) {
+        return CompletableFuture.supplyAsync(() -> createRequest(screen, role, question, history))
                 .thenCompose(request -> HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString()))
                 .thenApply(this::readResponse);
     }
 
-    private HttpRequest createRequest(String panel, String question) {
+    private HttpRequest createRequest(String screen, String role, String question, List<Turn> history) {
         String apiKey = AppConfig.get("ai.gemini.api-key", "");   // AppConfig also finds a packaged app's settings file
         if (apiKey.isEmpty()) {
             throw new IllegalStateException(
@@ -50,54 +62,65 @@ public final class GeminiAssistantService {
             throw new IllegalStateException("The ai.gemini.model value in db.properties is invalid.");
         }
 
-        JsonObject systemInstruction = new JsonObject();
-        JsonArray systemParts = new JsonArray();
-        JsonObject systemText = new JsonObject();
-        systemText.addProperty("text", """
-                You are ANIPLATO's read-only support assistant for a surplus-food coordination app in Metro Manila.
-                Explain app workflows clearly and concisely. Do not claim to access account data, change records, or take actions.
-                Use only these app facts; do not invent features or policies:
-                - Food groups offer on listings and donors offer on requests. Items in the viewer's own city appear first, but offers can be sent across cities.
-                - The post's poster can accept one offer; all other Offered offers on that post are declined.
-                - At pickup, the donor confirms release first, then the food group confirms receipt; the listing becomes Rescued.
-                - Listing details include food, quantity, use-by time, pickup window, and storage condition. Donors need an active account and current documents.
-                - Admins check registration documents for expiry and whether the name and city match.
-                - The food group's report is due seven days after receipt. Reports summarize listed, rescued, expired, and cancelled food.
-                - Rescue rate is rescued kilograms divided by posted kilograms for closed, non-cancelled posts. For a partially filled request, only the accepted offer's kilograms count.
-                - Admins may dismiss a safety notice or suspend the responsible account with a recorded reason; overdue reports do not cause automatic suspension.
-                If a detail is uncertain, say so and direct the user to an administrator.
-                The current screen is %s. Use this only to make the answer relevant; no account or database data is provided.
-                """.formatted(panel));
-        systemParts.add(systemText);
-        systemInstruction.add("parts", systemParts);
+        return HttpRequest.newBuilder(URI.create(API_URL.formatted(model)))
+                .timeout(REQUEST_TIMEOUT)
+                .header("Content-Type", "application/json")
+                .header("x-goog-api-key", apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(buildBody(screen, role, question, history).toString(), StandardCharsets.UTF_8))
+                .build();
+    }
 
-        JsonObject userPart = new JsonObject();
-        userPart.addProperty("text", question);
-        JsonArray userParts = new JsonArray();
-        userParts.add(userPart);
-        JsonObject userContent = new JsonObject();
-        userContent.addProperty("role", "user");
-        userContent.add("parts", userParts);
+    /** The request body: the instructions and knowledge as the system prompt, then the recent chat, then the question. */
+    static JsonObject buildBody(String screen, String role, String question, List<Turn> history) {
+        JsonObject body = new JsonObject();
+        body.add("systemInstruction", content(null, systemPrompt(screen, role)));
+
         JsonArray contents = new JsonArray();
-        contents.add(userContent);
+        List<Turn> recent = history == null ? List.of()
+                : history.subList(Math.max(0, history.size() - MAX_HISTORY_TURNS), history.size());
+        int first = 0;
+        while (first < recent.size() && !recent.get(first).fromUser()) first++;   // a chat must open with the user
+        for (Turn turn : recent.subList(first, recent.size())) {
+            contents.add(content(turn.fromUser() ? "user" : "model", turn.text()));
+        }
+        contents.add(content("user", question));
+        body.add("contents", contents);
 
-        JsonObject requestBody = new JsonObject();
-        requestBody.add("systemInstruction", systemInstruction);
-        requestBody.add("contents", contents);
         JsonObject generationConfig = new JsonObject();
         generationConfig.addProperty("temperature", 0.3);
         generationConfig.addProperty("maxOutputTokens", 512);
         JsonObject thinkingConfig = new JsonObject();
         thinkingConfig.addProperty("thinkingLevel", "low");
         generationConfig.add("thinkingConfig", thinkingConfig);
-        requestBody.add("generationConfig", generationConfig);
+        body.add("generationConfig", generationConfig);
+        return body;
+    }
 
-        return HttpRequest.newBuilder(URI.create(API_URL.formatted(model)))
-                .timeout(REQUEST_TIMEOUT)
-                .header("Content-Type", "application/json")
-                .header("x-goog-api-key", apiKey)
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString(), StandardCharsets.UTF_8))
-                .build();
+    /** The instructions, then the knowledge fenced off, then where the user is. Nothing else about the user. */
+    static String systemPrompt(String screen, String role) {
+        String where = screen == null || screen.isBlank() ? "no particular" : screen.replace('-', ' ');
+        String who = role == null || role.isBlank() ? "unknown role" : role;
+        return String.join(NL,
+                KnowledgeBase.instructions().strip(),
+                "",
+                "KNOWLEDGE (the only facts you may use):",
+                "<knowledge>",
+                KnowledgeBase.knowledge(),
+                "</knowledge>",
+                "",
+                "CONTEXT (not a question): the user has the \"" + where + "\" screen open and is signed in as: " + who
+                        + ". No account or database data is provided.");
+    }
+
+    private static JsonObject content(String role, String text) {
+        JsonObject part = new JsonObject();
+        part.addProperty("text", text);
+        JsonArray parts = new JsonArray();
+        parts.add(part);
+        JsonObject content = new JsonObject();
+        if (role != null) content.addProperty("role", role);
+        content.add("parts", parts);
+        return content;
     }
 
     private String readResponse(HttpResponse<String> response) {

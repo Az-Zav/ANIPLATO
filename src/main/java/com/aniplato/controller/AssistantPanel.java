@@ -3,6 +3,7 @@ package com.aniplato.controller;
 import com.aniplato.service.GeminiAssistantService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
+import com.aniplato.util.Session;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -21,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +69,7 @@ final class AssistantPanel {
     private final Button toggle;
     private final GeminiAssistantService service = new GeminiAssistantService();
 
+    private final List<GeminiAssistantService.Turn> history = new ArrayList<>();
     private Timeline pulse;
     private boolean requestPending;
 
@@ -152,10 +155,15 @@ final class AssistantPanel {
         Label response = addMessage("Thinking…", false);
         scrollToBottom();
 
-        service.answer(current.key(), text).whenComplete((answer, failure) ->
+        String role = Session.isLoggedIn() ? Session.require().role.key() : "";
+        service.answer(current.key(), role, text, List.copyOf(history)).whenComplete((answer, failure) ->
                 Platform.runLater(() -> {
                     requestPending = false;
                     setPending(false);
+                    if (failure == null) {   // only a finished exchange joins the history, so the turns stay in order
+                        history.add(new GeminiAssistantService.Turn(true, text));
+                        history.add(new GeminiAssistantService.Turn(false, answer));
+                    }
                     response.setText(failure == null
                             ? answer
                             : "I couldn't get an answer: " + GeminiAssistantService.explainFailure(failure));

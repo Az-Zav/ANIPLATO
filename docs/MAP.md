@@ -192,7 +192,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/ShellController.java` | header, sidebar, badges, assistant panel, logout, runs the 6.6 checks | SHELL, MAINT |
 | `controller/SidebarBadges.java` | the sidebar count badges: which count each shows, hides a zero | SHELL |
 | `controller/AssistantPanel.java` | the floating assistant: open/close, chat bubbles, suggested questions for the current screen, "Thinking…" while the answer comes; holds no rules | SHELL |
-| `service/GeminiAssistantService.java` | the read-only help assistant: sends the question and the current screen name (no account data) to Gemini, with the key and model from `db.properties`; turns failures into plain sentences | SHELL |
+| `service/GeminiAssistantService.java` | the read-only help assistant: sends the knowledge, the last six chat turns, the question, the screen name and the role (no account data) to Gemini, with the key and model from `db.properties`; turns failures into plain sentences | SHELL |
+| `util/KnowledgeBase.java` | loads the assistant's instructions and knowledge files once | SHELL |
 | `controller/admin/AdminDashboardController.java` | admin cards and the pending list | STATS, REVIEW |
 | `controller/admin/PendingRegistrationsController.java` | the review queue | REVIEW |
 | `controller/admin/ReviewRegistrationController.java` | one application: documents, verify, approve, reject | REVIEW |
@@ -318,7 +319,9 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 
 | File | What it does | Features |
 |---|---|---|
-| `resources/db.properties.example` | the config to copy to `db.properties` (database, SMTP, `uploads.dir`) | PLATFORM |
+| `resources/db.properties.example` | the config to copy to `db.properties` (database, SMTP, `uploads.dir`, the Gemini key and model) | PLATFORM |
+| `assistant/instructions.md` | how the help assistant must behave: read-only, only the knowledge, short, refuses off-topic and prompt-injection | SHELL |
+| `assistant/overview.md`, `assistant/workflows.md`, `assistant/rules.md`, `assistant/screens.md`, `assistant/faq.md` | the assistant's knowledge, written from the spec: roles and routes, the six stages, food and account rules and statuses, where to find things per role, common questions | SHELL |
 | `email/received.html`, `email/approved.html`, `email/not-approved.html`, `email/forgot-password.html` | the four HTML email templates | REGISTER, REVIEW, AUTH |
 | `assets/AcceptedOffers.svg`, `assets/AllAccountsIcon.svg`, `assets/BrowseListings.svg`, `assets/BrowseRequest.svg`, `assets/CIrcle_Check_Button.svg`, `assets/Check_Button.svg`, `assets/Circle_Reject_Button.svg`, `assets/Dashboard Icon.svg`, `assets/HistoryIcon.svg`, `assets/KgRescued.svg`, `assets/MyListingsIcon.svg`, `assets/MyOffers.svg`, `assets/MyRequests.svg`, `assets/NewListingIcon.svg`, `assets/NewRequest.svg`, `assets/OpenListings.svg`, `assets/PendingAccountsIcon.svg`, `assets/ProfileIcon.svg`, `assets/Reject_Button.svg`, `assets/ReportsIcon.svg`, `assets/SafetyNotices.svg` | sidebar, card and badge icons | SHELL, POPUPS |
 | `assets/aniplato-logo-circle 1.png`, `assets/login_hero.png` | the logo (window, emails) and the login picture | SHELL, AUTH |
@@ -397,6 +400,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
 | `support/TestDb.java` | builds `aniplato_test` from the schema and seed (and one more script on request); refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
+| `util/KnowledgeBaseTest.java` | every knowledge file loads; it names every status and sidebar item; the numbers it quotes match `Settings`; the prompt stays small | SHELL |
 | `util/AppConfigTest.java` | a file named in the settings resolves beside `db.properties`; the expected settings location; a system property wins | PLATFORM |
 | `support/DatabaseReadTest.java` | `Database.read` returns the value, wraps a database error, lets a rule error through | PLATFORM |
 | `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
@@ -480,7 +484,9 @@ Files: `service/RegistrationService.java`, `controller/RegisterController.java`,
 | `DocumentDao.insert` | saves an uploaded file awaiting review | RegistrationService | RegistrationApplyTest |
 | `FileStorageService.validate` | PDF (2 MB) , JPG or PNG (15 MB, shrunk on save) | RegistrationService, UploadSlot | RegistrationApplyTest |
 | `FileStorageService.save` | stores the file (a large photo shrunk to JPEG) in the database under a random name | RegistrationService | RegistrationApplyTest |
-| `GeminiAssistantService.answer` | asks Gemini a question about the app, for the screen now open, on a background thread; fails with a readable message | AssistantPanel | GeminiAssistantServiceTest |
+| `GeminiAssistantService.answer` | asks Gemini a question about the app for the screen and role given, with the recent chat, on a background thread; fails with a readable message | AssistantPanel | GeminiAssistantServiceTest |
+| `KnowledgeBase.instructions` | the assistant's behaviour rules, read once | GeminiAssistantService | KnowledgeBaseTest |
+| `KnowledgeBase.knowledge` | all the topic files joined, read once | GeminiAssistantService | KnowledgeBaseTest |
 | `GeminiAssistantService.explainFailure` | turns a failed answer (no internet, timeout, bad key, API error) into one plain sentence | AssistantPanel | GeminiAssistantServiceTest |
 | `FileStorageService.resolve` | the stored file for a saved path, fetched once into a local cache | ProfileController, ReviewRegistrationController | RegistrationApplyTest |
 | `EmailService.sendReceived` | the "we received your registration" email | RegistrationService | RegistrationApplyTest |
