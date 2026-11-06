@@ -42,6 +42,7 @@ public final class TestDb {
         String user = env("ANIPLATO_TEST_DB_USER", main.getProperty("user", "root"));
         String password = env("ANIPLATO_TEST_DB_PASSWORD", main.getProperty("password", ""));
         serverUrl = "jdbc:mysql://" + hostPort + "/" + OPTIONS;
+        System.setProperty("aniplato.maintenance.interval.seconds", "0");   // the checks run before every screen, as the tests expect
         System.setProperty("aniplato.url", "jdbc:mysql://" + hostPort + "/" + NAME + OPTIONS);
         System.setProperty("aniplato.user", user.trim());
         System.setProperty("aniplato.password", password.trim());
@@ -55,6 +56,7 @@ public final class TestDb {
     /** Drops and recreates aniplato_test from the project's own schema and seed files. */
     public static void reset() {
         configure();
+        Database.closePool();   // pooled connections belong to the database about to be dropped
         String schema = retarget(read("sql/schema.sql"));
         String seed = retarget(read("sql/seed.sql"));
         try (Connection c = DriverManager.getConnection(serverUrl,

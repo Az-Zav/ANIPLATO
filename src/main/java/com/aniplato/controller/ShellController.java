@@ -3,6 +3,7 @@ package com.aniplato.controller;
 import com.aniplato.model.Account;
 import com.aniplato.service.AuthenticationService;
 import com.aniplato.service.MaintenanceService;
+import com.aniplato.util.AppConfig;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import com.aniplato.util.Session;
@@ -49,6 +50,8 @@ public class ShellController {
     @FXML private Button assistantToggle;
 
     private Timeline assistantPulse;
+    /** When the automatic checks last ran, in this sign-in; 0 until the first screen after signing in. */
+    private static long lastMaintenanceMillis;
 
     private final AuthenticationService authenticationService = new AuthenticationService();
     private final MaintenanceService maintenanceService = new MaintenanceService();
@@ -57,6 +60,7 @@ public class ShellController {
     @FXML
     private void initialize() {
         Navigator.setContent(contentArea);
+        lastMaintenanceMillis = 0;   // a new sign-in always runs the checks on its first screen
         ScreenMessage.bind(messageBar, messageText);
         Account.Role role = Session.require().role;
         // the header names the organization (the admin has none, so it says Admin)
@@ -84,9 +88,17 @@ public class ShellController {
 
     }
 
-    /** 6.6: the automatic checks run before each screen loads. A failing check never blocks the screen. */
+    /**
+     * 6.6: the automatic checks run before a screen loads, on the first screen after signing in and then at most once per
+     * {@code maintenance.interval.seconds} (default 60; 0 = before every screen). Against a remote database the checks
+     * cost about twenty round trips, too many to pay on every click. A failing check never blocks the screen.
+     */
     private void runMaintenance() {
         ScreenMessage.clear();   // a message belongs to the screen that raised it
+        long interval = Long.parseLong(AppConfig.get("maintenance.interval.seconds", "60")) * 1000;
+        long now = System.currentTimeMillis();
+        if (interval > 0 && lastMaintenanceMillis != 0 && now - lastMaintenanceMillis < interval) return;
+        lastMaintenanceMillis = now;
         try {
             maintenanceService.runMaintenance();
         } catch (RuntimeException e) {

@@ -77,7 +77,7 @@ public class SafetyService {
         Account admin = Session.requireAdmin();
         String note = requireText(adminNote, "Write a note before dismissing the notice.");
 
-        Database.inTransaction(SAVE_ERROR, c -> {
+        Database.read(SAVE_ERROR, c -> {
             SafetyNotice notice = requireOpen(c, noticeId);
             resolve(c, notice, SafetyNotice.Status.DISMISSED, note, admin.id);
             return null;

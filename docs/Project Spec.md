@@ -429,7 +429,7 @@ Nobody else can see an offer except the poster and the offerer.
 
 ## **6.6 Automatic Checks**
 
-One function, `runMaintenance()`, runs every time a screen loads. It does these in order:
+One function, `runMaintenance()`, runs when a screen loads: on the first screen after signing in, and then at most once per interval (`maintenance.interval.seconds`, 60 by default; 0 runs it before every screen). The interval exists because each run costs about twenty database round trips, which a remote database makes slow. It does these in order:
 
 * Accepted offer 2 hours past its pickup time (or pickup window end) with no handoff: offer becomes Lapsed, post becomes Expired.
 

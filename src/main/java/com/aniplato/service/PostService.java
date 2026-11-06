@@ -170,7 +170,7 @@ public class PostService {
     /** The logged-in account's own posts, newest first, each with its offer count (My Listings, My Requests). */
     public List<Post> getMyPosts() {
         Account me = Session.require();
-        return Database.inTransaction("Could not load your posts", c -> {
+        return Database.read("Could not load your posts", c -> {
             List<Post> posts = postDao.findByPoster(c, me.id);
             for (Post post : posts) {
                 post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, post.id);
@@ -205,7 +205,7 @@ public class PostService {
         Account me = Session.require();
         requireText(reason, "Write a reason for cancelling.", 500);
         String why = reason.trim();
-        Database.inTransaction("Could not cancel the post", c -> {
+        Database.read("Could not cancel the post", c -> {
             Post post = postDao.findForUpdate(c, postId);
             if (post == null) throw new RuleViolationException("That post no longer exists.");
             if (post.posterId != me.id) throw new RuleViolationException("Only the poster can cancel this post.");
@@ -231,7 +231,7 @@ public class PostService {
      * Expired and its Offered offers expire with it. Logged by the system (A3).
      */
     public void expireOpenPosts(Post.Kind kind, LocalDateTime now) {
-        Database.inTransaction("Could not expire old posts", c -> {
+        Database.read("Could not expire old posts", c -> {
             for (int postId : postDao.findOpenPastDeadline(c, kind, now)) {
                 if (!changeStatus(c, postId, Post.Status.OPEN, Post.Status.EXPIRED, "Deadline passed", null)) continue;
                 for (int offerId : offerDao.findIdsByStatus(c, postId, Offer.Status.OFFERED)) {
@@ -251,7 +251,7 @@ public class PostService {
     //---HELPERS---
 
     private List<Post> readBoard(Post.Kind kind, Account me) {
-        return Database.inTransaction("Could not load the board", c -> {
+        return Database.read("Could not load the board", c -> {
             List<Post> board = postDao.findOpenBoard(c, kind, me.registration.city.id);
             for (Post post : board) post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, post.id);
             return board;

@@ -44,7 +44,7 @@ public class AcceptanceService {
      */
     public PostOffers getOffersOn(int postId) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load the offers", c -> {
+        return Database.read("Could not load the offers", c -> {
             Post post = postDao.findById(c, postId);
             if (post == null || post.posterId != me.id) throw new RuleViolationException("These offers are not yours to see.");
             post.photos = photoDao.findPaths(c, PhotoDao.Owner.POST, postId);
@@ -63,7 +63,7 @@ public class AcceptanceService {
     /** How many Offered offers are waiting for the logged-in poster's decision: the donor's sidebar badge. */
     public int countOffersAwaitingDecision() {
         Account me = Session.require();
-        return Database.inTransaction("Could not count the offers", c -> offerDao.countAwaitingDecision(c, me.id));
+        return Database.read("Could not count the offers", c -> offerDao.countAwaitingDecision(c, me.id));
     }
 
     //---ACCEPT AND DECLINE---
@@ -113,7 +113,7 @@ public class AcceptanceService {
      */
     public String getContactPhone(int accountId, int offerId) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load the contact number", c -> {
+        return Database.read("Could not load the contact number", c -> {
             boolean allowed = me.id == accountId || me.role == Account.Role.ADMIN;
             if (!allowed) {
                 OfferDao.Parties parties = offerDao.findParties(c, offerId);

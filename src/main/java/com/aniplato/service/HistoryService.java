@@ -49,7 +49,7 @@ public class HistoryService {
     /** History for the logged-in account; {@code period} null means all time. */
     public View getHistory(YearMonth period) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load History", c -> {
+        return Database.read("Could not load History", c -> {
             HistoryDao.Totals totals = historyDao.totals(c, me.id);
             List<Row> all = new ArrayList<>();
             for (HistoryDao.Row row : historyDao.findClosed(c, me.id)) {

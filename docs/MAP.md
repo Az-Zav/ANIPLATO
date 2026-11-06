@@ -19,7 +19,7 @@ One feature is one thing a user can do. Planned ones are named too, so the split
 | **PROFILE** | Organization profile | see own details and documents, expiry warnings; edit contact, upload a renewal, upgrade Casual to Business | ✅ | 6.3 | 4 |
 | **SAFETY** | Safety notices | either side of an accepted or completed offer flags a concern; the admin resolves notices | ✅ | 6.3, R7.1, R7.2 | 10 |
 | **STATS** | Admin numbers | dashboard cards, monthly report | ✅ | Section 3, A9 | 11 |
-| **MAINT** | Automatic checks | all six 6.6 checks run before every in-shell screen | ✅ | 6.6 | 12 |
+| **MAINT** | Automatic checks | all six 6.6 checks run on the first screen after sign-in and then at most once a minute (configurable, 0 = every screen) | ✅ | 6.6 | 12 |
 | **LISTING** | Post a listing (Route 1) | post surplus food, see and cancel your own listings | ✅ | 6.2 Stage 2A | 5 |
 | **REQUEST** | Post a request (Route 2) | a food group asks for food, sees and cancels its requests | ✅ | 6.2 Stage 2B | 9 |
 | **OFFER** | Browse and send offers | browse the other side's board, send, withdraw and list offers (both routes) | ✅ | 6.2 Stage 3 | 6 |
@@ -100,7 +100,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 |---|---|---|
 | `aniplato/Main.java` | JavaFX entry point: builds the window, starts `Navigator` at the login screen | SHELL |
 | `util/AppConfig.java` | reads `db.properties`; a `-Daniplato.<key>` system property overrides it (tests use this) | PLATFORM |
-| `util/Database.java` | the only class that opens connections; runs transactions (`inTransaction`) and reads (`read`) | PLATFORM |
+| `util/Database.java` | the only class that opens connections, from a small HikariCP pool (a remote connection costs about half a second); runs transactions (`inTransaction`) and reads (`read`) | PLATFORM |
 | `util/Selection.java` | the post or offer opened from a list, carried to the next screen | OFFER, HANDOFF, REPORT |
 | `util/Session.java` | who is logged in; `requireAdmin` for admin-only services | PLATFORM, AUTH |
 | `util/Navigator.java` | the only class that knows view paths: switches screens, sidebar and before-load hooks | SHELL |
@@ -1098,7 +1098,8 @@ flowchart LR
 |---|---|---|---|
 | `AppConfig.get` | a setting from `db.properties` (or a `-Daniplato.<key>` override), with a fallback | FileStorageService | TestDbTest |
 | `AppConfig.required` | the same, but a missing value is a setup mistake | Database | TestDbTest |
-| `Database.getConnection` | opens a connection | every service | every service test |
+| `Database.getConnection` | a connection from the pool; closing it gives it back | every service | every service test |
+| `Database.closePool` | closes every pooled connection; the next call opens new ones (tests call it before recreating their database) | TestDb | DatabaseReadTest |
 | `Database.read` | a read-only query on its own connection; a database error becomes a DataAccessException | the services that only read | DatabaseReadTest |
 | `Database.inTransaction` | all-or-nothing: commit if the work finishes, roll back if anything throws (A2) | RegistrationService, AccountStatusService, DocumentReviewService, SafetyService | RegistrationDecisionTest (rollback) |
 | `Session.start` | begins a session | AuthenticationService | AuthenticationServiceTest |

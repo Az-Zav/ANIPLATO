@@ -58,7 +58,7 @@ public class DashboardService {
         }
         List<Post> mine = postService.getMyPosts();
         List<Post> requests = postService.getOpenRequests();
-        return Database.inTransaction("Could not load the dashboard", c -> new DonorDashboard(me.displayName(),
+        return Database.read("Could not load the dashboard", c -> new DonorDashboard(me.displayName(),
                 me.registration.city.name, banners(me, c), (int) mine.stream().filter(p -> p.isListing() && p.status == Post.Status.OPEN).count(),
                 offerDao.countAwaitingDecision(c, me.id), historyDao.countAwaitingRelease(c, me.id),
                 historyDao.totals(c, me.id).kgRescued(), requests.stream().mapToDouble(p -> p.kg).sum(), requests.size(),
@@ -72,7 +72,7 @@ public class DashboardService {
         Account me = Session.require();
         if (me.role != Account.Role.FOOD_GROUP) throw new RuleViolationException("Only a food group has this dashboard.");
         List<Post> listings = postService.getOpenListings();
-        return Database.inTransaction("Could not load the dashboard", c -> new FoodGroupDashboard(me.displayName(),
+        return Database.read("Could not load the dashboard", c -> new FoodGroupDashboard(me.displayName(),
                 me.registration.city.name, banners(me, c), listings.size(), listings.stream().mapToDouble(p -> p.kg).sum(),
                 (int) listings.stream().filter(p -> p.city.equals(me.registration.city.name)).count(),
                 offerDao.countAcceptedFor(c, me.id), historyDao.totals(c, me.id).kgRescued(),

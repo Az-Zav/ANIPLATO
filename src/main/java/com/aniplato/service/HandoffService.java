@@ -74,7 +74,7 @@ public class HandoffService {
     /** The handoff record of a Completed offer, for either side of it. Worked out, not stored (A9). */
     public HandoffRecord getHandoffRecord(int offerId) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load the handoff record", c -> {
+        return Database.read("Could not load the handoff record", c -> {
             Offer offer = requireOffer(c, offerId);
             Post post = postDao.findById(c, offer.postId);
             boolean side = me.id == offer.offererId || me.id == post.posterId;
@@ -96,7 +96,7 @@ public class HandoffService {
     /** Accepted offers waiting for pickup or receipt that the logged-in account is a side of: the food group's sidebar badge. */
     public int countAwaitingHandoff() {
         Account me = Session.require();
-        return Database.inTransaction("Could not count the handoffs", c -> offerDao.countAcceptedFor(c, me.id));
+        return Database.read("Could not count the handoffs", c -> offerDao.countAcceptedFor(c, me.id));
     }
 
     //---AUTOMATIC CHECK (6.6, step 1)---

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/** 6.6: the automatic checks run each time the shell loads a screen, before that screen reads its data. */
+/** 6.6: the automatic checks run before a screen reads its data: on the first screen after sign-in, and then each time or at most once per interval. */
 class ShellMaintenanceTest extends DbTest {
 
     @BeforeAll
@@ -60,6 +60,27 @@ class ShellMaintenanceTest extends DbTest {
         Fx.run(() -> Navigator.show(Screen.ACCOUNTS));
 
         assertEquals("SUSPENDED", status(BUSINESS));
+    }
+
+    @Test
+    void withAnIntervalALaterScreenInsideItSkipsTheChecksButTheFirstScreenAfterSignInRunsThem() {
+        System.setProperty("aniplato.maintenance.interval.seconds", "600");
+        try {
+            loginAs(ADMIN);
+            Fx.run(() -> Navigator.show(Screen.SHELL));          // first screen after signing in: the checks run
+            assertEquals("ACTIVE", status(BUSINESS));
+
+            expireBusinessPermit();
+            Fx.run(() -> Navigator.show(Screen.ACCOUNTS));       // 10 minutes have not passed: skipped
+            assertEquals("ACTIVE", status(BUSINESS), "the checks were skipped inside the interval");
+
+            Fx.run(() -> Navigator.show(Screen.LOGIN));          // sign in again: the first screen runs them
+            loginAs(ADMIN);
+            Fx.run(() -> Navigator.show(Screen.SHELL));
+            assertEquals("SUSPENDED", status(BUSINESS), "a new sign-in always runs them");
+        } finally {
+            System.setProperty("aniplato.maintenance.interval.seconds", "0");
+        }
     }
 
     @Test

@@ -134,7 +134,7 @@ public class OfferService {
      */
     public List<Offer> getMyOffers() {
         Account me = Session.require();
-        return Database.inTransaction("Could not load your offers", c -> {
+        return Database.read("Could not load your offers", c -> {
             List<Offer> offers = offerDao.findByOfferer(c, me.id);
             for (Offer offer : offers) {
                 offer.photos = photoDao.findPaths(c, PhotoDao.Owner.OFFER, offer.id);
@@ -206,7 +206,7 @@ public class OfferService {
 
     /** The post an offer is meant for, read for validation; it must exist, be the right kind, be Open and have an Active poster. */
     private Post requirePost(int postId, Post.Kind kind) {
-        Post post = Database.inTransaction("Could not load the post", c -> postDao.findById(c, postId));
+        Post post = Database.read("Could not load the post", c -> postDao.findById(c, postId));
         if (post == null || post.kind != kind) throw new RuleViolationException("That " + kind.name().toLowerCase() + " no longer exists.");
         if (post.status != Post.Status.OPEN) throw new RuleViolationException("This " + post.noun() + " is no longer open.");
         return post;

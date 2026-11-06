@@ -31,19 +31,30 @@ final class SidebarBadges {
     }
 
     void refresh() {
+        StatsService.AdminSummary admin = null;   // one summary feeds both admin badges
         for (Label badge : badges) {
-            int count = count((String) badge.getUserData());
+            String key = (String) badge.getUserData();
+            if (admin == null && ("pending".equals(key) || "notices".equals(key))) admin = adminSummary();
+            int count = count(key, admin);
             badge.setText(String.valueOf(count));
             badge.setVisible(count > 0);
             badge.setManaged(count > 0);
         }
     }
 
-    private int count(String key) {
+    private StatsService.AdminSummary adminSummary() {
+        try {
+            return statsService.getAdminSummary(LocalDate.now());
+        } catch (RuntimeException e) {
+            return null;   // no database: show no count rather than a wrong one
+        }
+    }
+
+    private int count(String key, StatsService.AdminSummary admin) {
         try {
             return switch (key) {
-                case "pending" -> statsService.getAdminSummary(LocalDate.now()).pendingRegistrations();
-                case "notices" -> statsService.getAdminSummary(LocalDate.now()).openSafetyNotices();
+                case "pending" -> admin == null ? 0 : admin.pendingRegistrations();
+                case "notices" -> admin == null ? 0 : admin.openSafetyNotices();
                 case "decisions" -> acceptanceService.countOffersAwaitingDecision();
                 case "handoffs" -> handoffService.countAwaitingHandoff();
                 default -> 0;

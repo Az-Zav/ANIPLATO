@@ -81,7 +81,7 @@ public class ReportService {
     /** The report of a handoff for its two sides or an admin, read-only, or null if none was submitted yet. */
     public Report getReport(int offerId) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load the report", c -> {
+        return Database.read("Could not load the report", c -> {
             Offer offer = offerDao.findById(c, offerId);
             if (offer == null) throw new RuleViolationException("That offer no longer exists.");
             Post post = postDao.findById(c, offer.postId);
@@ -96,7 +96,7 @@ public class ReportService {
     /** True if the logged-in account is the receiving food group of a Completed handoff and no report exists yet: it decides whether the screen offers "Submit report". */
     public boolean canSubmit(int offerId) {
         Account me = Session.require();
-        return Database.inTransaction("Could not load the handoff", c -> {
+        return Database.read("Could not load the handoff", c -> {
             Offer offer = offerDao.findById(c, offerId);
             if (offer == null || offer.status != Offer.Status.COMPLETED) return false;
             Post post = postDao.findById(c, offer.postId);
@@ -107,7 +107,7 @@ public class ReportService {
 
     /** When the report of a Completed handoff is due: receipt plus the report period. Worked out, not stored (A9). */
     public LocalDateTime getDueAt(int offerId) {
-        return Database.inTransaction("Could not load the handoff", c -> {
+        return Database.read("Could not load the handoff", c -> {
             Offer offer = offerDao.findById(c, offerId);
             if (offer == null || offer.receivedAt == null) throw new RuleViolationException("That handoff is not complete.");
             return offer.receivedAt.plusDays(Settings.REPORT_DEADLINE_DAYS);
@@ -116,7 +116,7 @@ public class ReportService {
 
     /** What to prefill on the report form for an offer. */
     public ReportDefaults getDefaults(int offerId) {
-        return Database.inTransaction("Could not load the handoff", c -> {
+        return Database.read("Could not load the handoff", c -> {
             Offer offer = offerDao.findById(c, offerId);
             if (offer == null) throw new RuleViolationException("That offer no longer exists.");
             Post post = postDao.findById(c, offer.postId);

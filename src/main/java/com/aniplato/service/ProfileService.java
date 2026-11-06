@@ -25,7 +25,7 @@ public class ProfileService {
     /** The logged-in organization's own contact number, to prefill the edit form. Only the owner asks (A7). */
     public String getMyPhone() {
         Account me = Session.require();
-        return Database.inTransaction("Could not read your details", c -> accountDao.findContactPhone(c, me.id));
+        return Database.read("Could not read your details", c -> accountDao.findContactPhone(c, me.id));
     }
 
     /** Changes the contact person and phone of the logged-in organization. The phone follows the registration rule (A7). */
@@ -53,7 +53,7 @@ public class ProfileService {
         if (!me.canUpgradeToBusiness()) throw new RuleViolationException("Only a Casual donor can upgrade to Business.");
         if (!consent) throw new RuleViolationException("Agree to the consent text to continue.");
         registrationService.checkDocuments(Account.Role.BUSINESS_DONOR, uploads);
-        boolean waiting = Database.inTransaction("Could not check for an earlier upgrade", c ->
+        boolean waiting = Database.read("Could not check for an earlier upgrade", c ->
                 registrationDao.findByStatus(c, Registration.Status.PENDING).stream().anyMatch(r -> r.email.equalsIgnoreCase(me.email)));
         if (waiting) throw new RuleViolationException("Your upgrade is already waiting for review.");
         Registration upgrade = new Registration();
@@ -61,7 +61,7 @@ public class ProfileService {
         upgrade.name = me.registration.name;
         upgrade.city = me.registration.city;
         upgrade.contactPerson = me.registration.contactPerson;
-        upgrade.contactPhone = Database.inTransaction("Could not read your details", c -> accountDao.findContactPhone(c, me.id));   // the owner may read its own number (A7)
+        upgrade.contactPhone = Database.read("Could not read your details", c -> accountDao.findContactPhone(c, me.id));   // the owner may read its own number (A7)
         upgrade.email = me.email;
         registrationService.save(upgrade, uploads, me.id);
         emailService.sendReceived(upgrade.email, upgrade.name);   // after the commit, like a new registration
