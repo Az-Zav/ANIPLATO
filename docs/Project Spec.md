@@ -20,7 +20,7 @@ Screens are not specified in this document. The Figma file (page "V2 (edited)", 
 
 * Every post ends with a recorded outcome.
 
-* A read-only AI assistant answers questions about the app (stretch goal).
+* A read-only AI assistant answers general questions about the app and offers screen-specific suggested prompts. It receives the current panel name and the user's question, not account data, and cannot perform actions.
 
 ---
 
@@ -99,7 +99,7 @@ There are three roles: Business donor, Casual donor and Food group. There is no 
 
 * Metrics and reports for the admin
 
-* Read-only AI assistant (stretch)
+* Read-only Gemini AI assistant with panel-specific suggested prompts; it does not access account data or perform actions.
 
 **Out of scope:** delivery, selling food, maps, in-app notifications, a web version, and legal protection (ANIPLATO grants none; see Stage 2).
 

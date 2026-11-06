@@ -4,8 +4,8 @@ Surplus-food board for Metro Manila: donors post surplus, food groups offer to c
 
 ## Setup
 1. Install JDK 21+, Maven, and MySQL 8+ (the Maven dependency is only the JDBC driver, not the server). Make sure the MySQL service is running.
-2. Copy `src/main/resources/db.properties.example` to `db.properties` and set your MySQL password.
-3. Run `setup-db.bat` (or `./setup-db.ps1`). It creates the `aniplato` database and loads the base data. It asks before replacing an existing database; `-Force` skips the question. Add `-Demo` (`setup-db.bat -Demo`) to also load the demo story and its sample photos.
+2. Copy `src/main/resources/db.properties.example` to `src/main/resources/db.properties` and set your MySQL password. To enable the read-only assistant, add a Gemini API key to `ai.gemini.api-key` (create one in [Google AI Studio](https://aistudio.google.com/app/apikey)); the key is optional and must not be committed.
+3. Run `setup-db.bat` (or `./setup-db.ps1`). It creates the `aniplato` database and loads demo data. It asks before replacing an existing database; `-Force` skips the question.
 4. `mvn javafx:run`
 5. `mvn test` runs the tests on their own `aniplato_test` database (see `AGENTS.md`). Without MySQL, use `-DskipTests`.
 
