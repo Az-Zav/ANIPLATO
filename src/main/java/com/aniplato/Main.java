@@ -1,5 +1,6 @@
 package com.aniplato;
 
+import com.aniplato.util.AppConfig;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 
@@ -16,7 +17,8 @@ public class Main extends Application {
         // Baseline 1280x720 scene; Navigator swaps its root
         Scene scene = new Scene(new Pane(), 1280, 720);
         Navigator.init(scene);
-        Navigator.show(Screen.LOGIN);
+        // 6.8: with no database login saved yet, the first thing a new computer shows is Setup
+        Navigator.show(AppConfig.isConfigured() ? Screen.LOGIN : Screen.SETUP);
 
         primaryStage.setTitle("ANIPLATO - Surplus Food Rescue System");
         // Window/taskbar icon: same logo the login and shell screens show

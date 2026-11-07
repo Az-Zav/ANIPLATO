@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!-- First-run setup (Spec 6.8). Shown instead of Sign In when db.properties is missing or incomplete. -->
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aniplato.controller.SetupController">
+    <children>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="table-scroll">
+            <stylesheets>
+                <URL value="@aniplato.css" />
+            </stylesheets>
+            <content>
+                <VBox alignment="TOP_CENTER" minHeight="720.0" styleClass="left-panel">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <VBox maxWidth="640.0" spacing="14.0" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="28.0" left="36.0" right="36.0" top="28.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="14.0">
+                                    <children>
+                                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@/assets/aniplato-logo-circle 1.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox>
+                                            <children>
+                                                <Label text="Set up ANIPLATO" textFill="#03521E">
+                                                    <font>
+                                                        <Font name="System Bold" size="22.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label text="Connect to your own MySQL database. Nothing is shared with anyone else." textFill="#666666" wrapText="true">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <Label styleClass="helper-note" text="You need MySQL 8.0.16 or newer, on this computer or with a hosting provider. Setup never deletes or replaces existing data." wrapText="true" />
+
+                                <!-- Connection address, as an alternative to the separate fields below -->
+                                <Label styleClass="form-label" text="Connection address (optional)" />
+                                <HBox spacing="8.0">
+                                    <children>
+                                        <TextField fx:id="urlField" promptText="jdbc:mysql://host:3306/aniplato" HBox.hgrow="ALWAYS" />
+                                        <!-- PATTERN:ACTION handleUseAddress -->
+                                        <Button onAction="#handleUseAddress" styleClass="secondary-button" text="Use address" />
+                                    </children>
+                                </HBox>
+
+                                <HBox spacing="12.0">
+                                    <children>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="form-label" text="Host" />
+                                                <TextField fx:id="hostField" promptText="localhost" />
+                                            </children>
+                                        </VBox>
+                                        <VBox prefWidth="110.0" spacing="6.0">
+                                            <children>
+                                                <Label styleClass="form-label" text="Port" />
+                                                <TextField fx:id="portField" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Database name" />
+                                        <TextField fx:id="databaseField" />
+                                    </children>
+                                </VBox>
+                                <HBox spacing="12.0">
+                                    <children>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="form-label" text="Database user" />
+                                                <TextField fx:id="userField" promptText="root" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="form-label" text="Database password" />
+                                                <PasswordField fx:id="passwordField" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Certificate file (only if your provider gave you one, usually ca.pem)" />
+                                        <HBox spacing="8.0">
+                                            <children>
+                                                <TextField fx:id="caField" promptText="Leave empty for a database on this computer" HBox.hgrow="ALWAYS" />
+                                                <!-- PATTERN:ACTION handleBrowse -->
+                                                <Button onAction="#handleBrowse" styleClass="secondary-button" text="Browse" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- PATTERN:ACTION handleTest -->
+                                <Button fx:id="testButton" maxWidth="1.7976931348623157E308" onAction="#handleTest" styleClass="secondary-button" text="Test connection" />
+                                <!-- PATTERN:DYNAMIC statusLabel: what Test connection found -->
+                                <Label fx:id="statusLabel" managed="false" maxWidth="1.7976931348623157E308" visible="false" wrapText="true" />
+
+                                <!-- PATTERN:DYNAMIC adminBox: shown when the database needs an admin -->
+                                <VBox fx:id="adminBox" managed="false" spacing="10.0" visible="false">
+                                    <children>
+                                        <Label styleClass="form-section-title" text="Your admin account" />
+                                        <Label styleClass="helper-note" text="You will sign in with this to approve donors and food groups. Choose a password you will remember." wrapText="true" />
+                                        <TextField fx:id="adminEmailField" promptText="you@example.org" />
+                                        <PasswordField fx:id="adminPasswordField" promptText="Password (at least 8 characters)" />
+                                        <PasswordField fx:id="adminConfirmField" promptText="Type the password again" />
+                                    </children>
+                                </VBox>
+
+                                <TitledPane expanded="false" text="Optional: help assistant and email">
+                                    <content>
+                                        <VBox spacing="10.0">
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="helper-note" text="Both can be added later in the settings file. Without them the app works; the assistant says it is not set up and no emails go out." wrapText="true" />
+                                                <Label styleClass="form-label" text="Help assistant key (free; the setup guide says where to get one)" />
+                                                <TextField fx:id="assistantKeyField" />
+                                                <Label styleClass="form-label" text="Gmail address for sending email" />
+                                                <TextField fx:id="mailUserField" />
+                                                <Label styleClass="form-label" text="Gmail app password (not your normal password)" />
+                                                <PasswordField fx:id="mailPasswordField" />
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+
+                                <Label fx:id="errorLabel" managed="false" maxWidth="1.7976931348623157E308" styleClass="error-text" visible="false" wrapText="true" />
+
+                                <!-- PATTERN:ACTION handleContinue -->
+                                <Button fx:id="continueButton" disable="true" maxWidth="1.7976931348623157E308" onAction="#handleContinue" styleClass="primary-button" text="Create" />
+
+                                <HBox alignment="CENTER" spacing="4.0">
+                                    <children>
+                                        <!-- PATTERN:NAV -> LOGIN -->
+                                        <Hyperlink styleClass="hyperlink, nav-login" text="Back to sign in" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</StackPane>

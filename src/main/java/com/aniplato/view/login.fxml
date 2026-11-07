@@ -135,6 +135,9 @@
                                     </children>
                                 </VBox>
 
+                                <!-- PATTERN:NAV -> SETUP: shown by LoginController only after a database problem (6.8) -->
+                                <Hyperlink fx:id="changeSettingsLink" managed="false" styleClass="hyperlink, nav-setup" text="Change database settings" visible="false" />
+
                                 <!-- Log In Button -->
                                 <!-- PATTERN:ACTION handleLogin -->
                                 <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" onAction="#handleLogin" styleClass="primary-button" text="➔  Log In" />

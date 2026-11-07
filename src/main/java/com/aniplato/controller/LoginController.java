@@ -7,6 +7,7 @@ import com.aniplato.service.AuthenticationService;
 import com.aniplato.util.Navigator;
 import com.aniplato.util.Navigator.Screen;
 import javafx.fxml.FXML;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -20,6 +21,9 @@ public class LoginController {
 
     // FXML: errorLabel (style class "error-text", in the Forgot password row so the form never shifts) shows a failed login in place, instead of a dialog (A8)
     @FXML private Label errorLabel;
+
+    // FXML: changeSettingsLink (style class nav-setup) appears with a database problem so the person can open Setup again (6.8)
+    @FXML private Hyperlink changeSettingsLink;
 
     //FXML: shows the dialog for setting a new password when the user logs in with a temporary password
     @FXML private VBox dialog;
@@ -56,6 +60,8 @@ public class LoginController {
             String reason = e instanceof IllegalStateException && e.getMessage() != null ? e.getMessage()
                     : "Cannot reach the database. Check your internet connection and the db.properties settings.";
             showError(FormSupport.databaseProblem(e, reason));
+            changeSettingsLink.setVisible(true);
+            changeSettingsLink.setManaged(true);
         }
     }
 
@@ -66,6 +72,8 @@ public class LoginController {
 
     private void hideError() {
         errorLabel.setVisible(false);
+        changeSettingsLink.setVisible(false);
+        changeSettingsLink.setManaged(false);
     }
 
     // FXML: forgotPasswordLink onAction="#handleForgotPassword"

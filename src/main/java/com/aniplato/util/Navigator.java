@@ -29,6 +29,7 @@ public final class Navigator {
     public enum Screen {
         // Full-window screens (replace the whole scene)
         LOGIN("login.fxml", Kind.WINDOW),
+        SETUP("setup.fxml", Kind.WINDOW),
         REGISTER("register.fxml", Kind.WINDOW),
         REGISTER_STEP2("register-step2.fxml", Kind.WINDOW),
         REGISTER_SUBMITTED("register-submitted.fxml", Kind.WINDOW),

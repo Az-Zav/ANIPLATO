@@ -187,6 +187,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | File | What it does | Features |
 |---|---|---|
 | `controller/LoginController.java` | login form, temporary-password dialog, Forgot password link | AUTH |
+| `controller/SetupController.java` | the Setup screen: reads the form, Test connection, Create or Connect, shows what SetupService says (on a background thread) | PLATFORM |
 | `controller/RegisterController.java` | registration step 1: role, details, city | REGISTER |
 | `controller/RegisterStep2Controller.java` | registration step 2: documents, consent, submit | REGISTER |
 | `controller/UploadSlot.java` | one document row: file picker, file pill, expiry date | REGISTER, PROFILE |
@@ -273,6 +274,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 |---|---|---|
 | `view/aniplato.css` | the one stylesheet for every screen and popup | SHELL, POPUPS |
 | `view/login.fxml` | login screen | AUTH |
+| `view/setup.fxml` | first-run setup form: connection details, test result, admin account, optional assistant key and email | PLATFORM |
 | `view/register.fxml` | registration step 1 | REGISTER |
 | `view/register-step2.fxml` | registration step 2 | REGISTER |
 | `view/register-submitted.fxml` | registration received | REGISTER |
@@ -369,6 +371,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
 | `service/DemoSeedTest.java` | the demo seed loads and its story works through the real services | DEMO |
 | `service/SetupServiceTest.java` | setup on a scratch database: the three outcomes, never overwriting, failure clean-up, plain-English errors, saved settings | PLATFORM |
+| `controller/SetupScreenTest.java` | the real Setup screen: defaults, a pasted address, Test connection with a good and a wrong login, a result is dropped when a field changes | PLATFORM |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
