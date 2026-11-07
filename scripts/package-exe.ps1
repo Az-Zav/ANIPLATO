@@ -24,8 +24,9 @@ jpackage --type app-image --name ANIPLATO --dest target\installer --input $input
   --java-options "-Dfile.encoding=UTF-8" --java-options "--enable-native-access=ALL-UNNAMED"
 if ($LASTEXITCODE -ne 0) { throw "jpackage failed" }
 # a fill-in-the-blanks settings file beside the exe, with the CA file named as a plain file next to the settings
-(Get-Content "src\main\resources\db.properties.online.example") -replace '^ssl\.ca=.*', 'ssl.ca=ca.pem' |
-  Set-Content "target\installer\ANIPLATO\db.properties.example" -Encoding UTF8
+$template = (Get-Content "src\main\resources\db.properties.online.example") -replace '^ssl\.ca=.*', 'ssl.ca=ca.pem'
+# no byte-order mark: the settings reader would take it as part of the first line
+[System.IO.File]::WriteAllLines((Join-Path (Get-Location) "target\installer\ANIPLATO\db.properties.example"), $template, (New-Object System.Text.UTF8Encoding($false)))
 
 Write-Host "Done: target\installer\ANIPLATO\ANIPLATO.exe"
 Write-Host "Next: zip the folder target\installer\ANIPLATO. Each user copies db.properties.example to db.properties (beside the exe, or in %APPDATA%\ANIPLATO), fills it in, and puts ca.pem next to it."
