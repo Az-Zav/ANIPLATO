@@ -157,24 +157,6 @@ stageButtons.forEach((button, index) => button.addEventListener('click', () => {
   document.querySelector('.step-detail p').textContent = CONTENT.steps[index][1];
 }));
 
-// Copy the desktop app launch command.
-const copyButton = document.querySelector('.command button');
-copyButton.addEventListener('click', async () => {
-  try {
-    if (!navigator.clipboard) throw new Error('Clipboard unavailable');
-    await navigator.clipboard.writeText('mvn javafx:run');
-    copyButton.querySelector('span').textContent = 'Copied';
-    setTimeout(() => { copyButton.querySelector('span').textContent = 'Copy'; }, 2000);
-  } catch {
-    copyButton.querySelector('span').textContent = 'Select command to copy';
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(document.querySelector('.command code'));
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
-});
-
 // Feedback. By default this demo stores responses only on the current browser.
 let rating = 0;
 const form = document.querySelector('.feedback-card form');
