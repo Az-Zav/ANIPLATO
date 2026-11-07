@@ -31,18 +31,25 @@ class SetupScreenTest {
         Fx.start();
     }
 
-    private static Parent open() {
+    private record Loaded(Parent root, SetupController controller) { }
+
+    private static Loaded load() {
         return Fx.call(() -> {
             try {
-                Parent root = new FXMLLoader(SetupController.class.getResource("/com/aniplato/view/setup.fxml")).load();
+                FXMLLoader loader = new FXMLLoader(SetupController.class.getResource("/com/aniplato/view/setup.fxml"));
+                Parent root = loader.load();
                 new Scene(root, 1280, 720);   // a ScrollPane shows its content only once it has a scene and a skin
                 root.applyCss();
                 root.layout();
-                return root;
+                return new Loaded(root, loader.getController());
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         });
+    }
+
+    private static Parent open() {
+        return load().root();
     }
 
     private static <T extends Node> T find(Parent root, Class<T> type, String id) {
@@ -119,6 +126,77 @@ class SetupScreenTest {
         Fx.run(() -> find(screen, TextField.class, "hostField").setText("elsewhere"));
         assertFalse(shown(find(screen, Label.class, "statusLabel")), "a result for the old address is not shown for the new one");
         assertTrue(Fx.call(() -> find(screen, Button.class, "continueButton").isDisabled()));
+    }
+
+    private static void typeAdmin(Parent screen, String email, String password, String confirm) {
+        Fx.run(() -> {
+            find(screen, TextField.class, "adminEmailField").setText(email);
+            find(screen, PasswordField.class, "adminPasswordField").setText(password);
+            find(screen, PasswordField.class, "adminConfirmField").setText(confirm);
+        });
+    }
+
+    @Test
+    void aFullSetupThroughTheScreenCreatesTheDatabaseAndSavesTheSettings(@org.junit.jupiter.api.io.TempDir java.nio.file.Path folder) throws Exception {
+        Assumptions.assumeFalse(TestDb.isOnline(), "needs a plain local test server");
+        String database = TestDb.NAME + "_screen";
+        TestDb.dropScratch(database);
+        try {
+            Loaded screen = load();
+            java.nio.file.Path settings = folder.resolve("db.properties");
+            java.util.concurrent.CountDownLatch finished = new java.util.concurrent.CountDownLatch(1);
+            Fx.run(() -> {
+                screen.controller().setupService = new com.aniplato.service.SetupService(settings);   // never the user's own settings file
+                screen.controller().afterSetup = finished::countDown;                                   // in place of opening Sign In
+            });
+            fillLogin(screen.root(), TestDb.serverPassword());
+            Fx.run(() -> find(screen.root(), Button.class, "testButton").fire());
+            waitFor(() -> shown(find(screen.root(), javafx.scene.layout.VBox.class, "adminBox")));
+            typeAdmin(screen.root(), "owner@example.org", "a-good-password", "a-good-password");
+            Fx.run(() -> find(screen.root(), Button.class, "continueButton").fire());
+            assertTrue(finished.await(60, java.util.concurrent.TimeUnit.SECONDS), "Create did not finish");
+
+            com.aniplato.service.SetupService check = new com.aniplato.service.SetupService(settings);
+            String[] hostPort = TestDb.hostPort().split(":");
+            var found = check.inspect(new com.aniplato.service.SetupDetails(hostPort[0], hostPort.length > 1 ? hostPort[1] : "3306",
+                    database, TestDb.serverUser(), TestDb.serverPassword(), ""));
+            assertEquals(com.aniplato.service.SetupService.Kind.ALREADY_SET_UP, found.kind(), found.message());
+            java.util.Properties saved = new java.util.Properties();
+            try (java.io.InputStream in = java.nio.file.Files.newInputStream(settings)) {
+                saved.load(in);
+            }
+            assertTrue(saved.getProperty("url").contains("/" + database), saved.getProperty("url"));
+            assertEquals(TestDb.serverUser(), saved.getProperty("user"));
+        } finally {
+            TestDb.dropScratch(database);
+        }
+    }
+
+    @Test
+    void passwordsThatDoNotMatchAreSaidInPlaceAndNothingIsCreated(@org.junit.jupiter.api.io.TempDir java.nio.file.Path folder) throws Exception {
+        Assumptions.assumeFalse(TestDb.isOnline(), "needs a plain local test server");
+        String database = TestDb.NAME + "_screen";
+        TestDb.dropScratch(database);
+        try {
+            Loaded screen = load();
+            java.nio.file.Path settings = folder.resolve("db.properties");
+            Fx.run(() -> screen.controller().setupService = new com.aniplato.service.SetupService(settings));
+            fillLogin(screen.root(), TestDb.serverPassword());
+            Fx.run(() -> find(screen.root(), Button.class, "testButton").fire());
+            waitFor(() -> shown(find(screen.root(), javafx.scene.layout.VBox.class, "adminBox")));
+            typeAdmin(screen.root(), "owner@example.org", "a-good-password", "something-else");
+            Fx.run(() -> find(screen.root(), Button.class, "continueButton").fire());
+            Label error = find(screen.root(), Label.class, "errorLabel");
+            waitFor(() -> shown(error));
+            assertTrue(Fx.call(error::getText).contains("do not match"), Fx.call(error::getText));
+            assertFalse(java.nio.file.Files.exists(settings), "no settings are saved after a refusal");
+            String[] hostPort = TestDb.hostPort().split(":");
+            assertEquals(com.aniplato.service.SetupService.Kind.EMPTY, new com.aniplato.service.SetupService(settings).inspect(
+                    new com.aniplato.service.SetupDetails(hostPort[0], hostPort.length > 1 ? hostPort[1] : "3306", database,
+                            TestDb.serverUser(), TestDb.serverPassword(), "")).kind(), "the database was not created");
+        } finally {
+            TestDb.dropScratch(database);
+        }
     }
 
     private static void fillLogin(Parent screen, String password) {

@@ -374,7 +374,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
 | `service/DemoSeedTest.java` | the demo seed loads and its story works through the real services | DEMO |
 | `service/SetupServiceTest.java` | setup on a scratch database: the three outcomes, never overwriting, failure clean-up, plain-English errors, saved settings | PLATFORM |
-| `controller/SetupScreenTest.java` | the real Setup screen: defaults, a pasted address, Test connection with a good and a wrong login, a result is dropped when a field changes | PLATFORM |
+| `controller/SetupScreenTest.java` | the real Setup screen: defaults, a pasted address, Test connection with a good and a wrong login, a result is dropped when a field changes, a full Create typed into the screen (temp settings file), mismatched passwords refused in place | PLATFORM |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |

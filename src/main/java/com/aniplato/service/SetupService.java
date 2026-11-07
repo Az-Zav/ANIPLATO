@@ -56,8 +56,8 @@ public class SetupService {
         this(AppConfig.settingsFile());
     }
 
-    /** For tests: the settings are written to this file instead of the user's own. */
-    SetupService(Path settingsFile) {
+    /** The settings are written to this file instead of the user's own (tests use a temp file). */
+    public SetupService(Path settingsFile) {
         this.settingsFile = settingsFile;
     }
 

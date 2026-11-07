@@ -47,7 +47,9 @@ public class SetupController {
     @FXML private Label errorLabel;
     @FXML private Button continueButton;
 
-    private final SetupService setupService = new SetupService();
+    // package-private so a test can give the screen a service that writes to a temp file and a hook in place of Navigator
+    SetupService setupService = new SetupService();
+    Runnable afterSetup = () -> Navigator.show(Screen.LOGIN);
     private Kind tested;   // what the last Test connection found; null once any connection field has changed since
 
     @FXML
@@ -104,7 +106,7 @@ public class SetupController {
             if (kind == Kind.ALREADY_SET_UP) setupService.connect(details, extras);
             else setupService.create(details, email, password, confirm, extras);
             return Boolean.TRUE;
-        }, done -> Navigator.show(Screen.LOGIN));
+        }, done -> afterSetup.run());
     }
 
     private SetupDetails details() {
