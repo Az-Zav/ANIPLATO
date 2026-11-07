@@ -1,7 +1,11 @@
 package com.aniplato.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,8 +20,8 @@ import java.util.Properties;
  */
 public final class AppConfig {
 
-    private static final Path EXTERNAL = findExternal();
-    private static final Properties FILE = load();
+    private static volatile Path EXTERNAL = findExternal();
+    private static volatile Properties FILE = load();
 
     private AppConfig() { }
 
@@ -62,6 +66,49 @@ public final class AppConfig {
         if (given.isAbsolute() || EXTERNAL == null) return given;
         Path beside = EXTERNAL.toAbsolutePath().getParent().resolve(given);
         return Files.exists(beside) ? beside : given;
+    }
+
+    /** True when the database login (url, user, password) is there; if not, the app shows the Setup screen (6.8). */
+    public static boolean isConfigured() {
+        return get("url", null) != null && get("user", null) != null && get("password", null) != null;
+    }
+
+    /** The settings file a packaged app writes and reads first: %APPDATA%\ANIPLATO\db.properties. */
+    public static Path settingsFile() {
+        return Paths.get(expectedLocation());
+    }
+
+    /**
+     * Writes the settings to the file, one key per line in the order given, escaped so that any password reads back exactly.
+     * It creates the folder if needed. Call {@link #reload()} afterwards for the running app to see the new values.
+     */
+    public static void write(Path file, java.util.Map<String, String> values) {
+        try {
+            Files.createDirectories(file.toAbsolutePath().getParent());
+            ByteArrayOutputStream text = new ByteArrayOutputStream();
+            text.write(("# ANIPLATO settings. Keep this file private: it holds your database password." + System.lineSeparator())
+                    .getBytes(StandardCharsets.ISO_8859_1));
+            for (java.util.Map.Entry<String, String> entry : values.entrySet()) {
+                Properties one = new Properties();
+                one.setProperty(entry.getKey(), entry.getValue());
+                ByteArrayOutputStream line = new ByteArrayOutputStream();
+                one.store((OutputStream) line, null);   // Properties does the escaping; its date comment is dropped below
+                for (String part : line.toString(StandardCharsets.ISO_8859_1).split("\\R")) {
+                    if (!part.isEmpty() && !part.startsWith("#")) {
+                        text.write((part + System.lineSeparator()).getBytes(StandardCharsets.ISO_8859_1));
+                    }
+                }
+            }
+            Files.write(file, text.toByteArray());
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not save the settings to " + file, e);
+        }
+    }
+
+    /** Reads the settings again, after {@link #write} or when a file has been put in place. */
+    public static synchronized void reload() {
+        EXTERNAL = findExternal();
+        FILE = load();
     }
 
     /** Where the settings file is expected for a packaged app, for the message that tells the user to create it. */

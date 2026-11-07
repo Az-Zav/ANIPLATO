@@ -30,6 +30,8 @@
          Without this, screens fail with "Location is not set". -->
     <resources>
       <resource><directory>src/main/resources</directory></resource>
+      <!-- the Setup screen creates the tables from this file, so the program carries the one copy of the schema -->
+      <resource><directory>sql</directory><includes><include>schema.sql</include></includes><targetPath>sql</targetPath></resource>
       <resource>
         <directory>src/main/java</directory>
         <includes><include>**/*.fxml</include><include>**/*.css</include></includes>

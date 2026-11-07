@@ -15,9 +15,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.SecureRandom;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HexFormat;
+import java.util.Properties;
 
 /**
  * Opens JDBC connections from db.properties and runs transactions (A2). Connections come from a small pool: opening one
@@ -46,6 +48,28 @@ public class Database {
     /** A connection from the pool. Close it (try-with-resources) to give it back. */
     public static Connection getConnection() throws SQLException {
         return pool().getConnection();
+    }
+
+    /**
+     * One connection that is not pooled and does not read db.properties: the Setup screen (6.8) uses it before any settings
+     * exist. A CA file, when given, makes the link encrypted and checked, as for a hosted database. The caller closes it.
+     * Statements may hold several commands, so a whole schema script runs in one call.
+     */
+    public static Connection openOnce(String url, String user, String password, String caFile) throws SQLException {
+        Properties p = new Properties();
+        p.setProperty("user", user);
+        p.setProperty("password", password);
+        p.setProperty("allowMultiQueries", "true");
+        p.setProperty("connectTimeout", "10000");
+        if (caFile != null && !caFile.isBlank()) {
+            String storePassword = HexFormat.of().formatHex(randomBytes());
+            p.setProperty("sslMode", "VERIFY_CA");
+            p.setProperty("trustCertificateKeyStoreUrl", truststoreFrom(Path.of(caFile.trim()), storePassword).toUri().toString());
+            p.setProperty("trustCertificateKeyStorePassword", storePassword);
+            p.setProperty("trustCertificateKeyStoreType", "PKCS12");
+            p.setProperty("sessionVariables", "time_zone='+08:00'");
+        }
+        return DriverManager.getConnection(url, p);
     }
 
     /** Closes every pooled connection; the next call opens new ones. Tests call it before they recreate their database. */

@@ -52,4 +52,41 @@ class AppConfigTest {
             System.clearProperty("aniplato.mail.zz.test");
         }
     }
+
+    @Test
+    void writtenSettingsReadBackExactlyEvenWithAwkwardPasswords(@org.junit.jupiter.api.io.TempDir Path folder) throws Exception {
+        Path file = folder.resolve("deeper").resolve("db.properties");   // the folder does not exist yet
+        java.util.Map<String, String> values = new java.util.LinkedHashMap<>();
+        values.put("url", "jdbc:mysql://localhost:3306/aniplato?useSSL=false&serverTimezone=Asia/Manila");
+        values.put("user", "root");
+        values.put("password", " p@ss:w=rd #1 ! \\ é ");
+        values.put("ssl.ca", "C:/certs/ca.pem");
+        AppConfig.write(file, values);
+        java.util.Properties back = new java.util.Properties();
+        try (java.io.InputStream in = java.nio.file.Files.newInputStream(file)) {
+            back.load(in);
+        }
+        assertEquals(values.keySet(), back.stringPropertyNames());
+        for (java.util.Map.Entry<String, String> entry : values.entrySet()) {
+            assertEquals(entry.getValue(), back.getProperty(entry.getKey()), entry.getKey());
+        }
+        java.util.List<String> lines = java.nio.file.Files.readAllLines(file);
+        assertTrue(lines.get(1).startsWith("url="), "keys keep the order they were given: " + lines);
+    }
+
+    @Test
+    void isConfiguredNeedsUrlUserAndPassword() {
+        System.setProperty("aniplato.url", "jdbc:mysql://x/y");
+        System.setProperty("aniplato.user", "u");
+        System.setProperty("aniplato.password", " ");
+        try {
+            org.junit.jupiter.api.Assertions.assertFalse(AppConfig.isConfigured(), "a blank password is not a login");
+            System.setProperty("aniplato.password", "p");
+            assertTrue(AppConfig.isConfigured());
+        } finally {
+            System.clearProperty("aniplato.url");
+            System.clearProperty("aniplato.user");
+            System.clearProperty("aniplato.password");
+        }
+    }
 }

@@ -150,6 +150,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/shared/dialog/ConfirmActionDialogController.java`, `view/shared/dialog/confirm-action.fxml` | the "are you sure?" card for log out and declining an offer | PLATFORM |
 | `controller/shared/dialog/PostedDialogController.java`, `view/shared/dialog/posted.fxml` | the "posted" card after a listing, request, offer or report is saved | PLATFORM |
 | `dao/StoredFileDao.java` | the `stored_file` table: store, fetch and delete the bytes of an upload | LISTING, REQUEST, REGISTER |
+| `dao/SetupDao.java` | the SQL the Setup screen needs: what a database holds, creating the database and tables, removing a failed setup's tables | PLATFORM |
 | `dao/PhotoDao.java` | the `photo` table: add a photo to a post (offers and reports reuse it), list the paths | LISTING, REQUEST |
 | `dao/HistoryDao.java` | the figures behind the dashboards and History for one account: totals, awaiting release, closed posts and offers | HISTORY |
 | `dao/ReportDao.java` | the `report` table: save and read a report, handoffs with an overdue report, people served, report deadlines | REPORT, STATS |
@@ -177,6 +178,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/DetailRules.java` | checks posts and offers share: food detail dates, weight, attestation, text length | LISTING, REQUEST, OFFER |
 | `service/ReportService.java` | save a report (once, with photos), read it, work out its due date, prefill the form, flag overdue reports | REPORT |
 | `service/EmailService.java` | fills the HTML emails, sends, logs every attempt | AUTH, REGISTER, REVIEW |
+| `service/SetupService.java` | first-run setup: tests a login, says whether the database is empty, already set up or unusable, creates the tables and first admin (never overwrites), saves the settings | PLATFORM |
+| `service/SetupDetails.java` | what the person typed on the Setup screen (host, port, database, login, certificate), checked and turned into addresses | PLATFORM |
 | `service/FileStorageService.java` | validates and stores uploads; saves 1 to 5 photos at once; removes files; finds a stored file | REGISTER, PROFILE, REVIEW, LISTING |
 
 ### Controllers: screens
@@ -365,6 +368,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `service/RenewalTest.java` | upload a renewal, verify it, the expiry suspension ends, the admin's way to it | PROFILE, ACCOUNTS |
 | `service/ProfileServiceTest.java` | contact edit, upgrade from submission to approval and rejection | PROFILE |
 | `service/DemoSeedTest.java` | the demo seed loads and its story works through the real services | DEMO |
+| `service/SetupServiceTest.java` | setup on a scratch database: the three outcomes, never overwriting, failure clean-up, plain-English errors, saved settings | PLATFORM |
 | `service/OfferServiceTest.java` | offer rules on both routes, withdraw, re-open, my offers | OFFER |
 | `service/HandoffServiceTest.java` | release, receipt, the record, the badge | HANDOFF |
 | `service/CancelPostTest.java` | cancel an Open or Accepted post and settle its offers | HANDOFF |
@@ -403,7 +407,7 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `support/TestDb.java` | builds `aniplato_test` from reset, schema and the test fixture (or the real seed for a fresh install), and one more script on request; refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
 | `util/KnowledgeBaseTest.java` | every knowledge file loads; it names every status and sidebar item; the numbers it quotes match `Settings`; the prompt stays small | SHELL |
-| `util/AppConfigTest.java` | a file named in the settings resolves beside `db.properties`; the expected settings location; a system property wins | PLATFORM |
+| `util/AppConfigTest.java` | a file named in the settings resolves beside `db.properties`; the expected settings location; a system property wins; written settings read back exactly | PLATFORM |
 | `support/DatabaseReadTest.java` | `Database.read` returns the value, wraps a database error, lets a rule error through | PLATFORM |
 | `support/Fixtures.java` | SQL helpers for rows the seed lacks (offers, notices) and sample photo files | TESTS |
 | `support/Fx.java` | runs test code on the JavaFX thread | TESTS |
@@ -1134,6 +1138,22 @@ flowchart LR
 | `AppConfig.required` | the same, but a missing value is a setup mistake (no settings file at all says where to put one) | Database | TestDbTest |
 | `AppConfig.withPrefix` | every setting starting with a prefix (for example `mail.`) as a Properties copy, so the mail library never sees the database password | EmailService | AppConfigTest |
 | `AppConfig.path` | a file named in the settings; a relative name is looked for beside `db.properties` first | Database | AppConfigTest |
+| `AppConfig.isConfigured` | true when url, user and password are all set; if not, the app opens the Setup screen | Main | AppConfigTest |
+| `AppConfig.settingsFile` | the file a packaged app writes and reads first, in the user's app folder | SetupService | AppConfigTest |
+| `AppConfig.write` | writes the settings, escaped so any password reads back exactly | SetupService | AppConfigTest |
+| `AppConfig.reload` | reads the settings again so the running app sees what Setup saved | SetupService | SetupServiceTest |
+| `Database.openOnce` | one unpooled connection from typed details (with an optional CA file), for Setup before any settings exist | SetupService | SetupServiceTest |
+| `AccountDao.insertAdmin` | the first admin, created by Setup with the password the person chose | SetupService | SetupServiceTest |
+| `SetupDao.databaseExists` | whether the named database exists on the server | SetupService | SetupServiceTest |
+| `SetupDao.tableNames` | the tables a database holds | SetupService | SetupServiceTest |
+| `SetupDao.countAdmins` | admin accounts in the named database | SetupService | SetupServiceTest |
+| `SetupDao.createDatabase` | creates the database only if missing | SetupService | SetupServiceTest |
+| `SetupDao.runScript` | runs the schema script on the current database | SetupService | SetupServiceTest |
+| `SetupDao.dropTables` | removes the tables a failed setup had just made | SetupService | SetupServiceTest (failure halfway) |
+| `SetupDetails.fromUrl` | host, port and database from a pasted jdbc:mysql address | SetupController | SetupServiceTest |
+| `SetupService.inspect` | Test connection: what the database holds, or why not; changes nothing | SetupController | SetupServiceTest |
+| `SetupService.create` | creates the tables and the first admin in an empty database (or just the missing admin), then saves the settings | SetupController | SetupServiceTest |
+| `SetupService.connect` | saves the settings for a database that is already set up; changes nothing in it | SetupController | SetupServiceTest |
 | `Database.getConnection` | a connection from the pool; closing it gives it back | every service | every service test |
 | `Database.closePool` | closes every pooled connection; the next call opens new ones (tests call it before recreating their database) | TestDb | DatabaseReadTest |
 | `Database.read` | a read-only query on its own connection; a database error becomes a DataAccessException | the services that only read | DatabaseReadTest |

@@ -36,6 +36,7 @@ public final class TestDb {
     private static String OPTIONS = LOCAL_OPTIONS;
 
     private static String serverUrl;
+    private static String serverHostPort = "localhost:3306";
 
     private TestDb() { }
 
@@ -61,6 +62,7 @@ public final class TestDb {
             if (!main.getProperty("ssl.ca", "").isBlank()) OPTIONS = ONLINE_OPTIONS;
         }
         hostPort = hostPort.trim();
+        serverHostPort = hostPort;
         System.setProperty("aniplato.ssl.ca", "");   // the test connections set their own SSL options in the URL
         String user = env("ANIPLATO_TEST_DB_USER", main.getProperty("user", "root"));
         String password = env("ANIPLATO_TEST_DB_PASSWORD", main.getProperty("password", ""));
@@ -74,6 +76,40 @@ public final class TestDb {
             System.setProperty("aniplato.cache.dir", Files.createTempDirectory("aniplato-test-cache").toString());
         } catch (IOException e) {
             throw new IllegalStateException("Could not create a temp uploads folder", e);
+        }
+    }
+
+    /** host:port of the test server, for tests that connect on their own (the Setup screen's). */
+    public static String hostPort() {
+        configure();
+        return serverHostPort;
+    }
+
+    public static String serverUser() {
+        configure();
+        return System.getProperty("aniplato.user");
+    }
+
+    public static String serverPassword() {
+        configure();
+        return System.getProperty("aniplato.password");
+    }
+
+    /** True when the tests run against a hosted server, which needs a certificate file the Setup tests do not have. */
+    public static boolean isOnline() {
+        configure();
+        return OPTIONS.equals(ONLINE_OPTIONS);
+    }
+
+    /** Drops a scratch database that a test made (it must start with the test database's name). */
+    public static void dropScratch(String name) {
+        if (!name.startsWith(NAME)) throw new IllegalStateException("Refusing to drop " + name);
+        configure();
+        try (Connection c = DriverManager.getConnection(serverUrl, serverUser(), serverPassword());
+             Statement st = c.createStatement()) {
+            st.execute("DROP DATABASE IF EXISTS `" + name + "`");
+        } catch (SQLException e) {
+            throw new IllegalStateException("Could not drop " + name, e);
         }
     }
 
