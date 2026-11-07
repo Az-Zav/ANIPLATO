@@ -1,8 +1,7 @@
--- ANIPLATO schema (MySQL 8.0.16+ for CHECK constraints). Fourteen tables. Run once on an empty database.
+-- ANIPLATO schema (MySQL 8.0.16+ for CHECK constraints). Fourteen tables and the city list. It creates tables only and never drops anything,
+-- so it is safe to run on a database that is already selected (the setup screen does). Run it once, on a database with no ANIPLATO tables.
 -- Source: Project Spec section 7.6. Change this file, the spec's 7.6 and the ER diagram in docs/ARCHITECTURE.md together.
-DROP DATABASE IF EXISTS aniplato;
-CREATE DATABASE aniplato CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE aniplato;
+
 
 -- 1. city -------------------------------------------------------------
 CREATE TABLE city (

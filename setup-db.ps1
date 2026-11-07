@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-  Creates the ANIPLATO database and loads demo data into your local MySQL.
+  Creates the ANIPLATO database and its first admin in a MySQL you control (a developer tool; the app's own setup screen does this for end users).
 .DESCRIPTION
   Needs: MySQL 8+ installed and running, and your password set in
   src/main/resources/db.properties. Reads url/user/password from that file.
-  WARNING: schema.sql drops and recreates the `aniplato` database.
+  WARNING: reset.sql drops and recreates the `aniplato` database.
 .PARAMETER Force
   Skip the confirmation prompt when the database already exists.
 .PARAMETER Demo
@@ -74,10 +74,11 @@ try {
 
     # 5. Load schema and seed. The file is fed to mysql's stdin as raw bytes,
     #    so UTF-8 names (Las Piñas) survive and paths with spaces are no issue.
-    function Invoke-SqlFile([string]$file) {
+    function Invoke-SqlFile([string]$file, [switch]$InDatabase) {
         $errFile = [IO.Path]::GetTempFileName()
+        $mysqlArgs = if ($InDatabase) { $common + @('-D', 'aniplato') } else { $common }
         try {
-            $p = Start-Process -FilePath $mysql -ArgumentList $common -NoNewWindow -Wait -PassThru `
+            $p = Start-Process -FilePath $mysql -ArgumentList $mysqlArgs -NoNewWindow -Wait -PassThru `
                 -RedirectStandardInput $file -RedirectStandardError $errFile
             if ($p.ExitCode -ne 0) {
                 Write-Host (Get-Content $errFile -Raw) -ForegroundColor Red
@@ -85,14 +86,16 @@ try {
             }
         } finally { Remove-Item $errFile -ErrorAction SilentlyContinue }
     }
-    Write-Host 'Creating schema...'
-    Invoke-SqlFile (Join-Path $root 'sql/schema.sql')
-    Write-Host 'Loading seed data...'
-    Invoke-SqlFile (Join-Path $root 'sql/seed.sql')
+    Write-Host 'Creating the empty database...'
+    Invoke-SqlFile (Join-Path $root 'sql/reset.sql')
+    Write-Host 'Creating tables...'
+    Invoke-SqlFile (Join-Path $root 'sql/schema.sql') -InDatabase
+    Write-Host 'Creating the admin...'
+    Invoke-SqlFile (Join-Path $root 'sql/seed.sql') -InDatabase
     if ($Demo) {
         Write-Host 'Loading the demo story...'
-        Invoke-SqlFile (Join-Path $root 'sql/seed-admin-demo.sql')
-        Invoke-SqlFile (Join-Path $root 'sql/seed-demo.sql')
+        Invoke-SqlFile (Join-Path $root 'sql/seed-demo.sql') -InDatabase
+        Invoke-SqlFile (Join-Path $root 'sql/seed-admin-demo.sql') -InDatabase
         $uploads = if ($cfg['uploads.dir']) { $cfg['uploads.dir'] } else { Join-Path $root 'uploads' }
         $seedPhotos = Join-Path $uploads 'seed'
         New-Item -ItemType Directory -Force -Path $seedPhotos | Out-Null
@@ -104,8 +107,11 @@ finally {
 }
 
 Write-Host ''
-Write-Host 'Database ready. Demo logins (password: Aniplato123!)' -ForegroundColor Green
-Write-Host '  admin@aniplato.test    admin'
-Write-Host '  donor@aniplato.test    donor (Sunrise Bakery)'
-Write-Host '  group@aniplato.test    food group (Kapwa Community Kitchen)'
+Write-Host 'Database ready.' -ForegroundColor Green
+Write-Host 'Sign in as admin@aniplato.test with the password Aniplato123!; the app makes you choose a new one.'
+if ($Demo) {
+    Write-Host 'Demo logins (password: Aniplato123!, no forced change for these)'
+    Write-Host '  business@aniplato.test   donor (Sunrise Bakery)'
+    Write-Host '  group@aniplato.test      food group (Kapwa Community Kitchen)'
+}
 Write-Host 'Then run: mvn javafx:run'

@@ -29,7 +29,7 @@ src/main/java/com/aniplato/
   exception/   RuleViolationException
   util/        AppConfig, Database, PasswordHasher, Settings, Session, Navigator
 src/test/      tests (service rules, FXML wiring, popups, architecture rules)
-sql/           schema.sql, seed.sql, seed-admin-demo.sql, seed-demo.sql, demo-photos/
+sql/           reset.sql, schema.sql, seed.sql, seed-admin-demo.sql, seed-demo.sql, demo-photos/
 scripts/       new-methods.sh (lists the methods a branch adds, for review)
 docs/          MAP.md (what exists), FLOWS.md (what to build), ARCHITECTURE.md (schema + diagrams)
 uploads/       documents and photos (git-ignored; folder set by uploads.dir in db.properties)

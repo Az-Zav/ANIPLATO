@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** sql/seed-demo.sql: it loads on top of the seed, and the story it tells works through the real services. */
+/** sql/seed-demo.sql: it loads on top of the fresh-install seed, and the story it tells works through the real services. */
 class DemoSeedTest extends DbTest {
 
     @BeforeEach
     void loadTheDemo() {
+        TestDb.resetToFreshInstall();   // sql/seed-demo.sql carries its own accounts and goes on top of the lone admin
         TestDb.loadScript("sql/seed-demo.sql");
     }
 

@@ -16,4 +16,4 @@ path to the CA file (download it from the service page; keep it outside the repo
     $env:ANIPLATO_TEST_DB_USER = "aniplato_test_user"
     $env:ANIPLATO_TEST_DB_PASSWORD = "<test user password>"
 
-Do not run `sql/schema.sql` against the shared database: it drops `aniplato`.
+Do not run `sql/reset.sql` against the shared database: it drops `aniplato`. `sql/schema.sql` only creates tables, so it is safe on an empty database.

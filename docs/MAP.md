@@ -325,14 +325,15 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `email/received.html`, `email/approved.html`, `email/not-approved.html`, `email/forgot-password.html` | the four HTML email templates | REGISTER, REVIEW, AUTH |
 | `assets/AcceptedOffers.svg`, `assets/AllAccountsIcon.svg`, `assets/BrowseListings.svg`, `assets/BrowseRequest.svg`, `assets/CIrcle_Check_Button.svg`, `assets/Check_Button.svg`, `assets/Circle_Reject_Button.svg`, `assets/Dashboard Icon.svg`, `assets/HistoryIcon.svg`, `assets/KgRescued.svg`, `assets/MyListingsIcon.svg`, `assets/MyOffers.svg`, `assets/MyRequests.svg`, `assets/NewListingIcon.svg`, `assets/NewRequest.svg`, `assets/OpenListings.svg`, `assets/PendingAccountsIcon.svg`, `assets/ProfileIcon.svg`, `assets/Reject_Button.svg`, `assets/ReportsIcon.svg`, `assets/SafetyNotices.svg` | sidebar, card and badge icons | SHELL, POPUPS |
 | `assets/aniplato-logo-circle 1.png`, `assets/login_hero.png` | the logo (window, emails) and the login picture | SHELL, AUTH |
-| `sql/schema.sql` | the only copy of the schema; drops and recreates `aniplato` | PLATFORM |
-| `sql/seed.sql` | demo data: admin, three organizations, one pending application, a listing and a request | DEMO |
+| `sql/schema.sql` | the only copy of the schema: tables and the city list, never drops anything | PLATFORM |
+| `sql/reset.sql` | developers and tests only: drops and recreates the `aniplato` database | PLATFORM |
+| `sql/seed.sql` | one admin account (password change forced at first sign-in) and nothing else | PLATFORM |
 | `sql/repair-city-names.sql` | puts the n-with-tilde back in Las Piñas and Parañaque on an online database loaded with the old script | PLATFORM |
 | `sql/migrate-stored-file.sql` | run once on a database made before uploads moved into the database: adds the `stored_file` table | PLATFORM |
 | `scripts/migrate-online-db.ps1` | applies that migration to the shared online database as its owner | PLATFORM |
 | `sql/migrate-food-needed.sql` | run once on a database made before `use_detail.food_needed` existed: adds the column and fills old requests from their event name | REQUEST |
 | `sql/seed-admin-demo.sql` | extra demo rows for the admin screens; run once after the seed | DEMO |
-| `sql/seed-demo.sql` | the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
+| `sql/seed-demo.sql` | the demo accounts, one pending application, a listing and a request, then the demo story on both routes: offers waiting, handoffs to release and receive, a report due and an overdue one, a lapsed pickup, a cancelled listing, a suspended food group; all times relative to now | DEMO |
 | `sql/demo-photos/bread.jpg`, `sql/demo-photos/venue.jpg`, `sql/demo-photos/vegetables.png`, `sql/demo-photos/rice.png`, `sql/demo-photos/event.png` | five small sample photos; `setup-db -Demo` copies them to `uploads/seed/` | DEMO |
 | `setup-db.bat`, `setup-db.ps1` | create the database and load the demo data | PLATFORM |
 | `scripts/setup-online-db.ps1` | one-time setup of the shared online MySQL: empty aniplato, data-only app user, test user limited to aniplato_test*; refuses a non-empty aniplato | PLATFORM |
@@ -398,7 +399,8 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `controller/UploadSlotTest.java` | one upload row shows, restores and reports its file | REGISTER |
 | `view/FxmlWiringTest.java` | every handler and `@FXML` field matches its FXML | TESTS |
 | `support/DbTest.java` | base class: fresh seeded test database, nobody logged in | TESTS |
-| `support/TestDb.java` | builds `aniplato_test` from the schema and seed (and one more script on request); refuses any other database | TESTS |
+| `resources/test-seed.sql` | the test fixture: admin, three organizations, one pending application, a listing and a request |
+| `support/TestDb.java` | builds `aniplato_test` from reset, schema and the test fixture (or the real seed for a fresh install), and one more script on request; refuses any other database | TESTS |
 | `support/TestDbTest.java` | the test database loads | TESTS |
 | `util/KnowledgeBaseTest.java` | every knowledge file loads; it names every status and sidebar item; the numbers it quotes match `Settings`; the prompt stays small | SHELL |
 | `util/AppConfigTest.java` | a file named in the settings resolves beside `db.properties`; the expected settings location; a system property wins | PLATFORM |

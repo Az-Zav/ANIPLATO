@@ -9,7 +9,7 @@ Surplus-food board for Metro Manila (donors post, food groups offer, admin verif
 ## Commands
 - Run: `mvn javafx:run` (main class `com.aniplato.Main`)
 - Build: `mvn clean compile` / `mvn clean package`
-- Database: `mysql -u root -p < sql/schema.sql`, then `sql/seed.sql`. schema.sql drops and recreates `aniplato`; never run it against data you want to keep.
+- Database: `setup-db.ps1` (add `-Demo` for sample data), or by hand `sql/reset.sql`, `sql/schema.sql`, `sql/seed.sql`. reset.sql drops and recreates `aniplato`; never run it against data you want to keep. schema.sql only creates tables.
 - Config: `src/main/resources/db.properties` (git-ignored; copy from `db.properties.example`).
 
 ## Layering (View → Controller → Service → DAO → MySQL)

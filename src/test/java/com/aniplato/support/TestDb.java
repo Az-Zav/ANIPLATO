@@ -17,8 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The test database. Every test starts from sql/schema.sql + sql/seed.sql loaded into
- * aniplato_test. It refuses to run against any other database name, so the real
+ * The test database. Every test starts from sql/reset.sql + sql/schema.sql + the fixture src/test/resources/test-seed.sql
+ * loaded into aniplato_test. It refuses to run against any other database name, so the real
  * aniplato database (and the shared team database) are never touched.
  */
 public final class TestDb {
@@ -77,17 +77,23 @@ public final class TestDb {
         }
     }
 
-    /** Drops and recreates aniplato_test from the project's own schema and seed files. */
+    /** Drops and recreates aniplato_test from the project's reset and schema files, plus the test fixture accounts. */
     public static void reset() {
+        load("sql/reset.sql", "sql/schema.sql", "src/test/resources/test-seed.sql");
+    }
+
+    /** The same, but with the real sql/seed.sql (the lone admin) and nothing else, as a fresh install has it. */
+    public static void resetToFreshInstall() {
+        load("sql/reset.sql", "sql/schema.sql", "sql/seed.sql");
+    }
+
+    private static void load(String... files) {
         configure();
         Database.closePool();   // pooled connections belong to the database about to be dropped
-        String schema = retarget(read("sql/schema.sql"));
-        String seed = retarget(read("sql/seed.sql"));
         try (Connection c = DriverManager.getConnection(serverUrl,
                 System.getProperty("aniplato.user"), System.getProperty("aniplato.password"));
              Statement st = c.createStatement()) {
-            runScript(st, schema);
-            runScript(st, seed);
+            for (String file : files) runScript(st, retarget(read(file)));
         } catch (SQLException e) {
             throw new IllegalStateException("Could not load the test database. Is MySQL running and is the user allowed to create databases?", e);
         }
