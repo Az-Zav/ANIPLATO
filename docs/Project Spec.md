@@ -101,6 +101,8 @@ There are three roles: Business donor, Casual donor and Food group. There is no 
 
 * Read-only Gemini AI assistant with panel-specific suggested prompts; it does not access account data or perform actions.
 
+* First-run setup: on a new computer the app asks for the MySQL details, prepares an empty database and creates the first admin.
+
 **Out of scope:** delivery, selling food, maps, in-app notifications, a web version, and legal protection (ANIPLATO grants none; see Stage 2).
 
 **Demo:** one full loop of each route from registration to a rescued post with its report, plus one expired post and one suspended account.
@@ -463,6 +465,27 @@ One function, `runMaintenance()`, runs when a screen loads: on the first screen 
 
 - A lapsed post closes as Expired and the poster posts again the normal way.
 
+## **6.8 First-Run Setup**
+
+The app reads its settings from `db.properties` (7.5). When the file is missing or incomplete, or the user chooses **Change database settings** on the "Cannot reach the database" message, the app shows the **Setup** screen instead of Sign In.
+
+**The user enters:** host and port (or a pasted connection URL), database name (default `aniplato`), database user and password, and optionally a CA certificate file. A second, optional section holds the Gemini key and the email (SMTP) login.
+
+**Test connection** connects with those details and reports one of three results:
+
+* **Empty:** the database has no ANIPLATO tables. The screen asks for the first admin's email and a password of at least 8 characters, then **Create**.
+
+* **Already set up:** the ANIPLATO tables exist. The screen offers **Connect**, which only saves the settings. It creates and changes nothing, and asks for no admin details. If the tables exist but no admin account does (an earlier setup stopped halfway), it asks for the admin details and creates just the admin.
+
+* **Cannot continue:** wrong login, unreachable host, MySQL older than 8.0.16, no permission, or a table-name clash with other tables. The screen shows one plain sentence saying why. Nothing is changed.
+
+**Create** makes the database if it is missing and the login is allowed to, runs `schema.sql` to create the tables (the city list comes with it), creates the admin account, writes `db.properties`, and goes to Sign In. The admin chose their own password, so no password change is forced.
+
+**The app never drops or overwrites anything during setup.** Wiping a database stays a developer action (`sql/reset.sql`).
+
+**Where the file goes:** `%APPDATA%\ANIPLATO\db.properties`. The password is stored as plain text on the user's own computer, as before. A relative CA file name is looked up beside it.
+
+
 # **7\. Architecture**
 
 This section says how the app is built, so each rule in Section 6 has one home in the code.
@@ -498,6 +521,7 @@ aniplato/
 ├── docs/
 │   └── ARCHITECTURE.md
 ├── sql/
+│   ├── reset.sql
 │   ├── schema.sql
 │   └── seed.sql
 ├── uploads/                             (local file storage, git-ignored)
@@ -673,6 +697,11 @@ aniplato/
   * Saves uploads (PDF up to 2 MB; JPG or PNG up to 15 MB, shrunk to 1600 px and kept as JPEG) in the `stored_file` table, so every user sees the same files.
   * Returns the path the photo and document rows hold; opening a file copies it once into a local cache folder.
 
+* **SetupService**
+  * Tests a connection and says what it found (empty, already set up, cannot continue, and why).
+  * Creates the tables, cities and first admin, or only saves the settings for an existing database.
+  * Writes the settings file through `AppConfig`.
+
 * **EmailService**
   * Fills the HTML templates and sends through Jakarta Mail.
   * Logs every send.
@@ -695,6 +724,8 @@ aniplato/
 
 * Rule problems are thrown as `RuleViolationException` and shown to the user as a message.
 
+* SetupService is the one exception to "one action, one transaction": MySQL cannot roll back table creation, so setup is built to be re-run safely. It checks first and never overwrites.
+
 * Store statuses, timestamps and entered facts. Derive rates, totals, counts, deadlines and expiry warnings.
 
 ## **7.5 Technical Choices**
@@ -706,6 +737,8 @@ aniplato/
 * Email: Jakarta Mail.
 
 * Files: local disk with relative paths in the database. PDFBox for PDF preview.
+
+* Schema files: `schema.sql` holds tables and the city list only. `reset.sql` (drop and recreate the database) is for developers and tests. `seed.sql` holds a single admin account for the manual route; the setup screen creates the admin the user types instead. The build includes `schema.sql` in the program.
 
 * Build: Maven. `pom.xml` must also copy `.fxml` and `.css` from `src/main/java`, or screens fail to load at startup.
 
