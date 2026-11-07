@@ -343,9 +343,12 @@ Paths are relative to `src/main/java/com/aniplato/` unless the heading says othe
 | `setup-db.bat`, `setup-db.ps1` | create the database and load the demo data | PLATFORM |
 | `scripts/setup-online-db.ps1` | one-time setup of the shared online MySQL: empty aniplato, data-only app user, test user limited to aniplato_test*; refuses a non-empty aniplato | PLATFORM |
 | `docs/ONLINE-DB.md` | how the shared online database is set up and used, and how tests stay off it | PLATFORM |
-| `scripts/package-exe.ps1` | builds the program without `db.properties`, then `jpackage` makes `target/installer/ANIPLATO/ANIPLATO.exe` with its own Java | PLATFORM |
+| `scripts/package-exe.ps1` | builds the program without `db.properties`, then `jpackage` makes `target/installer/ANIPLATO/ANIPLATO.exe` with its own Java, and adds SETUP.txt, the settings template and the two by-hand SQL files | PLATFORM |
 | `packaging/aniplato.ico` | the exe's icon, made from the logo | PLATFORM |
-| `docs/PACKAGING.md` | how to build the exe and how a teammate sets up the settings file beside it | PLATFORM |
+| `docs/PACKAGING.md` | how to build and check the exe, and what a new user's first run does | PLATFORM |
+| `docs/SELF-HOSTING.md` | for someone who downloaded the program: what they need, the Setup screen, the by-hand route, the settings file, problems | PLATFORM |
+| `packaging/SETUP.txt` | the plain-words guide shipped in the zip | PLATFORM |
+| `packaging/db.properties.template` | the provider-neutral settings template shipped as `db.properties.example` for the by-hand route | PLATFORM |
 | `scripts/new-methods.sh` | lists the methods a branch adds, for review | TESTS |
 | `pom.xml` | Maven build: JavaFX, MySQL, JUnit, copies FXML and CSS to the output | PLATFORM |
 

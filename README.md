@@ -30,7 +30,8 @@ src/main/java/com/aniplato/
   util/        AppConfig, Database, PasswordHasher, Settings, Session, Navigator
 src/test/      tests (service rules, FXML wiring, popups, architecture rules)
 sql/           reset.sql, schema.sql, seed.sql, seed-admin-demo.sql, seed-demo.sql, demo-photos/
-scripts/       new-methods.sh (lists the methods a branch adds, for review)
+packaging/     SETUP.txt and db.properties.template (shipped in the zip), the exe icon
+scripts/       package-exe.ps1, setup-online-db.ps1, new-methods.sh (lists the methods a branch adds, for review)
 docs/          MAP.md (what exists), FLOWS.md (what to build), ARCHITECTURE.md (schema + diagrams)
 uploads/       documents and photos (git-ignored; folder set by uploads.dir in db.properties)
 ```
@@ -38,4 +39,4 @@ Start with `AGENTS.md` (how to add code), then `docs/MAP.md`. `CLAUDE.md` has th
 
 ## Packaging
 
-`.\scripts\package-exe.ps1` builds `ANIPLATO.exe` as a folder that needs no Java. How to build it and how each user sets up `db.properties` for it: [docs/PACKAGING.md](docs/PACKAGING.md).
+`.\scripts\package-exe.ps1` builds `ANIPLATO.exe` as a folder that needs no Java and carries no database login or key. On first run its Setup screen asks for the user's own MySQL, creates the tables and their admin account, and saves the settings. Building and checking the package: [docs/PACKAGING.md](docs/PACKAGING.md). What a person who downloads it does: [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).

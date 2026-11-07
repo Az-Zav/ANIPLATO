@@ -1,7 +1,10 @@
 # Packaging ANIPLATO as a Windows program
 
 `scripts\package-exe.ps1` builds a folder with `ANIPLATO.exe` in it. The folder carries its own Java, so the computer that runs
-it needs no Java, Maven or MySQL. Zip the folder `target\installer\ANIPLATO` and give it out.
+it needs no Java or Maven. Zip the folder `target\installer\ANIPLATO` and publish it (for example as a GitHub Release).
+
+The package holds **no database login and no key**. Each person brings their own MySQL, and the program's Setup screen
+(Spec 6.8) asks for it on first run. See [SELF-HOSTING.md](SELF-HOSTING.md) for what the person does.
 
 ## Build (the person making the package)
 
@@ -10,42 +13,36 @@ first (a running copy locks the old build).
 
     .\scripts\package-exe.ps1
 
-It runs `mvn -Pdist package`, which leaves `db.properties` out of the program (it holds the password), then `jpackage`, then
-drops a fill-in-the-blanks `db.properties.example` beside `ANIPLATO.exe`. The first run takes several minutes.
+It runs `mvn -Pdist package`, which leaves `db.properties` out of the program, then `jpackage`, then adds to the folder:
 
-## Run (everyone else)
+| File | For |
+|---|---|
+| `SETUP.txt` | the plain-words guide a person reads first (from `packaging\SETUP.txt`) |
+| `db.properties.example` | a provider-neutral settings template for the by-hand route (from `packaging\db.properties.template`) |
+| `sql\schema.sql`, `sql\seed.sql` | the by-hand route: tables only, and one admin. The Setup screen needs neither: the schema is also inside the program. |
 
-1. Unzip the folder anywhere and keep its contents together.
-2. Make the settings file `db.properties` in **one** of these places (the first one found is used):
-   - `%APPDATA%\ANIPLATO\db.properties` (paste that into Explorer's address bar; survives replacing the program folder), or
-   - the program folder, next to `ANIPLATO.exe` (copy `db.properties.example` and rename it).
-3. Fill in the lines you were sent: `url` (host and port), `user` and `password`. Leave `ssl.ca=ca.pem`.
-4. Put the Aiven `ca.pem` in the same folder as `db.properties`. A file name with no folder is looked for beside
-   `db.properties`; an absolute path also works, written with forward slashes (`C:/Users/me/ca.pem`).
-5. Optional, for the help assistant: make your own free key at https://aistudio.google.com/app/apikey and paste it after
-   `ai.gemini.api-key=`. Without it the assistant says it is not set up and the rest of the app works.
-6. Double-click `ANIPLATO.exe`. Settings are read at start, so close and reopen the program after changing the file.
+The first run takes several minutes. Check the result before publishing:
 
-If the settings file is missing, the sign-in screen says where to put it. A wrong password or no internet shows
-"Cannot reach the database" instead of a crash.
+- the jar has no `db.properties` (`unzip -l target\installer\ANIPLATO\app\aniplato-*.jar | findstr db.properties` shows only the
+  two `.example` files),
+- `ANIPLATO.exe` with no settings opens the Setup screen, and with a `db.properties` beside it opens Sign In,
+- the folder has no `db.properties`, no `ca.pem` and no key.
 
-### What goes in the file
+## How a new user gets running
 
-| Key | What it is | Who gives it to you |
-|---|---|---|
-| `url`, `user`, `password` | the shared online database login | the project owner, privately |
-| `ssl.ca` | `ca.pem`, the database's certificate, in the same folder | the project owner |
-| `session.timezone`, `pool.size`, `pool.minIdle` | already right in the example; leave them | |
-| `mail.*` | optional email (registration results, temporary passwords) | your own account |
-| `ai.gemini.api-key` | optional, for the help assistant | you, free |
-
-Never put the password or the key in a file that is shared or committed, and give each person their own login where you can.
+1. Unzip, double-click `ANIPLATO.exe` (Windows may warn: More info, then Run anyway).
+2. The Setup screen asks for their MySQL (host, port, database, user, password, optional certificate), tests it, and creates the
+   tables and their admin account, or connects to a database that is already set up. It never deletes or replaces data.
+3. It saves `%APPDATA%\ANIPLATO\db.properties`. The program looks for settings there first, then beside the exe, then in the
+   working folder; a `-Daniplato.<key>` system property overrides any of them.
+4. Optional keys (the help assistant, email) go on the Setup screen or into that file.
 
 ## Notes
 
 - The package is an app folder, not an installer. `jpackage --type exe` (a Setup.exe) needs the WiX Toolset installed; add it
   later if an installer is wanted.
-- Windows may show a "Windows protected your PC" prompt the first time, because the program is not code-signed. Choose
-  More info, then Run anyway.
-- Photos and documents are fetched from the database and cached in the user's temp folder (`aniplato-cache`).
-- The assistant needs internet. If it is busy or the key is missing, it says so and the rest of the app is unaffected.
+- Windows may show a "Windows protected your PC" prompt the first time, because the program is not code-signed.
+- Photos and documents are stored in the database and cached in the user's temp folder (`aniplato-cache`).
+- The assistant needs internet and the user's own key. Without them it says it is not set up and the rest of the app is unaffected.
+- A shared team database is still possible: give each person their own database user and have them choose **Connect** on the Setup
+  screen. Do not put a team login in a public download.

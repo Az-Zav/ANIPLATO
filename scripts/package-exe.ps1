@@ -2,7 +2,8 @@
  Builds ANIPLATO as a Windows program that needs no Java or Maven on the computer that runs it.
    .\scripts\package-exe.ps1
  Result: target\installer\ANIPLATO\ANIPLATO.exe (a whole folder: zip it and give it out). Needs JDK 17+ with jpackage on PATH.
- The build leaves db.properties out; each user puts their own at %APPDATA%\ANIPLATO\db.properties (see docs/PACKAGING.md).
+ The build leaves db.properties out. On first run the program's Setup screen asks for the user's own MySQL and writes
+ %APPDATA%\ANIPLATO\db.properties itself (see docs/PACKAGING.md and docs/SELF-HOSTING.md).
 #>
 $ErrorActionPreference = "Stop"
 if (-not (Get-Command jpackage -ErrorAction SilentlyContinue)) { throw "jpackage not found. Install a JDK (17 or newer) and put its bin folder on PATH." }
@@ -24,9 +25,13 @@ jpackage --type app-image --name ANIPLATO --dest target\installer --input $input
   --java-options "-Dfile.encoding=UTF-8" --java-options "--enable-native-access=ALL-UNNAMED"
 if ($LASTEXITCODE -ne 0) { throw "jpackage failed" }
 # a fill-in-the-blanks settings file beside the exe, with the CA file named as a plain file next to the settings
-$template = (Get-Content "src\main\resources\db.properties.online.example") -replace '^ssl\.ca=.*', 'ssl.ca=ca.pem'
-# no byte-order mark: the settings reader would take it as part of the first line
-[System.IO.File]::WriteAllLines((Join-Path (Get-Location) "target\installer\ANIPLATO\db.properties.example"), $template, (New-Object System.Text.UTF8Encoding($false)))
+$out = "target\installer\ANIPLATO"
+# what a person who unzips it reads and, for the by-hand route, uses: the guide, a provider-neutral settings template, and the
+# table and admin scripts (schema.sql only creates tables; seed.sql is one admin). The Setup screen needs none of them.
+Copy-Item "packaging\SETUP.txt" "$out\SETUP.txt"
+Copy-Item "packaging\db.properties.template" "$out\db.properties.example"
+New-Item -ItemType Directory -Force "$out\sql" | Out-Null
+Copy-Item "sql\schema.sql", "sql\seed.sql" "$out\sql"
 
-Write-Host "Done: target\installer\ANIPLATO\ANIPLATO.exe"
-Write-Host "Next: zip the folder target\installer\ANIPLATO. Each user copies db.properties.example to db.properties (beside the exe, or in %APPDATA%\ANIPLATO), fills it in, and puts ca.pem next to it."
+Write-Host "Done: $out\ANIPLATO.exe"
+Write-Host "Next: zip the folder $out. A new user double-clicks ANIPLATO.exe; the Setup screen asks for their own MySQL (see SETUP.txt)."

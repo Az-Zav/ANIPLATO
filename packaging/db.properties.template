@@ -1,0 +1,29 @@
+# ANIPLATO settings, for setting up by hand instead of the Setup screen.
+# Copy this file to db.properties, in this folder or in %APPDATA%\ANIPLATO, and fill in the blanks.
+# Keep db.properties private: it holds your database password.
+
+# Your MySQL (8.0.16 or newer). Change host, port and the database name at the end if yours differ.
+url=jdbc:mysql://localhost:3306/aniplato?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=Asia/Manila
+user=
+password=
+
+# Only if your database provider gave you a certificate file (usually ca.pem): put it beside this file, delete everything
+# from the ? onwards in the url above, and remove the # in front of the next two lines.
+#ssl.ca=ca.pem
+#session.timezone=+08:00
+
+pool.size=3
+pool.minIdle=1
+
+# Optional: email (SMTP). For Gmail, turn on 2-Step Verification and make an App Password at
+# https://myaccount.google.com/apppasswords. Without these no emails are sent; everything else works.
+#mail.smtp.host=smtp.gmail.com
+#mail.smtp.port=587
+#mail.smtp.auth=true
+#mail.smtp.starttls.enable=true
+#mail.user=
+#mail.password=
+
+# Optional: the help assistant. Make your own free key at https://aistudio.google.com/app/apikey.
+# Without a key the assistant says it is not set up; everything else works.
+#ai.gemini.api-key=
